@@ -192,4 +192,6 @@ $tpl->register_function('html_timezone_select', function ($params) {
 
 $tpl->assign('error', $error);
 
+$tpl->assign('example', file_get_contents($plugin->path() . DIRECTORY_SEPARATOR . 'example.skel'));
+
 $tpl->display(PLUGIN_ROOT . '/templates/config.tpl');

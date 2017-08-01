@@ -66,4 +66,8 @@
     </p>
 </form>
 
+<p class="help">
+    <pre>{$example}</pre>
+</p>
+
 {include file="admin/_foot.tpl"}
