@@ -6,7 +6,7 @@
 
     <fieldset>
         <legend>Heures d'ouvertures</legend>
-        <table>
+        <table class="list">
             <thead>
                 <tr>
                     <th>Jour</th>
@@ -19,8 +19,8 @@
                 {foreach from=$config->open key="day" item="hours"}
                 <tr>
                     <th>{html_opening_day_select value=$day}</th>
-                    <td>{html_opening_hour_select value=$hours[0]}</td>
-                    <td>{html_opening_hour_select value=$hours[1]}</td>
+                    <td>{html_opening_hour_select value=$hours[0] start_end="start"}</td>
+                    <td>{html_opening_hour_select value=$hours[1] start_end="end"}</td>
                     <td class="actions"><a href="#unsupported" onclick="return removeRow(this);" class="icn" title="Supprimer cette ligne">➖</a></td>
                 </tr>
                 {/foreach}
@@ -31,7 +31,7 @@
 
     <fieldset>
         <legend>Jours de fermeture</legend>
-        <table>
+        <table class="list">
             <thead>
                 <tr>
                     <td>Du</td>
@@ -52,22 +52,38 @@
         <p class="actions"><a href="#unsupported" onclick="return addRow(this);" class="icn" title="Ajouter une ligne">➕</a></p>
     </fieldset>
 
-
-    <fieldset>
-        <legend><label for="f_tz">Fuseau horaire</label></legend>
-        <dl>
-            <dd>{html_timezone_select value=$config->timezone}</dd>
-        </dl>
-    </fieldset>
-
     <p class="submit">
         {csrf_field key="config_plugin_%s"|args:$plugin.id}
         <input type="submit" name="save" value="Enregistrer &rarr;" />
     </p>
+
+    <script type="text/javascript">
+    {literal}
+    function removeRow(e) {
+        var row = e.parentNode.parentNode;
+        var table = row.parentNode.parentNode;
+
+        if (table.rows.length == 1)
+        {
+            return false;
+        }
+
+        row.parentNode.removeChild(row);
+        return false;
+    }
+    function addRow(e) {
+        var table = e.parentNode.parentNode.querySelector('table');
+        var row = table.rows[table.rows.length-1];
+        row.parentNode.appendChild(row.cloneNode(true));
+        return false;
+    }
+    {/literal}
+    </script>
 </form>
 
-<p class="help">
+<div class="help">
+    <h3>Exemple d'utilisation des boucles d'affichage des ouvertures</h3>
     <pre>{$example}</pre>
-</p>
+</div>
 
 {include file="admin/_foot.tpl"}

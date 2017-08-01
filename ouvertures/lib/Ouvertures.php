@@ -9,6 +9,26 @@ class Ouvertures
 	static protected $config;
 	static protected $now;
 
+	static public $frequencies = [
+		''  => 'tous les',
+		'first'  => 'premiers',
+		'second' => 'seconds',
+		'third'  => 'troisièmes',
+		'fourth' => 'quatrièmes',
+		'fifth'  => 'cinquièmes',
+		'last'   => 'derniers',
+	];
+
+	static public $days = [
+		'monday'    => 'lundis',
+		'tuesday'   => 'mardis',
+		'wednesday' => 'mercredis',
+		'thursday'  => 'jeudis',
+		'friday'    => 'vendredis',
+		'saturday'  => 'samedis',
+		'sunday'    => 'dimanches',
+	];
+
 	protected $data = [];
 	protected $i = 0;
 
@@ -21,9 +41,9 @@ class Ouvertures
 
 		if ($type == 'liste')
 		{
-			foreach (self::$config->open as $hours)
+			foreach (self::$config->open as $day => $hours)
 			{
-				$this->data[] = ['date_ouverture' => $hours[0], 'date_fermeture' => $hours[1]];
+				$this->data[] = ['date_ouverture' => $hours[0], 'date_fermeture' => $hours[1], 'jour_ouverture' => $day];
 			}
 		}
 		elseif ($type == 'fermetures')
@@ -33,7 +53,21 @@ class Ouvertures
 				$this->data[] = ['date_debut' => $hours[0], 'date_fin' => $hours[1]];
 			}
 		}
-		elseif ($type == 'maintenant')
+
+		if ($type == 'prochaine' || $type == 'maintenant')
+		{
+			$open = self::$config->open;
+
+			// trier du plus petit au plus grand
+			// la prochaine ouverture devrait donc être au début
+			uasort($open, function ($a, $b) {
+				if ($a[0] == $b[0]) return 0;
+				return $a[0] > $b[0] ? 1 : -1;
+			});
+
+		}
+
+		if ($type == 'maintenant')
 		{
 			foreach (self::$config->closed as $hours)
 			{
@@ -44,11 +78,11 @@ class Ouvertures
 				}
 			}
 
-			foreach (self::$config->open as $hours)
+			foreach ($open as $day => $hours)
 			{
 				if (self::$now >= $hours[0] && self::$now <= $hours[1])
 				{
-					$this->data[] = ['date_ouverture' => $hours[0], 'date_fermeture' => $hours[1]];
+					$this->data[] = ['date_ouverture' => $hours[0], 'date_fermeture' => $hours[1], 'jour_ouverture' => $day];
 					break;
 				}
 			}
@@ -57,12 +91,11 @@ class Ouvertures
 		{
 			$next = null;
 
-			$open = self::$config->open;
 			$i = 0;
 
 			while (!$next && $i++ < 10)
 			{
-				foreach ($open as $hours)
+				foreach ($open as $day => $hours)
 				{
 					// Nous avons trouvé la première ouverture qui suit l'heure courante
 					if ($hours[0] > self::$now)
@@ -76,7 +109,7 @@ class Ouvertures
 							}
 						}
 
-						$next = ['date_ouverture' => $hours[0], 'date_fermeture' => $hours[1]];
+						$next = ['date_ouverture' => $hours[0], 'date_fermeture' => $hours[1], 'jour_ouverture' => $day];
 						break(2);
 					}
 				}
@@ -88,7 +121,7 @@ class Ouvertures
 					foreach ($open as $day => &$hours)
 					{
 						// Find the next opening after current one
-						if (strstr(' ', $day))
+						if (strstr($day, ' '))
 						{
 							// last tuesday of next month 2017-09 => 2017-10-31
 							// second sunday of next month 2017-07 => 2017-08-13
@@ -111,6 +144,23 @@ class Ouvertures
 			if ($next)
 			{
 				$this->data[] = $next;
+			}
+		}
+
+		foreach ($this->data as &$row)
+		{
+			if (isset($row['jour_ouverture']))
+			{
+				if (strchr($row['jour_ouverture'], ' '))
+				{
+					list($freq, $day) = explode(' ', $row['jour_ouverture']);
+
+					$row['jour_ouverture'] = sprintf('%s %s', self::$frequencies[$freq], self::$days[$day]);
+				}
+				else
+				{
+					$row['jour_ouverture'] = self::$days[$row['jour_ouverture']];
+				}
 			}
 		}
 	}
@@ -143,13 +193,6 @@ class Ouvertures
 			$day = $day ? $day . ' ' : '';
 			$row = [strtotime($day . $row[0]), strtotime($day . $row[1])];
 		}
-
-		// trier du plus petit au plus grand
-		// la prochaine ouverture devrait donc être au début
-		uasort($config->open, function ($a, $b) {
-			if ($a[0] == $b[0]) return 0;
-			return $a[0] > $b[0] ? 1 : -1;
-		});
 
 		foreach ($config->closed as &$row)
 		{

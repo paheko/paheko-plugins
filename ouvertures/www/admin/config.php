@@ -2,30 +2,36 @@
 
 namespace Garradin;
 
+use Garradin\Plugin\Ouvertures\Ouvertures;
+
 $session->requireAccess('config', Membres::DROIT_ADMIN);
 
 if (f('save'))
 {
-	$form->check('plugin_save', [
-		'open'   => 'array|required',
+	$form->check('config_plugin_' . $plugin->id(), [
+		'open'   => 'array',
 		'closed' => 'array',
 	]);
 
-	foreach (f('open') as $day => &$hours)
+	$open_nb = count(f('open')['frequency']);
+	$open = [];
+
+	for ($i = 0; $i < $open_nb; $i++)
 	{
+		$day = f('open')['frequency'][$i];
+		$day .= ($day != '') ? ' ' : '';
+		$day .= f('open')['day'][$i];
+
 		if (!strtotime($day))
 		{
 			$form->addError(sprintf('Le sélecteur de jour %s est invalide', $day));
 			break;
 		}
 
-		$hours = array_values($hours);
-
-		if (count($hours) != 2)
-		{
-			$form->addError(sprintf('Format d\'heures invalide pour %s', $day));
-			break;
-		}
+		$hours = [
+			sprintf('%02d:%02d', f('open')['hours_start'][$i], f('open')['minutes_start'][$i]),
+			sprintf('%02d:%02d', f('open')['hours_end'][$i], f('open')['minutes_end'][$i]),
+		];
 
 		if (!preg_match('/^(2[0-3]|[01][0-9]):([0-5][0-9])/', $hours[0])
 			|| !preg_match('/^(2[0-3]|[01][0-9]):([0-5][0-9])/', $hours[1]))
@@ -33,32 +39,41 @@ if (f('save'))
 			$form->addError(sprintf('Format d\'heures invalide pour %s', $day));
 			break;
 		}
+
+		$open[$day] = $hours;
 	}
 
-	foreach (f('closed') as &$closed)
+	$closed_nb = count(f('closed')['day_start']);
+	$closed_list = [];
+
+	for ($i = 0; $i < $closed_nb; $i++)
 	{
-		$closed = array_values($closed);
+		$closed = [
+			sprintf('%s %02d', f('closed')['month_start'][$i], f('closed')['day_start'][$i]),
+			sprintf('%s %02d', f('closed')['month_end'][$i], f('closed')['day_end'][$i]),
+		];
 
 		if (!strtotime($closed[0]) || !strtotime($closed[1]))
 		{
 			$form->addError('Format invalide pour jours de fermeture');
 		}
+
+		$closed_list[] = $closed;
 	}
 
 	if (!$form->hasErrors())
 	{
-		$plugin->setConfig('open', f('open'));
-		$plugin->setConfig('closed', f('closed'));
-		$plugin->setConfig('timezone', f('timezone'));
+		$plugin->setConfig('open', $open);
+		$plugin->setConfig('closed', $closed_list);
 
-		utils::redirect(utils::plugin_url());
+		utils::redirect(utils::plugin_url(['file' => 'config.php', 'query' => 'saved']));
 	}
 }
 
 $tpl->register_function('html_opening_day_select', function ($params) {
 	$value = $params['value'];
 
-	if (strchr(' ', $value))
+	if (strchr($value, ' '))
 	{
 		list($frequency, $day) = explode(' ', $value);
 	}
@@ -68,30 +83,9 @@ $tpl->register_function('html_opening_day_select', function ($params) {
 		$day = $value;
 	}
 
-	static $frequencies = [
-		''  => 'tous les',
-		'first'  => 'premiers',
-		'second' => 'seconds',
-		'third'  => 'troisièmes',
-		'fourth' => 'quatrièmes',
-		'fifth'  => 'cinquièmes',
-		'last'   => 'derniers',
-	];
-
-	static $days = [
-		'day'       => 'jours',
-		'monday'    => 'lundis',
-		'tuesday'   => 'mardis',
-		'wednesday' => 'mercredis',
-		'thursday'  => 'jeudis',
-		'friday'    => 'vendredis',
-		'saturday'  => 'samedis',
-		'sunday'    => 'dimanches',
-	];
-
 	$out = '<select name="open[frequency][]">';
 
-	foreach ($frequencies as $name => $label)
+	foreach (Ouvertures::$frequencies as $name => $label)
 	{
 		$out .= sprintf('<option value="%s"%s>%s</option>',
 			htmlspecialchars($name),
@@ -104,7 +98,7 @@ $tpl->register_function('html_opening_day_select', function ($params) {
 
 	$out .= '<select name="open[day][]">';
 
-	foreach ($days as $name => $label)
+	foreach (Ouvertures::$days as $name => $label)
 	{
 		$out .= sprintf('<option value="%s"%s>%s</option>',
 			htmlspecialchars($name),
@@ -120,17 +114,20 @@ $tpl->register_function('html_opening_day_select', function ($params) {
 
 $tpl->register_function('html_opening_hour_select', function ($params) {
 	$hours = explode(':', $params['value']);
+	$start_end = $params['start_end'];
 
-	$out = sprintf('<input type="number" name="open[start_hours][]" min="0" 
-		max="23" step="1" required="required" value="%d" />',
+	$out = sprintf('<input type="number" name="open[hours_%s][]" min="0" 
+		max="23" step="1" required="required" value="%02d" size="2" />',
+		$start_end,
 		$hours[0]
 	);
 
 	$out .= ':';
 
-	$out = sprintf('<input type="number" name="open[start_minutes][]" min="0" 
-		max="59" step="1" required="required" value="%d" />',
-		$hours[0]
+	$out .= sprintf('<input type="number" name="open[minutes_%s][]" min="0" 
+		max="59" step="1" required="required" value="%02d" size="2" />',
+		$start_end,
+		$hours[1]
 	);
 
 	return $out;
@@ -156,13 +153,13 @@ $tpl->register_function('html_closing_day_select', function ($params) {
 		'december'  => 'décembre',
 	];
 
-	$out = sprintf('<input type="number" name="closed[%s_day][]" min="1" 
-		max="31" step="1" required="required" value="%d" /> ',
+	$out = sprintf('<input type="number" name="closed[day_%s][]" min="1" 
+		max="31" step="1" required="required" value="%02d" /> ',
 		$start_end,
 		$day
 	);
 
-	$out .= sprintf('<select name="closed[%s_month][]">', $start_end);
+	$out .= sprintf('<select name="closed[month_%s][]">', $start_end);
 
 	foreach ($months as $name => $label)
 	{
@@ -175,22 +172,6 @@ $tpl->register_function('html_closing_day_select', function ($params) {
 
 	$out .= '</select>';
 
-	return $out;
-});
-
-$tpl->register_function('html_timezone_select', function ($params) {
-	$out = '<select name="timezone">';
-
-	foreach (timezone_identifiers_list() as $label)
-	{
-		$out .= sprintf('<option value="%s"%s>%s</option>',
-			htmlspecialchars($label),
-			($label == $params['value'] ? ' selected="selected"' : ''),
-			htmlspecialchars($label)
-		);
-	}
-
-	$out .= '</select>';
 	return $out;
 });
 

@@ -18,7 +18,7 @@
 Nous sommes ouverts :
 
 <BOUCLE_liste(OUVERTURES){liste}>
-* [(#DATE_OUVERTURE|date_perso{"%A"})] de [(#DATE_OUVERTURE|heure_en_francais)] à [(#DATE_FERMETURE|heure_en_francais)]
+* [(#JOUR_OUVERTURE)] de [(#DATE_OUVERTURE|heure_en_francais)] à [(#DATE_FERMETURE|heure_en_francais)]
 </BOUCLE_liste>
 
 Sauf :
