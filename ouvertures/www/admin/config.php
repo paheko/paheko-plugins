@@ -56,11 +56,20 @@ if (f('save'))
 }
 
 $tpl->register_function('html_opening_day_select', function ($params) {
-	$key = $params['key'];
-	$params['value'];
+	$value = $params['value'];
+
+	if (strchr(' ', $value))
+	{
+		list($frequency, $day) = explode(' ', $value);
+	}
+	else
+	{
+		$frequency = '';
+		$day = $value;
+	}
 
 	static $frequencies = [
-		'every'  => 'tous les',
+		''  => 'tous les',
 		'first'  => 'premiers',
 		'second' => 'seconds',
 		'third'  => 'troisièmes',
@@ -80,7 +89,7 @@ $tpl->register_function('html_opening_day_select', function ($params) {
 		'sunday'    => 'dimanches',
 	];
 
-	$out = sprintf('<select name="open[%d][frequency]">', $key);
+	$out = '<select name="open[frequency][]">';
 
 	foreach ($frequencies as $name => $label)
 	{
@@ -93,7 +102,7 @@ $tpl->register_function('html_opening_day_select', function ($params) {
 
 	$out .= '</select> ';
 
-	$out .= sprintf('<select name="open[%d][day]">', $key);
+	$out .= '<select name="open[day][]">';
 
 	foreach ($days as $name => $label)
 	{
@@ -110,20 +119,17 @@ $tpl->register_function('html_opening_day_select', function ($params) {
 });
 
 $tpl->register_function('html_opening_hour_select', function ($params) {
-	$key = $params['key'];
 	$hours = explode(':', $params['value']);
 
-	$out = sprintf('<input type="number" name="open[%d][start][hours]" min="0" 
+	$out = sprintf('<input type="number" name="open[start_hours][]" min="0" 
 		max="23" step="1" required="required" value="%d" />',
-		$key,
 		$hours[0]
 	);
 
 	$out .= ':';
 
-	$out = sprintf('<input type="number" name="open[%d][start][minutes]" min="0" 
+	$out = sprintf('<input type="number" name="open[start_minutes][]" min="0" 
 		max="59" step="1" required="required" value="%d" />',
-		$key,
 		$hours[0]
 	);
 
@@ -131,7 +137,6 @@ $tpl->register_function('html_opening_hour_select', function ($params) {
 });
 
 $tpl->register_function('html_closing_day_select', function ($params) {
-	$key = $params['key'];
 	$start_end = $params['start_end'];
 
 	list($month, $day) = explode(' ', $params['value']);
@@ -151,14 +156,13 @@ $tpl->register_function('html_closing_day_select', function ($params) {
 		'december'  => 'décembre',
 	];
 
-	$out = sprintf('<input type="number" name="closed[%d][%s][hours]" min="1" 
+	$out = sprintf('<input type="number" name="closed[%s_day][]" min="1" 
 		max="31" step="1" required="required" value="%d" /> ',
-		$key,
 		$start_end,
 		$day
 	);
 
-	$out .= sprintf('<select name="closed[%d][%s][month]">', $key, $start_end);
+	$out .= sprintf('<select name="closed[%s_month][]">', $start_end);
 
 	foreach ($months as $name => $label)
 	{
@@ -175,7 +179,7 @@ $tpl->register_function('html_closing_day_select', function ($params) {
 });
 
 $tpl->register_function('html_timezone_select', function ($params) {
-	$out .= '<select name="timezone">';
+	$out = '<select name="timezone">';
 
 	foreach (timezone_identifiers_list() as $label)
 	{
@@ -190,8 +194,7 @@ $tpl->register_function('html_timezone_select', function ($params) {
 	return $out;
 });
 
-$tpl->assign('error', $error);
-
+$tpl->assign('config', $plugin->getConfig());
 $tpl->assign('example', file_get_contents($plugin->path() . DIRECTORY_SEPARATOR . 'example.skel'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/config.tpl');

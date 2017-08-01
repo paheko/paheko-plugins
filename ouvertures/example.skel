@@ -8,21 +8,21 @@
 		De [(#DATE_OUVERTURE|heure_en_francais)] à [(#DATE_FERMETURE|heure_en_francais)]
 	</BOUCLE_ajdh>
 		<BOUCLE_prochaine(OUVERTURES){prochaine}>
-		Nous serons ouverts [(#DATE_OUVERTURE|date_intelligente:false)] de [(#DATE_OUVERTURE|heure_en_francais)] à [(#DATE_FERMETURE|heure_en_francais)]
+		Nous serons ouverts [(#DATE_OUVERTURE|date_intelligente{false})] de [(#DATE_OUVERTURE|heure_en_francais)] à [(#DATE_FERMETURE|heure_en_francais)]
 		</BOUCLE_prochaine>
-	<//BOUCLE_ajdh>
-<//BOUCLE_maintenant>
+	<//B_ajdh>
+<//B_maintenant>
 
 <h2>Exemple de liste</h2>
 
 Nous sommes ouverts :
 
 <BOUCLE_liste(OUVERTURES){liste}>
-* [(#DATE_OUVERTURE|date_perso:"%A")] de [(#DATE_OUVERTURE|heure_en_francais)] à [(#DATE_FERMETURE|heure_en_francais)]
+* [(#DATE_OUVERTURE|date_perso{"%A"})] de [(#DATE_OUVERTURE|heure_en_francais)] à [(#DATE_FERMETURE|heure_en_francais)]
 </BOUCLE_liste>
 
 Sauf :
 
 <BOUCLE_liste(OUVERTURES){fermetures}>
-* du [(#DATE_DEBUT|date_perso:"%A %e %B")] au [(#DATE_FIN|date_perso:"%A %e %B")] inclus
+* du [(#DATE_DEBUT|date_perso{"%A %e %B"})] au [(#DATE_FIN|date_perso{"%A %e %B"})] inclus
 </BOUCLE_liste>

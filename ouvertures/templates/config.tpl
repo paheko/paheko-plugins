@@ -16,7 +16,7 @@
                 </tr>
             </thead>
             <tbody>
-                {foreach from=$openings key="day" value="hours"}
+                {foreach from=$config->open key="day" item="hours"}
                 <tr>
                     <th>{html_opening_day_select value=$day}</th>
                     <td>{html_opening_hour_select value=$hours[0]}</td>
@@ -40,10 +40,10 @@
                 </tr>
             </thead>
             <tbody>
-                {foreach from=$closings value="days"}
+                {foreach from=$config->closed item="days"}
                 <tr>
-                    <td>{html_closing_day_select value=$day[0] start_end="start"}</td>
-                    <td>{html_closing_day_select value=$day[1] start_end="end"} inclus</td>
+                    <td>{html_closing_day_select value=$days[0] start_end="start"}</td>
+                    <td>{html_closing_day_select value=$days[1] start_end="end"} inclus</td>
                     <td class="actions"><a href="#unsupported" onclick="return removeRow(this);" class="icn" title="Supprimer cette ligne">➖</a></td>
                 </tr>
                 {/foreach}
@@ -56,7 +56,7 @@
     <fieldset>
         <legend><label for="f_tz">Fuseau horaire</label></legend>
         <dl>
-            <dd>{html_timezone_select value=$tz}</dd>
+            <dd>{html_timezone_select value=$config->timezone}</dd>
         </dl>
     </fieldset>
 

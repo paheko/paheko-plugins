@@ -6,7 +6,7 @@
 		"sunday": ["14:00", "18:00"]
 	},
 	"closed": [
-		["december 25", "january 2nd"]
+		["december 25", "january 01"]
 	],
 	"timezone": "Europe/Paris"
 }

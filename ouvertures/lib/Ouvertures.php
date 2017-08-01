@@ -85,9 +85,6 @@ class Ouvertures
 				// On va donc chercher sur les créneaux suivants
 				if (!$next)
 				{
-					$tz = date_default_timezone_get();
-					date_default_timezone_set(self::$config->timezone);
-
 					foreach ($open as $day => &$hours)
 					{
 						// Find the next opening after current one
@@ -108,14 +105,12 @@ class Ouvertures
 							strtotime($day . date(' H:i', $hours[1])),
 						];
 					}
-
-					date_default_timezone_set($tz);
 				}
 			}
 
 			if ($next)
 			{
-				$this->data = $next;
+				$this->data[] = $next;
 			}
 		}
 	}
@@ -127,7 +122,12 @@ class Ouvertures
 
 	public function fetchArray($mode = null)
 	{
-		return (count($this->data) >= $i + 1) ? false : $this->data[$i++];
+		if ($this->i >= count($this->data))
+		{
+			return false;
+		}
+
+		return $this->data[$this->i++];
 	}
 
 	protected function storeConfig()
@@ -136,8 +136,7 @@ class Ouvertures
 		$config = $plugin->getConfig();
 		unset($plugin);
 
-		$tz = date_default_timezone_get();
-		date_default_timezone_set($config->timezone);
+		$config->open = (array) $config->open;
 
 		foreach ($config->open as $day => &$row)
 		{
@@ -158,8 +157,6 @@ class Ouvertures
 		}
 
 		self::$now = time();
-
-		date_default_timezone_set($tz);
 
 		self::$config = $config;
 		return true;
