@@ -117,7 +117,7 @@ $tpl->register_function('html_opening_hour_select', function ($params) {
 	$start_end = $params['start_end'];
 
 	$out = sprintf('<input type="number" name="open[hours_%s][]" min="0" 
-		max="23" step="1" required="required" value="%02d" size="2" />',
+		max="23" step="1" required="required" value="%02d" size="2" class="time" pattern="^\d{1,2}$" />',
 		$start_end,
 		$hours[0]
 	);
@@ -125,7 +125,7 @@ $tpl->register_function('html_opening_hour_select', function ($params) {
 	$out .= ':';
 
 	$out .= sprintf('<input type="number" name="open[minutes_%s][]" min="0" 
-		max="59" step="1" required="required" value="%02d" size="2" />',
+		max="59" step="1" required="required" value="%02d" size="2" class="time" pattern="^\d{1,2}$" />',
 		$start_end,
 		$hours[1]
 	);
@@ -154,7 +154,7 @@ $tpl->register_function('html_closing_day_select', function ($params) {
 	];
 
 	$out = sprintf('<input type="number" name="closed[day_%s][]" min="1" 
-		max="31" step="1" required="required" value="%02d" /> ',
+		max="31" step="1" required="required" value="%02d" class="time" pattern="^\d{1,2}$" /> ',
 		$start_end,
 		$day
 	);

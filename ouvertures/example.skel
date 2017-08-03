@@ -1,5 +1,3 @@
-<h2>Exemple de prochaine horaire d'ouverture</h2>
-
 <BOUCLE_maintenant(OUVERTURES){maintenant}>
 	<h2>Nous sommes ouverts aujourd'hui jusqu'à [(#DATE_FERMETURE|heure_en_francais)] !</h2>
 </BOUCLE_maintenant>
