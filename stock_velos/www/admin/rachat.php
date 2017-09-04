@@ -24,12 +24,12 @@ if (f('buy') && $form->check('rachat_velo_'.$velo->id))
     $data = array(
         'etiquette'     =>  (int) f('etiquette'),
         'source'        =>  'Rachat',
-        'source_details'=>  $velo['id'],
-        'type'          =>  $velo['type'],
-        'genre'         =>  $velo['genre'],
-        'roues'         =>  $velo['roues'],
-        'couleur'       =>  $velo['couleur'],
-        'modele'        =>  $velo['modele'],
+        'source_details'=>  $velo->id,
+        'type'          =>  $velo->type,
+        'genre'         =>  $velo->genre,
+        'roues'         =>  $velo->roues,
+        'couleur'       =>  $velo->couleur,
+        'modele'        =>  $velo->modele,
         'date_entree'   =>  gmdate('Y-m-d'),
         'etat_entree'   =>  f('etat'),
         'notes'         =>  'Racheté à l\'adhérent pour '.floatval(f('prix')).' €',
@@ -54,6 +54,6 @@ if (f('buy') && $form->check('rachat_velo_'.$velo->id))
 $tpl->assign('velo', $velo);
 $tpl->assign('prix', round($velo->prix / 3));
 $tpl->assign('libre', $velos->getEtiquetteLibre());
-$tpl->assign('adherent', $velos->getMembre($velo['details_sortie']));
+$tpl->assign('adherent', $velos->getMembre($velo->details_sortie));
 
 $tpl->display(PLUGIN_ROOT . '/templates/rachat.tpl');

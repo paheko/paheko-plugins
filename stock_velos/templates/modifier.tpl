@@ -1,12 +1,10 @@
-{include file="admin/_head.tpl" title="Modifier le vélo n°`$velo.id`" current="plugin_`$plugin.id`" js=1}
+{include file="admin/_head.tpl" title="Modifier le vélo n°%d"|args:$velo.id current="plugin_%s"|args:$plugin.id js=1}
 
-{include file="`$plugin_tpl`_nav.tpl" current=""}
+{include file="%s_nav.tpl"|args:$plugin_tpl current=""}
 
 <section class="form">
     <form method="post" action="">
-    {if !empty($error)}
-        <p class="error">{$error|escape}</p>
-    {/if}
+    {form_errors}
 
     <fieldset>
         <legend>Général</legend>

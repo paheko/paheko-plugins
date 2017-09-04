@@ -1,6 +1,6 @@
-{include file="admin/_head.tpl" title="Chercher un vélo" current="plugin_`$plugin.id`"}
+{include file="admin/_head.tpl" title="Chercher un vélo" current="plugin_%s"|args:$plugin.id}
 
-{include file="`$plugin_tpl`_nav.tpl" current="recherche"}
+{include file="%s_nav.tpl"|args:$plugin_tpl current="recherche"}
 
 <ul class="sub_actions">
     <li><a href="{plugin_url file="sql.php"}">Recherche SQL</a></li>

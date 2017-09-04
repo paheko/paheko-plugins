@@ -4,7 +4,7 @@ namespace Garradin\Plugin\Stock_Velos;
 
 use Garradin\DB;
 use Garradin\Membres;
-use Garradin\User_Exception;
+use Garradin\UserException;
 use Garradin\Utils;
 
 class Velos
@@ -301,12 +301,12 @@ class Velos
 
     public function countVelosStock()
     {
-        return DB::getInstance()->get('SELECT COUNT(*) FROM plugin_stock_velos WHERE date_sortie IS NULL;');
+        return DB::getInstance()->firstColumn('SELECT COUNT(*) FROM plugin_stock_velos WHERE date_sortie IS NULL;');
     }
 
     public function countVelosHistorique()
     {
-        return DB::getInstance()->get('SELECT COUNT(*) FROM plugin_stock_velos WHERE date_sortie IS NOT NULL;');
+        return DB::getInstance()->firstColumn('SELECT COUNT(*) FROM plugin_stock_velos WHERE date_sortie IS NOT NULL;');
     }
 
     public function listEtiquettes()
@@ -318,11 +318,11 @@ class Velos
             $etiquettes[$i] = false;
         }
 
-        $res = DB::getInstance()->preparedQuery('SELECT etiquette, prix FROM plugin_stock_velos WHERE date_sortie IS NULL;');
+        $db = DB::getInstance();
 
-        while ($row = $res->fetchArray(SQLITE3_ASSOC))
+        foreach ($db->iterate('SELECT etiquette, prix FROM plugin_stock_velos WHERE date_sortie IS NULL;') as $row)
         {
-            $etiquettes[$row['etiquette']] = (float) $row['prix'];
+            $etiquettes[$row->etiquette] = (float) $row->prix;
         }
 
         return $etiquettes;

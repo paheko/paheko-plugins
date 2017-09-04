@@ -14,8 +14,6 @@ $velo = $velos->getVelo($id);
 if (!$velo)
     throw new UserException('Ce vélo n\'existe pas !');
 
-$error = false;
-
 if (f('save') && $form->check('modif_velo'))
 {
     $data = [
@@ -53,8 +51,6 @@ $tpl->assign('types', $velos->listTypes());
 $tpl->assign('genres', $velos->listGenres());
 $tpl->assign('roues', $velos->listTailles());
 $tpl->assign('raisons_sortie', $velos->listRaisonsSortie());
-
-$tpl->assign('error', $error);
 
 $tpl->assign('velo', $velo);
 

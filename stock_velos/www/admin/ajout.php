@@ -4,8 +4,6 @@ namespace Garradin;
 
 require_once __DIR__ . '/_inc.php';
 
-$error = false;
-
 if (f('save') && $form->check('ajout_velo'))
 {
     $data = [
@@ -46,7 +44,6 @@ $tpl->assign('raisons_sortie', $velos->listRaisonsSortie());
 
 $tpl->assign('libre', $velos->getEtiquetteLibre());
 
-$tpl->assign('error', $error);
 $tpl->assign('now_ymd', date('Y-m-d'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/ajout.tpl');

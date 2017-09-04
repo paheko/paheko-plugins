@@ -1,6 +1,6 @@
 {include file="admin/_head.tpl" title="Racheter un vélo" current="plugin_`$plugin.id`" js=1}
 
-{include file="`$plugin_tpl`_nav.tpl" current=""}
+{include file="%s_nav.tpl"|args:$plugin_tpl current=""}
 
 <section class="fiche">
     <ul class="sub_actions">
@@ -56,9 +56,7 @@
         </dl>
     </article>
 
-    {if !empty($error)}
-        <p class="error">{$error|escape}</p>
-    {/if}
+    {form_errors}
 
     <form method="post" action="">
     <fieldset>
@@ -80,7 +78,7 @@
     </fieldset>
 
     <p class="submit">
-        {csrf_field key="rachat_velo_`$velo.id`"}
+        {csrf_field key="rachat_velo_%s"|args:$velo.id}
         <input type="submit" name="buy" value="Confirmer le rachat" />
     </p>
     </form>

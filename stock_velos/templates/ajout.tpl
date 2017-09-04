@@ -1,11 +1,10 @@
-{include file="admin/_head.tpl" title="Enregistrer un vélo" current="plugin_`$plugin.id`" js=1}
+{include file="admin/_head.tpl" title="Enregistrer un vélo" current="plugin_%s"|args:$plugin.id} js=1}
 
-{include file="`$plugin_tpl`_nav.tpl" current="ajout"}
+{include file="%s_nav.tpl"|args:$plugin_tpl current="ajout"}
 
 <form method="post" action="{$self_url}">
-{if !empty($error)}
-    <p class="error">{$error|escape}</p>
-{/if}
+
+{form_errors}
 
 <fieldset>
     <legend>Général</legend>

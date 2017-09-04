@@ -1,6 +1,6 @@
-{include file="admin/_head.tpl" title="Vélo n°`$velo.id`" current="plugin_`$plugin.id`"}
+{include file="admin/_head.tpl" title="Vélo n°%s"|args:$velo.id current="plugin_%s"|args:$plugin.id}
 
-{include file="`$plugin_tpl`_nav.tpl" current=""}
+{include file="%s_nav.tpl"|args:$plugin_tpl current=""}
 
 <section class="fiche">
     <ul class="sub_actions">

@@ -14,18 +14,16 @@ $velo = $velos->getVelo($id);
 if (!$velo)
     throw new UserException('Ce vélo n\'existe pas !');
 
-if (!empty($velo['date_sortie']))
+if (!empty($velo->date_sortie))
     throw new UserException('Impossible de vendre un vélo qui n\'est plus en stock !');
-
-$error = false;
 
 if (f('sell') && $form->check('vente_velo_'.$velo->id))
 {
     try {
-        $velos->sellVelo($velo['id'], f('adherent'), f('prix'));
+        $velos->sellVelo($velo->id, f('adherent'), f('prix'));
         utils::redirect(utils::plugin_url([
             'file' => 'vente_ok.php',
-            'query' => 'id=' . (int)$velo['id'] .
+            'query' => 'id=' . (int)$velo->id .
                 '&etat=' . rawurlencode(f('etat'))
             ]
         ));
@@ -35,8 +33,6 @@ if (f('sell') && $form->check('vente_velo_'.$velo->id))
         $form->addError($e->getMessage());
     }
 }
-
-$tpl->assign('error', $error);
 
 $tpl->assign('velo', $velo);
 

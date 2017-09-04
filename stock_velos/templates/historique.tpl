@@ -1,6 +1,6 @@
-{include file="admin/_head.tpl" title="`$total` vélos sortis du stock" current="plugin_`$plugin.id`"}
+{include file="admin/_head.tpl" title="%s vélos sortis du stock"|args:$total current="plugin_%s"|args:$plugin.id}
 
-{include file="`$plugin_tpl`_nav.tpl" current="historique"}
+{include file="%s_nav.tpl"|args:$plugin_tpl current="historique"}
 
 <table class="list">
     <thead class="userOrder">

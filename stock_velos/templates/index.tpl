@@ -1,6 +1,6 @@
-{include file="admin/_head.tpl" title="`$total` vélos en stock" current="plugin_`$plugin.id`"}
+{include file="admin/_head.tpl" title="%s vélos en stock"|args:$total current="plugin_%s"|args:$plugin.id}
 
-{include file="`$plugin_tpl`_nav.tpl" current="index"}
+{include file="%s_nav.tpl"|args:$plugin_tpl current="index"}
 
 <form method="get" action="{plugin_url file="fiche.php"}" class="fastFind">
     <fieldset>

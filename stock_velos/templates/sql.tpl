@@ -1,6 +1,6 @@
-{include file="admin/_head.tpl" title="Recherche SQL" current="plugin_`$plugin.id`"}
+{include file="admin/_head.tpl" title="Recherche SQL" current="plugin_%s"|args:$plugin.id}
 
-{include file="`$plugin_tpl`_nav.tpl" current="recherche"}
+{include file="%s_nav.tpl"|args:$plugin_tpl current="recherche"}
 
 <form method="get" action="" class="sql">
     <fieldset>
@@ -18,9 +18,7 @@
     </fieldset>
 </form>
 
-{if !empty($error)}
-    <p class="error">{$error|escape}</p>
-{/if}
+{form_errors}
 
 {if empty($result)}
     <p class="alert">Aucun résultat.</p>
