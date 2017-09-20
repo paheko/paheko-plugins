@@ -41,7 +41,7 @@ if (f('buy') && $form->check('rachat_velo_'.$velo->id))
         utils::redirect(utils::plugin_url([
             'file' => 'rachat_ok.php',
             'query' => 'id=' . $id .
-                '&prix=' . rawurlencode(floatval(utils::post('prix')))
+                '&prix=' . rawurlencode(floatval(f('prix')))
             ]
         ));
     }

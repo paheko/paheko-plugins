@@ -32,7 +32,7 @@
 {if empty($liste)}
     <p class="alert">Aucun vélo trouvé.</p>
 {else}
-    <h2>{$liste|@count} vélos trouvés</h2>
+    <h2>{$liste|count} vélos trouvés</h2>
     <table class="list">
         <thead>
             <tr>
