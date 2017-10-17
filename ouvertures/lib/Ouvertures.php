@@ -11,22 +11,22 @@ class Ouvertures
 
 	static public $frequencies = [
 		''  => 'tous les',
-		'first'  => 'premiers',
-		'second' => 'seconds',
-		'third'  => 'troisièmes',
-		'fourth' => 'quatrièmes',
-		'fifth'  => 'cinquièmes',
-		'last'   => 'derniers',
+		'first'  => 'premier',
+		'second' => 'second',
+		'third'  => 'troisième',
+		'fourth' => 'quatrième',
+		'fifth'  => 'cinquième',
+		'last'   => 'dernier',
 	];
 
 	static public $days = [
-		'monday'    => 'lundis',
-		'tuesday'   => 'mardis',
-		'wednesday' => 'mercredis',
-		'thursday'  => 'jeudis',
-		'friday'    => 'vendredis',
-		'saturday'  => 'samedis',
-		'sunday'    => 'dimanches',
+		'monday'    => 'lundi',
+		'tuesday'   => 'mardi',
+		'wednesday' => 'mercredi',
+		'thursday'  => 'jeudi',
+		'friday'    => 'vendredi',
+		'saturday'  => 'samedi',
+		'sunday'    => 'dimanche',
 	];
 
 	protected $data = [];

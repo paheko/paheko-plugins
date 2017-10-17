@@ -6,25 +6,25 @@
 		<h3>De [(#DATE_OUVERTURE|heure_en_francais)] à [(#DATE_FERMETURE|heure_en_francais)]</h3>
 	</BOUCLE_ajdh>
 		<BOUCLE_prochaine(OUVERTURES){prochaine}>
-			<h3>Nous serons ouverts [(#DATE_OUVERTURE|date_intelligente{false})] de [(#DATE_OUVERTURE|heure_en_francais)] à [(#DATE_FERMETURE|heure_en_francais)]</h3>
+			<h3>Nous serons ouverts [(#DATE_OUVERTURE|date_intelligente{0})] de [(#DATE_OUVERTURE|heure_en_francais)] à [(#DATE_FERMETURE|heure_en_francais)]</h3>
 		</BOUCLE_prochaine>
 	<//B_ajdh>
 <//B_maintenant>
 
-<div itemscope itemtype="http://schema.org/Restaurant">
-	<h3>Nous sommes ouverts</h3>
+<div itemscope itemtype="http://schema.org/BikeStore" class="openingHours">
+    <h3>Nous sommes ouverts</h3>
 
-	<ul>
-	<BOUCLE_liste(OUVERTURES){liste}>
-		<li itemprop="openingHours" content="[(#DATE_OUVERTURE|date{"%a %H:%M"}]-[(#DATE_FERMETURE|date{"%H:%M"}]">[(#JOUR_OUVERTURE)] de [(#DATE_OUVERTURE|heure_en_francais)] à [(#DATE_FERMETURE|heure_en_francais)]</li>
-	</BOUCLE_liste>
-	</ul>
+    <ul>
+    <BOUCLE_liste(OUVERTURES){liste}>
+        <li itemprop="openingHours" content="[(#DATE_OUVERTURE|date{"%a %H:%M"})]-[(#DATE_FERMETURE|date{"%H:%M"})]">[(#JOUR_OUVERTURE)] de [(#DATE_OUVERTURE|heure_en_francais)] à [(#DATE_FERMETURE|heure_en_francais)]</li>
+    </BOUCLE_liste>
+    </ul>
 
-	<h4>Fermetures annuelles</h4>
+    <h4>Fermeture annuelle</h4>
 
-	<ul>
-	<BOUCLE_liste(OUVERTURES){fermetures}>
-		<li>du <span itemprop="validFrom" content="[(#DATE_DEBUT|date{"%Y-%m-%d"}]">[(#DATE_DEBUT|date_perso{"%A %e %B"})]</span> au <span itemprop="validFrom" content="[(#DATE_FIN|date{"%Y-%m-%d"}]">[(#DATE_FIN|date_perso{"%A %e %B"})]</span> inclus</li>
-	</BOUCLE_liste>
-	</ul>
+    <ul>
+    <BOUCLE_liste(OUVERTURES){fermetures}>
+        <li>du <span itemprop="validFrom" content="[(#DATE_DEBUT|date{"%Y-%m-%d"})]">[(#DATE_DEBUT|date_perso{"%A %e %B"})]</span> au <span itemprop="validFrom" content="[(#DATE_FIN|date{"%Y-%m-%d"})]">[(#DATE_FIN|date_perso{"%A %e %B"})]</span> inclus</li>
+    </BOUCLE_liste>
+    </ul>
 </div>
