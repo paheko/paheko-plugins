@@ -1,7 +1,7 @@
 all: archives release
 
 archives: */garradin_plugin.ini archives/
-	@mkdir archives
+	@mkdir -p archives
 	for i in */garradin_plugin.ini; \
 	do \
 		PLUGIN=`dirname $$i`; \
