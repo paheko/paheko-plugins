@@ -1,6 +1,6 @@
 all: archives release
 
-archives: */garradin_plugin.ini archives/
+archives:
 	@mkdir -p archives
 	for i in */garradin_plugin.ini; \
 	do \
@@ -9,5 +9,4 @@ archives: */garradin_plugin.ini archives/
 	done;
 
 release:
-	cd archives && fossil uv add *
-	fossil uv sync
+	cd archives && fossil uv rm * && fossil uv sync && fossil uv add * && fossil uv sync
