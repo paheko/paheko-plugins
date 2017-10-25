@@ -13,7 +13,7 @@
             <dt><label for="f_field">Dont le champ...</label></dt>
             <dd>
                 <select name="f" id="f_field">
-                {foreach from=$fields key="field" value="name"}
+                {foreach from=$fields key="field" item="name"}
                     <option value="{$field|escape}"{if $field == $current_field} selected="selected"{/if}>{$name|escape}</option>
                 {/foreach}
                 </select>
