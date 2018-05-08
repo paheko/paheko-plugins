@@ -396,7 +396,7 @@ class Velos
             throw new UserException('Requête invalide : ne doit effectuer que des lectures de données.');
         }
 
-        return $db->fetchResult($statement->execute(), DB::ASSOC);
+        return $db->get($query);
     }
 
     public function getSchemaSQL()

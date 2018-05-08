@@ -14,13 +14,13 @@
             <dd>
                 <select name="f" id="f_field">
                 {foreach from=$fields key="field" item="name"}
-                    <option value="{$field|escape}"{if $field == $current_field} selected="selected"{/if}>{$name|escape}</option>
+                    <option value="{$field}"{if $field == $current_field} selected="selected"{/if}>{$name}</option>
                 {/foreach}
                 </select>
             </dd>
             <dt><label for="f_query">Contient ou correspond à...</label></dt>
             <dd>
-                <input type="text" name="q" value="{$query|escape}" id="f_query" />
+                <input type="text" name="q" value="{$query}" id="f_query" />
             </dd>
         </dl>
         <p class="submit">
@@ -50,13 +50,13 @@
         <tbody>
         {foreach from=$liste item="velo"}
             <tr>
-                <th class="num"><a href="{plugin_url query=1}id={$velo.id|escape}">{$velo.id|escape}</a></th>
-                <td class="num">{if is_null($velo.date_sortie)}<a href="{plugin_url query=1}id={$velo.id|escape}">{$velo.etiquette|escape}</a>{else}[{$velo.raison_sortie|escape}]{/if}</td>
-                <td>{$velo[$current_field]|escape}</td>
-                <td>{$velo.type|escape}</td>
-                <td>{$velo.roues|escape}</td>
-                <td>{$velo.genre|escape}</td>
-                <td>{if empty($velo.prix)}--{elseif $velo.prix < 0}à&nbsp;démonter{else}{$velo.prix|escape} €{/if}</td>
+                <th class="num"><a href="{plugin_url query=1}id={$velo.id}">{$velo.id}</a></th>
+                <td class="num">{if is_null($velo.date_sortie)}<a href="{plugin_url query=1}id={$velo.id}">{$velo.etiquette}</a>{else}[{$velo.raison_sortie}]{/if}</td>
+                <td>{$velo->$current_field}</td>
+                <td>{$velo.type}</td>
+                <td>{$velo.roues}</td>
+                <td>{$velo.genre}</td>
+                <td>{if empty($velo.prix)}--{elseif $velo.prix < 0}à&nbsp;démonter{else}{$velo.prix} €{/if}</td>
                 <td>{$velo.date_entree|format_sqlite_date_to_french}</td>
                 <td>{if !is_null($velo.date_sortie)}{$velo.date_sortie|format_sqlite_date_to_french}{/if}</td>
             </tr>
