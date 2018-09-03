@@ -2,6 +2,4 @@
 
 namespace Garradin;
 
-$plugin->registerSignal('boucle.velos', ['Garradin\Velos_Signaux', 'LoopVelos']);
-
-$db = DB::getInstance();
+$plugin->registerSignal('boucle.velos', ['Garradin\Plugin\Stock_Velos\Velos', 'LoopVelos']);

@@ -2,4 +2,4 @@
 
 namespace Garradin;
 
-$plugin->registerSignal('boucle.ouvertures', 'Garradin\Plugin\Ouvertures\Signals::boucle');
+$plugin->registerSignal('boucle.ouvertures', 'Garradin\Plugin\Ouvertures\Ouvertures::boucle');
