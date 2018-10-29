@@ -1,3 +1,4 @@
+.PHONY: archives release
 all: archives release
 
 archives:
