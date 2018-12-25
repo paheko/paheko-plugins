@@ -55,6 +55,8 @@ class Ouvertures
 			}
 		}
 
+		unset($hours);
+
 		if ($type == 'prochaine' || $type == 'maintenant')
 		{
 			$open = self::$config->open;
@@ -139,6 +141,8 @@ class Ouvertures
 							strtotime($day . date(' H:i', $hours[1])),
 						];
 					}
+
+					unset($hours);
 				}
 			}
 
@@ -197,7 +201,12 @@ class Ouvertures
 
 		foreach ($config->closed as &$row)
 		{
-			$row = [strtotime($row[0]), strtotime($row[1] . ' 23:59:59')];
+			$row = [strtotime($row[0]), strtotime($row[1] . ', 23:59:59')];
+
+			if (date('m', $row[1]) < date('m', $row[0]))
+			{
+				$row[1] = strtotime(date('Y-m-d', $row[1]) . ' +1 year');
+			}
 		}
 
 		self::$now = time();
