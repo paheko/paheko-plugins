@@ -66,9 +66,9 @@
         <legend>Informations sur la vente</legend>
         <dl>
             <dt><label for="f_prix">Prix</label></dt>
-            <dd><input type="text" id="f_prix" name="prix" size="5" maxlength="3" value="{$velo.prix|escape}" /> €</dd>
+            <dd><input type="text" id="f_prix" name="prix" size="5" maxlength="3" value="{$prix|escape}" /> €</dd>
             <dt><label for="f_etat">État du vélo</label></dt>
-            <dd><textarea name="etat" id="f_etat" cols="70" rows="5">En bon état de marche</textarea></dd>
+            <dd><textarea name="etat" id="f_etat" cols="70" rows="5">{$etat}</textarea></dd>
             <dt><label for="f_adherent">Numéro de l'adhérent</label></dt>
             <dd><input type="number" id="f_adherent" name="adherent" size="5" required="required" /></dd>
         </dl>

@@ -7,6 +7,8 @@
         <li class="modifier"><a href="{plugin_url file="modifier.php" query=1}id={$velo.id|escape}">Modifier la fiche de ce vélo</a></li>
         {if empty($velo.date_sortie) && $velo.prix > 0}
             <li class="vente"><a href="{plugin_url file="vente.php" query=1}id={$velo.id|escape}">Vendre ce vélo</a></li>
+        {elseif empty($velo.date_sortie) && $velo.prix == 0}
+            <li class="vente"><a href="{plugin_url file="vente.php" query=1}id={$velo.id}&amp;prix=20&amp;etat=Pour%20pièces">Vendre pour pièces</a></li>
         {elseif $velo.prix > 0}
             <li class="vente"><a href="{plugin_url file="vente_ok.php" query=1}id={$velo.id|escape}">Ré-imprimer contrat de vente</a></li>
             {if empty($rachat)}

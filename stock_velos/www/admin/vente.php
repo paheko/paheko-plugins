@@ -34,6 +34,9 @@ if (f('sell') && $form->check('vente_velo_'.$velo->id))
     }
 }
 
+$tpl->assign('prix', $velo->prix ?: qg('prix'));
+$tpl->assign('etat', qg('etat') ?: 'En bon état de marche');
+
 $tpl->assign('velo', $velo);
 
 $tpl->display(PLUGIN_ROOT . '/templates/vente.tpl');
