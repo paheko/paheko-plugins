@@ -54,6 +54,23 @@ class Ouvertures
 				$this->data[] = ['date_debut' => $hours[0], 'date_fin' => $hours[1]];
 			}
 		}
+		elseif ($type == 'jours')
+		{
+			foreach (self::$days as $day => $jour) {
+				$this->data[$day] = [
+					'jour_ouverture' => $day,
+					'date_ouverture' => null,
+					'date_fermeture' => null,
+				];
+			}
+
+			foreach (self::$config->open as $day => $hours)
+			{
+				$this->data[$day] = ['date_ouverture' => $hours[0], 'date_fermeture' => $hours[1], 'jour_ouverture' => $day];
+			}
+
+			$this->data = array_values($this->data);
+		}
 
 		unset($hours);
 
@@ -154,7 +171,7 @@ class Ouvertures
 
 		foreach ($this->data as &$row)
 		{
-			if (isset($row['jour_ouverture']))
+			if (!empty($row['jour_ouverture']))
 			{
 				if (strchr($row['jour_ouverture'], ' '))
 				{

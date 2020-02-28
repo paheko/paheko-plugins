@@ -6,6 +6,7 @@ archives:
 	for i in */garradin_plugin.ini; \
 	do \
 		PLUGIN=`dirname $$i`; \
+		echo $$PLUGIN; \
 		php make_plugin.php $$PLUGIN archives/$$PLUGIN.tar.gz; \
 	done;
 
