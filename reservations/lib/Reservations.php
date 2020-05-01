@@ -24,7 +24,7 @@ class Reservations
 	public function listUpcomingBookings()
 	{
 		$config = Config::getInstance();
-		$query = sprintf('SELECT prp.*, strftime(\'%%s\', date) AS date, CASE WHEN prp.id_membre THEN m.%s ELSE prp.nom END AS nom
+		$query = sprintf('SELECT prp.*, strftime(\'%%s\', datetime(date, \'utc\')) AS date, CASE WHEN prp.id_membre THEN m.%s ELSE prp.nom END AS nom
 			FROM plugin_reservations_personnes prp
 			LEFT JOIN membres m ON m.id = prp.id_membre
 			WHERE date >= date(\'now\') ORDER BY date;', $config->get('champ_identite'));
