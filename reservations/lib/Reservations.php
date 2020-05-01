@@ -31,11 +31,21 @@ class Reservations
 		$bookings = DB::getInstance()->get($query);
 
 		$date = null;
+		$hour = null;
 		foreach ($bookings as &$booking) {
-			$d = DateTime::createFromFormat('U', $booking->date)->format('YmdHi');
+			$d = DateTime::createFromFormat('U', $booking->date);
+			$h = $d->format('Hi');
+			$d = $d->format('Ymd');
+
 			if ($date !== $d) {
 				$booking->date_change = true;
+				$booking->hour_change = true;
 				$date = $d;
+				$hour = $h;
+			}
+			elseif ($h !== $hour) {
+				$booking->hour_change = true;
+				$hour = $h;
 			}
 		}
 

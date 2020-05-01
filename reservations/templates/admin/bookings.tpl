@@ -13,12 +13,19 @@
 	<dl class="slots">
 		{foreach from=$bookings item="booking"}
 			{if $booking.date_change}
-				<dt>{$booking.date|strftime_fr:"%A %e %B %Y"}</dt>
-				<dd class="hour">
-					<b>{$booking.date|strftime_fr:"%H:%M"}</b>
-				</dd>
+				<dt>
+					{$booking.date|strftime_fr:"%A %e %B %Y"}
+				</dt>
+			{/if}
+			{if $booking.hour_change}
+			<dd class="hour">
+				<b>{$booking.date|strftime_fr:"%H:%M"}</b>
+			</dd>
 			{/if}
 			<dd class="spots">
+				<span class="actions">
+					<a href="{$self_url}?delete={$booking.id}" title="Supprimer" class="icn">✘</a>
+				</span>
 				{if $booking.id_membre}
 					<a href="{$admin_url}membres/fiche.php?id={$booking.id_membre}">{$booking.nom}</a>
 				{else}
