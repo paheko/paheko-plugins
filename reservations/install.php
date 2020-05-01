@@ -1,0 +1,34 @@
+<?php
+
+namespace Garradin;
+
+// Création table
+$db->exec(<<<EOF
+	CREATE TABLE IF NOT EXISTS plugin_reservations_creneaux
+	(
+		id INTEGER NOT NULL PRIMARY KEY, -- Numéro unique
+		jour TEXT NOT NULL,
+		heure TEXT NOT NULL,
+		repetition TEXT NOT NULL,
+		maximum INT NOT NULL
+	);
+
+	CREATE UNIQUE INDEX IF NOT EXISTS prc_jour_heure ON plugin_reservations_creneaux (jour, heure);
+
+	CREATE TABLE IF NOT EXISTS plugin_reservations_personnes
+	(
+		id INTEGER NOT NULL PRIMARY KEY,
+		creneau INTEGER NOT NULL REFERENCES plugin_reservations_creneaux (id) ON DELETE CASCADE,
+		date TEXT NOT NULL,
+		id_membre INTEGER NULL REFERENCES membres(id) ON DELETE CASCADE,
+		nom NULL,
+		CONSTRAINT nom CHECK (id_membre IS NOT NULL OR nom IS NOT NULL)
+	);
+
+	-- Index unique sur une valeur nulle est impossible
+	CREATE UNIQUE INDEX IF NOT EXISTS prp_reservation_id ON plugin_reservations_personnes (creneau, date, id_membre, nom) WHERE id_membre IS NOT NULL;
+	CREATE UNIQUE INDEX IF NOT EXISTS prp_reservation_nom ON plugin_reservations_personnes (creneau, date, id_membre, nom) WHERE nom IS NOT NULL;
+EOF
+);
+
+//$plugin->registerSignal('boucle.reservations', ['Garradin\Plugin\Reservations\Reservations', 'boucle']);
