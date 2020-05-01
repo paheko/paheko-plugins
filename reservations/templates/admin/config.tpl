@@ -55,7 +55,7 @@
 		<h3>Aide</h3>
 		<p class="help">Les membres peuvent réserver un créneau via l'onglet « Réservations » du menu de gauche.</p>
 		<p class="help">Les non-membres peuvent réserver un créneau via l'adresse suivante :<br />
-			<input type="text" readonly="readonly" value="{$admin_url}p/{$plugin.id}/" /><input type="button" id="copyBtn" value="Copier dans le presse-papier" /></p>
+			<input type="text" readonly="readonly" value="{$config_url}p/{$plugin.id}/" /><input type="button" id="copyBtn" value="Copier dans le presse-papier" /></p>
 		<p class="help">Les administrateurs peuvent visionner les créneaux et personnes inscrites dans l'onglet « Réservations ».</p>
 	</div>
 
