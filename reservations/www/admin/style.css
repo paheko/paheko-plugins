@@ -100,3 +100,9 @@ dl.info {
 	font-size: 1rem;
 	margin: 2em 0;
 }
+
+.slots .hour b {
+	background: #eef;
+	border-radius: .5em;
+	padding: .5rem;
+}

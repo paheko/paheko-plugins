@@ -15,7 +15,7 @@
 			{if $booking.date_change}
 				<dt>{$booking.date|strftime_fr:"%A %e %B %Y"}</dt>
 				<dd class="hour">
-					<label>{$booking.date|strftime_fr:"%H:%M"}</label>
+					<b>{$booking.date|strftime_fr:"%H:%M"}</b>
 				</dd>
 			{/if}
 			<dd class="spots">
