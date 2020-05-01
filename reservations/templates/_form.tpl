@@ -20,38 +20,42 @@
 
 <fieldset>
 	<legend>Créneaux disponibles</legend>
-	<dl class="slots">
-		{foreach from=$slots item="slot"}
-			{if $slot.date_change}
-				<dt>{$slot.date|strftime_fr:"%A %e %B %Y"}</dt>
-			{/if}
-			<dd class="hour available_{$slot.available}">
-				{if $slot.available && !$booking}
-					<label><input type="radio" class="n-radio" name="slot" value="{$slot.id}={$slot.date}" /> {$slot.heure}</label>
-				{else}
-					{$slot.heure}
+	{if !count($slots)}
+		<p class="alert">Aucun créneau disponible.
+	{else}
+		<dl class="slots">
+			{foreach from=$slots item="slot"}
+				{if $slot.date_change}
+					<dt>{$slot.date|strftime_fr:"%A %e %B %Y"}</dt>
 				{/if}
-			</dd>
-			<dd class="spots available_{$slot.available}">
-				<em>{$slot.available} places disponibles</em>
-			</dd>
-		{/foreach}
-	</dl>
+				<dd class="hour available_{$slot.available}">
+					{if $slot.available && !$booking}
+						<label><input type="radio" class="n-radio" name="slot" value="{$slot.id}={$slot.date}" /> {$slot.heure}</label>
+					{else}
+						{$slot.heure}
+					{/if}
+				</dd>
+				<dd class="spots available_{$slot.available}">
+					<em>{$slot.available} places disponibles</em>
+				</dd>
+			{/foreach}
+		</dl>
 
-	{if !$booking && !empty($ask_name)}
-	<dl class="info">
-		<dt><label for="f_numero">Numéro de membre&nbsp;:</label></dt>
-		<dd><input type="number" name="numero" id="f_numero" placeholder="Numéro" /></dd>
-		<dt class="help">Ou, si vous n'êtes pas encore adhérent ou ne vous souvenez pas de votre numéro&nbsp;:</dt>
-		<dt><label for="f_nom">Prénom&nbsp;: </label></dt>
-		<dd><input type="text" name="nom" id="f_nom" placeholder="Prénom" /></dd>
-	</dl>
-	{/if}
+		{if !$booking && !empty($ask_name)}
+		<dl class="info">
+			<dt><label for="f_numero">Numéro de membre&nbsp;:</label></dt>
+			<dd><input type="number" name="numero" id="f_numero" placeholder="Numéro" /></dd>
+			<dt class="help">Ou, si vous n'êtes pas encore adhérent ou ne vous souvenez pas de votre numéro&nbsp;:</dt>
+			<dt><label for="f_nom">Prénom&nbsp;: </label></dt>
+			<dd><input type="text" name="nom" id="f_nom" placeholder="Prénom" /></dd>
+		</dl>
+		{/if}
 
-	{if !$booking}
-	<p class="submit">
-		<input type="submit" name="book" value="Confirmer la réservation" />
-	</p>
+		{if !$booking}
+		<p class="submit">
+			<input type="submit" name="book" value="Confirmer la réservation" />
+		</p>
+		{/if}
 	{/if}
 </fieldset>
 

@@ -42,6 +42,15 @@ class Reservations
 		return $bookings;
 	}
 
+	/**
+	 * Deletes slots that are not in the array
+	 */
+	public function deleteMissingSlots(array $ids)
+	{
+		$db = DB::getInstance();
+		return $db->exec(sprintf('DELETE FROM plugin_reservations_creneaux WHERE %s;', $db->where('id', 'NOT IN', $ids)));
+	}
+
 	public function listUpcomingSlots()
 	{
 		$slots = DB::getInstance()->get('SELECT id, heure, maximum,
@@ -83,7 +92,11 @@ class Reservations
 			throw new UserException('Heure invalide');
 		}
 
-		return DB::getInstance()->preparedQuery('INSERT OR IGNORE INTO plugin_reservations_creneaux (jour, heure, repetition, maximum) VALUES (?, ?, ?, ?);', [$day, $hour, (int)$repeat, abs($max)]);
+		$db = DB::getInstance();
+
+		$db->preparedQuery('INSERT OR IGNORE INTO plugin_reservations_creneaux (jour, heure, repetition, maximum) VALUES (?, ?, ?, ?);', [$day, $hour, (int)$repeat, abs($max)]);
+
+		return $db->firstColumn('SELECT id FROM plugin_reservations_creneaux WHERE jour = ? AND heure = ?;', $day, $hour);
 	}
 
 	public function updateSlot(int $id, string $day, string $hour, bool $repeat, int $max)

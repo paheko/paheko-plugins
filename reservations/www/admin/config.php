@@ -11,7 +11,7 @@ $r = new Reservations;
 if (f('save'))
 {
 	$form->check('config_plugin_' . $plugin->id(), [
-		'slot'   => 'array|required',
+		'slot'   => 'array',
 		'text' => 'string|required',
 	]);
 
@@ -20,8 +20,10 @@ if (f('save'))
 		$plugin->setConfig('text', $_POST['text']);
 
 		$i = 0;
+		$ids = [];
+		$slots = f('slot') ?: [];
 
-		foreach (f('slot') as $id => $props) {
+		foreach ($slots as $id => $props) {
 			$i++;
 			$props = (object)$props;
 			$props->repetition = !empty($props->repetition);
@@ -33,16 +35,19 @@ if (f('save'))
 
 			try {
 				if ('_' === substr($id, 0, 1)) {
-					$r->createSlot($props->jour, $props->heure, $props->repetition, (int)$props->maximum);
+					$ids[] = $r->createSlot($props->jour, $props->heure, $props->repetition, (int)$props->maximum);
 				}
 				else {
 					$r->updateSlot((int)$id, $props->jour, $props->heure, $props->repetition, (int)$props->maximum);
+					$ids[] = (int)$id;
 				}
 			}
 			catch (UserException $e) {
 				$form->addError(sprintf('Ligne %d: %s', $i, $e->getMessage()));
 			}
 		}
+
+		$r->deleteMissingSlots($ids);
 
 		if (!$form->hasErrors()) {
 			utils::redirect(utils::plugin_url(['file' => 'config.php', 'query' => 'saved']));
