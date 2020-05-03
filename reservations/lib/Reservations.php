@@ -64,10 +64,10 @@ class Reservations
 	public function listUpcomingSlots()
 	{
 		$slots = DB::getInstance()->get('SELECT id, heure, maximum,
-			CASE WHEN repetition = 1 THEN
-				strftime(\'%s\', \'now\', strftime(\'weekday %w\', jour))
+			CASE WHEN repetition = 1 AND jour < date() THEN
+				date(\'now\', strftime(\'weekday %w\', jour))
 			ELSE
-				strftime(\'%s\', jour)
+				jour
 			END AS date,
 			(SELECT COUNT(*) FROM plugin_reservations_personnes prp WHERE creneau = prc.id AND prp.date = date) AS jauge
 			FROM plugin_reservations_creneaux prc
@@ -81,6 +81,7 @@ class Reservations
 				$date = $slot->date;
 			}
 
+			$slot->timestamp = DateTime::createFromFormat('Y-m-d', $slot->date)->getTimestamp();
 			$slot->available = $slot->maximum - $slot->jauge;
 		}
 
@@ -206,10 +207,10 @@ class Reservations
 	public function createUserBooking(string $slot_code, ?string $id_membre, ?string $nom)
 	{
 		$slot_id = (int)strtok($slot_code, '=');
-		$date = (int)strtok('');
+		$date = strtok('');
 
 		try {
-			$date = DateTime::createFromFormat('U', $date);
+			$date = DateTime::createFromFormat('Y-m-d', $date, new \DateTimeZone('UTC'));
 		}
 		catch (\Exception $e) {
 			$date = null;

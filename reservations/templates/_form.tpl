@@ -26,7 +26,7 @@
 		<dl class="slots">
 			{foreach from=$slots item="slot"}
 				{if $slot.date_change}
-					<dt>{$slot.date|strftime_fr:"%A %e %B %Y"}</dt>
+					<dt>{$slot.timestamp|strftime_fr:"%A %e %B %Y"}</dt>
 				{/if}
 				<dd class="hour available_{$slot.available}">
 					{if $slot.available && !$booking}
