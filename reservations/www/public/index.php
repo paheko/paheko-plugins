@@ -20,10 +20,6 @@ if (isset($_POST['book'], $_POST['slot'])) {
 	else {
 		$nom = substr(trim($_POST['nom']), 0, 100);
 		$id_membre = null;
-
-		if (!$nom) {
-			throw new UserException('Merci de renseigner le nom.');
-		}
 	}
 
 	$r->createUserBooking($_POST['slot'], $id_membre, $nom);

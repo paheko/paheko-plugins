@@ -1,7 +1,3 @@
-<article class="wikiContent">
-	{$config.text|raw|format_wiki}
-</article>
-
 <form method="post" action="{$self_url}">
 
 {if $booking}
@@ -19,7 +15,7 @@
 {/if}
 
 <fieldset>
-	<legend>Créneaux disponibles</legend>
+	<legend>{if !empty($title)}{$title}{else}Créneaux disponibles{/if}</legend>
 	{if !count($slots)}
 		<p class="alert">Aucun créneau disponible.
 	{else}

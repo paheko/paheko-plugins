@@ -57,6 +57,10 @@
 
 <h1>Réservation de créneau</h1>
 
+<article class="wikiContent">
+	{$config.text|raw|format_wiki}
+</article>
+
 {include file="%s/_form.tpl"|args:$plugin_tpl ask_name=true}
 
 </section>

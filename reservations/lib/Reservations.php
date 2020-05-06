@@ -130,20 +130,44 @@ class Reservations
 
 	public function createBooking(int $slot_id, DateTime $date, ?int $id_membre, ?string $nom)
 	{
-		if (null !== $id_membre && null !== $nom) {
-			$nom = null;
-		}
-
 		$db = DB::getInstance();
-
-		if ($id_membre && !$db->test('membres', 'id = ?', $id_membre)) {
-			throw new UserException('Numéro de membre inconnu');
-		}
 
 		$db->preparedQuery('REPLACE INTO plugin_reservations_personnes (creneau, date, id_membre, nom)
 			VALUES (?, ?, ?, ?);', [$slot_id, $date, $id_membre, $nom]);
 
 		return $db->lastInsertId();
+	}
+
+	public function checkNewBooking(int $slot_id, DateTime &$date, ?int $id_membre, ?string $nom)
+	{
+		$db = DB::getInstance();
+
+		// Pour qu'une réservation soit valide, il faut qu'elle soit à la date-même
+		// ou alors si la répétition est activée, au même jour d'une date ultérieure
+		$test = 'id = :id AND (
+			(repetition = 1 AND :date >= jour AND strftime(\'%w\', jour) = strftime(\'%w\', :date))
+			OR jour = :date)';
+
+		$booking = $db->first('SELECT prc.*, (SELECT COUNT(*) FROM plugin_reservations_personnes prp WHERE creneau = prc.id AND prc.jour = :date) AS jauge FROM plugin_reservations_creneaux prc WHERE ' . $test, ['id' => $slot_id, 'date' => $date->format('Y-m-d')]);
+
+		if (!$booking) {
+			throw new UserException('Date ou créneau invalide');
+		}
+
+		if ($booking->jauge >= $booking->maximum) {
+			throw new UserException('Ce créneau est déjà complet, désolé !');
+		}
+
+		$hour = explode(':', $booking->heure);
+		$date->setTime($hour[0], $hour[1], 0);
+
+		if ($id_membre && !$db->test('membres', 'id = ?', $id_membre)) {
+			throw new UserException('Numéro de membre inconnu');
+		}
+
+		if (null === $id_membre && trim($nom) === '') {
+			throw new UserException('Le nom doit être renseigné');
+		}
 	}
 
 	public function deleteBooking(int $id)
@@ -200,8 +224,28 @@ class Reservations
 		setcookie(self::COOKIE_NAME, '', -1);
 		unset($_COOKIE[self::COOKIE_NAME]);
 
-
 		return $this->deleteBooking($id);
+	}
+
+	public function createBookingForUser(string $slot_code, ?string $id_membre, ?string $nom)
+	{
+		$slot_id = (int)strtok($slot_code, '=');
+		$date = strtok('');
+
+		try {
+			$date = DateTime::createFromFormat('Y-m-d', $date, new \DateTimeZone('UTC'));
+		}
+		catch (\Exception $e) {
+			$date = null;
+		}
+
+		if (!$slot_id || !$date) {
+			throw new UserException('Erreur dans la date');
+		}
+
+		$this->checkNewBooking($slot_id, $date, $id_membre, $nom);
+
+		return $this->createBooking($slot_id, $date, $id_membre, $nom);
 	}
 
 	public function createUserBooking(string $slot_code, ?string $id_membre, ?string $nom)
@@ -220,28 +264,10 @@ class Reservations
 			throw new UserException('Erreur dans la date');
 		}
 
+		$this->checkNewBooking($slot_id, $date, $id_membre, $nom);
+
+		// Cancel old booking
 		$this->cancelUserBooking();
-
-		$db = DB::getInstance();
-
-		// Pour qu'une réservation soit valide, il faut qu'elle soit à la date-même
-		// ou alors si la répétition est activée, au même jour d'une date ultérieure
-		$test = 'id = :id AND (
-			(repetition = 1 AND :date >= jour AND strftime(\'%w\', jour) = strftime(\'%w\', :date))
-			OR jour = :date)';
-
-		$booking = $db->first('SELECT prc.*, (SELECT COUNT(*) FROM plugin_reservations_personnes prp WHERE creneau = prc.id AND prc.jour = :date) AS jauge FROM plugin_reservations_creneaux prc WHERE ' . $test, ['id' => $slot_id, 'date' => $date->format('Y-m-d')]);
-
-		if (!$booking) {
-			throw new UserException('Date ou créneau invalide');
-		}
-
-		if ($booking->jauge >= $booking->maximum) {
-			throw new UserException('Ce créneau est déjà complet, désolé !');
-		}
-
-		$hour = explode(':', $booking->heure);
-		$date->setTime($hour[0], $hour[1], 0);
 
 		$id = $this->createBooking($slot_id, $date, $id_membre, $nom);
 
@@ -251,6 +277,11 @@ class Reservations
 	public function pruneBookings(int $days)
 	{
 		return DB::getInstance()->preparedQuery('DELETE FROM plugin_reservations_personnes WHERE date < datetime(\'now\', ? || \' days\');', -$days);
+	}
+
+	public function __destruct()
+	{
+		$this->pruneBookings(7);
 	}
 
 /*

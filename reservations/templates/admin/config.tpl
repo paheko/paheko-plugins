@@ -1,5 +1,7 @@
 {include file="admin/_head.tpl" title="Configuration — %s"|args:$plugin.nom current="plugin_%s"|args:$plugin.id js=1}
 
+{include file="%s/templates/admin/_menu.tpl"|args:$plugin_root current="config"}
+
 {form_errors}
 
 {if $ok && !$form->hasErrors()}
@@ -79,6 +81,11 @@ function removeRow(e) {
 }
 function addRow(e) {
 	var table = e.parentNode.parentNode.querySelector('table');
+	if (table.rows.length == 1) {
+		alert("Merci d'enregistrer la page pour pouvoir ajouter une ligne.");
+		return false;
+	}
+
 	var row = table.rows[table.rows.length-1];
 	var new_row = row.cloneNode(true);
 	row.parentNode.appendChild(new_row);
