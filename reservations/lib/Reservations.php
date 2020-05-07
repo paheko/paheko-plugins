@@ -75,14 +75,25 @@ class Reservations
 			ORDER BY date, heure;');
 
 		$date = null;
+		$hour_now = date('Hi');
+		$day_now = date('Y-m-d');
+
 		foreach ($slots as &$slot) {
 			if ($date !== $slot->date) {
 				$slot->date_change = true;
 				$date = $slot->date;
 			}
 
+			$slot_hour = (int) str_replace(':', '', $slot->heure);
 			$slot->timestamp = DateTime::createFromFormat('Y-m-d', $slot->date)->getTimestamp();
 			$slot->available = $slot->maximum - $slot->jauge;
+
+			if ($day_now == $slot->date && $hour_now > $slot_hour) {
+				$slot->bookable = false;
+			}
+			else {
+				$slot->bookable = true;
+			}
 		}
 
 		return $slots;

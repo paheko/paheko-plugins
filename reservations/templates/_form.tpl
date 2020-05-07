@@ -25,7 +25,7 @@
 					<dt>{$slot.timestamp|strftime_fr:"%A %e %B %Y"}</dt>
 				{/if}
 				<dd class="hour available_{$slot.available}">
-					{if $slot.available && !$booking}
+					{if $slot.available && !$booking && $slot.bookable}
 						<label><input type="radio" class="n-radio" name="slot" value="{$slot.id}={$slot.date}" /> {$slot.heure}</label>
 					{else}
 						{$slot.heure}
