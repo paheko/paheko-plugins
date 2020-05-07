@@ -94,6 +94,14 @@ function addRow(e) {
 
 	new_row.querySelectorAll('input').forEach(function (elm) {
 		if (elm.classList.contains('date')) {
+			elm.onchange = function ()
+			{
+				if (this.value.match(/\d{2}\/\d{2}\/\d{4}/))
+					this.nextSibling.value = this.value.split('/').reverse().join('-');
+				else
+					this.nextSibling.value = this.value;
+			};
+
 			new datepickr(elm, config_fr);
 		}
 		elm.name = elm.name.replace(/slot\[_?\d+\]/, 'slot[_' + index + ']');
