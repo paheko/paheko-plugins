@@ -91,13 +91,26 @@ function addRow(e) {
 	row.parentNode.appendChild(new_row);
 
 	index++;
-	console.log(index);
 
 	new_row.querySelectorAll('input').forEach(function (elm) {
+		if (elm.classList.contains('date')) {
+			new datepickr(elm, config_fr);
+		}
 		elm.name = elm.name.replace(/slot\[_?\d+\]/, 'slot[_' + index + ']');
 	});
+
 	return false;
 }
+
+var config_fr = {
+	fullCurrentMonth: true,
+	dateFormat: 'd/m/Y',
+	firstDayOfWeek: 0,
+	weekdays: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+	months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+	suffix: { 1: 'er' },
+	defaultSuffix: ''
+};
 
 document.getElementById('copyBtn').onclick = function (e) {
 	var input = e.target.parentNode.querySelector('input');
