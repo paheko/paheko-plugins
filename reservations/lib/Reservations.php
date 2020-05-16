@@ -63,16 +63,19 @@ class Reservations
 
 	public function listUpcomingSlots()
 	{
-		$slots = DB::getInstance()->get('SELECT id, heure, maximum,
-			CASE WHEN repetition = 1 AND jour < date() THEN
-				date(\'now\', strftime(\'weekday %w\', jour))
-			ELSE
-				jour
-			END AS date,
-			(SELECT COUNT(*) FROM plugin_reservations_personnes prp WHERE creneau = prc.id AND prp.date = date) AS jauge
-			FROM plugin_reservations_creneaux prc
-			WHERE jour >= date() OR repetition = 1
-			ORDER BY date, heure;');
+		$slots = DB::getInstance()->get('SELECT *,
+			(SELECT COUNT(*) FROM plugin_reservations_personnes prp WHERE creneau = a.id AND date(prp.date) = a.date) AS jauge
+			FROM (
+				SELECT id, heure, maximum,
+				CASE WHEN repetition = 1 AND jour < date() THEN
+					date(\'now\', strftime(\'weekday %w\', jour))
+				ELSE
+					jour
+				END AS date
+				FROM plugin_reservations_creneaux prc
+				WHERE jour >= date() OR repetition = 1
+				ORDER BY date, heure
+			) AS a;');
 
 		$date = null;
 		$hour_now = date('Hi');
