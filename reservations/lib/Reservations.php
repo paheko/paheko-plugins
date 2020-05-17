@@ -67,13 +67,13 @@ class Reservations
 			(SELECT COUNT(*) FROM plugin_reservations_personnes prp WHERE creneau = a.id AND date(prp.date) = a.date) AS jauge
 			FROM (
 				SELECT id, heure, maximum,
-				CASE WHEN repetition = 1 AND jour < date() THEN
-					date(\'now\', strftime(\'weekday %w\', jour))
+				CASE WHEN repetition = 1 AND jour < date(\'now\', \'localtime\') THEN
+					date(\'now\', \'localtime\', strftime(\'weekday %w\', jour))
 				ELSE
 					jour
 				END AS date
 				FROM plugin_reservations_creneaux prc
-				WHERE jour >= date() OR repetition = 1
+				WHERE jour >= date(\'now\', \'localtime\') OR repetition = 1
 				ORDER BY date, heure
 			) AS a;');
 
