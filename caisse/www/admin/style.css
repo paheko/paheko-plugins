@@ -1,0 +1,63 @@
+.pos {
+	display: grid;
+	grid-template-columns: 1fr 2fr;
+	grid-column-gap: 1rem;
+}
+
+.pos header {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+}
+
+.pos .products button {
+    background: #eee;
+    border: .2rem solid #ddd;
+	border-radius: .5rem;
+	padding: .5rem;
+	margin: .3rem;
+	flex: 1;
+	transition: background .2s;
+	min-width: 9rem;
+}
+
+.pos .products button h4 {
+	color: #666;
+}
+
+.pos .products button:hover {
+	background: #fee;
+	border-color: #fcc;
+}
+
+.pos .products section div {
+	display: flex;
+	flex-grow: 0;
+	flex-wrap: wrap;
+}
+
+.pos .products h2 {
+	opacity: 0.4;
+	margin: 1rem 0;
+}
+
+
+ul.actions li.closed a {
+	text-decoration: line-through;
+	opacity: 0.5;
+}
+
+input[name="q"] {
+	font-size: 2rem;
+}
+.pos form {
+	display: inline;
+}
+
+.pos .items i {
+	font-weight: normal;
+	font-size: 2rem;
+	font-style: normal;
+	color: darkred;
+	line-height: 1rem;
+}
