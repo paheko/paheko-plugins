@@ -11,6 +11,7 @@
 		</a>
 	</li>
 {/foreach}
+	<li><a href="session.php?id={$pos_session.id}"><strong>Clôturer la caisse</strong></a>
 </ul>
 
 {if $tab_id}

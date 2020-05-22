@@ -69,6 +69,15 @@ input[name="q"] {
 	display: block;
 }
 
-ul.actions a {
-	margin-top: .4rem;
+ul.actions li {
+	padding: .2rem .1rem;
+	margin: 0;
+}
+
+ul.actions li a {
+	border-radius: .5rem;
+}
+
+ul.actions {
+	padding: 0;
 }

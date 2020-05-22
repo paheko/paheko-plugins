@@ -102,7 +102,7 @@ class Session
 			);'), $this->id);
 
 		foreach ($tabs as &$tab) {
-			$t = new Tab($tab->id);
+			$t = new Tab($tab->id, false);
 			$tab->items = $t->listItems();
 		}
 

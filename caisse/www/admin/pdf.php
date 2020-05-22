@@ -74,7 +74,7 @@ if (is_resource($process)) {
 
     header('Content-type: application/pdf');
     //header(sprintf('Content-Length: %d', strlen($pdf_content)));
-    header(sprintf('Content-Disposition: attachment; filename="Facture - %d.pdf"', qg('id')));
+    header(sprintf('Content-Disposition: attachment; filename="Facture %04d - %s.pdf"', qg('id'), preg_replace('/[^\w]+/Ui', ' ', $tab->name)));
     echo $pdf_content;
 }
 
