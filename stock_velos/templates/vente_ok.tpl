@@ -58,7 +58,7 @@
     <h4>Et l'acquéreur :</h4>
     <ul>
         <li>Numéro d'adhérent : {$velo.details_sortie|escape}</li>
-        <li>Nom et prénom : <strong>{$adherent.identite|escape}</strong></li>
+        <li>Nom et prénom : {if $adherent.identite}<strong>{$adherent.identite|escape}</strong>{else}………………………………{/if}</li>
     </ul>
     <p>L'association « {$config.nom_asso|escape} » vend à l'acquéreur le vélo décrit ci-après :</p>
     <ul>
@@ -70,8 +70,12 @@
     </ul>
     <h3>État : <strong>{$etat|escape}</strong></h3>
     <p>(Numéro référence : {$velo.id|escape})</p>
-    <p>en contrepartie du paiement du montant de <strong>{$velo.prix|escape} €</strong>
-        réglé en <b>espèces</b> <b>chèque</b> <em>(barrer la mention inutile)</em> à l'établissement du présent contrat.</p>
+    <p>en contrepartie du paiement du montant de <strong>{$velo.prix|escape} €</strong>, réglé à l'établissement du présent contrat en&nbsp;</p>
+    <ul>
+        <li>&#x2610; Espèces</li>
+        <li>&#x2610; Chèque N°………………………</li>
+        <li>&#x2610; Autre&nbsp;: …………………………………………………</li>
+    </ul>
     <p>L'acquéreur déclare avoir examiné en détail le vélo, l'avoir essayé et avoir constaté
         qu'il est conforme à l'état indiqué ci-dessus. L'acquéreur déclare renoncer à toute
         action à l'encontre du vendeur quelle qu'en soit la nature, même fondée sur un vice caché
