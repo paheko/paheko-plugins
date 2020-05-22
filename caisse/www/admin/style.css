@@ -61,3 +61,10 @@ input[name="q"] {
 	color: darkred;
 	line-height: 1rem;
 }
+
+.list small.cat {
+	font-size: 7pt;
+	font-weight: normal;
+	color: #666;
+	display: block;
+}

@@ -53,7 +53,7 @@
 				<tbody>
 				{foreach from=$items item="item"}
 				<tr>
-					<th>{$item.name} {$item.methods|raw|show_methods}</th>
+					<th><small class="cat">{$item.category}</small> {$item.name} {$item.methods|raw|show_methods}</th>
 					<td>{if !$current_tab.closed}<input type="submit" name="change_qty[{$item.id}]" value="{$item.qty}" />{else}{$item.qty}{/if}</td>
 					<td>{if !$current_tab.closed}<input type="submit" name="change_price[{$item.id}]" value="{$item.price|escape|pos_money}" />{else}{$item.price|escape|pos_money}{/if}</td>
 					<td>{$item.total|escape|pos_money}</td>
