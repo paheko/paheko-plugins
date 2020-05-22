@@ -91,6 +91,24 @@ class Session
 			FROM @PREFIX_tabs t WHERE session = ? ORDER BY opened;'), $this->id);
 	}
 
+	public function listTabsWithItems()
+	{
+		$db = DB::getInstance();
+		$tabs = $db->get(POS::sql('SELECT *, total - paid AS remainder
+			FROM (SELECT *,
+				(SELECT SUM(qty * price) FROM @PREFIX_tabs_items WHERE tab = t.id) AS total,
+				(SELECT SUM(amount) FROM @PREFIX_tabs_payments WHERE tab = t.id) AS paid
+				FROM @PREFIX_tabs t WHERE session = ? ORDER BY opened
+			);'), $this->id);
+
+		foreach ($tabs as &$tab) {
+			$t = new Tab($tab->id);
+			$tab->items = $t->listItems();
+		}
+
+		return $tabs;
+	}
+
 	public function listTotalsByCategory()
 	{
 		return DB::getInstance()->get(POS::sql('SELECT

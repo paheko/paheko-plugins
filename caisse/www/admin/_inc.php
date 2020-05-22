@@ -10,7 +10,7 @@ function reload() {
 
 function get_amount(string $amount): int {
 	$a = preg_replace('/[^\d,]/', '', $amount);
-	$a = explode('.', $a);
+	$a = explode(',', $a);
 	$a = sprintf('%d%02d', $a[0], @$a[1]);
 	return $a;
 }

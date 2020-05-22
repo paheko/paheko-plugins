@@ -9,16 +9,18 @@ class Tab
 {
 	public $id;
 
-	public function __construct(int $id)
+	public function __construct(int $id, bool $fetch = true)
 	{
 		$this->id = $id;
 
-		$sql = POS::sql('SELECT *,
-			COALESCE((SELECT SUM(qty*price) FROM @PREFIX_tabs_items WHERE tab = @PREFIX_tabs.id), 0) AS total
-			FROM @PREFIX_tabs WHERE id = ?;');
+		if ($fetch) {
+			$sql = POS::sql('SELECT *,
+				COALESCE((SELECT SUM(qty*price) FROM @PREFIX_tabs_items WHERE tab = @PREFIX_tabs.id), 0) AS total
+				FROM @PREFIX_tabs WHERE id = ?;');
 
-		foreach (DB::getInstance()->first($sql, $id) as $key => $value) {
-			$this->$key = $value;
+			foreach (DB::getInstance()->first($sql, $id) as $key => $value) {
+				$this->$key = $value;
+			}
 		}
 	}
 

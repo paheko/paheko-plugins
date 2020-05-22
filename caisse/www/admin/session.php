@@ -30,7 +30,7 @@ $tpl->assign('pos_session', $pos_session);
 if ($pos_session) {
 	$tpl->assign('payments', $pos_session->listPayments());
 	$tpl->assign('payments_totals', $pos_session->listPaymentTotals());
-	$tpl->assign('tabs', $pos_session->listTabsTotals());
+	$tpl->assign('tabs', $pos_session->listTabsWithItems());
 	$tpl->assign('totals_categories', $pos_session->listTotalsByCategory());
 	$tpl->assign('total', $pos_session->getTotal());
 
