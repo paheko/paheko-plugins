@@ -5,7 +5,7 @@
 {foreach from=$tabs item="tab"}
 	<li class="{if $tab.id == $tab_id}current{/if} {if $tab.closed}closed{/if}">
 		<a href="{$self_url_no_qs}?id={$tab.id}">
-			{$iteration}. {$tab.opened|date_format:"%H:%M"}
+			{$tab.id}. {$tab.opened|date_format:"%H:%M"}
 			{if $tab.total} — {$tab.total|escape|pos_money}{/if}
 			{if $tab.name} — {$tab.name}{/if}
 		</a>

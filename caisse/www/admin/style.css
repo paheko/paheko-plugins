@@ -68,3 +68,7 @@ input[name="q"] {
 	color: #666;
 	display: block;
 }
+
+ul.actions a {
+	margin-top: .4rem;
+}
