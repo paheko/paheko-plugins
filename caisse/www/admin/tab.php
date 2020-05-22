@@ -2,16 +2,20 @@
 
 namespace Garradin;
 
-use Garradin\Plugin\Caisse\Tab;
-use Garradin\Plugin\Caisse\Product;
+use Garradin\Plugin\Caisse\{Session, Tab, Product};
 
 use function Garradin\Plugin\Caisse\{reload,get_amount};
 
 require __DIR__ . '/_inc.php';
 
-if ($tab_id = $session->get('pos_tab_id')) {
+$tab = $tab_id = null;
+
+if ($tab_id = qg('id')) {
 	$tab = new Tab($tab_id);
 }
+
+$current_pos_session = new Session($tab ? $tab->session : Session::getCurrentId());
+
 
 if (!empty($_POST['add_item'])) {
 	$tab->addItem((int)key($_POST['add_item']));
@@ -38,13 +42,8 @@ elseif (qg('delete_payment')) {
 	reload();
 }
 elseif (null !== qg('new')) {
-	$id = Tab::open($pos_session->id);
-	$session->set('pos_tab_id', $id);
-	reload();
-}
-elseif (!empty($_GET['change'])) {
-	$session->set('pos_tab_id', (int) $_GET['change']);
-	reload();
+	$id = Tab::open($current_pos_session->id);
+	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $id]));
 }
 elseif (!empty($_POST['rename'])) {
 	$tab->rename($_POST['rename']);
@@ -52,24 +51,16 @@ elseif (!empty($_POST['rename'])) {
 }
 elseif (!empty($_POST['close'])) {
 	$tab->close();
-	$remainder = $tab->getRemainder();
-	$session->set('pos_tab_id', null);
 	reload();
 }
 elseif (!empty($_POST['delete'])) {
 	$tab->delete();
-	$session->set('pos_tab_id', null);
-	reload();
+	Utils::redirect(Utils::plugin_url(['file' => 'tab.php']));
 }
 
-$tabs = Tab::listForSession($pos_session->id);
+$tabs = Tab::listForSession($current_pos_session->id);
 
-if ($tab_id && !isset($tabs[$tab_id])) {
-	$tab_id = null;
-	$session->set('pos_tab_id', null);
-}
-
-$tpl->assign('pos_session', $pos_session);
+$tpl->assign('pos_session', $current_pos_session);
 $tpl->assign('tab_id', $tab_id);
 
 $tpl->assign('products_categories', Product::listByCategory());
@@ -80,7 +71,18 @@ if ($tab_id) {
 	$tpl->assign('items', $tab->listItems());
 	$tpl->assign('existing_payments', $tab->listPayments());
 	$tpl->assign('remainder', $tab->getRemainder());
-	$tpl->assign('payment_options', $tab->listPaymentOptions());
+
+	$options = $tab->listPaymentOptions();
+	$eligible = 0;
+
+	foreach ($options as $option) {
+		if ($option->id == 3) {
+			$eligible = $option->amount;
+		}
+	}
+
+	$tpl->assign('eligible_alveole', $eligible);
+	$tpl->assign('payment_options', $options);
 }
 
 $tpl->register_modifier('show_methods', function ($m) {
@@ -90,4 +92,5 @@ $tpl->register_modifier('show_methods', function ($m) {
 	}
 });
 
+$tpl->assign('title', 'Caisse ouverte le ' . Utils::sqliteDateToFrench($current_pos_session->opened));
 $tpl->display(PLUGIN_ROOT . '/templates/tab.tpl');

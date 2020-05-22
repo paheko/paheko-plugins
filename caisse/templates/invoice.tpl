@@ -113,8 +113,8 @@
 				<th>{$item.name}</th>
 				<td>{$item.methods|raw|show_methods}</td>
 				<td>{$item.qty}</td>
-				<td>{$item.price|escape|pos_money}</td>
-				<td>{$item.total|escape|pos_money}</td>
+				<td>{$item.price|raw|pos_money}</td>
+				<td>{$item.total|raw|pos_money}</td>
 			</tr>
 			{if $item.description}
 			<tr>
@@ -130,25 +130,25 @@
 			</tr>
 			<tr class="foot">
 				<th colspan="4">Total</th>
-				<td>{$tab.total|escape|pos_money}</td>
+				<td>{$tab.total|raw|pos_money}</td>
 			</tr>
 			{foreach from=$existing_payments item="payment"}
 			<tr class="foot">
 				<th>{$payment.name}</th>
 				<td colspan="3"><em>Réf. {$payment.reference}</em></td>
-				<td>{$payment.amount|escape|pos_money}</td>
+				<td>{$payment.amount|raw|pos_money}</td>
 			</tr>
 			{/foreach}
 			{foreach from=$payment_options item="option"}
 			<tr class="foot">
 				<th colspan="4">Déduction « Coup de pouce vélo - réparation »</th>
-				<td>{$option.amount|escape|pos_money}</td>
+				<td>{$option.amount|raw|pos_money}</td>
 			</tr>
 			{/foreach}
 			{if $remainder_after}
 			<tr class="foot">
 				<th colspan="4">Reste à payer</th>
-				<td>{$remainder_after|escape|pos_money}</td>
+				<td>{$remainder_after|raw|pos_money}</td>
 			</tr>
 			{/if}
 		</tbody>

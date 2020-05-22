@@ -3,10 +3,22 @@
 namespace Garradin\Plugin\Caisse;
 
 use Garradin\DB;
+use Garradin\Config;
+use Garradin\UserException;
 
 class Session
 {
-	public function open(int $user_id, int $amount): int
+	public $id;
+
+	public function __construct(int $id) {
+		$this->id = $id;
+
+		foreach (DB::getInstance()->first(POS::sql('SELECT * FROM @PREFIX_sessions WHERE id = ?;'), $id) as $key => $value) {
+			$this->$key = $value;
+		}
+	}
+
+	static public function open(int $user_id, int $amount): int
 	{
 		$db = DB::getInstance();
 		$db->insert(POS::tbl('sessions'), [
@@ -17,43 +29,79 @@ class Session
 		return $db->lastInsertId();
 	}
 
-	public function getCurrent()
+	static public function getCurrentId()
 	{
 		$db = DB::getInstance();
-		return $db->first(POS::sql('SELECT * FROM @PREFIX_sessions WHERE closed IS NULL LIMIT 1;'));
+		return $db->firstColumn(POS::sql('SELECT id FROM @PREFIX_sessions WHERE closed IS NULL LIMIT 1;'));
 	}
 
-	public function close(int $id, int $amount)
+	static public function list()
+	{
+		$db = DB::getInstance();
+		$name_field = Config::getInstance()->get('champ_identite');
+		$sql = sprintf('SELECT s.*, m.%s AS open_user_name
+			FROM @PREFIX_sessions s
+			INNER JOIN membres m ON s.open_user = m.id
+			ORDER BY s.opened DESC;', $db->quoteIdentifier($name_field));
+		return $db->get(POS::sql($sql));
+	}
+
+	public function close(int $amount)
 	{
 		$db = DB::getInstance();
 
-		if ($db->test(POS::tbl('tabs'), 'session = ? AND closed IS NULL', $id)) {
+		if ($db->test(POS::tbl('tabs'), 'session = ? AND closed IS NULL', $this->id)) {
 			throw new UserException('Il y a des notes qui ne sont pas clôturées.');
 		}
+
+		return $db->preparedQuery(POS::sql('UPDATE @PREFIX_sessions SET
+			closed = datetime(\'now\', \'localtime\'),
+			close_amount = ?
+			WHERE id = ?'), [$amount, $this->id]);
 	}
 
-	public function listPayments(int $id)
+	public function getTotal()
+	{
+		return DB::getInstance()->firstColumn(POS::sql('SELECT SUM(tp.amount) FROM @PREFIX_tabs_payments tp
+			INNER JOIN @PREFIX_tabs t ON tp.tab = t.id AND t.session = ?'), $this->id);
+	}
+
+	public function listPayments()
 	{
 		return DB::getInstance()->get(POS::sql('SELECT tp.*, m.name
 			FROM @PREFIX_tabs_payments tp
 			INNER JOIN @PREFIX_tabs t ON tp.tab = t.id AND t.session = ?
 			INNER JOIN @PREFIX_methods m ON m.id = tp.method
-			ORDER BY m.name, tp.date;', $id));
+			ORDER BY m.name, tp.date;'), $this->id);
 	}
 
-	public function listPaymentTotals(int $id)
+	public function listPaymentTotals()
 	{
-		return DB::getInstance()->get(POS::sql('SELECT SUM(tp.amount), m.name FROM @PREFIX_tabs_payments tp
+		return DB::getInstance()->get(POS::sql('SELECT SUM(tp.amount) AS total, m.name FROM @PREFIX_tabs_payments tp
 			INNER JOIN @PREFIX_tabs t ON tp.tab = t.id AND t.session = ?
 			INNER JOIN @PREFIX_methods m ON m.id = tp.method
 			GROUP BY tp.method
-			ORDER BY m.name;', $id));
+			ORDER BY m.name;'), $this->id);
 	}
 
-	public function listTabsTotals(int $id)
+	public function listTabsTotals()
 	{
 		return DB::getInstance()->get(POS::sql('SELECT *,
 			(SELECT SUM(qty * price) FROM @PREFIX_tabs_items WHERE tab = t.id) AS total
-			FROM @PREFIX_tabs t WHERE session = ? AND closed IS NULL ORDER BY opened;', $id));
+			FROM @PREFIX_tabs t WHERE session = ? ORDER BY opened;'), $this->id);
+	}
+
+	public function listTotalsByCategory()
+	{
+		return DB::getInstance()->get(POS::sql('SELECT
+			SUM(ti.qty * ti.price) AS total,
+			c.name
+			FROM @PREFIX_tabs_items ti
+			INNER JOIN @PREFIX_products p ON ti.product = p.id
+			INNER JOIN @PREFIX_categories c ON c.id = p.category
+			WHERE ti.tab IN (SELECT id FROM @PREFIX_tabs WHERE session = ?)
+			GROUP BY c.id
+			ORDER BY c.name;'), $this->id);
+
 	}
 }

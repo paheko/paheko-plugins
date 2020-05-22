@@ -5,7 +5,7 @@ namespace Garradin\Plugin\Caisse;
 use Garradin\Utils;
 
 function reload() {
-	Utils::redirect(Utils::getSelfURL(false));
+	Utils::redirect(Utils::getSelfURL(true));
 }
 
 function get_amount(string $amount): int {
@@ -21,13 +21,6 @@ function pos_amount(int $a): string {
 
 function pos_money(?int $a): string {
 	return $a === null ? '' : pos_amount($a) . '&nbsp;€';
-}
-
-$s = new Session;
-$pos_session = $s->getCurrent();
-
-if (!$pos_session && !defined('SESSION_CREATE')) {
-	Utils::redirect(Utils::plugin_url(['file' => 'session.php']));
 }
 
 $tpl->register_modifier('pos_money', __NAMESPACE__ . '\\pos_money');

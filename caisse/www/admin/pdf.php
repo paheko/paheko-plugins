@@ -8,18 +8,15 @@ require __DIR__ . '/_inc.php';
 
 $tab = new Tab(qg('id'));
 
-$tabs = Tab::listForSession($pos_session->id);
-$current_tab = $tabs[qg('id')];
-
-if ('' === trim($current_tab->name)) {
+if ('' === trim($tab->name)) {
 	throw new UserException('La note n\'a pas de nom associé : impossible de produire la facture');
 }
 
-if (!shell_exec('which chromium')) {
-	die('Impossible de trouver Chromium');
+if (!shell_exec('which prince')) {
+	die('Impossible de trouver Prince XML');
 }
 
-$tpl->assign('tab', $current_tab);
+$tpl->assign('tab', $tab);
 $tpl->assign('items', $tab->listItems());
 $tpl->assign('existing_payments', $tab->listPayments());
 $remainder = $tab->getRemainder();
@@ -32,10 +29,6 @@ foreach ($options as $k => &$option) {
 	}
 
 	$eligible = $option->amount;
-}
-
-if (empty($eligible)) {
-	throw new UserException('Rien n\'est éligible à Coup de pouce vélo');
 }
 
 $remainder_after = $remainder - $eligible;
@@ -52,8 +45,6 @@ $tpl->register_modifier('show_methods', function ($m) {
 });
 
 $result = $tpl->fetch(PLUGIN_ROOT . '/templates/invoice.tpl');
-
-//echo $result; exit;
 
 $descriptorspec = array(
    0 => array("pipe", "r"),  // stdin is a pipe that the child will read from

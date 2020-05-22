@@ -48,7 +48,7 @@ INSERT INTO @PREFIX_products (category, name, price) VALUES
 INSERT INTO @PREFIX_categories VALUES (4, "Pièces d'occasion");
 INSERT INTO @PREFIX_products (category, name, price) VALUES
 	(4, "Adaptateur (tige de selle, potence)", 100),
-	(4, "Ampoule", 50),
+	(4, "Ampoule pour phare dynamo", 50),
 	(4, "Attache (rapide, selle, roue, panier, siège)", 100),
 	(4, "Axe (pédalier, roue)", 100),
 	(4, "Béquille", 500),
@@ -149,7 +149,11 @@ INSERT INTO @PREFIX_products_methods SELECT id, 3 FROM @PREFIX_products WHERE ca
 	OR (name LIKE 'Pignon%')
 	OR (name LIKE 'Plateau%')
 	OR (name LIKE 'Fond de jante%')
-	OR (name IN ('Potence', 'Poignée de guidon', 'Tige de selle'))
+	OR (name LIKE 'Sonnette%')
+	OR (name LIKE 'Dynamo%')
+	OR (name LIKE 'Ampoule%')
+	OR (name LIKE '%reelight%')
+	OR (name IN ('Potence', 'Poignée de guidon', 'Tige de selle', 'Phare (sans ampoule)'))
 );
 
 INSERT INTO @PREFIX_products_methods SELECT id, 3 FROM @PREFIX_products WHERE category IN (1, 2);

@@ -7,11 +7,15 @@ use Garradin\UserException;
 
 class Tab
 {
-	protected $id;
+	public $id;
 
 	public function __construct(int $id)
 	{
 		$this->id = $id;
+
+		foreach (DB::getInstance()->first(POS::sql('SELECT * FROM @PREFIX_tabs WHERE id = ?;'), $id) as $key => $value) {
+			$this->$key = $value;
+		}
 	}
 
 	public function getRemainder(): int
@@ -153,7 +157,7 @@ class Tab
 
 	public function delete() {
 		$db = DB::getInstance();
-		if ($db->test(POS::tbl('tabs'), 'closed IS NULL AND id = ?', $this->id)) {
+		if ($db->count(POS::tbl('tabs_items'), 'tab = ?', $this->id) && $db->test(POS::tbl('tabs'), 'closed IS NULL AND id = ?', $this->id)) {
 			throw new UserException('Impossible de supprimer une note qui n\'est pas close');
 		}
 

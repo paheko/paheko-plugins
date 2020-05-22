@@ -1,10 +1,10 @@
-{include file="admin/_head.tpl" title="Caisse" current="plugin_%s"|args:$plugin.id}
+{include file="admin/_head.tpl" current="plugin_%s"|args:$plugin.id}
 
 <ul class="actions">
 	<li><a href="{$self_url_no_qs}?new"><strong>Nouvelle note</strong></a></li>
 {foreach from=$tabs item="tab"}
 	<li class="{if $tab.id == $tab_id}current{/if} {if $tab.closed}closed{/if}">
-		<a href="{$self_url_no_qs}?change={$tab.id}">
+		<a href="{$self_url_no_qs}?id={$tab.id}">
 			{$iteration}. {$tab.opened|date_format:"%H:%M"}
 			{if $tab.total} — {$tab.total|escape|pos_money}{/if}
 			{if $tab.name} — {$tab.name}{/if}
@@ -27,7 +27,7 @@
 			<div>
 				<form method="post">
 				<input type="submit" name="rename" value="Renommer" />
-				{if !$remainder && !$current_tab.closed}
+				{if !$remainder && $items && !$current_tab.closed}
 					<input type="submit" name="close" value="Clore la note" />
 				{/if}
 				{if !count($existing_payments)}
@@ -68,8 +68,20 @@
 						<td></td>
 						<td colspan="2">{$current_tab.total|escape|pos_money}</td>
 					</tr>
+					<tr>
+						<th>Reste à payer</th>
+						<td></td>
+						<td></td>
+						<td colspan="2">{$remainder|raw|pos_money}</td>
+					</tr>
+					<tr>
+						<th colspan="3">dont éligible Coup de pouce vélo
+						<em>(min: 15 €, max: 50 €)</em></th>
+						<td colspan="2">{$eligible_alveole|escape|pos_money}</td>
+					</tr>
 				</tfoot>
 			</table>
+		</form>
 		</section>
 
 		<section class="payments">
