@@ -21,6 +21,7 @@ $tpl->assign('items', $tab->listItems());
 $tpl->assign('existing_payments', $tab->listPayments());
 $remainder = $tab->getRemainder();
 $options = $tab->listPaymentOptions();
+$eligible = 0;
 
 foreach ($options as $k => &$option) {
 	if ($option->id != 3) {
@@ -34,6 +35,7 @@ foreach ($options as $k => &$option) {
 $remainder_after = $remainder - $eligible;
 
 $tpl->assign('remainder', $remainder);
+$tpl->assign('eligible', $eligible);
 $tpl->assign('remainder_after', $remainder_after);
 $tpl->assign('payment_options', $options);
 

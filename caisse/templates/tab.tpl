@@ -34,8 +34,8 @@
 					<input type="submit" name="delete" value="Supprimer la note" />
 				{/if}
 				</form>
-				<form method="post" action="./pdf.php?id={$current_tab.id}">
-					<input type="submit" value="Facture PDF" />
+				<form method="post" action="./pdf.php?id={$current_tab.id}" id="f_pdf">
+					<input type="submit" data-name="{if $current_tab.name}1{else}0{/if}" value="Facture PDF" />
 				</form>
 			</div>
 		</header>
@@ -57,7 +57,7 @@
 					<td>{if !$current_tab.closed}<input type="submit" name="change_qty[{$item.id}]" value="{$item.qty}" />{else}{$item.qty}{/if}</td>
 					<td>{if !$current_tab.closed}<input type="submit" name="change_price[{$item.id}]" value="{$item.price|escape|pos_money}" />{else}{$item.price|escape|pos_money}{/if}</td>
 					<td>{$item.total|escape|pos_money}</td>
-					<td class="actions">{if !$current_tab.closed}<a class="icn" href="?delete_item={$item.id}" title="Supprimer">✘</a>{/if}</td>
+					<td class="actions">{if !$current_tab.closed}<a class="icn" href="?id={$current_tab.id}&amp;delete_item={$item.id}" title="Supprimer">✘</a>{/if}</td>
 				</tr>
 				{/foreach}
 				</tbody>
@@ -94,7 +94,7 @@
 					<th>{$payment.name}</th>
 					<td>{$payment.amount|escape|pos_money}</td>
 					<td><em>{$payment.reference}</em></td>
-					<td class="actions">{if !$current_tab.closed}<a class="icn" href="?delete_payment={$payment.id}" title="Supprimer">✘</a>{/if}</td>
+					<td class="actions">{if !$current_tab.closed}<a class="icn" href="?id={$current_tab.id}&amp;delete_payment={$payment.id}" title="Supprimer">✘</a>{/if}</td>
 				</tr>
 				{/foreach}
 				</tbody>
@@ -213,6 +213,14 @@ if (q) {
 
 	q.focus();
 }
+
+var pdf = document.getElementById('f_pdf');
+pdf.onsubmit = (e) => {
+	if (pdf.querySelector('input').getAttribute('data-name') == 0) {
+		alert("Merci de donner un nom à la facture d'abord.");
+		return false;
+	}
+};
 {/literal}
 </script>
 

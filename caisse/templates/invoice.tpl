@@ -91,7 +91,7 @@
 </header>
 
 <section class="details">
-	<h1>Facture n°C{$tab.id}</h1>
+	<h1>Facture n°{"CDP-%04d"|args:$tab.id}</h1>
 	<h2>Entretien vélo dans le cadre du "Coup de pouce Vélo - Réparation"</h2>
 	<h3>Adhérent : {$tab.name}</h3>
 	<h4>Date de la facture : {$tab.opened|date_format:"%d/%m/%Y"} — Date d'échéance : {$tab.opened|date_format:"%d/%m/%Y"}</h4>
@@ -139,12 +139,10 @@
 				<td>{$payment.amount|raw|pos_money}</td>
 			</tr>
 			{/foreach}
-			{foreach from=$payment_options item="option"}
 			<tr class="foot">
 				<th colspan="4">Déduction « Coup de pouce vélo - réparation »</th>
-				<td>{$option.amount|raw|pos_money}</td>
+				<td>{$eligible|raw|pos_money}</td>
 			</tr>
-			{/foreach}
 			{if $remainder_after}
 			<tr class="foot">
 				<th colspan="4">Reste à payer</th>

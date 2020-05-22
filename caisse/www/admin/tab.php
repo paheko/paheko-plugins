@@ -23,7 +23,7 @@ if (!empty($_POST['add_item'])) {
 }
 elseif (qg('delete_item')) {
 	$tab->removeItem((int)qg('delete_item'));
-	reload();
+	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab_id]));
 }
 elseif (!empty($_POST['change_qty'])) {
 	$tab->updateItemQty((int)key($_POST['change_qty']), (int)current($_POST['change_qty']));
@@ -39,7 +39,7 @@ elseif (!empty($_POST['pay'])) {
 }
 elseif (qg('delete_payment')) {
 	$tab->removePayment((int) qg('delete_payment'));
-	reload();
+	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab_id]));
 }
 elseif (null !== qg('new')) {
 	$id = Tab::open($current_pos_session->id);
