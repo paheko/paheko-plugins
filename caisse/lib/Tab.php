@@ -13,7 +13,11 @@ class Tab
 	{
 		$this->id = $id;
 
-		foreach (DB::getInstance()->first(POS::sql('SELECT * FROM @PREFIX_tabs WHERE id = ?;'), $id) as $key => $value) {
+		$sql = POS::sql('SELECT *,
+			COALESCE((SELECT SUM(qty*price) FROM @PREFIX_tabs_items WHERE tab = @PREFIX_tabs.id), 0) AS total
+			FROM @PREFIX_tabs WHERE id = ?;');
+
+		foreach (DB::getInstance()->first($sql, $id) as $key => $value) {
 			$this->$key = $value;
 		}
 	}
