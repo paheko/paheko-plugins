@@ -481,6 +481,7 @@ class Velos
     public function getMembre($id)
     {
         $membres = new Membres;
-        return $membres->get((int)$id);
+        // On stocke le NUMÉRO de membre, et non son ID !
+        return $membres->get($membres->getIdWithNumero((int)$id));
     }
 }
