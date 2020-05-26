@@ -110,9 +110,9 @@ INSERT INTO @PREFIX_products (category, name, price) VALUES
 INSERT INTO @PREFIX_categories VALUES (5, "Vélo d'occasion");
 INSERT INTO @PREFIX_products VALUES (NULL, 5, "Vélo d'occasion", NULL, 6000, 1, NULL, NULL);
 
-INSERT INTO @PREFIX_methods VALUES (1, 'Espèces', NULL, NULL);
-INSERT INTO @PREFIX_methods VALUES (2, 'Chèque', NULL, NULL);
-INSERT INTO @PREFIX_methods VALUES (3, 'Coup de pouce vélo', 1500, 5000);
+INSERT INTO @PREFIX_methods VALUES (1, 'Espèces', 1, NULL, NULL);
+INSERT INTO @PREFIX_methods VALUES (2, 'Chèque', 0, NULL, NULL);
+INSERT INTO @PREFIX_methods VALUES (3, 'Coup de pouce vélo', 0, 1500, 5000);
 
 -- Ajout espèces/chèque
 INSERT INTO @PREFIX_products_methods SELECT id, 1 FROM @PREFIX_products;

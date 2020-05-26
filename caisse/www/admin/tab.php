@@ -53,6 +53,10 @@ elseif (!empty($_POST['close'])) {
 	$tab->close();
 	reload();
 }
+elseif (!empty($_POST['reopen'])) {
+	$tab->reopen();
+	reload();
+}
 elseif (!empty($_POST['delete'])) {
 	$tab->delete();
 	Utils::redirect(Utils::plugin_url(['file' => 'tab.php']));

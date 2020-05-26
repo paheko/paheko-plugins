@@ -1,7 +1,10 @@
 {include file="admin/_head.tpl" current="plugin_%s"|args:$plugin.id}
 
 <ul class="actions">
+	<li><a href="session.php?id={$pos_session.id}">Résumé</a>
+{if !$pos_session.closed}
 	<li><a href="{$self_url_no_qs}?new"><strong>Nouvelle note</strong></a></li>
+{/if}
 {foreach from=$tabs item="tab"}
 	<li class="{if $tab.id == $tab_id}current{/if} {if $tab.closed}closed{/if}">
 		<a href="{$self_url_no_qs}?id={$tab.id}">
@@ -11,27 +14,33 @@
 		</a>
 	</li>
 {/foreach}
-	<li><a href="session.php?id={$pos_session.id}"><strong>Clôturer la caisse</strong></a>
+{if !$pos_session.closed}
+	<li><a href="session_close.php?id={$pos_session.id}"><strong>Clôturer la caisse</strong></a>
+{/if}
 </ul>
 
 {if $tab_id}
 <section class="pos">
 	<section class="tab">
 		<header>
-			<h2>
+			<div>
+				<h2>
+				{$current_tab.id}.
 				{$current_tab.opened|date_format:"%H:%M"}
 				{if $current_tab.closed}
 				&rarr; {$current_tab.closed|date_format:"%H:%M"}
 				{/if}
-				— {$current_tab.name}
-			</h2>
+				</h2>
+				<h3>{$current_tab.name}</h3>
+			</div>
 			<div>
 				<form method="post">
 				<input type="submit" name="rename" value="Renommer" />
 				{if !$remainder && $items && !$current_tab.closed}
 					<input type="submit" name="close" value="Clore la note" />
-				{/if}
-				{if !count($existing_payments)}
+				{elseif $current_tab.closed && !$pos_session.closed}
+					<input type="submit" name="reopen" value="Ré-ouvrir la note" />
+				{elseif !count($existing_payments)}
 					<input type="submit" name="delete" value="Supprimer la note" />
 				{/if}
 				</form>
@@ -54,7 +63,7 @@
 				<tbody>
 				{foreach from=$items item="item"}
 				<tr>
-					<th><small class="cat">{$item.category}</small> {$item.name} {$item.methods|raw|show_methods}</th>
+					<th><small class="cat">{$item.category_name}</small> {$item.name} {$item.methods|raw|show_methods}</th>
 					<td>{if !$current_tab.closed}<input type="submit" name="change_qty[{$item.id}]" value="{$item.qty}" />{else}{$item.qty}{/if}</td>
 					<td>{if !$current_tab.closed}<input type="submit" name="change_price[{$item.id}]" value="{$item.price|escape|pos_money}" />{else}{$item.price|escape|pos_money}{/if}</td>
 					<td>{$item.total|escape|pos_money}</td>
@@ -92,7 +101,7 @@
 				<tbody>
 				{foreach from=$existing_payments item="payment"}
 				<tr>
-					<th>{$payment.name}</th>
+					<th>{$payment.method_name}</th>
 					<td>{$payment.amount|escape|pos_money}</td>
 					<td><em>{$payment.reference}</em></td>
 					<td class="actions">{if !$current_tab.closed}<a class="icn" href="?id={$current_tab.id}&amp;delete_payment={$payment.id}" title="Supprimer">✘</a>{/if}</td>
@@ -117,7 +126,7 @@
 						</dd>
 						<dt>Montant</dt>
 						<dd>
-							<input type="text" pattern="\d+(,\d+)?" name="amount" id="f_method_amount" value="{$remainder|pos_amount}" required="required" size="5" /> €
+							<input type="text" pattern="\d+([,.]\d+)?" name="amount" id="f_method_amount" value="{$remainder|pos_amount}" required="required" size="5" /> €
 						</dd>
 						<dt>Référence du paiement (numéro de chèque…)</dt>
 						<dd>

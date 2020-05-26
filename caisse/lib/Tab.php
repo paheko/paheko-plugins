@@ -67,14 +67,16 @@ class Tab
 
 	public function listItems()
 	{
-		return DB::getInstance()->get(POS::sql('SELECT ti.*, p.name, p.description,
+		return DB::getInstance()->get(POS::sql('SELECT ti.*,
 			ti.qty * ti.price AS total,
-			GROUP_CONCAT(pm.method, \',\') AS methods,
-			c.name AS category
+			CASE WHEN ti.name IS NULL THEN p.name ELSE ti.name END AS name,
+			CASE WHEN ti.description IS NULL THEN p.description ELSE ti.description END AS description,
+			CASE WHEN ti.category_name IS NULL THEN c.name ELSE ti.category_name END AS category_name,
+			GROUP_CONCAT(pm.method, \',\') AS methods
 			FROM @PREFIX_tabs_items ti
-			INNER JOIN @PREFIX_products p ON ti.product = p.id
-			INNER JOIN @PREFIX_products_methods pm ON pm.product = p.id
-			INNER JOIN @PREFIX_categories c ON c.id = p.category
+			LEFT JOIN @PREFIX_products p ON ti.product = p.id
+			LEFT JOIN @PREFIX_categories c ON c.id = p.category
+			LEFT JOIN @PREFIX_products_methods pm ON pm.product = p.id
 			WHERE ti.tab = ?
 			GROUP BY ti.id
 			ORDER BY ti.id;'), $this->id);
@@ -111,9 +113,10 @@ class Tab
 
 	public function listPayments()
 	{
-		return DB::getInstance()->get(POS::sql('SELECT tp.*, m.name
+		return DB::getInstance()->get(POS::sql('SELECT tp.*,
+			CASE WHEN tp.method IS NOT NULL THEN m.name ELSE tp.method_name END AS method_name
 			FROM @PREFIX_tabs_payments tp
-			INNER JOIN @PREFIX_methods m ON m.id = tp.method
+			LEFT JOIN @PREFIX_methods m ON m.id = tp.method
 			WHERE tp.tab = ?;'), $this->id);
 	}
 
@@ -159,6 +162,10 @@ class Tab
 		}
 
 		return DB::getInstance()->preparedQuery(POS::sql('UPDATE @PREFIX_tabs SET closed = datetime(\'now\',\'localtime\') WHERE id = ?;'), [$this->id]);
+	}
+
+	public function reopen() {
+		return DB::getInstance()->preparedQuery(POS::sql('UPDATE @PREFIX_tabs SET closed = NULL WHERE id = ?;'), [$this->id]);
 	}
 
 	public function delete() {

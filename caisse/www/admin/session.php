@@ -5,7 +5,6 @@ namespace Garradin;
 use Garradin\Plugin\Caisse\Session;
 use function Garradin\Plugin\Caisse\get_amount;
 
-define('SESSION_CREATE', true);
 require __DIR__ . '/_inc.php';
 
 $pos_session = null;
@@ -21,10 +20,8 @@ if (!empty($_POST['open'])) {
 	Session::open($session->getUser()->id, get_amount(f('amount')));
 	Utils::redirect(Utils::plugin_url(['file' => 'tab.php']));
 }
-elseif (!empty($_POST['close'])) {
-	$pos_session->close(get_amount(f('amount')));
-}
 
+$tpl->assign('current_pos_session', Session::getCurrentId());
 $tpl->assign('pos_session', $pos_session);
 
 if ($pos_session) {

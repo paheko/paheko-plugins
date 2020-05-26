@@ -134,7 +134,7 @@
 			</tr>
 			{foreach from=$existing_payments item="payment"}
 			<tr class="foot">
-				<th>{$payment.name}</th>
+				<th>{$payment.method_name}</th>
 				<td colspan="3"><em>Réf. {$payment.reference}</em></td>
 				<td>{$payment.amount|raw|pos_money}</td>
 			</tr>

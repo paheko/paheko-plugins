@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS @PREFIX_methods (
 	-- Payment methods
 	id INTEGER NOT NULL PRIMARY KEY,
 	name TEXT NOT NULL,
+	is_cash INTEGER NOT NULL DEFAULT 0,
 	min INTEGER NULL,
 	max INTEGER NULL
 );
@@ -54,7 +55,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_sessions (
 	closed TEXT NULL,
 	open_user INTEGER NULL,
 	open_amount INTEGER NULL,
-	close_amount INTEGER NULL
+	close_amount INTEGER NULL,
+	close_user INTEGER NULL
 );
 
 CREATE TABLE IF NOT EXISTS @PREFIX_tabs (
@@ -63,7 +65,7 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs (
 	session INTEGER NOT NULL REFERENCES @PREFIX_sessions (id) ON DELETE CASCADE,
 	name TEXT NULL,
 	opened TEXT NOT NULL DEFAULT (datetime('now','localtime')),
-	closed TEXT NULL -- Closed if total == paid
+	closed TEXT NULL -- If NULL it is still open
 );
 
 CREATE TABLE IF NOT EXISTS @PREFIX_tabs_items (
@@ -71,17 +73,22 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_items (
 	id INTEGER NOT NULL PRIMARY KEY,
 	tab INTEGER NOT NULL REFERENCES @PREFIX_tabs (id) ON DELETE CASCADE,
 	added TEXT NOT NULL DEFAULT (datetime('now','localtime')),
-	product INTEGER NOT NULL REFERENCES @PREFIX_products (id) ON DELETE CASCADE,
+	product INTEGER NULL REFERENCES @PREFIX_products (id), -- Set to NULL when the session is closed
 	qty INTEGER NOT NULL,
-	price INTEGER NOT NULL
+	price INTEGER NOT NULL,
+	name TEXT NULL, -- Values are left NULL until the session is closed, then filled with original data for archival purposes
+	category_name TEXT NULL,
+	description TEXT NULL
 );
 
 CREATE TABLE IF NOT EXISTS @PREFIX_tabs_payments (
 	-- Payments for a tab
 	id INTEGER NOT NULL PRIMARY KEY,
 	tab INTEGER NOT NULL REFERENCES @PREFIX_tabs (id) ON DELETE CASCADE,
-	method INTEGER NOT NULL REFERENCES @PREFIX_methods (id) ON DELETE SET NULL,
+	method INTEGER NULL REFERENCES @PREFIX_methods (id) ON DELETE SET NULL,
 	date TEXT NOT NULL DEFAULT (datetime('now','localtime')),
 	amount INTEGER NOT NULL, -- Can be negative for a refund
-	reference TEXT NULL
+	reference TEXT NULL,
+	method_name TEXT NULL,
+	is_cash INTEGER NULL
 );
