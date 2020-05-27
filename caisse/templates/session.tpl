@@ -2,7 +2,7 @@
 
 {if !$pos_session.closed}
 	<ul class="actions">
-		<li><a href="session_close.php">Clôturer la caisse</a></li>
+		<li><a href="session_close.php?id={$pos_session.id}">Clôturer la caisse</a></li>
 	</ul>
 {/if}
 
