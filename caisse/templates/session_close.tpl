@@ -26,7 +26,7 @@
 </fieldset>
 
 <div class="cash_diff" style="display: none">
-	<p class="alert">
+	<p class="error">
 		Erreur de caisse de
 		<strong id="cash_diff_count" /></strong>&nbsp;€.
 		Merci de bien vouloir recompter la caisse.
@@ -64,7 +64,7 @@
 				<td>
 					{$payment.date|date_format:"%H:%M"}
 				</td>
-				<td>{$payment.name}</td>
+				<td>{$payment.method_name}</td>
 				<th>
 					{$payment.amount|raw|pos_money}
 				</th>

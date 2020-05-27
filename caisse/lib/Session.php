@@ -75,34 +75,22 @@ class Session
 		}
 
 		$expected_total = $this->getCashTotal() + $this->open_amount;
+		$error_amount = $amount - $expected_total;
 
-		if ($expected_total != $amount && !$confirm_error) {
+		if ($error_amount != 0 && !$confirm_error) {
 			throw new UserException('Une erreur de caisse existe, il faut confirmer le recomptage de la caisse');
 		}
 
 		$db->begin();
 
-		// Update items and payments for archival
-		$db->preparedQuery(POS::sql('UPDATE @PREFIX_tabs_items AS ti
-			SET (product, name, description, category_name) = (
-				SELECT NULL, p.name, p.description, c.name
-				FROM @PREFIX_products p
-				INNER JOIN @PREFIX_categories c ON c.id = p.category
-				WHERE p.id = ti.product)
-			WHERE ti.tab IN (SELECT id FROM @PREFIX_tabs WHERE session = ?);'), [$this->id]);
-
-		$db->preparedQuery(POS::sql('UPDATE @PREFIX_tabs_payments AS tp
-			SET (method, method_name, is_cash) = (
-				SELECT NULL, name, is_cash
-				FROM @PREFIX_methods m
-				WHERE m.id = tp.method)
-			WHERE tp.tab IN (SELECT id FROM @PREFIX_tabs WHERE session = ?);'), [$this->id]);
-
-		return $db->preparedQuery(POS::sql('UPDATE @PREFIX_sessions SET
+		$db->preparedQuery(POS::sql('UPDATE @PREFIX_sessions SET
 			closed = datetime(\'now\', \'localtime\'),
 			close_amount = ?,
-			close_user = ?
-			WHERE id = ?'), [$amount, $user_id, $this->id]) && $db->commit();
+			close_user = ?,
+			error_amount = ?
+			WHERE id = ?'), [$amount, $user_id, $error_amount, $this->id]);
+
+		return $db->commit();
 	}
 
 	public function getTotal()
@@ -114,21 +102,21 @@ class Session
 	public function listPayments()
 	{
 		return DB::getInstance()->get(POS::sql('SELECT tp.*,
-			CASE WHEN tp.method IS NOT NULL THEN m.name ELSE tp.method_name END AS method_name
+			m.name AS method_name
 			FROM @PREFIX_tabs_payments tp
 			INNER JOIN @PREFIX_tabs t ON tp.tab = t.id AND t.session = ?
-			LEFT JOIN @PREFIX_methods m ON m.id = tp.method
-			ORDER BY method_name, tp.date;'), $this->id);
+			INNER JOIN @PREFIX_methods m ON m.id = tp.method
+			ORDER BY m.id, tp.date;'), $this->id);
 	}
 
 	public function listPaymentTotals()
 	{
 		return DB::getInstance()->get(POS::sql('SELECT SUM(tp.amount) AS total,
-			CASE WHEN tp.method IS NOT NULL THEN m.name ELSE tp.method_name END AS method_name
+			m.name AS method_name
 			FROM @PREFIX_tabs_payments tp
 			INNER JOIN @PREFIX_tabs t ON tp.tab = t.id AND t.session = ?
-			LEFT JOIN @PREFIX_methods m ON m.id = tp.method
-			GROUP BY method_name
+			INNER JOIN @PREFIX_methods m ON m.id = tp.method
+			GROUP BY m.id
 			ORDER BY method_name;'), $this->id);
 	}
 
@@ -161,12 +149,12 @@ class Session
 	{
 		return DB::getInstance()->get(POS::sql('SELECT
 			SUM(ti.qty * ti.price) AS total,
-			CASE WHEN ti.product THEN c.name ELSE ti.category_name END AS cat_name
+			ti.category_name
 			FROM @PREFIX_tabs_items ti
 			LEFT JOIN @PREFIX_products p ON ti.product = p.id
 			LEFT JOIN @PREFIX_categories c ON c.id = p.category
 			WHERE ti.tab IN (SELECT id FROM @PREFIX_tabs WHERE session = ?)
-			GROUP BY cat_name;'), $this->id);
+			GROUP BY category_name;'), $this->id);
 
 	}
 
@@ -182,7 +170,7 @@ class Session
 	public function listPaymentWithoutCash()
 	{
 		return DB::getInstance()->get(POS::sql('
-			SELECT p.* FROM @PREFIX_tabs_payments p
+			SELECT p.*, m.name AS method_name FROM @PREFIX_tabs_payments p
 			INNER JOIN @PREFIX_tabs t ON t.id = p.tab
 			INNER JOIN @PREFIX_methods m ON m.id = p.method
 			WHERE t.session = ? AND m.is_cash = 0

@@ -86,7 +86,7 @@
 					</tr>
 					<tr>
 						<th colspan="3">dont éligible Coup de pouce vélo
-						<em>(min: 15 €, max: 50 €)</em></th>
+						<em>(max: 50 €)</em></th>
 						<td colspan="2">{$eligible_alveole|escape|pos_money}</td>
 					</tr>
 				</tfoot>

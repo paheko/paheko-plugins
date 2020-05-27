@@ -76,7 +76,7 @@
 	<tbody>
 		{foreach from=$totals_categories item="cat"}
 		<tr>
-			<th>{$cat.cat_name}</th>
+			<th>{$cat.category_name}</th>
 			<td>
 				{$cat.total|raw|pos_money}
 			</td>
@@ -159,7 +159,7 @@
 					<th>Total</th>
 					<td></td>
 					<td></td>
-					<td colspan="2">{$tab.total|raw|pos_money}</td>
+					<td>{$tab.total|raw|pos_money}</td>
 				</tr>
 			</tfoot>
 		</table>

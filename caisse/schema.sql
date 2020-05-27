@@ -56,7 +56,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_sessions (
 	open_user INTEGER NULL,
 	open_amount INTEGER NULL,
 	close_amount INTEGER NULL,
-	close_user INTEGER NULL
+	close_user INTEGER NULL,
+	error_amount INTEGER NULL
 );
 
 CREATE TABLE IF NOT EXISTS @PREFIX_tabs (
@@ -73,11 +74,11 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_items (
 	id INTEGER NOT NULL PRIMARY KEY,
 	tab INTEGER NOT NULL REFERENCES @PREFIX_tabs (id) ON DELETE CASCADE,
 	added TEXT NOT NULL DEFAULT (datetime('now','localtime')),
-	product INTEGER NULL REFERENCES @PREFIX_products (id), -- Set to NULL when the session is closed
+	product INTEGER NULL REFERENCES @PREFIX_products (id) ON DELETE SET NULL,
 	qty INTEGER NOT NULL,
 	price INTEGER NOT NULL,
-	name TEXT NULL, -- Values are left NULL until the session is closed, then filled with original data for archival purposes
-	category_name TEXT NULL,
+	name TEXT NOT NULL,
+	category_name TEXT NOT NULL,
 	description TEXT NULL
 );
 
@@ -85,10 +86,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_payments (
 	-- Payments for a tab
 	id INTEGER NOT NULL PRIMARY KEY,
 	tab INTEGER NOT NULL REFERENCES @PREFIX_tabs (id) ON DELETE CASCADE,
-	method INTEGER NULL REFERENCES @PREFIX_methods (id) ON DELETE SET NULL,
+	method INTEGER NULL REFERENCES @PREFIX_methods (id) ON DELETE RESTRICT,
 	date TEXT NOT NULL DEFAULT (datetime('now','localtime')),
 	amount INTEGER NOT NULL, -- Can be negative for a refund
-	reference TEXT NULL,
-	method_name TEXT NULL,
-	is_cash INTEGER NULL
+	reference TEXT NULL
 );

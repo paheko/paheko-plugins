@@ -10,7 +10,7 @@
 	<thead>
 		<tr>
 			<td colspan="3">Ouverture</td>
-			<td colspan="3">Clôture</td>
+			<td colspan="4">Clôture</td>
 			<td></td>
 		</tr>
 	</thead>
@@ -23,6 +23,11 @@
 			<td>{if !$pos_session.closed}<strong>En cours</strong>{else}{$pos_session.closed|format_sqlite_date_to_french}{/if}</td>
 			<th>{$pos_session.close_user_name}</th>
 			<td>{$pos_session.close_amount|raw|pos_money}</td>
+			<td>
+				{if $pos_session.error_amount}
+					<span class="error">Erreur de {$pos_session.error_amount|raw|pos_money}</span>
+				{/if}
+			</td>
 			<td class="actions">
 				<a href="session.php?id={$pos_session.id}">Détails</a>
 				{if !$pos_session.closed}

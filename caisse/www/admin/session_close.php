@@ -15,8 +15,9 @@ if (null === qg('id')) {
 
 $pos_session = new Session(qg('id'));
 
-if (isset($_POST['close'], $_POST['amount'], $_POST['payments']) && !empty($_POST['confirm'])) {
-	$pos_session->close($session->getUser()->id, get_amount(f('amount')), (bool) f('recheck'), array_keys(f('payments')));
+if (isset($_POST['close'], $_POST['amount']) && !empty($_POST['confirm'])) {
+	$payments = f('payments') ? array_keys(f('payments')) : [];
+	$pos_session->close($session->getUser()->id, get_amount(f('amount')), (bool) f('recheck'), $payments);
 	Utils::redirect(Utils::plugin_url(['file' => 'session.php', 'query' => 'id=' . $pos_session->id]));
 }
 

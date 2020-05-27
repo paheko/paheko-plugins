@@ -34,13 +34,19 @@ class Tab
 	public function addItem(int $id)
 	{
 		$db = DB::getInstance();
-		$product = $db->first(POS::sql('SELECT * FROM @PREFIX_products WHERE id = ?'), $id);
+		$product = $db->first(POS::sql('SELECT p.*, c.name AS category_name
+			FROM @PREFIX_products p
+			INNER JOIN @PREFIX_categories c ON c.id = p.category
+			WHERE p.id = ?'), $id);
 
 		return $db->insert(POS::tbl('tabs_items'), [
-			'tab'     => $this->id,
-			'product' => (int)$product->id,
-			'qty'     => (int)$product->qty,
-			'price'   => (int)$product->price,
+			'tab'           => $this->id,
+			'product'       => (int)$product->id,
+			'qty'           => (int)$product->qty,
+			'price'         => (int)$product->price,
+			'name'          => $product->name,
+			'category_name' => $product->category_name,
+			'description'   => $product->description,
 		]);
 	}
 
@@ -69,14 +75,11 @@ class Tab
 	{
 		return DB::getInstance()->get(POS::sql('SELECT ti.*,
 			ti.qty * ti.price AS total,
-			CASE WHEN ti.name IS NULL THEN p.name ELSE ti.name END AS name,
-			CASE WHEN ti.description IS NULL THEN p.description ELSE ti.description END AS description,
-			CASE WHEN ti.category_name IS NULL THEN c.name ELSE ti.category_name END AS category_name,
 			GROUP_CONCAT(pm.method, \',\') AS methods
 			FROM @PREFIX_tabs_items ti
 			LEFT JOIN @PREFIX_products p ON ti.product = p.id
 			LEFT JOIN @PREFIX_categories c ON c.id = p.category
-			LEFT JOIN @PREFIX_products_methods pm ON pm.product = p.id
+			INNER JOIN @PREFIX_products_methods pm ON pm.product = p.id
 			WHERE ti.tab = ?
 			GROUP BY ti.id
 			ORDER BY ti.id;'), $this->id);
@@ -89,20 +92,21 @@ class Tab
 		}
 
 		$options = $this->listPaymentOptions();
+		$option = $options[$method_id];
 
-		if (empty($options[$method_id]->amount)) {
+		if (empty($option->amount)) {
 			throw new UserException('Ce moyen de paiement ne peut pas être utilisé pour cette note');
 		}
-		elseif ($amount > $options[$method_id]->amount) {
-			$a = $options[$method_id]->amount;
+		elseif ($amount > $option->amount) {
+			$a = $option->amount;
 			throw new UserException(sprintf('Ce moyen de paiement ne peut être utilisé pour un montant supérieur à %d,%02d€', (int) ($a/100), (int) ($a%100)));
 		}
 
 		return DB::getInstance()->insert(POS::tbl('tabs_payments'), [
-			'tab'       => $this->id,
-			'method'    => $method_id,
-			'amount'    => $amount,
-			'reference' => $reference,
+			'tab'         => $this->id,
+			'method'      => $method_id,
+			'amount'      => $amount,
+			'reference'   => $reference,
 		]);
 	}
 
@@ -114,9 +118,9 @@ class Tab
 	public function listPayments()
 	{
 		return DB::getInstance()->get(POS::sql('SELECT tp.*,
-			CASE WHEN tp.method IS NOT NULL THEN m.name ELSE tp.method_name END AS method_name
+			m.name AS method_name
 			FROM @PREFIX_tabs_payments tp
-			LEFT JOIN @PREFIX_methods m ON m.id = tp.method
+			INNER JOIN @PREFIX_methods m ON m.id = tp.method
 			WHERE tp.tab = ?;'), $this->id);
 	}
 
@@ -126,7 +130,7 @@ class Tab
 		return DB::getInstance()->getGrouped(POS::sql('SELECT id, *,
 			CASE
 				WHEN max IS NOT NULL AND paid >= max THEN 0
-				WHEN max IS NOT NULL AND payable > max THEN max
+				WHEN max IS NOT NULL AND payable > max THEN MIN(:left, max)
 				WHEN min IS NOT NULL AND payable < min THEN 0
 				ELSE MIN(:left, payable) END AS amount
 			FROM (SELECT m.*, SUM(pt.amount) AS paid, SUM(i.qty * i.price) AS payable
