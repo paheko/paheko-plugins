@@ -4,6 +4,10 @@ namespace Garradin;
 
 use Garradin\Plugin\Reservations\Reservations;
 
+if ($plugin->needUpgrade()) {
+	$plugin->upgrade();
+}
+
 $tpl = Template::getInstance();
 
 $r = new Reservations;

@@ -3,6 +3,10 @@
 namespace Garradin;
 use Garradin\Plugin\Reservations\Reservations;
 
+if ($plugin->needUpgrade()) {
+	$plugin->upgrade();
+}
+
 $r = new Reservations;
 
 if (!empty($_GET['delete'])) {
