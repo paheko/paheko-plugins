@@ -122,7 +122,7 @@ class Reservations
 					jour
 				END AS date
 				FROM plugin_reservations_creneaux prc
-				WHERE jour >= date(\'now\', \'localtime\') OR repetition = 1
+				WHERE (jour >= date(\'now\', \'localtime\') OR repetition = 1)
 				AND categorie = ?
 				ORDER BY date, heure
 			) AS a;', $cat_id);
