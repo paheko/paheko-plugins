@@ -16,19 +16,68 @@ class Reservations
 {
 	const COOKIE_NAME = 'reservation';
 
-	public function listSlots()
+	public function listCategories()
 	{
-		return DB::getInstance()->get('SELECT id, * FROM plugin_reservations_creneaux ORDER BY jour, heure;');
+		return DB::getInstance()->get('SELECT * FROM plugin_reservations_categories ORDER BY nom COLLATE NOCASE;');
 	}
 
-	public function listUpcomingBookings()
+	public function addCategory(string $nom)
 	{
-		$config = Config::getInstance();
-		$query = sprintf('SELECT prp.*, strftime(\'%%s\', datetime(date, \'utc\')) AS date, CASE WHEN prp.id_membre THEN m.%s ELSE prp.nom END AS nom
-			FROM plugin_reservations_personnes prp
-			LEFT JOIN membres m ON m.id = prp.id_membre
-			WHERE date >= date(\'now\') ORDER BY date;', $config->get('champ_identite'));
-		$bookings = DB::getInstance()->get($query);
+		return DB::getInstance()->insert('plugin_reservations_categories', ['nom' => $nom]);
+	}
+
+	public function updateCategory(int $id, string $nom, ?string $introduction, ?string $description, ?array $champ)
+	{
+		$db = DB::getInstance();
+
+		if ($champ) {
+			$champs = Config::getInstance()->get('champs_membres');
+			$champ = array_intersect_key($champ, array_flip(['mandatory', 'title', 'help']));
+			$champ = (object)$champ;
+
+			if (empty($champ->title)) {
+				throw new UserException('Le libellé de champ ne peut rester vide');
+			}
+
+			$champ = json_encode($champ);
+		}
+
+		return $db->update('plugin_reservations_categories', compact('nom', 'introduction', 'description', 'champ'), 'id = :id', compact('id'));
+	}
+
+	public function getCategory(int $id) {
+		$cat = DB::getInstance()->first('SELECT * FROM plugin_reservations_categories WHERE id = ?;', $id);
+
+		if (!$cat) {
+			return $cat;
+		}
+
+		$cat->champ = json_decode($cat->champ);
+
+		if ($cat->champ) {
+			$cat->champ->type = 'text';
+		}
+
+		return $cat;
+	}
+
+	public function deleteCategory(int $id)
+	{
+		return DB::getInstance()->delete('plugin_reservations_categories', 'id = ?', $id);
+	}
+
+	public function listSlots(int $cat_id)
+	{
+		return DB::getInstance()->get('SELECT id, * FROM plugin_reservations_creneaux WHERE categorie = ? ORDER BY jour, heure;', $cat_id);
+	}
+
+	public function listUpcomingBookings(int $cat_id)
+	{
+		$query = 'SELECT p.*, strftime(\'%s\', datetime(p.date, \'utc\')) AS date, c.categorie
+			FROM plugin_reservations_personnes p
+			INNER JOIN plugin_reservations_creneaux c ON c.id = p.creneau
+			WHERE date >= date(\'now\') AND categorie = ? ORDER BY date;';
+		$bookings = DB::getInstance()->get($query, $cat_id);
 
 		$date = null;
 		$hour = null;
@@ -55,13 +104,13 @@ class Reservations
 	/**
 	 * Deletes slots that are not in the array
 	 */
-	public function deleteMissingSlots(array $ids)
+	public function deleteMissingSlots(int $cat_id, array $ids)
 	{
 		$db = DB::getInstance();
-		return $db->exec(sprintf('DELETE FROM plugin_reservations_creneaux WHERE %s;', $db->where('id', 'NOT IN', $ids)));
+		return $db->exec(sprintf('DELETE FROM plugin_reservations_creneaux WHERE categorie = %d AND %s;', $cat_id, $db->where('id', 'NOT IN', $ids)));
 	}
 
-	public function listUpcomingSlots()
+	public function listUpcomingSlots(int $cat_id)
 	{
 		$slots = DB::getInstance()->get('SELECT *,
 			(SELECT COUNT(*) FROM plugin_reservations_personnes prp WHERE creneau = a.id AND date(prp.date) = a.date) AS jauge
@@ -74,8 +123,9 @@ class Reservations
 				END AS date
 				FROM plugin_reservations_creneaux prc
 				WHERE jour >= date(\'now\', \'localtime\') OR repetition = 1
+				AND categorie = ?
 				ORDER BY date, heure
-			) AS a;');
+			) AS a;', $cat_id);
 
 		$date = null;
 		$hour_now = date('Hi');
@@ -102,12 +152,7 @@ class Reservations
 		return $slots;
 	}
 
-	public function deleteSlot(int $id)
-	{
-		return DB::getInstance()->preparedQuery('DELETE FROM plugin_reservations_personnes WHERE creneau = ?; DELETE FROM plugin_reservations_creneaux WHERE id = ?;', $id, $id);
-	}
-
-	public function createSlot(string $day, string $hour, bool $repeat, int $max)
+	public function createSlot(int $cat_id, string $day, string $hour, bool $repeat, int $max)
 	{
 		if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $day)) {
 			throw new UserException('Date invalide');
@@ -119,9 +164,9 @@ class Reservations
 
 		$db = DB::getInstance();
 
-		$db->preparedQuery('INSERT OR IGNORE INTO plugin_reservations_creneaux (jour, heure, repetition, maximum) VALUES (?, ?, ?, ?);', [$day, $hour, (int)$repeat, abs($max)]);
+		$db->preparedQuery('INSERT OR IGNORE INTO plugin_reservations_creneaux (categorie, jour, heure, repetition, maximum) VALUES (?, ?, ?, ?, ?);', [$cat_id, $day, $hour, (int)$repeat, abs($max)]);
 
-		return $db->firstColumn('SELECT id FROM plugin_reservations_creneaux WHERE jour = ? AND heure = ?;', $day, $hour);
+		return $db->firstColumn('SELECT id FROM plugin_reservations_creneaux WHERE categorie = ? AND jour = ? AND heure = ?;', $cat_id, $day, $hour);
 	}
 
 	public function updateSlot(int $id, string $day, string $hour, bool $repeat, int $max)
@@ -142,17 +187,17 @@ class Reservations
 		], 'id = :id', ['id' => $id]);
 	}
 
-	public function createBooking(int $slot_id, DateTime $date, ?int $id_membre, ?string $nom)
+	public function createBooking(int $slot_id, DateTime $date, string $nom, ?string $champ)
 	{
 		$db = DB::getInstance();
 
-		$db->preparedQuery('REPLACE INTO plugin_reservations_personnes (creneau, date, id_membre, nom)
-			VALUES (?, ?, ?, ?);', [$slot_id, $date, $id_membre, $nom]);
+		$db->preparedQuery('REPLACE INTO plugin_reservations_personnes (creneau, date, nom, champ)
+			VALUES (?, ?, ?, ?);', [$slot_id, $date, $nom, $champ]);
 
 		return $db->lastInsertId();
 	}
 
-	public function checkNewBooking(int $slot_id, DateTime &$date, ?int $id_membre, ?string $nom)
+	public function checkNewBooking(int $slot_id, DateTime &$date, string $nom, ?string $champ)
 	{
 		$db = DB::getInstance();
 
@@ -175,12 +220,14 @@ class Reservations
 		$hour = explode(':', $booking->heure);
 		$date->setTime($hour[0], $hour[1], 0);
 
-		if ($id_membre && !$db->test('membres', 'id = ?', $id_membre)) {
-			throw new UserException('Numéro de membre inconnu');
+		if (trim($nom) === '') {
+			throw new UserException('Le nom doit être renseigné');
 		}
 
-		if (null === $id_membre && trim($nom) === '') {
-			throw new UserException('Le nom doit être renseigné');
+		$cat = $this->getCategory($booking->categorie);
+
+		if ($cat->champ && $cat->champ->mandatory && trim($champ) === '') {
+			throw new UserException(sprintf('%s: merci de renseigner cette information', $cat->champ->title));
 		}
 	}
 
@@ -197,7 +244,12 @@ class Reservations
 			return null;
 		}
 
-		return DB::getInstance()->first('SELECT *, strftime(\'%s\', date, \'utc\') AS date FROM plugin_reservations_personnes WHERE id = ?;', $id);
+		return DB::getInstance()->first('SELECT p.*,
+			strftime(\'%s\', p.date, \'utc\') AS date,
+			c.categorie
+			FROM plugin_reservations_personnes p
+			INNER JOIN plugin_reservations_creneaux c ON c.id = p.creneau
+			WHERE p.id = ?;', $id);
 	}
 
 	protected function getUserBookingId()
@@ -241,7 +293,7 @@ class Reservations
 		return $this->deleteBooking($id);
 	}
 
-	public function createBookingForUser(string $slot_code, ?string $id_membre, ?string $nom)
+	public function createBookingForUser(string $slot_code, string $nom, ?string $champ)
 	{
 		$slot_id = (int)strtok($slot_code, '=');
 		$date = strtok('');
@@ -257,12 +309,12 @@ class Reservations
 			throw new UserException('Erreur dans la date');
 		}
 
-		$this->checkNewBooking($slot_id, $date, $id_membre, $nom);
+		$this->checkNewBooking($slot_id, $date, $nom, $champ);
 
-		return $this->createBooking($slot_id, $date, $id_membre, $nom);
+		return $this->createBooking($slot_id, $date, $nom, $champ);
 	}
 
-	public function createUserBooking(string $slot_code, ?string $id_membre, ?string $nom)
+	public function createUserBooking(string $slot_code, string $nom, ?string $champ)
 	{
 		$slot_id = (int)strtok($slot_code, '=');
 		$date = strtok('');
@@ -278,12 +330,12 @@ class Reservations
 			throw new UserException('Erreur dans la date');
 		}
 
-		$this->checkNewBooking($slot_id, $date, $id_membre, $nom);
+		$this->checkNewBooking($slot_id, $date, $nom, $champ);
 
 		// Cancel old booking
 		$this->cancelUserBooking();
 
-		$id = $this->createBooking($slot_id, $date, $id_membre, $nom);
+		$id = $this->createBooking($slot_id, $date, $nom, $champ);
 
 		return $this->setUserBooking($id, $date);
 	}

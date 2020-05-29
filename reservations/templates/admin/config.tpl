@@ -10,124 +10,56 @@
 	</p>
 {/if}
 
+<table class="list">
+	<thead>
+		<tr>
+			<th>Nom</th>
+			<td></td>
+		</tr>
+	</thead>
+	<tbody>
+		{foreach from=$categories item="cat"}
+		<tr>
+			<th>{$cat.nom}</th>
+			<td class="actions">
+	            <a class="icn" href="config_cat.php?id={$cat.id}" title="Modifier">✎</a>
+	            <a class="icn" href="config_slots.php?id={$cat.id}" title="Configurer les créneaux">𝍢</a>
+			</td>
+		</tr>
+		{/foreach}
+	</tbody>
+</table>
+
 <form method="post" action="{$self_url}">
 
 	<fieldset>
-		<legend>Configuration</legend>
+		<legend>Ajouter un type de créneau</legend>
+		<p class="help">
+			Si vous ne définissez qu'un seul type de créneaux, la personne faisant une réservation ne verra que le texte de présentation et les créneaux associés.
+		</p>
+		<p class="help">
+			Si vous définissez plusieurs types de créneaux, elle devra d'abord choisir un type de créneau, et sera verra présentée la liste des types de créneaux avec leurs noms et textes d'introduction.
+		</p>
 		<dl>
-			<dt><label for="f_text">Texte à afficher sur la page de réservation</label></dt>
-			<dd class="help">Syntaxe <a href="{$admin_url}wiki/_syntaxe.html" target="_blank">SkrivML</a> acceptée</dd>
-			<dd><textarea name="text" id="f_text" cols="70" rows="15">{form_field name="text" data=$config}</textarea></dd>
+			<dt><label for="f_nom">Nom</label></dt>
+			<dd><input type="text" name="nom" id="f_nom" value="{form_field name="nom"}" required="required" /></dd>
 		</dl>
+		<p class="submit">
+			{csrf_field key="config_plugin_%s"|args:$plugin.id}
+			<input type="submit" name="add" value="Ajouter" />
+		</p>
 	</fieldset>
-
-	<fieldset>
-		<legend>Créneaux</legend>
-		<table class="list">
-			<thead>
-				<tr>
-					<th>À partir du</th>
-					<td>Heure</td>
-					<td>Jauge maximale</td>
-					<td></td>
-					<td></td>
-				</tr>
-			</thead>
-			<tbody>
-				{foreach from=$slots item="slot"}
-				<tr>
-					<th><input type="date" name="slot[{$slot.id}][jour]" value="{$slot.jour}" required="required" /></th>
-					<td><input type="time" name="slot[{$slot.id}][heure]" value="{$slot.heure}" required="required" /></td>
-					<td><input type="number" name="slot[{$slot.id}][maximum]" value="{$slot.maximum}" required="required" /> personnes</td>
-					<td><label><input type="checkbox" name="slot[{$slot.id}][repetition]" value="1" {if $slot.repetition}checked="checked"{/if} /> Répétition hebdomadaire</label></td>
-					<td class="actions"><a href="#unsupported" onclick="return removeRow(this);" class="icn" title="Supprimer cette ligne">➖</a></td>
-				</tr>
-				{/foreach}
-			</tbody>
-		</table>
-		<p class="actions"><a href="#unsupported" onclick="return addRow(this);" class="icn" title="Ajouter un créneau">➕</a></p>
-	</fieldset>
-
-	<p class="submit">
-		{csrf_field key="config_plugin_%s"|args:$plugin.id}
-		<input type="submit" name="save" value="Enregistrer &rarr;" />
-	</p>
-
-	<div class="help">
-		<h3>Aide</h3>
-		<p class="help">Les membres peuvent réserver un créneau via l'onglet « Réservations » du menu de gauche.</p>
-		<p class="help">Les non-membres peuvent réserver un créneau via l'adresse suivante :<br />
-			<input type="text" readonly="readonly" value="{$www_url}p/{$plugin.id}/" /><input type="button" id="copyBtn" value="Copier dans le presse-papier" /></p>
-		<p class="help">Les administrateurs peuvent visionner les créneaux et personnes inscrites dans l'onglet « Réservations ».</p>
-	</div>
 
 </form>
 
 
-<script type="text/javascript">
-{literal}
-var index = 0;
-function removeRow(e) {
-	var row = e.parentNode.parentNode;
-	var table = row.parentNode.parentNode;
 
-	if (table.rows.length == 1)
-	{
-		return false;
-	}
-
-	row.parentNode.removeChild(row);
-	return false;
-}
-function addRow(e) {
-	var table = e.parentNode.parentNode.querySelector('table');
-	if (table.rows.length == 1) {
-		alert("Merci d'enregistrer la page pour pouvoir ajouter une ligne.");
-		return false;
-	}
-
-	var row = table.rows[table.rows.length-1];
-	var new_row = row.cloneNode(true);
-	row.parentNode.appendChild(new_row);
-
-	index++;
-
-	new_row.querySelectorAll('input').forEach(function (elm) {
-		if (elm.classList.contains('date')) {
-			elm.onchange = function ()
-			{
-				if (this.value.match(/\d{2}\/\d{2}\/\d{4}/))
-					this.nextSibling.value = this.value.split('/').reverse().join('-');
-				else
-					this.nextSibling.value = this.value;
-			};
-
-			new datepickr(elm, config_fr);
-		}
-		elm.name = elm.name.replace(/slot\[_?\d+\]/, 'slot[_' + index + ']');
-	});
-
-	return false;
-}
-
-var config_fr = {
-	fullCurrentMonth: true,
-	dateFormat: 'd/m/Y',
-	firstDayOfWeek: 0,
-	weekdays: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
-	months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
-	suffix: { 1: 'er' },
-	defaultSuffix: ''
-};
-
-document.getElementById('copyBtn').onclick = function (e) {
-	var input = e.target.parentNode.querySelector('input');
-	input.select();
-	input.focus();
-	input.setSelectionRange(0, 99999);
-	document.execCommand("copy");
-}
-{/literal}
-</script>
+<div class="help">
+	<h3>Aide</h3>
+	<p class="help">Les membres connectés peuvent réserver un créneau via l'onglet « Réservations » du menu de gauche.</p>
+	<p class="help">Les non-membres peuvent réserver un créneau via l'adresse suivante :<br />
+		<a href="{$www_url}p/{$plugin.id}/" target="_blank">{$www_url}p/{$plugin.id}/</a></p>
+	<p class="help">Les administrateurs peuvent visionner les réservations et gérer les inscrit⋅e⋅s dans l'onglet « Réservations ».</p>
+</div>
 
 {include file="admin/_foot.tpl"}

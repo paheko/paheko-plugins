@@ -47,22 +47,28 @@
 		margin: .5em;
 	}
 
+	fieldset dt b {
+		color: #900;
+		font-size: 0.7rem;
+		font-weight: normal;
+		vertical-align: super;
+	}
+
 	{/literal}
-	{$css}
+	{$css|raw}
 	</style>
 </head>
 
 <body>
 <section>
 
-<h1>Réservation de créneau</h1>
-
-<article class="wikiContent">
-	{$config.text|raw|format_wiki}
-</article>
+<h1>{if isset($cat.nom)}{$cat.nom}{else}{$config.nom_asso} — Réservation de créneau{/if}</h1>
 
 {include file="%s/_form.tpl"|args:$plugin_tpl ask_name=true}
 
+<footer>
+	<a href="{$config.site_asso}">Retourner sur notre site — {$config.nom_asso}</a>
+</footer>
 </section>
 </body>
 </html>

@@ -4,9 +4,19 @@ namespace Garradin;
 
 // Création table
 $db->exec(<<<EOF
+	CREATE TABLE IF NOT EXISTS plugin_reservations_categories
+	(
+		id INTEGER NOT NULL PRIMARY KEY,
+		nom TEXT NOT NULL,
+		introduction TEXT NULL,
+		description TEXT NULL,
+		champ TEXT NULL
+	);
+
 	CREATE TABLE IF NOT EXISTS plugin_reservations_creneaux
 	(
 		id INTEGER NOT NULL PRIMARY KEY, -- Numéro unique
+		categorie INTEGER NOT NULL REFERENCES plugin_reservations_categories(id) ON DELETE CASCADE,
 		jour TEXT NOT NULL,
 		heure TEXT NOT NULL,
 		repetition TEXT NOT NULL,
@@ -20,14 +30,12 @@ $db->exec(<<<EOF
 		id INTEGER NOT NULL PRIMARY KEY,
 		creneau INTEGER NOT NULL REFERENCES plugin_reservations_creneaux (id) ON DELETE CASCADE,
 		date TEXT NOT NULL,
-		id_membre INTEGER NULL REFERENCES membres(id) ON DELETE CASCADE,
 		nom NULL,
-		CONSTRAINT nom CHECK (id_membre IS NOT NULL OR nom IS NOT NULL)
+		champ NULL
 	);
 
 	-- Index unique sur une valeur nulle est impossible
-	CREATE UNIQUE INDEX IF NOT EXISTS prp_reservation_id ON plugin_reservations_personnes (creneau, date, id_membre, nom) WHERE id_membre IS NOT NULL;
-	CREATE UNIQUE INDEX IF NOT EXISTS prp_reservation_nom ON plugin_reservations_personnes (creneau, date, id_membre, nom) WHERE nom IS NOT NULL;
+	CREATE UNIQUE INDEX IF NOT EXISTS prp_reservation_nom ON plugin_reservations_personnes (creneau, date, nom);
 EOF
 );
 

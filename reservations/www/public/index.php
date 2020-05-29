@@ -9,20 +9,10 @@ $tpl = Template::getInstance();
 $r = new Reservations;
 
 if (isset($_POST['book'], $_POST['slot'])) {
-	if (!empty($_POST['numero'])) {
-		$id_membre = (new Membres)->getIDWithNumero((int)$_POST['numero']);
-		$nom = null;
+	$nom = substr(trim($_POST['nom']), 0, 100);
+	$champ = isset($_POST['champ']) ? substr(trim($_POST['champ']), 0, 100) : null;
 
-		if (!$id_membre) {
-			throw new UserException('Numéro de membre inconnu');
-		}
-	}
-	else {
-		$nom = substr(trim($_POST['nom']), 0, 100);
-		$id_membre = null;
-	}
-
-	$r->createUserBooking($_POST['slot'], $id_membre, $nom);
+	$r->createUserBooking($_POST['slot'], $nom, $champ);
 	Utils::redirect(Utils::getSelfURL());
 }
 elseif (isset($_POST['cancel'])) {
@@ -30,10 +20,43 @@ elseif (isset($_POST['cancel'])) {
 	Utils::redirect(Utils::getSelfURL());
 }
 
-$tpl->assign('slots', $r->listUpcomingSlots());
-$tpl->assign('booking', $r->getUserBooking());
-$tpl->assign('config', $plugin->getConfig());
+$booking = $r->getUserBooking();
+$cat_id = $cat = null;
+
+if ($booking) {
+	$cat_id = $booking->categorie;
+}
+elseif (!empty($_GET['cat'])) {
+	$cat_id = (int) $_GET['cat'];
+}
+else {
+	$categories = $r->listCategories();
+
+	if (count($categories) == 1) {
+		$cat_id = current($categories)->id;
+	}
+}
+
+if ($cat_id) {
+	$cat = $r->getCategory($cat_id);
+
+	if (!$cat) {
+		throw new UserException('Catégorie inconnue');
+	}
+}
+
+if (!$cat) {
+	$tpl->assign('categories', $categories);
+}
+else {
+	$tpl->assign('slots', $r->listUpcomingSlots($cat->id));
+}
+
+$tpl->assign('cat', $cat);
+$tpl->assign('booking', $booking);
 $tpl->assign('plugin_tpl', PLUGIN_ROOT . '/templates');
 $tpl->assign('css', file_get_contents(PLUGIN_ROOT . '/www/admin/style.css'));
+
+$tpl->assign('config', Config::getInstance()->getConfig());
 
 $tpl->display(PLUGIN_ROOT . '/templates/index.tpl');

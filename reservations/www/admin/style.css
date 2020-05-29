@@ -106,3 +106,38 @@ dl.info {
 	border-radius: .5em;
 	padding: .5rem;
 }
+
+a {
+	color: blue;
+}
+
+a:hover {
+	color: darkred;
+}
+
+.booking_categories h2 a {
+	padding: .5rem 1rem;
+	display: inline-block;
+	border-radius: .5rem;
+	background: #eef;
+}
+
+
+.booking_categories div {
+	margin: 1em;
+}
+
+.booking_categories > h3 {
+	margin-bottom: 1em;
+}
+
+.booking_categories {
+	border-bottom: .1rem solid #ccc;
+	padding-bottom: 2rem;
+}
+
+body > section > footer {
+	margin-top: 1rem;
+	text-align: right;
+	padding: .5rem;
+}

@@ -4,69 +4,19 @@ namespace Garradin;
 
 use Garradin\Plugin\Reservations\Reservations;
 
+if ($plugin->needUpgrade()) {
+	$plugin->upgrade();
+}
+
 $session->requireAccess('config', Membres::DROIT_ADMIN);
 
 $r = new Reservations;
 
-if (f('save'))
-{
-	$form->check('config_plugin_' . $plugin->id(), [
-		'slot'   => 'array',
-		'text' => 'string|required',
-	]);
-
-	if (!$form->hasErrors())
-	{
-		$plugin->setConfig('text', $_POST['text']);
-
-		$i = 0;
-		$ids = [];
-		$slots = f('slot') ?: [];
-
-		foreach ($slots as $id => $props) {
-			$i++;
-			$props = (object)$props;
-			$props->repetition = !empty($props->repetition);
-
-			if (!isset($props->repetition, $props->jour, $props->heure, $props->maximum)) {
-				$form->addError('Erreur à la ligne ' . $i);
-				continue;
-			}
-
-			try {
-				if ('_' === substr($id, 0, 1)) {
-					$ids[] = $r->createSlot($props->jour, $props->heure, $props->repetition, (int)$props->maximum);
-				}
-				else {
-					$r->updateSlot((int)$id, $props->jour, $props->heure, $props->repetition, (int)$props->maximum);
-					$ids[] = (int)$id;
-				}
-			}
-			catch (UserException $e) {
-				$form->addError(sprintf('Ligne %d: %s', $i, $e->getMessage()));
-			}
-		}
-
-		$r->deleteMissingSlots($ids);
-
-		if (!$form->hasErrors()) {
-			utils::redirect(utils::plugin_url(['file' => 'config.php', 'query' => 'saved']));
-		}
-	}
+if (f('add') && $form->check('config_plugin_' . $plugin->id())) {
+	$r->addCategory(f('nom'));
+	utils::redirect(utils::plugin_url(['file' => 'config.php']));
 }
 
-$slots = $r->listSlots();
-
-if (!count($slots)) {
-	$slots = [];
-	$slots[] = (object)['id' => '_1', 'jour' => '', 'heure' => '', 'maximum' => '', 'repetition' => 0];
-}
-
-$tpl->assign('config', $plugin->getConfig());
-$tpl->assign('slots', $slots);
 $tpl->assign('ok', qg('saved') !== null);
-
-//$tpl->assign('example', file_get_contents($plugin->path() . DIRECTORY_SEPARATOR . 'example.skel'));
-
-
+$tpl->assign('categories', $r->listCategories());
 $tpl->display(PLUGIN_ROOT . '/templates/admin/config.tpl');
