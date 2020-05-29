@@ -28,7 +28,7 @@
 			<dt><label><input type="checkbox" name="champ_actif" value="1" {if $category.champ}checked="checked"{/if} /> Demander une information supplémentaire</label></dt>
 			<dd class="help">Dans tous les cas le formulaire de réservation demande de renseigner un nom, mais il est possible de demander une information supplémentaire à la personne qui fait la réservation.</dd>
 			<dt><label for="f_title">Titre</label> <b title="(Champ obligatoire)">obligatoire</b></dt>
-			<dd><input type="text" name="champ[title]" id="f_title" value="{form_field data=$category.champ name=title}" size="60" required="required" /></dd>
+			<dd><input type="text" name="champ[title]" id="f_title" value="{form_field data=$category.champ name=title}" size="60" /></dd>
 			<dt><label for="f_help">Aide</label></dt>
 			<dd class="help">Texte d'aide qui apparaîtra en dessous du champ à renseigner</dd>
 			<dd><input type="text" name="champ[help]" id="f_help" value="{form_field data=$category.champ name=help}" size="100" /></dd>
