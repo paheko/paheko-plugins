@@ -9,7 +9,7 @@
     header { border-bottom: 2px dashed #999; }
     section, article { margin: 0; padding: 0; }
     body { font-family: "Qlassik Medium", Trebuchet MS; font-size: 14pt; }
-    .signature { float: left; width: 49%; text-align: center; font-style: italic; }
+    .signature { float: left; width: 49%; text-align: center; font-style: italic; margin-bottom: 5rem ;}
     h1 { text-align: center; }
     b { font-weight: normal; padding: 5pt 10pt; border: 1px solid #000; }
 
@@ -23,6 +23,14 @@
     }
     .vente article:first-child {
         margin-right: 5%;
+    }
+
+    .completion {
+        clear: both;
+        border: 1px solid #000;
+        padding: .5rem;
+        margin-top: 3em;
+        background: #ddd;
     }
     </style>
     <style type="text/css" media="print">
@@ -70,12 +78,7 @@
     </ul>
     <h3>État : <strong>{$etat|escape}</strong></h3>
     <p>(Numéro référence : {$velo.id|escape})</p>
-    <p>en contrepartie du paiement du montant de <strong>{$velo.prix|escape} €</strong>, réglé à l'établissement du présent contrat en&nbsp;</p>
-    <ul>
-        <li>&#x2610; Espèces</li>
-        <li>&#x2610; Chèque N°………………………</li>
-        <li>&#x2610; Autre&nbsp;: …………………………………………………</li>
-    </ul>
+    <p>en contrepartie du paiement du montant de <strong>{$velo.prix|escape} €</strong>, réglé à l'établissement du présent contrat.</p>
     <p>L'acquéreur déclare avoir examiné en détail le vélo, l'avoir essayé et avoir constaté
         qu'il est conforme à l'état indiqué ci-dessus. L'acquéreur déclare renoncer à toute
         action à l'encontre du vendeur quelle qu'en soit la nature, même fondée sur un vice caché
@@ -86,6 +89,9 @@
 
     <p class="signature">(Signature du vendeur)</p>
     <p class="signature">(Signature de l'acquéreur, ou d'un parent pour les mineurs)</p>
+    <p class="completion">
+        Cadre réservé à {$config.nom_asso} : Note de caisse N° ……………………………………………………
+    </p>
 </section>
 
 </body>
