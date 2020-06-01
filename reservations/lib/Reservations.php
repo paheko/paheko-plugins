@@ -54,8 +54,11 @@ class Reservations
 
 		$cat->champ = json_decode($cat->champ);
 
-		if ($cat->champ) {
+		if (!empty($cat->champ) && is_object($cat->champ)) {
 			$cat->champ->type = 'text';
+		}
+		else {
+			$cat->champ = null;
 		}
 
 		return $cat;
@@ -226,7 +229,7 @@ class Reservations
 
 		$cat = $this->getCategory($booking->categorie);
 
-		if ($cat->champ && $cat->champ->mandatory && trim($champ) === '') {
+		if ($cat->champ && !empty($cat->champ->mandatory) && trim($champ) === '') {
 			throw new UserException(sprintf('%s: merci de renseigner cette information', $cat->champ->title));
 		}
 	}
