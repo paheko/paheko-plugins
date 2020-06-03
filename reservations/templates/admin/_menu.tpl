@@ -1,4 +1,4 @@
-{if $session->canAccess('membres', Membres::DROIT_ADMIN)}
+{if $session->canAccess('membres', Membres::DROIT_ECRITURE)}
 <ul class="actions">
 	<li{if $current == 'index'} class="current"{/if}><a href="{plugin_url}">Mes réservations</a></li>
 	<li{if $current == 'bookings'} class="current"{/if}><a href="{plugin_url file="bookings.php"}">Voir les inscrits</a></li>

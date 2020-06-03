@@ -7,6 +7,8 @@ if ($plugin->needUpgrade()) {
 	$plugin->upgrade();
 }
 
+$session->requireAccess('membres', Membres::DROIT_ECRITURE);
+
 $r = new Reservations;
 
 if (!empty($_GET['delete'])) {
