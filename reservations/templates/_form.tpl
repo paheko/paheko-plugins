@@ -1,44 +1,46 @@
 {if $booking}
-<form method="post" action="{$self_url}">
-	<fieldset class="mine">
-		<legend>Ma réservation</legend>
-		<dl>
-			<dt>Vous avez réservé le créneau suivant&nbsp;:</dt>
-			<dd class="date">{$booking.date|strftime_fr:"%A %e %B %Y à %H:%M"}</dd>
-			{if $booking.nom_categorie}<dd>Créneau : {$booking.nom_categorie}</dd>{/if}
-			{if $booking.numero}<dd>Numéro de membre : {$booking.numero}</dd>{/if}
-			{if $booking.nom}<dd>Nom : {$booking.nom}</dd>{/if}
-			{if $booking.champ}<dd>{$cat.champ.title} : {$booking.champ}</dd>{/if}
-			<dd><input type="submit" name="cancel" value="Annuler ma réservation" /></dd>
-		</dl>
-	</fieldset>
-</form>
-{/if}
 
-{if isset($categories)}
-
-	<section class="booking_categories">
-		{if isset($categories)}<h3>Merci de sélectionner un type de créneau&nbsp;:</h3>{/if}
-
-		{foreach from=$categories item="cat"}
-		<article>
-			<h2><a href="?cat={$cat.id}">{$cat.nom}</a></h2>
-			<div class="wikiContent">
-				{$cat.introduction|raw|format_wiki}
-			</div>
-		</article>
-		{/foreach}
-	</section>
+	<form method="post" action="{$self_url}">
+		<fieldset class="mine">
+			<legend>Ma réservation</legend>
+			<dl>
+				<dt>Vous avez réservé le créneau suivant&nbsp;:</dt>
+				<dd class="date">{$booking.date|strftime_fr:"%A %e %B %Y à %H:%M"}</dd>
+				{if $booking.nom_categorie}<dd>Créneau : {$booking.nom_categorie}</dd>{/if}
+				{if $booking.numero}<dd>Numéro de membre : {$booking.numero}</dd>{/if}
+				{if $booking.nom}<dd>Nom : {$booking.nom}</dd>{/if}
+				{if $booking.champ}<dd>{$cat.champ.title} : {$booking.champ}</dd>{/if}
+				<dd><input type="submit" name="cancel" value="Annuler ma réservation" /></dd>
+			</dl>
+		</fieldset>
+	</form>
 
 {else}
 
-	<form method="post" action="{$self_url}">
+	{if isset($categories)}
 
-{if empty($hide_description)}
-	<article class="wikiContent">
-		{$cat.description|raw|format_wiki}
-	</article>
-{/if}
+		<section class="booking_categories">
+			{if isset($categories)}<h3>Merci de sélectionner un type de créneau&nbsp;:</h3>{/if}
+
+			{foreach from=$categories item="cat"}
+			<article>
+				<h2><a href="?cat={$cat.id}">{$cat.nom}</a></h2>
+				<div class="wikiContent">
+					{$cat.introduction|raw|format_wiki}
+				</div>
+			</article>
+			{/foreach}
+		</section>
+
+	{else}
+
+		<form method="post" action="{$self_url}">
+
+	{if empty($hide_description)}
+		<article class="wikiContent">
+			{$cat.description|raw|format_wiki}
+		</article>
+	{/if}
 
 
 	<fieldset>
@@ -85,4 +87,6 @@
 	</fieldset>
 
 	</form>
+
+	{/if}
 {/if}
