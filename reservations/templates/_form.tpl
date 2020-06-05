@@ -5,6 +5,7 @@
 		<dl>
 			<dt>Vous avez réservé le créneau suivant&nbsp;:</dt>
 			<dd class="date">{$booking.date|strftime_fr:"%A %e %B %Y à %H:%M"}</dd>
+			{if $booking.nom_categorie}<dd>Créneau : {$booking.nom_categorie}</dd>{/if}
 			{if $booking.numero}<dd>Numéro de membre : {$booking.numero}</dd>{/if}
 			{if $booking.nom}<dd>Nom : {$booking.nom}</dd>{/if}
 			{if $booking.champ}<dd>{$cat.champ.title} : {$booking.champ}</dd>{/if}

@@ -249,9 +249,11 @@ class Reservations
 
 		return DB::getInstance()->first('SELECT p.*,
 			strftime(\'%s\', p.date, \'utc\') AS date,
-			c.categorie
+			c.categorie,
+			cat.nom AS nom_categorie
 			FROM plugin_reservations_personnes p
 			INNER JOIN plugin_reservations_creneaux c ON c.id = p.creneau
+			LEFT JOIN plugin_reservations_categories cat ON cat.id = c.categorie AND (SELECT COUNT(*) FROM plugin_reservations_categories) > 1
 			WHERE p.id = ?;', $id);
 	}
 
