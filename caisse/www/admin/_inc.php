@@ -12,7 +12,7 @@ function get_amount(string $amount): int {
 	$a = str_replace(',', '.', $amount);
 	$a = preg_replace('/[^\d.]/', '', $a);
 	$a = explode('.', $a);
-	$a = sprintf('%d%d', $a[0], str_pad(@$a[1], 2, '0', STR_PAD_RIGHT));
+	$a = sprintf('%d%s', $a[0], str_pad((int)@$a[1], 2, '0', STR_PAD_RIGHT));
 	return $a;
 }
 

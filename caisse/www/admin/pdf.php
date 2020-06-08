@@ -46,7 +46,14 @@ $tpl->register_modifier('show_methods', function ($m) {
 	}
 });
 
-$result = $tpl->fetch(PLUGIN_ROOT . '/templates/invoice.tpl');
+if (!empty($_POST['receipt'])) {
+    $result = $tpl->fetch(PLUGIN_ROOT . '/templates/invoice.tpl');
+    $file_name = sprintf('Reçu %06d - %s.pdf', $tab->id, preg_replace('/[^\w]+/Ui', ' ', $tab->name));
+}
+else {
+    $result = $tpl->fetch(PLUGIN_ROOT . '/templates/invoice_cpv.tpl');
+    $file_name = sprintf('Facture CPV-%04d - %s.pdf', $tab->id, preg_replace('/[^\w]+/Ui', ' ', $tab->name));
+}
 
 $descriptorspec = array(
    0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
@@ -74,7 +81,7 @@ if (is_resource($process)) {
 
     header('Content-type: application/pdf');
     //header(sprintf('Content-Length: %d', strlen($pdf_content)));
-    header(sprintf('Content-Disposition: attachment; filename="Facture %04d - %s.pdf"', qg('id'), preg_replace('/[^\w]+/Ui', ' ', $tab->name)));
+    header(sprintf('Content-Disposition: attachment; filename="%s"', $file_name));
     echo $pdf_content;
 }
 
