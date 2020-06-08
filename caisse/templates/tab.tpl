@@ -40,12 +40,13 @@
 					<input type="submit" name="close" value="Clore la note" />
 				{elseif $current_tab.closed && !$pos_session.closed}
 					<input type="submit" name="reopen" value="Ré-ouvrir la note" />
-				{elseif !count($existing_payments)}
+				{elseif !count($existing_payments) && !count($items)}
 					<input type="submit" name="delete" value="Supprimer la note" />
 				{/if}
 				</form>
 				<form method="post" action="./pdf.php?id={$current_tab.id}" id="f_pdf">
-					<input type="submit" data-name="{if $current_tab.name}1{else}0{/if}" value="Facture PDF" />
+					<input type="submit" data-name="{if $current_tab.name}1{else}0{/if}" name="cpv" value="Facture CPV" />
+					<input type="submit" data-name="{if $current_tab.name}1{else}0{/if}" name="receipt" value="Reçu PDF" />
 				</form>
 			</div>
 		</header>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
 <head>
 	<meta charset="utf-8" />
-	<title>Reçu</title>
+	<title>Facture</title>
 	<style type="text/css">
 	{literal}
 	@page {
@@ -74,9 +74,6 @@
 		background: #eee;
 		font-size: 12pt;
 	}
-	p {
-		margin: .8rem;
-	}
 	{/literal}
 	</style>
 </head>
@@ -94,9 +91,10 @@
 </header>
 
 <section class="details">
-	<h1>Reçu n°{$tab.id}</h1>
-	<h2>Adhérent : {$tab.name}</h2>
-	<h4>Date : {$tab.opened|date_format:"%d/%m/%Y"}</h4>
+	<h1>Facture n°{"CDP-%04d"|args:$tab.id}</h1>
+	<h2>Entretien vélo dans le cadre du "Coup de pouce Vélo - Réparation"</h2>
+	<h3>Adhérent : {$tab.name}</h3>
+	<h4>Date de la facture : {$tab.opened|date_format:"%d/%m/%Y"} — Date d'échéance : {$tab.opened|date_format:"%d/%m/%Y"}</h4>
 </section>
 
 <section class="items">
@@ -104,6 +102,7 @@
 	<table class="list">
 		<thead>
 			<th>Dénomination</th>
+			<td>Éligible Coup de pouce vélo</td>
 			<td>Qté</td>
 			<td>Prix</td>
 			<td>Total</td>
@@ -112,13 +111,14 @@
 		{foreach from=$items item="item"}
 			<tr>
 				<th>{$item.name}</th>
+				<td>{$item.methods|raw|show_methods}</td>
 				<td>{$item.qty}</td>
 				<td>{$item.price|raw|pos_money}</td>
 				<td>{$item.total|raw|pos_money}</td>
 			</tr>
 			{if $item.description}
 			<tr>
-				<td colspan="4">
+				<td colspan="5">
 					{$item.description|escape|nl2br}
 				</td>
 			</tr>
@@ -126,30 +126,32 @@
 		{/foreach}
 			<tr class="foot">
 				<th>TVA</th>
-				<td colspan="3"><em>Association exonérée des impôts commerciaux</em></td>
+				<td colspan="4"><em>Association exonérée des impôts commerciaux</em></td>
 			</tr>
 			<tr class="foot">
-				<th colspan="3">Total</th>
+				<th colspan="4">Total</th>
 				<td>{$tab.total|raw|pos_money}</td>
 			</tr>
 			{foreach from=$existing_payments item="payment"}
 			<tr class="foot">
-				<th>Règlement&nbsp;: {$payment.method_name}</th>
-				<td colspan="2">{if $payment.reference}<em>Réf. {$payment.reference}</em>{/if}</td>
+				<th>{$payment.method_name}</th>
+				<td colspan="3"><em>Réf. {$payment.reference}</em></td>
 				<td>{$payment.amount|raw|pos_money}</td>
 			</tr>
 			{/foreach}
 			<tr class="foot">
-				<th colspan="3">Reste à payer</th>
+				<th colspan="4">Déduction « Coup de pouce vélo - réparation »</th>
+				<td>{$eligible|raw|pos_money}</td>
+			</tr>
+			{if $remainder_after}
+			<tr class="foot">
+				<th colspan="4">Reste à payer</th>
 				<td>{$remainder_after|raw|pos_money}</td>
 			</tr>
+			{/if}
 		</tbody>
 	</table>
 </section>
-
-<p>Ce reçu n'est pas un reçu fiscal et ne donne pas droit à une réduction d'impôt au titre de l'article 200 du Code Général des Impôts.</p>
-
-<p>Si ce reçu comporte le règlement d'une cotisation, et en cas de paiement non effectif (chèque revenu impayé par exemple), la cotisation sera considérée non payée, et ce reçu sera nul et non-avenu.</p>
 
 </body>
 </html>
