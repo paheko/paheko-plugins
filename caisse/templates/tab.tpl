@@ -35,7 +35,7 @@
 			</div>
 			<div>
 				<form method="post">
-				<input type="submit" name="rename" value="Renommer" />
+				<input type="submit" name="rename" data-name="{$current_tab.name}" value="Renommer" />
 				{if !$remainder && $items && !$current_tab.closed}
 					<input type="submit" name="close" value="Clore la note" />
 				{elseif $current_tab.closed && !$pos_session.closed}
@@ -145,9 +145,7 @@
 
 	{if !$current_tab.closed}
 	<section class="products">
-		<form method="get" action="">
-			<input type="text" name="q" placeholder="Recherche rapide" />
-		</form>
+		<input type="text" name="q" placeholder="Recherche rapide" />
 		<form method="post" action="">
 		{foreach from=$products_categories key="category" item="products"}
 			<section>
@@ -178,13 +176,15 @@ var fr = document.querySelector('input[name="rename"]');
 
 if (fr) {
 	fr.onclick = function(e) {
-		fr.value = prompt("Nouveau nom ?");
+		var v = prompt("Nouveau nom ?", fr.getAttribute('data-name'));
+		if (v === null) return false;
+		fr.value = v;
 	}
 }
 
 document.querySelectorAll('input[name*="change_qty"], input[name*="change_price"]').forEach((elm) => {
 	elm.onclick = (e) => {
-		var v = prompt('?');
+		var v = prompt('?', elm.value);
 		if (v === null) return false;
 		elm.value = v;
 	};
