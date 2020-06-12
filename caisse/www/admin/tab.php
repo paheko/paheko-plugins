@@ -8,11 +8,11 @@ use function Garradin\Plugin\Caisse\{reload,get_amount};
 
 require __DIR__ . '/_inc.php';
 
-$tab = $tab_id = null;
-
-if ($tab_id = qg('id')) {
-	$tab = new Tab($tab_id);
+if (null === qg('id')) {
+	throw new UserException('Pas de numéro de note indiqué');
 }
+
+$tab = new Tab(qg('id'));
 
 $current_pos_session = new Session($tab ? $tab->session : Session::getCurrentId());
 

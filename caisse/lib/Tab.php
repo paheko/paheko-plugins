@@ -18,7 +18,13 @@ class Tab
 				COALESCE((SELECT SUM(qty*price) FROM @PREFIX_tabs_items WHERE tab = @PREFIX_tabs.id), 0) AS total
 				FROM @PREFIX_tabs WHERE id = ?;');
 
-			foreach (DB::getInstance()->first($sql, $id) as $key => $value) {
+			$record = DB::getInstance()->first($sql, $id);
+
+			if (!$record) {
+				throw new \InvalidArgumentException('Unknown tab ID');
+			}
+
+			foreach ($record as $key => $value) {
 				$this->$key = $value;
 			}
 		}
@@ -79,7 +85,7 @@ class Tab
 			FROM @PREFIX_tabs_items ti
 			LEFT JOIN @PREFIX_products p ON ti.product = p.id
 			LEFT JOIN @PREFIX_categories c ON c.id = p.category
-			INNER JOIN @PREFIX_products_methods pm ON pm.product = p.id
+			LEFT JOIN @PREFIX_products_methods pm ON pm.product = p.id
 			WHERE ti.tab = ?
 			GROUP BY ti.id
 			ORDER BY ti.id;'), $this->id);

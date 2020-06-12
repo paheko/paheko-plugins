@@ -10,7 +10,11 @@ class Product
 	{
 		$db = DB::getInstance();
 		$categories = $db->getAssoc(POS::sql('SELECT id, name FROM @PREFIX_categories ORDER BY name;'));
-		$products = $db->get(POS::sql('SELECT * FROM @PREFIX_products ORDER BY category, name;'));
+
+		// Don't select products that don't have any payment method linked: you wouldn't be able to pay for them
+		$products = $db->get(POS::sql('SELECT * FROM @PREFIX_products p
+			INNER JOIN @PREFIX_products_methods m ON m.product = p.id
+			GROUP BY p.id ORDER BY category, name;'));
 
 		$list = [];
 

@@ -112,7 +112,7 @@
 			</table>
 			{/if}
 
-			{if $remainder}
+			{if $remainder && count($payment_options)}
 			<form method="post">
 				<fieldset>
 					<legend>Reste {$remainder|escape|pos_money} à payer</legend>
@@ -139,6 +139,8 @@
 					</p>
 				</fieldset>
 			</form>
+			{elseif $remainder}
+				<p class="error">Aucun moyen de paiement possible : certains produits n'ont aucun moyen de paiement défini.</p>
 			{/if}
 		</section>
 	</section>
