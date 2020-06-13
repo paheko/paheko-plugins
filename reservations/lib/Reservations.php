@@ -347,7 +347,7 @@ class Reservations
 
 	public function pruneBookings(int $days)
 	{
-		return DB::getInstance()->preparedQuery('DELETE FROM plugin_reservations_personnes WHERE date < datetime(\'now\', ? || \' days\');', -$days);
+		return DB::getInstance()->preparedQuery('DELETE FROM plugin_reservations_personnes WHERE date < datetime(\'now\', ? || \' days\');', [-$days]);
 	}
 
 	public function __destruct()
