@@ -14,8 +14,12 @@ if (null !== qg('id')) {
 	$tab = new Tab(qg('id'));
 }
 
-$current_pos_session = new Session($tab ? $tab->session : Session::getCurrentId());
-
+try {
+	$current_pos_session = new Session($tab ? $tab->session : Session::getCurrentId());
+}
+catch (\InvalidArgumentException $e) {
+	throw new UserException('Aucune session de caisse en cours et aucune note sélectionnée');
+}
 
 if (!empty($_POST['add_item'])) {
 	$tab->addItem((int)key($_POST['add_item']));

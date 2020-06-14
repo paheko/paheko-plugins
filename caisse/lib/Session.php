@@ -13,7 +13,13 @@ class Session
 	public function __construct(int $id) {
 		$this->id = $id;
 
-		foreach (DB::getInstance()->first(POS::sql('SELECT * FROM @PREFIX_sessions WHERE id = ?;'), $id) as $key => $value) {
+		$record = DB::getInstance()->first(POS::sql('SELECT * FROM @PREFIX_sessions WHERE id = ?;'), $id);
+
+		if (!$record) {
+			throw new \InvalidArgumentException('Invalid session ID');
+		}
+
+		foreach ($record as $key => $value) {
 			$this->$key = $value;
 		}
 	}
