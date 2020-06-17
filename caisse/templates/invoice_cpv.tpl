@@ -87,6 +87,7 @@
 		<h1>La rustine — atelier associatif de réparation de vélos</h1>
 		<h2>Association « loi 1901 » à but non lucratif — SIRET 538 625 773 00022</h2>
 		<h3>5 rue du Havre, 21000 DIJON — 03 73 27 03 66 — contact@larustine.org — http://larustine.org/</h3>
+		<h3>RNA W212006273</h3>
 	</div>
 </header>
 
