@@ -133,23 +133,27 @@
 				<th colspan="4">Total</th>
 				<td>{$tab.total|raw|pos_money}</td>
 			</tr>
-			{foreach from=$existing_payments item="payment"}
-			<tr class="foot">
-				<th>{$payment.method_name}</th>
-				<td colspan="3"><em>Réf. {$payment.reference}</em></td>
-				<td>{$payment.amount|raw|pos_money}</td>
-			</tr>
-			{/foreach}
+			{if $eligible}
 			<tr class="foot">
 				<th colspan="4">Déduction « Coup de pouce vélo - réparation »</th>
 				<td>{$eligible|raw|pos_money}</td>
 			</tr>
-			{if $remainder_after}
+			{else}
+				{foreach from=$existing_payments item="payment"}
+				<tr class="foot">
+					{if $payment.method_name == 'Coup de pouce vélo'}
+					<th colspan="4">Déduction « Coup de pouce vélo - réparation »</th>
+					{else}
+					<th colspan="4">Déjà payé — {$method.name}</th>
+					{/if}
+					<td>{$payment.amount|raw|pos_money}</td>
+				</tr>
+				{/foreach}
+			{/if}
 			<tr class="foot">
 				<th colspan="4">Reste à payer</th>
 				<td>{$remainder_after|raw|pos_money}</td>
 			</tr>
-			{/if}
 		</tbody>
 	</table>
 </section>
