@@ -26,6 +26,7 @@ elseif (isset($_POST['cancel'])) {
 
 $booking = $r->getUserBooking();
 $cat_id = $cat = null;
+$categories = null;
 
 if ($booking) {
 	$cat_id = $booking->categorie;
@@ -49,7 +50,7 @@ if ($cat_id) {
 	}
 }
 
-if (!$cat) {
+if ($categories) {
 	$tpl->assign('categories', $categories);
 }
 else {
