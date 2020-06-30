@@ -17,6 +17,9 @@ elseif ($current_pos_session = Session::getCurrentId()) {
 }
 
 if (!empty($_POST['open'])) {
+	if (trim(f('amount')) === '') {
+		throw new UserException('Le solde de la caisse ne peut être laissé vide.');
+	}
 	Session::open($session->getUser()->id, get_amount(f('amount')));
 	Utils::redirect(Utils::plugin_url(['file' => 'tab.php']));
 }

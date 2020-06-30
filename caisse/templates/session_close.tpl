@@ -103,18 +103,21 @@ a.onkeyup = (e) => {
 	var amount = a.value.replace(/[^\d.,]/g, '');
 	if (!amount.length) return;
 
+	var expected = parseInt(a.getAttribute('data-expected'), 10);
+
 	amount = amount.replace(',', '.');
 	amount = amount.split('.');
 	amount = parseInt(amount[0], 10) + ((amount[1] || '') + '00').substr(0, 2);
+	amount = parseInt(amount, 10);
 
-	if (a.getAttribute('data-expected') === amount) {
+	if (expected === amount) {
 		document.querySelector('.cash_diff').style.display = 'none';
 		return;
 	}
 
 	document.querySelector('.cash_diff').style.display = 'block';
 
-	var diff = parseInt(amount, 10) - parseInt(a.getAttribute('data-expected'), 10);
+	var diff = amount - expected;
 	var sign = diff.toString().substr(0, 1) == '-' ? '-' : '+';
 	diff = Math.abs(diff).toString();
 	diff = sign + (diff.substr(0, diff.length - 2) || '0') + ',' + ('00' + diff.substr(-2)).substr(-2);
