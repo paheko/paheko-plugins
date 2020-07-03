@@ -2,7 +2,8 @@
 
 CREATE TABLE IF NOT EXISTS @PREFIX_categories (
 	id INTEGER NOT NULL PRIMARY KEY,
-	name TEXT NOT NULL
+	name TEXT NOT NULL,
+	account TEXT NULL
 );
 
 CREATE TABLE IF NOT EXISTS @PREFIX_products (
@@ -45,7 +46,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_methods (
 CREATE TABLE IF NOT EXISTS @PREFIX_products_methods (
 	-- Link between products and available payment methods
 	product INTEGER NOT NULL REFERENCES @PREFIX_products (id) ON DELETE CASCADE,
-	method INTEGER NOT NULL REFERENCES @PREFIX_methods (id) ON DELETE CASCADE
+	method INTEGER NOT NULL REFERENCES @PREFIX_methods (id) ON DELETE CASCADE,
+	PRIMARY KEY(product, method)
 );
 
 CREATE TABLE IF NOT EXISTS @PREFIX_sessions (
@@ -65,6 +67,7 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs (
 	id INTEGER NOT NULL PRIMARY KEY,
 	session INTEGER NOT NULL REFERENCES @PREFIX_sessions (id) ON DELETE CASCADE,
 	name TEXT NULL,
+	user_id INTEGER NULL,
 	opened TEXT NOT NULL DEFAULT (datetime('now','localtime')),
 	closed TEXT NULL -- If NULL it is still open
 );
@@ -79,7 +82,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_items (
 	price INTEGER NOT NULL,
 	name TEXT NOT NULL,
 	category_name TEXT NOT NULL,
-	description TEXT NULL
+	description TEXT NULL,
+	account TEXT NULL
 );
 
 CREATE TABLE IF NOT EXISTS @PREFIX_tabs_payments (

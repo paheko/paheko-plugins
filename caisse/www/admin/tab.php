@@ -49,8 +49,8 @@ elseif (null !== qg('new')) {
 	$id = Tab::open($current_pos_session->id);
 	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $id]));
 }
-elseif (!empty($_POST['rename'])) {
-	$tab->rename($_POST['rename']);
+elseif (!empty($_POST['rename_name'])) {
+	$tab->rename($_POST['rename_name'], (int) f('rename_id') ?: null);
 	reload();
 }
 elseif (!empty($_POST['close'])) {

@@ -55,6 +55,15 @@ class Session
 		return $db->get(POS::sql($sql));
 	}
 
+	public function usernames()
+	{
+		$db = DB::getInstance();
+		$name_field = Config::getInstance()->get('champ_identite');
+		$sql = sprintf('SELECT %s AS open_user_name FROM membres WHERE id = ?
+			UNION ALL
+			SELECT %1$s AS close_user_name FROM membres WHERE id = ?;', $db->quoteIdentifier($name_field));
+		return $db->firstColumn(POS::sql($sql), $this->open_user, $this->close_user);
+	}
 
 	public function hasOpenNotes() {
 		return DB::getInstance()->test(POS::tbl('tabs'), 'session = ? AND closed IS NULL', $this->id);
@@ -181,5 +190,9 @@ class Session
 			INNER JOIN @PREFIX_methods m ON m.id = p.method
 			WHERE t.session = ? AND m.is_cash = 0
 			ORDER BY p.date;'), $this->id);
+	}
+
+	public function listMissingUsers() {
+		return DB::getInstance()->get(POS::sql('SELECT * FROM @PREFIX_tabs WHERE user_id IS NULL AND session = ?;'), $this->id);
 	}
 }

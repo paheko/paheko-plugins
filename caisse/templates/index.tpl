@@ -29,11 +29,12 @@
 				{/if}
 			</td>
 			<td class="actions">
-				<a href="session.php?id={$pos_session.id}">Détails</a>
 				{if !$pos_session.closed}
+				<strong><a href="tab.php">Reprendre</a></strong>
 				| <a href="session_close.php?id={$pos_session.id}">Clôturer</a>
-				| <a href="tab.php">Reprendre</a>
+				|
 				{/if}
+				<a href="session.php?id={$pos_session.id}">Résumé</a>
 			</td>
 		</tr>
 		{/foreach}

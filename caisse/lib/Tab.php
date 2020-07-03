@@ -2,7 +2,9 @@
 
 namespace Garradin\Plugin\Caisse;
 
+use Garradin\Config;
 use Garradin\DB;
+use Garradin\Membres\Cotisations;
 use Garradin\UserException;
 
 class Tab
@@ -40,7 +42,7 @@ class Tab
 	public function addItem(int $id)
 	{
 		$db = DB::getInstance();
-		$product = $db->first(POS::sql('SELECT p.*, c.name AS category_name
+		$product = $db->first(POS::sql('SELECT p.*, c.name AS category_name, c.account AS category_account
 			FROM @PREFIX_products p
 			INNER JOIN @PREFIX_categories c ON c.id = p.category
 			WHERE p.id = ?'), $id);
@@ -53,6 +55,7 @@ class Tab
 			'name'          => $product->name,
 			'category_name' => $product->category_name,
 			'description'   => $product->description,
+			'account'       => $product->category_account,
 		]);
 	}
 
@@ -108,6 +111,10 @@ class Tab
 			throw new UserException(sprintf('Ce moyen de paiement ne peut être utilisé pour un montant supérieur à %d,%02d€', (int) ($a/100), (int) ($a%100)));
 		}
 
+		if (null !== $reference && $option->is_cash) {
+			throw new UserException('Référence indiquée pour un règlement en espèces : vouliez-vous enregistrer un règlement par chèque ?');
+		}
+
 		return DB::getInstance()->insert(POS::tbl('tabs_payments'), [
 			'tab'         => $this->id,
 			'method'      => $method_id,
@@ -158,10 +165,10 @@ class Tab
 		return $db->lastInsertRowID();
 	}
 
-	public function rename(string $new_name) {
+	public function rename(string $new_name, ?int $user_id) {
 		$new_name = trim($new_name);
 		$db = DB::getInstance();
-		return $db->update(POS::tbl('tabs'), ['name' => $new_name], $db->where('id', $this->id));
+		return $db->update(POS::tbl('tabs'), ['name' => $new_name, 'user_id' => $user_id], $db->where('id', $this->id));
 	}
 
 	public function close() {
@@ -189,5 +196,45 @@ class Tab
 
 	static public function listForSession(int $session_id) {
 		return DB::getInstance()->getGrouped(POS::sql('SELECT id, *, COALESCE((SELECT SUM(qty*price) FROM @PREFIX_tabs_items WHERE tab = @PREFIX_tabs.id), 0) AS total FROM @PREFIX_tabs WHERE session = ? ORDER BY closed IS NOT NULL, opened DESC;'), $session_id);
+	}
+
+	static public function searchMember($q) {
+		$operator = 'LIKE';
+		$identite = Config::getInstance()->get('champ_identite');
+
+		if (is_numeric(trim($q)))
+		{
+			$column = 'numero';
+			$operator = '=';
+		}
+		elseif (strpos($q, '@') !== false)
+		{
+			$column = 'email';
+		}
+		else
+		{
+			$column = $identite;
+		}
+
+		if ($operator == 'LIKE') {
+			$q = str_replace(['%', '_'], ['\\%', '\\_'], $q);
+
+			$q = '%' . $q . '%';
+			$sql = sprintf('%s %s ? ESCAPE \'\\\'', $column, $operator);
+		}
+		else {
+			$sql = sprintf('%s %s ?', $column, $operator);
+		}
+
+		$sql = sprintf('SELECT id, numero, email, %s AS identite FROM membres WHERE %s ORDER BY transliterate_to_ascii(%1$s) COLLATE NOCASE LIMIT 0, 7;', $identite, $sql);
+
+		$result = DB::getInstance()->get($sql, $q);
+		$c = new Cotisations;
+
+		foreach ($result as &$row) {
+			$row->subscriptions = $c->listSubscriptionsForMember($row->id);
+		}
+
+		return $result;
 	}
 }

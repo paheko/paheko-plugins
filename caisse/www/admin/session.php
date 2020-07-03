@@ -33,6 +33,8 @@ if ($pos_session) {
 	$tpl->assign('tabs', $pos_session->listTabsWithItems());
 	$tpl->assign('totals_categories', $pos_session->listTotalsByCategory());
 	$tpl->assign('total', $pos_session->getTotal());
+	$tpl->assign('names', $pos_session->usernames());
+	$tpl->assign('missing_users_tabs', $pos_session->listMissingUsers());
 
 	$tpl->assign('title', 'Session de caisse du ' . Utils::sqliteDateToFrench($pos_session->opened));
 	$tpl->display(PLUGIN_ROOT . '/templates/session.tpl');

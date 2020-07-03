@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" current="plugin_%s"|args:$plugin.id}
+{include file="admin/_head.tpl" current="plugin_%s"|args:$plugin.id js=1}
 
 <ul class="actions">
 	<li><a href="session.php?id={$pos_session.id}">Résumé</a>
@@ -35,7 +35,7 @@
 			</div>
 			<div>
 				<form method="post">
-				<input type="submit" name="rename" data-name="{$current_tab.name}" value="Renommer" />
+				<input type="button" name="rename" value="Renommer" />
 				{if !$remainder && $items && !$current_tab.closed}
 					<input type="submit" name="close" value="Clore la note" />
 				{elseif $current_tab.closed && !$pos_session.closed}
@@ -117,21 +117,21 @@
 				<fieldset>
 					<legend>Reste {$remainder|escape|pos_money} à payer</legend>
 					<dl>
-						<dt>Moyen de paiement</dt>
+						<dt><label for="f_method_id">Moyen de paiement</label></dt>
 						<dd>
-							<select name="method_id">
+							<select name="method_id" id="f_method_id">
 								{foreach from=$payment_options item="method"}
 								<option value="{$method.id}" data-amount="{$method.amount|pos_amount}">{$method.name} (jusqu'à {$method.amount|escape|pos_money})</option>
 								{/foreach}
 							</select>
 						</dd>
-						<dt>Montant</dt>
+						<dt><label for="f_method_amount">Montant</label></dt>
 						<dd>
 							<input type="text" pattern="\d+([,.]\d+)?" name="amount" id="f_method_amount" value="{$remainder|pos_amount}" required="required" size="5" /> €
 						</dd>
-						<dt>Référence du paiement (numéro de chèque…)</dt>
+						<dt><label for="f_method_reference">Référence du paiement (numéro de chèque…)</label></dt>
 						<dd>
-							<input type="text" name="reference" />
+							<input type="text" name="reference" id="f_method_reference" />
 						</dd>
 					</dl>
 					<p class="submit">
@@ -172,17 +172,71 @@
 </section>
 {/if}
 
+{if $tab_id}
+<div id="user_rename" class="hidden">
+	<form method="post" action="{$self_url}">
+		<input type="hidden" name="rename_id" value="" />
+		<input type="text" name="rename_name" placeholder="Chercher un membre…" value="{$current_tab.name}" />
+	</form>
+	<ul>
+	</ul>
+</div>
+
 <script type="text/javascript">
 {literal}
 var fr = document.querySelector('input[name="rename"]');
 
+
+var ur = $('#user_rename');
+var ur_input = $(' #user_rename input[type=text]')[0];
+var ur_id = $('[name="rename_id"]')[0];
+var ur_list = $(' #user_rename ul')[0];
+var ur_list_template = '';
+var ur_timeout = null;
+
 if (fr) {
 	fr.onclick = function(e) {
-		var v = prompt("Nouveau nom ?", fr.getAttribute('data-name'));
-		if (v === null) return false;
-		fr.value = v;
+		g.toggle(' #user_rename', true);
+		ur_input.focus();
+		ur_input.select();
+		return false;
 	}
 }
+
+ur.onclick = (e) => {
+	if (e.target === ur) closeUserRename();
+};
+
+function closeUserRename () {
+	g.toggle(' #user_rename', false);
+	ur_input.value = '';
+	$(' #user_rename ul')[0].innerHTML = '';
+	return false;
+}
+
+function selectUserRename (id, name) {
+	closeUserRename();
+	ur_id.value = id;
+	ur_input.value = name;
+	ur_input.form.submit();
+	return false;
+}
+
+function completeUserName(list) {
+	var v = ur_input.value.replace(/^\s+|\s+$/g, '');
+
+	if (!v.match(/^\d+$/) && v.length < 3) return false;
+
+	g.load(g.admin_url + 'plugin/caisse/_member_search.php?q=' + encodeURIComponent(v), (list) => {
+		ur_list.innerHTML = list;
+	});
+}
+
+ur_input.onkeyup = (e) => {
+	window.clearTimeout(ur_timeout);
+	ur_timeout = window.setTimeout(completeUserName, 300);
+	return false;
+};
 
 document.querySelectorAll('input[name*="change_qty"], input[name*="change_price"]').forEach((elm) => {
 	elm.onclick = (e) => {
@@ -196,7 +250,8 @@ var pm = document.querySelector('select[name="method_id"]');
 
 if (pm) {
 	pm.onchange = (e) => {
-		document.querySelector('#f_method_amount').value = pm.options[pm.selectedIndex].getAttribute('data-amount');
+		var o = pm.options[pm.selectedIndex];
+		document.querySelector('#f_method_amount').value = o.getAttribute('data-amount');
 	};
 }
 
@@ -236,5 +291,6 @@ pdf.onsubmit = (e) => {
 };
 {/literal}
 </script>
+{/if}
 
 {include file="admin/_foot.tpl"}

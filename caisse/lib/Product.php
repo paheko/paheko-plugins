@@ -14,7 +14,7 @@ class Product
 		// Don't select products that don't have any payment method linked: you wouldn't be able to pay for them
 		$products = $db->get(POS::sql('SELECT * FROM @PREFIX_products p
 			INNER JOIN @PREFIX_products_methods m ON m.product = p.id
-			GROUP BY p.id ORDER BY category, name;'));
+			GROUP BY p.id ORDER BY category, transliterate_to_ascii(name) COLLATE NOCASE;'));
 
 		$list = [];
 
