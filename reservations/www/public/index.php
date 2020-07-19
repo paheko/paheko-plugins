@@ -31,7 +31,7 @@ $categories = null;
 if ($booking) {
 	$cat_id = $booking->categorie;
 }
-elseif (!empty($_GET['cat'])) {
+elseif (!empty($_GET['cat']) && ctype_digit($_GET['cat'])) {
 	$cat_id = (int) $_GET['cat'];
 }
 else {
