@@ -45,6 +45,17 @@
 
 </form>
 
+<form method="post" action="{$self_url}">
+    <fieldset>
+        <legend>Supprimer ce type de créneau</legend>
+        <p class="alert">Ceci effacera toutes les réservations liées.</p>
+        <p class="submit">
+            {csrf_field key="config_plugin_%s"|args:$plugin.id}
+            <input type="submit" name="delete" value="Supprimer &rarr;" />
+        </p>
+    </fieldset>
+</form>
+
 <script type="text/javascript">
 var champ_identifiant = "f_{$config.champ_identifiant|escape:'js'}";
 var champ_identite = "f_{$config.champ_identite|escape:'js'}";
