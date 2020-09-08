@@ -182,12 +182,9 @@ class Reservations
 			throw new UserException('Heure invalide');
 		}
 
-		return DB::getInstance()->update('plugin_reservations_creneaux', [
-			'jour'       => $day,
-			'heure'      => $hour,
-			'repetition' => (int)$repeat,
-			'maximum'    => abs($max),
-		], 'id = :id', ['id' => $id]);
+		$db = DB::getInstance();
+
+		return $db->preparedQuery('UPDATE OR IGNORE plugin_reservations_creneaux SET jour = ?, heure = ?, repetition = ?, maximum = ? WHERE id = ?;', [$day, $hour, (int)$repeat, abs($max), $id]);
 	}
 
 	public function createBooking(int $slot_id, DateTime $date, string $nom, ?string $champ)
