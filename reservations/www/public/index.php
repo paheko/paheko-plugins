@@ -53,8 +53,11 @@ if ($cat_id) {
 if ($categories) {
 	$tpl->assign('categories', $categories);
 }
-else {
+elseif ($cat && $cat_id) {
 	$tpl->assign('slots', $r->listUpcomingSlots($cat->id));
+}
+else {
+	$tpl->assign('slots', []);
 }
 
 $tpl->assign('cat', $cat);
