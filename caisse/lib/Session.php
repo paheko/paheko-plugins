@@ -61,7 +61,7 @@ class Session
 		$name_field = Config::getInstance()->get('champ_identite');
 		$sql = sprintf('SELECT x.a AS open_user_name, y.b AS close_user_name FROM
 			(SELECT %s AS a FROM membres WHERE id = ?) AS x,
-			(SELECT %s AS b FROM membres WHERE id = ?) AS y;', $db->quoteIdentifier($name_field));
+			(SELECT %1$s AS b FROM membres WHERE id = ?) AS y;', $db->quoteIdentifier($name_field));
 		return $db->firstColumn(POS::sql($sql), $this->open_user, $this->close_user);
 	}
 
