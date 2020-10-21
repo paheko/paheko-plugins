@@ -120,6 +120,7 @@ class Tab
 			'method'      => $method_id,
 			'amount'      => $amount,
 			'reference'   => $reference,
+			'account'     => $option->account,
 		]);
 	}
 

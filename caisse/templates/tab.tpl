@@ -36,7 +36,7 @@
 			<div>
 				<form method="post">
 				<input type="button" name="rename" value="Renommer" />
-				{if !$remainder && $items && !$current_tab.closed}
+				{if !$remainder && !$current_tab.closed}
 					<input type="submit" name="close" value="Clore la note" />
 				{elseif $current_tab.closed && !$pos_session.closed}
 					<input type="submit" name="reopen" value="Ré-ouvrir la note" />

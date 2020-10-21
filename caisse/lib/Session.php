@@ -55,6 +55,84 @@ class Session
 		return $db->get(POS::sql($sql));
 	}
 
+	static public function exportAccounting()
+	{
+		$db = DB::getInstance();
+
+		$sql = 'SELECT
+			NULL AS id,
+			\'Avancé\' AS type,
+			NULL AS status,
+			\'Session de caisse n°\' || s.id AS label,
+			strftime(\'%d/%m/%Y\', s.closed) AS date,
+			NULL AS notes,
+			\'POS-SESSION-\' || s.id AS reference,
+			NULL AS line_id,
+			lines.account,
+			SUM(lines.credit) AS credit,
+			SUM(lines.debit) AS debit,
+			lines.reference AS line_reference,
+			NULL AS line_label,
+			0 AS reconciled,
+			s.id AS sid
+			FROM @PREFIX_sessions s
+			INNER JOIN (
+				SELECT session, account, SUM(price * qty) AS credit, 0 AS debit, NULL AS reference
+				FROM @PREFIX_tabs_items ti
+				INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
+				GROUP BY t.session, account
+				UNION ALL
+				SELECT session, account, 0 AS credit, SUM(amount) AS debit, reference
+				FROM @PREFIX_tabs_payments tp
+				INNER JOIN @PREFIX_tabs t ON t.id = tp.tab
+				GROUP BY t.session, account, reference
+				) AS lines
+				ON lines.session = s.id
+			WHERE s.closed IS NOT NULL
+			GROUP BY s.id, lines.account, lines.reference
+			ORDER BY s.id, lines.account, lines.reference;';
+
+		$sql = POS::sql($sql);
+
+		header('Content-type: application/csv');
+		header(sprintf('Content-Disposition: attachment; filename="%s.csv"', 'Export caisse compta - ' . date('d/m/Y')));
+
+		$fp = fopen('php://output', 'w');
+
+		fputcsv($fp, ['id', 'type', 'status', 'label', 'date', 'notes', 'reference',
+			'line_id', 'account', 'credit', 'debit', 'line_reference', 'line_label', 'reconciled']);
+
+		$id = null;
+
+		$money = function (int $value): string {
+			if (!$value) {
+				return '0';
+			}
+
+			$decimals = substr($value, -2);
+			$digits = substr($value, 0, -2) ?: '0';
+			return $digits . ',' . $decimals;
+		};
+
+		foreach ($db->iterate($sql) as $row) {
+			if (null !== $id && $row->sid === $id) {
+				$row->type = $row->status = $row->label = $row->date = $row->reference = null;
+			}
+
+			if (null === $id || $row->sid !== $id) {
+				$id = $row->sid;
+			}
+
+			$row->credit = $money($row->credit);
+			$row->debit = $money($row->debit);
+
+			unset($row->sid);
+			fputcsv($fp, (array) $row);
+		}
+
+		fclose($fp);
+	}
+
 	public function usernames()
 	{
 		$db = DB::getInstance();

@@ -1,8 +1,13 @@
 {include file="admin/_head.tpl" title="Sessions de caisse" current="plugin_%s"|args:$plugin.id}
 
-{if !$current_pos_session}
+{if !$current_pos_session || $session->canAccess('compta', Membres::DROIT_ADMIN)}
 <ul class="actions">
+	{if !$current_pos_session}
 	<li><a href="session.php">Ouvrir la caisse</a></li>
+	{/if}
+	{if $session->canAccess('compta', Membres::DROIT_ADMIN)}
+	<li><a href="export.php">Export compta CSV</a></li>
+	{/if}
 </ul>
 {/if}
 

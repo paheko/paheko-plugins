@@ -40,7 +40,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_methods (
 	name TEXT NOT NULL,
 	is_cash INTEGER NOT NULL DEFAULT 0,
 	min INTEGER NULL,
-	max INTEGER NULL
+	max INTEGER NULL,
+	account TEXT NULL
 );
 
 CREATE TABLE IF NOT EXISTS @PREFIX_products_methods (
@@ -93,5 +94,6 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_payments (
 	method INTEGER NULL REFERENCES @PREFIX_methods (id) ON DELETE RESTRICT,
 	date TEXT NOT NULL DEFAULT (datetime('now','localtime')),
 	amount INTEGER NOT NULL, -- Can be negative for a refund
-	reference TEXT NULL
+	reference TEXT NULL,
+	account TEXT NULL
 );
