@@ -78,7 +78,7 @@ class Reservations
 	{
 		$query = 'SELECT p.*, strftime(\'%s\', datetime(p.date, \'utc\')) AS date, c.categorie
 			FROM plugin_reservations_personnes p
-			INNER JOIN plugin_reservations_creneaux c ON c.id = p.creneau
+			INNER JOIN plugin_reservations_creneaux c ON c.id = p.creneau AND c.jour = date(p.date)
 			WHERE date >= date(\'now\') AND categorie = ? ORDER BY date;';
 		$bookings = DB::getInstance()->get($query, $cat_id);
 
@@ -207,7 +207,7 @@ class Reservations
 			(repetition = 1 AND :date >= jour AND strftime(\'%w\', jour) = strftime(\'%w\', :date))
 			OR jour = :date)';
 
-		$booking = $db->first('SELECT prc.*, (SELECT COUNT(*) FROM plugin_reservations_personnes prp WHERE creneau = prc.id AND prc.jour = :date) AS jauge FROM plugin_reservations_creneaux prc WHERE ' . $test, ['id' => $slot_id, 'date' => $date->format('Y-m-d')]);
+		$booking = $db->first('SELECT prc.*, (SELECT COUNT(*) FROM plugin_reservations_personnes prp WHERE creneau = prc.id AND prc.jour = :date AND date(prp.date) = date(prc.jour)) AS jauge FROM plugin_reservations_creneaux prc WHERE ' . $test, ['id' => $slot_id, 'date' => $date->format('Y-m-d')]);
 
 		if (!$booking) {
 			throw new UserException('Date ou créneau invalide');
