@@ -11,4 +11,4 @@ UPDATE @PREFIX_methods SET account = '511A' WHERE id = 3;
 
 UPDATE @PREFIX_tabs_payments SET account = '530' WHERE method = 1;
 UPDATE @PREFIX_tabs_payments SET account = '5112' WHERE method = 2;
-UPDATE @PREFIX_tabs_payments SET account = '511A' WHERE method = 3;
+UPDATE @PREFIX_tabs_payments SET account = '4687A' WHERE method = 3;
