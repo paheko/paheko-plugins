@@ -78,8 +78,8 @@ class Reservations
 	{
 		$query = 'SELECT p.*, strftime(\'%s\', datetime(p.date, \'utc\')) AS date, c.categorie
 			FROM plugin_reservations_personnes p
-			INNER JOIN plugin_reservations_creneaux c ON c.id = p.creneau AND c.jour = date(p.date)
-			WHERE date >= date(\'now\') AND categorie = ? ORDER BY date;';
+			INNER JOIN plugin_reservations_creneaux c ON c.id = p.creneau
+			WHERE date(date) >= date(\'now\') AND categorie = ? ORDER BY date;';
 		$bookings = DB::getInstance()->get($query, $cat_id);
 
 		$date = null;
@@ -183,6 +183,8 @@ class Reservations
 		}
 
 		$db = DB::getInstance();
+
+		$db->preparedQuery('DELETE FROM plugin_reservations_personnes WHERE creneau = ? AND date(date) < ?;', [$id, $day]);
 
 		return $db->preparedQuery('UPDATE OR IGNORE plugin_reservations_creneaux SET jour = ?, heure = ?, repetition = ?, maximum = ? WHERE id = ?;', [$day, $hour, (int)$repeat, abs($max), $id]);
 	}
@@ -349,7 +351,7 @@ class Reservations
 
 	public function __destruct()
 	{
-		$this->pruneBookings(7);
+		$this->pruneBookings(1);
 	}
 
 /*
