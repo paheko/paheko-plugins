@@ -24,7 +24,7 @@ $categories = $r->listCategories();
 $cat = null;
 
 if (count($categories) == 1) {
-	$cat = current($categories);
+	$cat = $r->getCategory(current($categories)->id);
 }
 elseif (qg('cat')) {
 	$cat = $r->getCategory(qg('cat'));

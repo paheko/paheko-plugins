@@ -46,7 +46,7 @@
 	<fieldset>
 		<legend>{if !empty($title)}{$title}{else}Créneaux disponibles{/if}</legend>
 		{if !count($slots)}
-			<p class="alert">Aucun créneau disponible.
+			<p class="alert">Aucun créneau disponible.</p>
 		{else}
 			<dl class="slots">
 				{foreach from=$slots item="slot"}
