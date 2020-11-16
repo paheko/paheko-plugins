@@ -32,7 +32,7 @@
 		Merci de bien vouloir recompter la caisse.
 	</p>
 	<p class="help">
-		<label><input type="checkbox" name="recheck" value="1" /> Je confirme avoir re-compté le contenu de la caisse et constate toujours une erreur.</label>
+		{input type="checkbox" name="recheck" value="1" label="Je confirme avoir re-compté le contenu de la caisse et constate toujours une erreur."}
 	</p>
 </div>
 
@@ -59,7 +59,9 @@
 		<tbody>
 			{foreach from=$payments_except_cash item="payment"}
 			<tr>
-				<td class="check"><input type="checkbox" name="payments[{$payment.id}]" value="1" /></td>
+				<td class="check">
+					{input type="checkbox" name="payments[%d]"|args:$payment.id value="1"}
+				</td>
 				<td>{$payment.tab}</td>
 				<td>
 					{$payment.date|date_format:"%H:%M"}
@@ -70,7 +72,7 @@
 				</th>
 				<td>{$payment.reference}</td>
 				<td class="actions">
-					<a href="tab.php?id={$payment.tab}" class="icn" title="Note">𝍢</a>
+					{linkbutton shape="menu" label="Note" href="tab.php?id=%d"|args:$payment.tab}
 				</td>
 			</tr>
 			{/foreach}
@@ -82,7 +84,7 @@
 <h2 class="ruler">3. Confirmer et clôturer</h2>
 
 <h3 class="warning">
-	<label><input type="checkbox" name="confirm" value="1" /> Je confirme que les informations indiquées dans ce formulaire sont justes</label>
+	{input type="checkbox" name="confirm" value="1" label="Je confirme que les informations indiquées dans ce formulaire sont justes"}
 </h3>
 
 <p class="alert">
@@ -90,7 +92,7 @@
 </p>
 
 <p class="submit">
-	<input type="submit" name="close" value="Clôturer la caisse" />
+	{button type="submit" name="close" label="Clôturer la caisse" shape="lock" class="main"}
 </p>
 
 </form>

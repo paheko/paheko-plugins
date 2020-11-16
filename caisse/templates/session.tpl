@@ -135,7 +135,9 @@
 				{$payment.amount|raw|pos_money}
 			</td>
 			<td>{$payment.reference}</td>
-			<td class="actions"><span class="noprint"><a href="tab.php?id={$payment.tab}" class="icn" title="Détails">𝍢</a></span></td>
+			<td class="actions">
+				{linkbutton shape="menu" label="Détails" href="tab.php?id=%d"|args:$payment.tab class="noprint"}
+			</td>
 		</tr>
 		{/foreach}
 	</tbody>
@@ -168,7 +170,9 @@
 			<td>
 				{$tab.total|raw|pos_money}
 			</td>
-			<td class="actions"><span class="noprint"><a href="tab.php?id={$tab.id}" class="icn" title="Détails">𝍢</a></span></td>
+			<td class="actions">
+				{linkbutton shape="menu" label="Détails" href="tab.php?id=%d"|args:$payment.tab class="noprint"}
+			</td>
 		</tr>
 		{/foreach}
 	</tbody>

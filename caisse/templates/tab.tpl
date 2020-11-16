@@ -1,23 +1,25 @@
 {include file="admin/_head.tpl" current="plugin_%s"|args:$plugin.id js=1}
 
-<ul class="actions">
-	<li><a href="session.php?id={$pos_session.id}">Résumé</a>
-{if !$pos_session.closed}
-	<li><a href="{$self_url_no_qs}?new"><strong>Nouvelle note</strong></a></li>
-{/if}
-{foreach from=$tabs item="tab"}
-	<li class="{if $tab.id == $tab_id}current{/if} {if $tab.closed}closed{/if}">
-		<a href="{$self_url_no_qs}?id={$tab.id}">
-			{$tab.id}. {$tab.opened|date_format:"%H:%M"}
-			{if $tab.total} — {$tab.total|escape|pos_money}{/if}
-			{if $tab.name} — {$tab.name}{/if}
-		</a>
-	</li>
-{/foreach}
-{if !$pos_session.closed}
-	<li><a href="session_close.php?id={$pos_session.id}"><strong>Clôturer la caisse</strong></a>
-{/if}
-</ul>
+<nav class="tabs">
+	<ul>
+		<li><a href="session.php?id={$pos_session.id}">Résumé</a>
+	{if !$pos_session.closed}
+		<li><a href="{$self_url_no_qs}?new"><strong>Nouvelle note</strong></a></li>
+	{/if}
+	{foreach from=$tabs item="tab"}
+		<li class="{if $tab.id == $tab_id}current{/if} {if $tab.closed}closed{/if}">
+			<a href="{$self_url_no_qs}?id={$tab.id}">
+				{$tab.id}. {$tab.opened|date_format:"%H:%M"}
+				{if $tab.total} — {$tab.total|escape|pos_money}{/if}
+				{if $tab.name} — {$tab.name}{/if}
+			</a>
+		</li>
+	{/foreach}
+	{if !$pos_session.closed}
+		<li><a href="session_close.php?id={$pos_session.id}"><strong>Clôturer la caisse</strong></a></li>
+	{/if}
+	</ul>
+</nav>
 
 {if $tab_id}
 <section class="pos">
@@ -68,7 +70,11 @@
 					<td>{if !$current_tab.closed}<input type="submit" name="change_qty[{$item.id}]" value="{$item.qty}" />{else}{$item.qty}{/if}</td>
 					<td>{if !$current_tab.closed}<input type="submit" name="change_price[{$item.id}]" value="{$item.price|escape|pos_money}" />{else}{$item.price|escape|pos_money}{/if}</td>
 					<td>{$item.total|escape|pos_money}</td>
-					<td class="actions">{if !$current_tab.closed}<a class="icn" href="?id={$current_tab.id}&amp;delete_item={$item.id}" title="Supprimer">✘</a>{/if}</td>
+					<td class="actions">
+						{if !$current_tab.closed}
+							{linkbutton label="" shape="delete" href="?id=%d&delete_item=%d"|args:$current_tab.id,$item.id}
+						{/if}
+					</td>
 				</tr>
 				{/foreach}
 				</tbody>
@@ -135,7 +141,7 @@
 						</dd>
 					</dl>
 					<p class="submit">
-						<input type="submit" name="pay" value="Enregistrer le paiement" />
+						{button type="submit" name="pay" label="Enregistrer le paiement" shape="right" class="main"}
 					</p>
 				</fieldset>
 			</form>

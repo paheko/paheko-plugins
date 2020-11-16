@@ -18,11 +18,17 @@
 	margin: .3rem;
 	flex: 1;
 	transition: background .2s;
-	min-width: 9rem;
+	min-width: 9rem !important;
 }
 
 .pos .products button h4 {
 	color: #666;
+	font-size: 1em;
+	margin: .5em 0;
+}
+
+.pos .products button h3 {
+	font-size: 1.1em;
 }
 
 .pos .products button:hover {
@@ -32,7 +38,7 @@
 
 .pos .products section div {
 	display: flex;
-	flex-grow: 0;
+	flex-grow: 1;
 	flex-wrap: wrap;
 }
 
@@ -42,7 +48,7 @@
 }
 
 
-ul.actions li.closed a {
+.tabs li.closed a {
 	text-decoration: line-through;
 	opacity: 0.5;
 }
@@ -69,16 +75,16 @@ input[name="q"] {
 	display: block;
 }
 
-ul.actions li {
+.tabs li {
 	padding: .2rem .1rem;
 	margin: 0;
 }
 
-ul.actions li a {
+.tabs ul li a {
 	border-radius: .5rem;
 }
 
-ul.actions {
+.tabs ul {
 	padding: 0;
 }
 

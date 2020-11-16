@@ -3,17 +3,16 @@
 		<h5>{$m.numero}</h5>
 		<h3>{$m.identite}</h3>
 		<h4>{$m.email}</h4>
-		{foreach from=$m.subscriptions item="cotisation"}
-		<p>{$cotisation.intitule} —
-		{if !$cotisation.a_jour}
-			<span class="error"><b>En retard</b> depuis le {$cotisation.expiration|format_sqlite_date_to_french}</span>
-		{else}
-			<b class="confirm">&#10003; À jour</b>
-			{if $cotisation.expiration}
-				(expire le {$cotisation.expiration|format_sqlite_date_to_french})
+		<p>
+			Cotisation
+			{if $m.status == -1}
+				<span class="error"><b>En retard</b> depuis le {$m.expiry_date|format_sqlite_date_to_french}</span>
+			{else}
+				<b class="confirm">&#10003; À jour</b>
+				{if $m.expiry_date}
+					(expire le {$m.expiry_date|format_sqlite_date_to_french})
+				{/if}
 			{/if}
-		{/if}
 		</p>
-		{/foreach}
 	</li>
 {/foreach}

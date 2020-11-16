@@ -1,14 +1,16 @@
 {include file="admin/_head.tpl" title="Sessions de caisse" current="plugin_%s"|args:$plugin.id}
 
 {if !$current_pos_session || $session->canAccess('compta', Membres::DROIT_ADMIN)}
-<ul class="actions">
-	{if !$current_pos_session}
-	<li><a href="session.php">Ouvrir la caisse</a></li>
-	{/if}
-	{if $session->canAccess('compta', Membres::DROIT_ADMIN)}
-	<li><a href="export.php">Export compta CSV</a></li>
-	{/if}
-</ul>
+<nav class="tabs">
+	<ul>
+		{if !$current_pos_session}
+		<li><a href="session.php">Ouvrir la caisse</a></li>
+		{/if}
+		{if $session->canAccess('compta', Membres::DROIT_ADMIN)}
+		<li><a href="export.php">Export compta CSV</a></li>
+		{/if}
+	</ul>
+</nav>
 {/if}
 
 <table class="list">
@@ -35,11 +37,10 @@
 			</td>
 			<td class="actions">
 				{if !$pos_session.closed}
-				<strong><a href="tab.php">Reprendre</a></strong>
-				| <a href="session_close.php?id={$pos_session.id}">Clôturer</a>
-				|
+				{linkbutton shape="right" label="Reprendre" href="tab.php"}
+				{linkbutton shape="lock" label="Clôturer" href="session_close.php?id=%s"|args:$pos_session.id}
 				{/if}
-				<a href="session.php?id={$pos_session.id}">Résumé</a>
+				{linkbutton shape="menu" label="Résumé" href="session.php?id=%s"|args:$pos_session.id}
 			</td>
 		</tr>
 		{/foreach}

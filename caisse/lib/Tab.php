@@ -227,15 +227,15 @@ class Tab
 			$sql = sprintf('%s %s ?', $column, $operator);
 		}
 
-		$sql = sprintf('SELECT id, numero, email, %s AS identite FROM membres WHERE %s ORDER BY transliterate_to_ascii(%1$s) COLLATE NOCASE LIMIT 0, 7;', $identite, $sql);
+		$sql = sprintf('SELECT m.id, m.numero, m.email, m.%s AS identite,
+			MAX(su.expiry_date) AS expiry_date,
+			CASE WHEN su.expiry_date < date() THEN -1 WHEN su.expiry_date >= date() THEN 1 ELSE 0 END AS status
+			FROM membres m
+			LEFT JOIN services_users su ON su.id_user = m.id
+			WHERE m.%s
+			GROUP BY m.id
+			ORDER BY transliterate_to_ascii(m.%1$s) COLLATE NOCASE LIMIT 0, 7;', $identite, $sql);
 
-		$result = DB::getInstance()->get($sql, $q);
-		$c = new Cotisations;
-
-		foreach ($result as &$row) {
-			$row->subscriptions = $c->listSubscriptionsForMember($row->id);
-		}
-
-		return $result;
+		return DB::getInstance()->get($sql, $q);
 	}
 }
