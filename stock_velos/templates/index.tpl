@@ -44,7 +44,7 @@
             <td>{$velo.modele|escape}</td>
             <td>{$velo.couleur|escape}</td>
             <td>{if empty($velo.prix)}--{elseif $velo.prix < 0}à&nbsp;démonter{else}{$velo.prix|escape} €{/if}</td>
-            <td>{$velo.date_entree|format_sqlite_date_to_french}</td>
+            <td>{$velo.date_entree|date_short}</td>
         </tr>
     {/foreach}
     </tbody>

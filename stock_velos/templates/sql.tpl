@@ -45,7 +45,7 @@
                 {elseif is_null($value)}
                     <td>NULL</td>
                 {elseif substr($name, 0, 4) == 'date'}
-                    <td>{$value|format_sqlite_date_to_french}</td>
+                    <td>{$value|date_short}</td>
                 {else}
                     <td>{$value|escape}</td>
                 {/if}

@@ -63,7 +63,7 @@
             réglé en <b>espèces</b> <b>chèque</b> <em>(barrer la mention inutile)</em> à l'établissement du présent contrat.</p>
         <p>Le vendeur déclare que le vélo n'est pas d'origine frauduleuse et qu'il est conforme à
             l'état indiqué ci-dessus.</p>
-        <p>Fait en deux exemplaires, à Dijon, le {$velo.date_entree|format_sqlite_date_to_french}.</p>
+        <p>Fait en deux exemplaires, à Dijon, le {$velo.date_entree|date_short}.</p>
 
         <p class="signature">(Signature de l'acquéreur)</p>
         <p class="signature">(Signature du vendeur, ou d'un parent pour les mineurs)</p>

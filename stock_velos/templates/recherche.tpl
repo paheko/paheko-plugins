@@ -57,8 +57,8 @@
                 <td>{$velo.roues}</td>
                 <td>{$velo.genre}</td>
                 <td>{if empty($velo.prix)}--{elseif $velo.prix < 0}à&nbsp;démonter{else}{$velo.prix} €{/if}</td>
-                <td>{$velo.date_entree|format_sqlite_date_to_french}</td>
-                <td>{if !is_null($velo.date_sortie)}{$velo.date_sortie|format_sqlite_date_to_french}{/if}</td>
+                <td>{$velo.date_entree|date_short}</td>
+                <td>{if !is_null($velo.date_sortie)}{$velo.date_sortie|date_short}{/if}</td>
             </tr>
         {/foreach}
         </tbody>

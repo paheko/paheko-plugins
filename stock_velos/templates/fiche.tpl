@@ -89,7 +89,7 @@
     <article class="velo_entree">
         <dl>
             <dt>Entrée du vélo</dt>
-            <dd>Le {$velo.date_entree|format_sqlite_date_to_french}</dd>
+            <dd>Le {$velo.date_entree|date_short}</dd>
             <dd>État : {$velo.etat_entree|escape}</dd>
             <dt>Provenance</dt>
             <dd>{$velo.source|escape} &mdash;
@@ -108,7 +108,7 @@
     <article class="velo_sortie">
         <dl>
             <dt>Sortie du vélo</dt>
-            <dd>Le {$velo.date_sortie|format_sqlite_date_to_french}</dd>
+            <dd>Le {$velo.date_sortie|date_short}</dd>
             <dd>Raison de sortie :
                 {$velo.raison_sortie|escape} &mdash;
                 {if $velo.raison_sortie == 'Vendu' && is_numeric($velo.details_sortie)}
