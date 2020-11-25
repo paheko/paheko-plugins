@@ -95,7 +95,7 @@ class Session
 		$sql = POS::sql($sql);
 
 		header('Content-type: application/csv');
-		header(sprintf('Content-Disposition: attachment; filename="%s.csv"', 'Export caisse compta - ' . date('d/m/Y')));
+		header(sprintf('Content-Disposition: attachment; filename="%s.csv"', 'Export caisse compta - ' . date('d-m-Y')));
 
 		$fp = fopen('php://output', 'w');
 

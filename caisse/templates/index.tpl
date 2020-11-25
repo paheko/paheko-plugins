@@ -24,10 +24,10 @@
 	<tbody>
 		{foreach from=$pos_sessions item="pos_session"}
 		<tr>
-			<td>{$pos_session.opened|format_sqlite_date_to_french}</td>
+			<td>{$pos_session.opened|date_fr}</td>
 			<th>{$pos_session.open_user_name}</th>
 			<td>{$pos_session.open_amount|raw|pos_money}</td>
-			<td>{if !$pos_session.closed}<strong>En cours</strong>{else}{$pos_session.closed|format_sqlite_date_to_french}{/if}</td>
+			<td>{if !$pos_session.closed}<strong>En cours</strong>{else}{$pos_session.closed|date_fr}{/if}</td>
 			<th>{$pos_session.close_user_name}</th>
 			<td>{$pos_session.close_amount|raw|pos_money}</td>
 			<td>

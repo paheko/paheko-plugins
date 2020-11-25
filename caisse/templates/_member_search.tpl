@@ -6,11 +6,11 @@
 		<p>
 			Cotisation
 			{if $m.status == -1}
-				<span class="error"><b>En retard</b> depuis le {$m.expiry_date|format_sqlite_date_to_french}</span>
+				<span class="error"><b>En retard</b> depuis le {$m.expiry_date|date_short}</span>
 			{else}
 				<b class="confirm">&#10003; À jour</b>
 				{if $m.expiry_date}
-					(expire le {$m.expiry_date|format_sqlite_date_to_french})
+					(expire le {$m.expiry_date|date_short})
 				{/if}
 			{/if}
 		</p>
