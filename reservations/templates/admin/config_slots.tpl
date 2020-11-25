@@ -5,7 +5,7 @@
 {form_errors}
 
 {if $ok && !$form->hasErrors()}
-	<p class="confirm">
+	<p class="confirm block">
 		La configuration a bien été enregistrée.
 	</p>
 {/if}
@@ -28,10 +28,10 @@
 			<tbody>
 				{foreach from=$slots item="slot"}
 				<tr>
-					<th><input type="date" name="slot[{$slot.id}][jour]" value="{$slot.jour}" required="required" /></th>
-					<td><input type="time" name="slot[{$slot.id}][heure]" value="{$slot.heure}" required="required" /></td>
+					<th>{input type="date" name="slot[%d][jour]"|args:$slot.id default=$slot.jour required=1}</th>
+					<td><input type="text" pattern="\d\d:\d\d" size="5" name="slot[{$slot.id}][heure]" value="{$slot.heure}" required="required" /></td>
 					<td><input type="number" name="slot[{$slot.id}][maximum]" value="{$slot.maximum}" required="required" /> personnes</td>
-					<td><label><input type="checkbox" name="slot[{$slot.id}][repetition]" value="1" {if $slot.repetition}checked="checked"{/if} /> Répétition hebdomadaire</label></td>
+					<td><label>{input type="checkbox" name="slot[%d][repetition]"|args:$slot.id value="1" default=$slot.repetition} Répétition hebdomadaire</label></td>
 					<td class="actions"><a href="#unsupported" onclick="return removeRow(this);" class="icn" title="Supprimer cette ligne">➖</a></td>
 				</tr>
 				{/foreach}
@@ -42,7 +42,7 @@
 
 	<p class="submit">
 		{csrf_field key="config_plugin_%s"|args:$plugin.id}
-		<input type="submit" name="save" value="Enregistrer &rarr;" />
+		{button type="submit" name="save" label="Enregistrer" shape="right" class="main"}
 	</p>
 
 </form>

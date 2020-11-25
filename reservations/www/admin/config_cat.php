@@ -27,7 +27,7 @@ elseif (f('save') && $form->check('config_plugin_' . $plugin->id())) {
 	}
 
 	$r->updateCategory($cat->id, f('nom'), f('introduction'), f('description'), $champ);
-	utils::redirect(utils::plugin_url(['file' => 'config_cat.php', 'query' => sprintf('id=%s&saved', $cat->id)]));
+	utils::redirect(utils::plugin_url(['file' => 'config.php', 'query' => 'ok']));
 }
 
 $tpl->assign('ok', qg('saved') !== null);

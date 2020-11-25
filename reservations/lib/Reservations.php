@@ -157,6 +157,10 @@ class Reservations
 
 	public function createSlot(int $cat_id, string $day, string $hour, bool $repeat, int $max)
 	{
+		if (preg_match('!^(\d{2})/(\d{2})/(\d{4})$!', $day, $match)) {
+			$day = sprintf('%s-%s-%s', $match[3], $match[2], $match[1]);
+		}
+
 		if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $day)) {
 			throw new UserException('Date invalide');
 		}
@@ -174,6 +178,10 @@ class Reservations
 
 	public function updateSlot(int $id, string $day, string $hour, bool $repeat, int $max)
 	{
+		if (preg_match('!^(\d{2})/(\d{2})/(\d{4})$!', $day, $match)) {
+			$day = sprintf('%s-%s-%s', $match[3], $match[2], $match[1]);
+		}
+
 		if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $day)) {
 			throw new UserException('Date invalide');
 		}

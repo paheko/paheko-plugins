@@ -4,8 +4,8 @@
 
 {form_errors}
 
-{if $ok && !$form->hasErrors()}
-	<p class="confirm">
+{if isset($_GET['ok']) && !$form->hasErrors()}
+	<p class="confirm block">
 		La configuration a bien été enregistrée.
 	</p>
 {/if}
@@ -22,8 +22,8 @@
 		<tr>
 			<th>{$cat.nom}</th>
 			<td class="actions">
-	            <a class="icn" href="config_cat.php?id={$cat.id}" title="Modifier">✎</a>
-	            <a class="icn" href="config_slots.php?id={$cat.id}" title="Configurer les créneaux">𝍢</a>
+				{linkbutton label="Modifier" href="config_cat.php?id=%d"|args:$cat.id shape="edit"}
+				{linkbutton label="Configurer les créneaux" href="config_slots.php?id=%d"|args:$cat.id shape="menu"}
 			</td>
 		</tr>
 		{/foreach}

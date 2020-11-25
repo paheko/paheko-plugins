@@ -40,7 +40,7 @@
 
 	<p class="submit">
 		{csrf_field key="config_plugin_%s"|args:$plugin.id}
-		<input type="submit" name="save" value="Enregistrer &rarr;" />
+        {button type="submit" name="save" label="Enregistrer" shape="right" class="main"}
 	</p>
 
 </form>
@@ -48,7 +48,7 @@
 <form method="post" action="{$self_url}">
     <fieldset>
         <legend>Supprimer ce type de créneau</legend>
-        <p class="alert">Ceci effacera toutes les réservations liées.</p>
+        <p class="alert block">Ceci effacera toutes les réservations liées.</p>
         <p class="submit">
             {csrf_field key="config_plugin_%s"|args:$plugin.id}
             <input type="submit" name="delete" value="Supprimer &rarr;" />
