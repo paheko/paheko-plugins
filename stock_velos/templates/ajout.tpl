@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Enregistrer un vélo" current="plugin_%s"|args:$plugin.id} js=1}
+{include file="admin/_head.tpl" title="Enregistrer un vélo" current="plugin_%s"|args:$plugin.id js=1}
 
 {include file="%s_nav.tpl"|args:$plugin_tpl current="ajout"}
 
@@ -17,7 +17,7 @@
             <input type="button" onclick="document.getElementById('f_etiquette').value='{$libre|escape}';" value="Utiliser la première étiquette libre (n°{$libre|escape})" />
         </dd>
         <dt><label for="f_bicycode">Bicycode</label></dt>
-        <dd><input type="number" name="bicycode" id="f_bicycode" value="{form_field name=bicycode}" /></dd>
+        <dd><input type="text" name="bicycode" id="f_bicycode" value="{form_field name=bicycode}" /></dd>
         <dt><label for="f_prix">Prix du vélo</label></dt>
         <dd>
             <input type="number" name="prix" id="f_prix" min="-1" value="{form_field name=prix}" /> €

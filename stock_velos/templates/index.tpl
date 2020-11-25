@@ -3,17 +3,17 @@
 {include file="%s_nav.tpl"|args:$plugin_tpl current="index"}
 
 <form method="get" action="{plugin_url file="fiche.php"}" class="fastFind">
-    <fieldset>
-        <legend>Trouver un vélo par numéro d'étiquette</legend>
+    <fieldset class="shortFormRight">
+        <legend>Trouver un vélo par numéro unique</legend>
         <p>
-            <input type="number" size="5" name="etiquette" />
+            <input type="number" size="5" name="id" />
             <input type="submit" value="Trouver" />
         </p>
     </fieldset>
     <fieldset>
-        <legend>Trouver un vélo par numéro unique</legend>
+        <legend>Trouver un vélo par numéro d'étiquette</legend>
         <p>
-            <input type="number" size="5" name="id" />
+            <input type="number" size="5" name="etiquette" />
             <input type="submit" value="Trouver" />
         </p>
     </fieldset>

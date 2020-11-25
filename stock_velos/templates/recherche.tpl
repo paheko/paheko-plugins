@@ -30,7 +30,7 @@
 </form>
 
 {if empty($liste)}
-    <p class="alert">Aucun vélo trouvé.</p>
+    <p class="block alert">Aucun vélo trouvé.</p>
 {else}
     <h2>{$liste|count} vélos trouvés</h2>
     <table class="list">

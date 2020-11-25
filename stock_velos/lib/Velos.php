@@ -6,6 +6,7 @@ use Garradin\DB;
 use Garradin\Membres;
 use Garradin\UserException;
 use Garradin\Utils;
+use Garradin\DynamicList;
 
 class Velos
 {
@@ -61,9 +62,11 @@ class Velos
     );
 
     protected $sources = array(
+        'Achat',
         'Don',
-        'Récupération',
         'Rachat',
+        'Récupération',
+        'Partenariat',
     );
 
     protected $raisons_sortie = array(
@@ -107,7 +110,7 @@ class Velos
 
     public function listSources()
     {
-        return $this->sources;
+        return array_combine($this->sources, $this->sources);
     }
 
     /**
@@ -229,6 +232,27 @@ class Velos
         return $db->lastInsertRowId();
     }
 
+    public function addVelosDemontes(int $nb, string $source, string $source_details)
+    {
+        $db = DB::getInstance();
+
+        $data = [
+            'source' => trim($source),
+            'source_details' => trim($source_details),
+            'date_entree' => gmdate('Y-m-d'),
+            'etat_entree' => 'À démonter',
+            'date_sortie' => gmdate('Y-m-d'),
+            'raison_sortie' => 'Démonté',
+            'details_sortie' => 'Saisie rapide de plusieurs vélos démontés',
+        ];
+
+        for ($i = 0; $i < $nb; $i++) {
+            $db->insert('plugin_stock_velos', $data);
+        }
+
+        return true;
+    }
+
     public function getVelo($id)
     {
         return DB::getInstance()->first('SELECT * FROM plugin_stock_velos WHERE id = ?;', (int)$id);
@@ -311,13 +335,45 @@ class Velos
             ORDER BY '.$order.' COLLATE NOCASE '.($desc ? 'DESC' : 'ASC').';');
     }
 
-    public function listVelosHistorique($order = 'id', $desc = false)
+    public function listVelosHistorique()
     {
-        if (!in_array($order, $this->columns_order))
-            $order = 'id';
+        $columns = [
+            'id' => [
+                'label' => 'Num.',
+            ],
+            'type' => [
+                'label' => 'Type',
+            ],
+            'roues' => [
+                'label' => 'Roues'
+            ],
+            'genre' => [
+                'label' => 'Genre'
+            ],
+            'modele' => [
+                'label' => 'Modèle'
+            ],
+            'couleur' => [
+                'label' => 'Couleur'
+            ],
+            'prix' => [
+                'label' => 'Prix'
+            ],
+            'date_sortie' => [
+                'label' => 'Sortie'
+            ],
+            'raison_sortie' => [
+                'label' => 'Raison'
+            ],
+        ];
 
-        return DB::getInstance()->get('SELECT * FROM plugin_stock_velos WHERE date_sortie IS NOT NULL
-            ORDER BY '.$order.' COLLATE NOCASE '.($desc ? 'DESC' : 'ASC').';');
+        $tables = 'plugin_stock_velos';
+        $conditions = 'date_sortie IS NOT NULL';
+
+        $list = new DynamicList($columns, $tables, $conditions);
+        $list->orderBy('date_sortie', true);
+        $list->setCount('COUNT(*)');
+        return $list;
     }
 
     public function countVelosStock()
@@ -483,5 +539,29 @@ class Velos
         $membres = new Membres;
         // On stocke le NUMÉRO de membre, et non son ID !
         return $membres->get($membres->getIdWithNumero((int)$id));
+    }
+
+    public function statsByMonth()
+    {
+        $sql = '
+            SELECT
+                strftime(\'%Y-%m\', date_sortie) AS month,
+                \'Sortie\' AS type,
+                raison_sortie AS details,
+                COUNT(*) AS nb
+                FROM plugin_stock_velos
+                WHERE raison_sortie IS NOT NULL
+                GROUP BY strftime(\'%m/%Y\', date_sortie), raison_sortie
+            UNION ALL
+            SELECT
+                strftime(\'%Y-%m\', date_entree) AS month,
+                \'Entrée\' AS type,
+                source AS details,
+                COUNT(*) AS nb
+                FROM plugin_stock_velos
+                GROUP BY strftime(\'%m/%Y\', date_entree), source
+            ORDER BY month DESC, type, details;
+        ';
+        return DB::getInstance()->get($sql);
     }
 }

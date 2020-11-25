@@ -21,7 +21,7 @@
 {form_errors}
 
 {if empty($result)}
-    <p class="alert">Aucun résultat.</p>
+    <p class="block alert">Aucun résultat.</p>
 {else}
     <h2>{$result|count} résultats trouvés</h2>
     <table class="list">
