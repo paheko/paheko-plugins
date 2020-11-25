@@ -55,7 +55,7 @@
 					{/if}
 					<dd class="hour available_{$slot.available}">
 						{if $slot.available && !$booking && $slot.bookable}
-							<label><input type="radio" class="n-radio" name="slot" value="{$slot.id}={$slot.date}" /> {$slot.heure}</label>
+							<input type="radio" class="n-radio" name="slot" value="{$slot.id}={$slot.date}" id="f_{$slot.id}" /> <label for="f_{$slot.id}">{$slot.heure}</label>
 						{else}
 							{$slot.heure}
 						{/if}
