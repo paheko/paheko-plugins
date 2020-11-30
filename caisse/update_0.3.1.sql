@@ -12,3 +12,12 @@ UPDATE @PREFIX_methods SET account = '4687A' WHERE id = 3;
 UPDATE @PREFIX_tabs_payments SET account = '530' WHERE method = 1;
 UPDATE @PREFIX_tabs_payments SET account = '5112' WHERE method = 2;
 UPDATE @PREFIX_tabs_payments SET account = '4687A' WHERE method = 3;
+
+INSERT INTO @PREFIX_categories (id, name, account) VALUES (7, 'Ferraille', '7031');
+
+INSERT INTO @PREFIX_products (category, name, price) VALUES (7, 'Ferraille', 1000);
+
+INSERT OR IGNORE INTO @PREFIX_products_methods
+	SELECT p.id, m.id FROM @PREFIX_products p
+	CROSS JOIN @PREFIX_methods m
+	WHERE p.name IN ('Ferraille');

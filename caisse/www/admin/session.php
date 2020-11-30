@@ -36,7 +36,7 @@ if ($pos_session) {
 	$tpl->assign('names', $pos_session->usernames());
 	$tpl->assign('missing_users_tabs', $pos_session->listMissingUsers());
 
-	$tpl->assign('title', 'Session de caisse du ' . Utils::sqliteDateToFrench($pos_session->opened));
+	$tpl->assign('title', 'Session de caisse du ' . Utils::date_fr($pos_session->opened));
 	$tpl->display(PLUGIN_ROOT . '/templates/session.tpl');
 }
 else {

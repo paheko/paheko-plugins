@@ -100,5 +100,5 @@ $tpl->register_modifier('show_methods', function ($m) {
 	}
 });
 
-$tpl->assign('title', 'Caisse ouverte le ' . Utils::sqliteDateToFrench($current_pos_session->opened));
+$tpl->assign('title', 'Caisse ouverte le ' . Utils::date_fr($current_pos_session->opened));
 $tpl->display(PLUGIN_ROOT . '/templates/tab.tpl');
