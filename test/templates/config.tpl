@@ -7,18 +7,13 @@
     <fieldset>
         <legend>Configuration</legend>
         <dl>
-            <dt>
-                <label>
-                    <input type="checkbox" name="display_hello" value="1" {form_field name="display_hello" checked=1 data=$plugin.config} />
-                    Afficher un message de coucou
-                </label>
-            </dt>
+            {input type="checkbox" name="display_hello" value="1" default=$plugin.config label="Afficher un message de coucou"}
         </dl>
     </fieldset>
 
     <p class="submit">
         {csrf_field key="config_plugin_%s"|args:$plugin.id}
-        <input type="submit" name="save" value="Enregistrer &rarr;" />
+        {button type="submit" class="main" name="save" label="Enregistrer" shape="right"}
     </p>
 </form>
 
