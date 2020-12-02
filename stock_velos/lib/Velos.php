@@ -238,7 +238,7 @@ class Velos
 
         $data = [
             'source' => trim($source),
-            'source_details' => trim($source_details),
+            'source_details' => trim($source_details) ?: null,
             'date_entree' => gmdate('Y-m-d'),
             'etat_entree' => 'À démonter',
             'date_sortie' => gmdate('Y-m-d'),
