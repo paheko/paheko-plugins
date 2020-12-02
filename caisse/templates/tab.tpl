@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" current="plugin_%s"|args:$plugin.id js=1}
+{include file="admin/_head.tpl" current="plugin_%s"|args:$plugin.id}
 
 <nav class="tabs">
 	<ul>

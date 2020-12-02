@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Enregistrer un vélo" current="plugin_%s"|args:$plugin.id js=1}
+{include file="admin/_head.tpl" title="Enregistrer un vélo" current="plugin_%s"|args:$plugin.id}
 
 {include file="%s_nav.tpl"|args:$plugin_tpl current="ajout"}
 

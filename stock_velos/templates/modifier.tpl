@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Modifier le vélo n°%d"|args:$velo.id current="plugin_%s"|args:$plugin.id js=1}
+{include file="admin/_head.tpl" title="Modifier le vélo n°%d"|args:$velo.id current="plugin_%s"|args:$plugin.id}
 
 {include file="%s_nav.tpl"|args:$plugin_tpl current=""}
 

@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Racheter un vélo" current="plugin_`$plugin.id`" js=1}
+{include file="admin/_head.tpl" title="Racheter un vélo" current="plugin_`$plugin.id`"}
 
 {include file="%s_nav.tpl"|args:$plugin_tpl current=""}
 
