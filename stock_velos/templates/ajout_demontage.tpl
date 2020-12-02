@@ -12,7 +12,7 @@
         <dd class="help">Ce formulaire permet d'enregistrer plusieurs vélos qui seront créés et directement marqués comme démontés.</dd>
         {input type="number" step="1" name="nb" label="Nombre de vélos à enregistrer" required=1}
         {input type="select" name="source" label="D'où provient le vélo ?" required=1 default="Partenariat" options=$sources}
-        {input type="text" name="source_details" required=1 label="Détails sur la provenance"}
+        {input type="text" name="source_details" label="Détails sur la provenance"}
     </dl>
 </fieldset>
 
