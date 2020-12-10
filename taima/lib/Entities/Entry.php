@@ -1,0 +1,94 @@
+<?php
+
+namespace Garradin\Plugin\Taima\Entities;
+
+use Garradin\Entity;
+
+use DateTime;
+
+class Entry extends Entity
+{
+	const TABLE = 'plugin_taima_entries';
+
+	protected $id;
+	protected $user_id;
+	protected $task_id;
+	protected $date;
+	protected $notes;
+	protected $duration;
+	protected $timer_started;
+	protected $year;
+	protected $week;
+
+	protected $_types = [
+		'id'            => 'int',
+		'user_id'       => 'int',
+		'task_id'       => '?int',
+		'date'          => 'date',
+		'notes'         => '?string',
+		'duration'      => '?int',
+		'timer_started' => '?int',
+		'year'          => 'int',
+		'week'          => 'int',
+	];
+
+	public function selfCheck(): void
+	{
+		parent::selfCheck();
+
+		$this->assert(!(is_null($this->duration) && is_null($this->timer_started)), 'Duration cannot be NULL if timer is not running');
+	}
+
+	public function setDate(DateTime $date)
+	{
+		$this->set('year', (int) $date->format('Y'));
+		$this->set('week', (int) $date->format('W'));
+		$this->set('date', $date);
+	}
+
+	public function setDuration(string $duration = null)
+	{
+		$duration = trim($duration);
+
+		if ($duration === '') {
+			$this->set('duration', null);
+			$this->start();
+			return;
+		}
+
+		if (preg_match('/^(\d+)[h:](\d+)$/', $duration, $match)) {
+			$minutes = $match[1] * 60 + $match[2];
+		}
+		elseif (preg_match('/^(\d+)(?:[.,](\d+))?$/', $duration, $match)) {
+			$minutes = $match[1] * 60;
+
+			if (!empty($match[2]) && $match[2] > 0 && $match[2] <= 100) {
+				$minutes += 60 * ($match[2] / 100);
+			}
+		}
+		else {
+			throw new \InvalidArgumentException('Invalid duration: ' . $duration);
+		}
+
+		$this->set('timer_started', null);
+		$this->set('duration', $minutes);
+	}
+
+	public function start(): void
+	{
+		if ($this->timer_started) {
+			throw new \LogicException('Timer already started');
+		}
+
+		$this->set('timer_started', time());
+	}
+
+	public function stop(): void {
+		if (!$this->timer_started) {
+			throw new \LogicException('Timer is not running');
+		}
+
+		$this->set('duration', intval($this->duration + (time() - $this->timer_started) / 60));
+		$this->set('timer_started', null);
+	}
+}

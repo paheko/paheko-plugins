@@ -1,0 +1,173 @@
+svg circle {
+	stroke: #999;
+}
+
+svg path {
+	fill: #999;
+}
+
+.taima-header {
+	margin: 1em;
+	display: flex;
+	align-items: center;
+}
+
+.taima-header .btns > * {
+	font-size: 1.2em;
+	text-decoration: none;
+	margin: 0;
+	height: 100%;
+	padding: .5em;
+}
+
+.taima-header .btns, .taima-header h2 {
+	margin-right: 1em;
+}
+
+.taima-weekdays {
+	background: #fff;
+	list-style: none;
+	display: inline-flex;
+	align-items: stretch;
+	padding: 0;
+	border-radius: .5em;
+	border: 1px solid #ccf;
+	overflow: hidden;
+	margin: 1em;
+}
+
+.taima-weekdays li a, .taima-weekdays li.total {
+	display: block;
+	padding: .5em 1em;
+	border-right: 1px solid #ccf;
+	background: #eef;
+	text-decoration: none;
+	color: #000;
+	height: 100%;
+}
+
+.taima-weekdays h3 {
+	margin: 0;
+	color: inherit;
+	font-size: 1.5em;
+}
+
+.taima-weekdays svg {
+	vertical-align: middle;
+	display: inline-block;
+}
+
+.taima-weekdays .empty {
+	color: #999;
+	font-weight: normal;
+}
+
+.taima-weekdays .current a {
+	background: #ccf;
+}
+
+.taima-weekdays a:hover {
+	background: #fff;
+	text-decoration: none;
+	color: darkred;
+}
+
+.taima-weekdays li.total {
+	color: #666;
+}
+
+.taima-weekdays li.add {
+	padding: .5em;
+	align-self: center;
+}
+
+.taima-weekdays li.week {
+	padding: .5em;
+	text-align: center;
+	border-right: 1px solid #ccc;
+}
+
+.taima-weekdays li.week strong {
+	font-weight: normal;
+	font-size: 1.1rem;
+}
+
+#f_duration {
+	font-size: 3rem;
+}
+
+.taima-entries {
+	border-collapse: collapse;
+	border: 1px solid #ccc;
+	margin: 1em;
+	max-width: 50rem;
+	width: 100%;
+}
+
+.taima-entries h2, .taima-entries h3, .taima-entries h4 {
+	color: inherit;
+	margin: 0;
+}
+
+.taima-entries tr {
+	border-top: 1px solid #ccc;
+}
+
+.taima-entries td {
+	text-align: center;
+	padding: 1em;
+}
+
+.taima-entries th {
+	padding: 1em;
+}
+
+.taima-entries .running {
+	background: #ffd;
+}
+
+.taima-entries th {
+	font-weight: normal;
+}
+
+.taima-entries .notes {
+	border-top: none;
+}
+
+.taima-entries .notes td {
+	padding-top: 0;
+	font-style: italic;
+	text-align: left
+}
+
+a.start-timer, a.stop-timer {
+	font-size: 1.3em;
+	text-decoration: none;
+}
+
+.start-timer svg, .stop-timer svg {
+	vertical-align: middle;
+	margin-right: .3em;
+}
+
+.stop-timer svg circle {
+	stroke: #000;
+}
+
+.stop-timer svg path {
+	fill: #000;
+}
+
+@keyframes spinner {
+    to {transform: rotate(360deg);}
+}
+
+.stop-timer svg {
+	animation: spinner 3s linear infinite;
+}
+
+#taimaEntryForm {
+	padding: 1em;
+	background: #fff;
+	border-radius: .5em;
+}
