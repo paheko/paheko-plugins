@@ -36,6 +36,10 @@ class Entry extends Entity
 	{
 		parent::selfCheck();
 
+		if (!$this->task_id) {
+			$this->task_id = null;
+		}
+
 		$this->assert(!(is_null($this->duration) && is_null($this->timer_started)), 'Duration cannot be NULL if timer is not running');
 	}
 

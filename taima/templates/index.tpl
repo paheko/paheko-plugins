@@ -88,7 +88,7 @@ $timer_icon = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circ
 		<fieldset>
 			<legend>Événement</legend>
 			<dl>
-				{input type="select" options=$tasks name="task_id" label="Tâche" required=true}
+				{input type="select" options=$tasks name="task_id" label="Tâche"}
 				{input type="text" name="duration" placeholder="0:30" pattern="\\d+[:h]\\d+|\\d+([.,]\\d+)?" help="Formats acceptés : 1h30, 1:30, 1.5 ou 1,5. Laisser vide pour démarrer un chrono." label="Durée" size="5"}
 				{input type="textarea" name="notes" label="Notes"}
 			</dl>
@@ -107,14 +107,17 @@ $timer_icon = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circ
 document.querySelectorAll('button[data-action="add-entry"]').forEach((e) => {
 	e.onclick = () => {
 		var c = g.openDialog(document.getElementById('taimaDialog').content);
-		c.querySelector('select').focus();
 		c.querySelector('[name="delete"]').style.display = 'none';
 		var btn = c.querySelector('[type="submit"]');
 		btn.name = 'add';
 
-		c.querySelector('#f_duration').onkeyup = function (e) {
+		let d = c.querySelector('#f_duration');
+
+		d.onkeyup = function (e) {
 			btn.innerText = (e.target.value == '') ? 'Démarrer le chrono' : 'Enregistrer';
 		};
+
+		d.focus();
 
 		return false;
 	};
@@ -159,6 +162,13 @@ window.setInterval(function () {
 		time.firstChild.textContent = t.join(':');
 	});
 }, 60*1000);
+
+g.script('scripts/datepicker2.js', () => {
+	var dp = $('#datepicker');
+	var d = new DatePicker(dp, null, {format: 0, onchange: (v) => {
+		location.search = 'day=' + v;
+	}});
+});
 </script>
 {/literal}
 

@@ -100,7 +100,7 @@ $week_total = Tracking::formatMinutes($week_total);
 
 $entries = Tracking::listUserEntries($day, $user_id);
 
-$tasks = Tracking::listTasks();
+$tasks = ['' => '--'] + Tracking::listTasks();
 
 $is_today = $day->format('Ymd') == $today->format('Ymd');
 

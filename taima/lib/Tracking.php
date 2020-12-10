@@ -73,8 +73,12 @@ class Tracking
 		return $weekdays;
 	}
 
-	static public function formatMinutes(int $minutes)
+	static public function formatMinutes(?int $minutes): string
 	{
+		if (!$minutes) {
+			return '0:00';
+		}
+
 		$hours = floor($minutes / 60);
 		$minutes -= $hours * 60;
 
