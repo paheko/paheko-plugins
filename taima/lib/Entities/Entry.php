@@ -75,7 +75,7 @@ class Entry extends Entity
 		}
 
 		$this->set('timer_started', null);
-		$this->set('duration', $minutes);
+		$this->set('duration', (int) $minutes);
 	}
 
 	public function start(): void
