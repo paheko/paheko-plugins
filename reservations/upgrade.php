@@ -58,3 +58,8 @@ if (version_compare($old_version, '0.5', '<')) {
 	// Suppression config
 	$db->update('plugins', ['config' => null], 'id = :id', ['id' => $plugin->id]);
 }
+
+if (version_compare($old_version, '0.5.1', '<')) {
+	$db->exec('DROP INDEX prc_jour_heure;
+		CREATE UNIQUE INDEX IF NOT EXISTS prc_jour_heure ON plugin_reservations_creneaux (categorie, jour, heure);');
+}

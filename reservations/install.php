@@ -23,7 +23,7 @@ $db->exec(<<<EOF
 		maximum INT NOT NULL
 	);
 
-	CREATE UNIQUE INDEX IF NOT EXISTS prc_jour_heure ON plugin_reservations_creneaux (jour, heure);
+	CREATE UNIQUE INDEX IF NOT EXISTS prc_jour_heure ON plugin_reservations_creneaux (categorie, jour, heure);
 
 	CREATE TABLE IF NOT EXISTS plugin_reservations_personnes
 	(
