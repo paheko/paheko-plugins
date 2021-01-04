@@ -60,6 +60,6 @@ if (version_compare($old_version, '0.5', '<')) {
 }
 
 if (version_compare($old_version, '0.5.1', '<')) {
-	$db->exec('DROP INDEX prc_jour_heure;
+	$db->exec('DROP INDEX IF EXISTS prc_jour_heure;
 		CREATE UNIQUE INDEX IF NOT EXISTS prc_jour_heure ON plugin_reservations_creneaux (categorie, jour, heure);');
 }
