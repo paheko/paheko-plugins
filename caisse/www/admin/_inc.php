@@ -5,7 +5,7 @@ namespace Garradin\Plugin\Caisse;
 use Garradin\Utils;
 
 function reload() {
-	Utils::redirect(Utils::getSelfURL(true));
+	Utils::redirect(Utils::getSelfURI(true));
 }
 
 function get_amount(string $amount): int {

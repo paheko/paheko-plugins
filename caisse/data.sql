@@ -1,9 +1,9 @@
-INSERT INTO @PREFIX_categories VALUES (1, "Adhésion");
+INSERT INTO @PREFIX_categories VALUES (1, "Adhésion", NULL);
 INSERT INTO @PREFIX_products VALUES (NULL, 1, "Adhésion normale", NULL, 1500, 1, NULL, NULL);
 INSERT INTO @PREFIX_products VALUES (NULL, 1, "Adhésion réduite", NULL, 1000, 1, NULL, NULL);
 INSERT INTO @PREFIX_products VALUES (NULL, 1, "Adhésion soutien", NULL, 2000, 1, NULL, NULL);
 
-INSERT INTO @PREFIX_categories VALUES (2, "Forfaits coup de pouce vélo");
+INSERT INTO @PREFIX_categories VALUES (2, "Forfaits coup de pouce vélo", NULL);
 --INSERT INTO @PREFIX_products VALUES (4, 2, "Forfait révision vélo adhérent", NULL, 1500, 1, NULL, NULL);
 INSERT INTO @PREFIX_products VALUES (NULL, 2, "Forfait réparation vélo occasion", 'Réglage d''étrier de frein ou patin
 Lubrification de la câblerie frein
@@ -16,7 +16,7 @@ Remise en état de roue
 Réglage du jeu de direction
 Réglage de l''alignement du guidon', 3500, 1, NULL, NULL);
 
-INSERT INTO @PREFIX_categories VALUES (3, "Pièces neuves");
+INSERT INTO @PREFIX_categories VALUES (3, "Pièces neuves", NULL);
 INSERT INTO @PREFIX_products (category, name, price) VALUES
 	(3, "Ampoule pour phare dynamo", 100),
 	(3, "Antivol boa ou chaîne", 2000),
@@ -45,7 +45,7 @@ INSERT INTO @PREFIX_products (category, name, price) VALUES
 	(3, "Tendeur", 300),
 	(3, "Autre pièce neuve", 1000);
 
-INSERT INTO @PREFIX_categories VALUES (4, "Pièces d'occasion");
+INSERT INTO @PREFIX_categories VALUES (4, "Pièces d'occasion", NULL);
 INSERT INTO @PREFIX_products (category, name, price) VALUES
 	(4, "Adaptateur (tige de selle, potence)", 100),
 	(4, "Ampoule pour phare dynamo", 50),
@@ -107,12 +107,12 @@ INSERT INTO @PREFIX_products (category, name, price) VALUES
 	(4, "Tige de selle", 200),
 	(4, "Autre pièce d'occasion", 100);
 
-INSERT INTO @PREFIX_categories VALUES (5, "Vélo d'occasion");
+INSERT INTO @PREFIX_categories VALUES (5, "Vélo d'occasion", NULL);
 INSERT INTO @PREFIX_products VALUES (NULL, 5, "Vélo d'occasion", NULL, 6000, 1, NULL, NULL);
 
-INSERT INTO @PREFIX_methods VALUES (1, 'Espèces', 1, NULL, NULL);
-INSERT INTO @PREFIX_methods VALUES (2, 'Chèque', 0, NULL, NULL);
-INSERT INTO @PREFIX_methods VALUES (3, 'Coup de pouce vélo', 0, 1500, 5000);
+INSERT INTO @PREFIX_methods VALUES (1, 'Espèces', 1, NULL, NULL, NULL);
+INSERT INTO @PREFIX_methods VALUES (2, 'Chèque', 0, NULL, NULL, NULL);
+INSERT INTO @PREFIX_methods VALUES (3, 'Coup de pouce vélo', 0, 1500, 5000, NULL);
 
 -- Ajout espèces/chèque
 INSERT INTO @PREFIX_products_methods SELECT id, 1 FROM @PREFIX_products;
