@@ -17,7 +17,7 @@ if (!empty($_GET['delete'])) {
 }
 elseif (isset($_POST['book'], $_POST['slot'])) {
 	$r->createBookingForUser($_POST['slot'], f('nom'), f('champ'));
-	Utils::redirect(Utils::getSelfURL());
+	Utils::redirect(Utils::getSelfURI());
 }
 
 $categories = $r->listCategories();

@@ -32,7 +32,7 @@
 			<dt><label for="f_help">Aide</label></dt>
 			<dd class="help">Texte d'aide qui apparaîtra en dessous du champ à renseigner</dd>
 			<dd><input type="text" name="champ[help]" id="f_help" value="{form_field data=$category.champ name=help}" size="100" /></dd>
-			<dt><label><input type="checkbox" name="champ[mandatory]" value="1" {form_field data=$category.champ name=mandatory checked="1"} /> Champ obligatoire</label></dt>
+			<dt><input type="checkbox" id="f_mandatory" name="champ[mandatory]" value="1" {form_field data=$category.champ name=mandatory checked="1"} /> <label for="f_mandatory">Champ obligatoire</label></dt>
 			<dd class="help">Si coché, le champ ne pourra pas être laissé vide.</dd>
 
 		</dl>

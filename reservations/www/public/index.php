@@ -17,11 +17,11 @@ if (isset($_POST['book'], $_POST['slot'])) {
 	$champ = isset($_POST['champ']) ? substr(trim($_POST['champ']), 0, 100) : null;
 
 	$r->createUserBooking($_POST['slot'], $nom, $champ);
-	Utils::redirect(Utils::getSelfURL());
+	Utils::redirect(Utils::getSelfURI());
 }
 elseif (isset($_POST['cancel'])) {
 	$r->cancelUserBooking();
-	Utils::redirect(Utils::getSelfURL());
+	Utils::redirect(Utils::getSelfURI());
 }
 
 $booking = $r->getUserBooking();

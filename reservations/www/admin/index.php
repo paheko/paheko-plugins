@@ -19,11 +19,11 @@ if (isset($_POST['book'], $_POST['slot'])) {
 	$identite = $config->get('champ_identite');
 	$nom = $user->$identite;
 	$r->createUserBooking($_POST['slot'], $nom, f('champ'));
-	Utils::redirect(Utils::getSelfURL());
+	Utils::redirect(Utils::getSelfURI());
 }
 elseif (isset($_POST['cancel'])) {
 	$r->cancelUserBooking();
-	Utils::redirect(Utils::getSelfURL());
+	Utils::redirect(Utils::getSelfURI());
 }
 
 $booking = $r->getUserBooking();
