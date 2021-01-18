@@ -28,10 +28,10 @@
 			<tbody>
 				{foreach from=$slots item="slot"}
 				<tr>
-					<th>{input type="date" name="slot[%d][jour]"|args:$slot.id default=$slot.jour required=1}</th>
-					<td><input type="text" pattern="\d\d:\d\d" size="5" name="slot[{$slot.id}][heure]" value="{$slot.heure}" required="required" /></td>
+					<th>{input type="date" name="slot[%s][jour]"|args:$slot.id default=$slot.jour required=1}</th>
+					<td><input type="text" pattern="\d\d:\d\d" size="5" name="slot[{$slot.id}][heure]" value="{$slot.heure}" placeholder="HH:MM" required="required" /></td>
 					<td><input type="number" name="slot[{$slot.id}][maximum]" value="{$slot.maximum}" required="required" /> personnes</td>
-					<td><label>{input type="checkbox" name="slot[%d][repetition]"|args:$slot.id value="1" default=$slot.repetition} Répétition hebdomadaire</label></td>
+					<td><label>{input type="checkbox" name="slot[%s][repetition]"|args:$slot.id value="1" default=$slot.repetition} Répétition hebdomadaire</label></td>
 					<td class="actions"><a href="#unsupported" onclick="return removeRow(this);" class="icn" title="Supprimer cette ligne">➖</a></td>
 				</tr>
 				{/foreach}
