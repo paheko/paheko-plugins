@@ -13,13 +13,13 @@
 {/if}
 
 <p class="details">
-	Ouverture&nbsp;: {$pos_session.opened|date_fr}
+	Ouverture&nbsp;: {$pos_session.opened|date}
 	— par {$names.open_user_name}
 	— Caisse = {$pos_session.open_amount|raw|pos_money}
 </p>
 <p class="details">
 	Fermeture&nbsp;:
-	{if !$pos_session.closed}<strong>En cours</strong>{else}{$pos_session.closed|date_fr}{/if}
+	{if !$pos_session.closed}<strong>En cours</strong>{else}{$pos_session.closed|date}{/if}
 	— par {$names.close_user_name}
 	— Caisse = {$pos_session.close_amount|raw|pos_money}
 	{if !$pos_session.error_amount}
