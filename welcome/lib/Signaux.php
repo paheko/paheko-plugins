@@ -8,9 +8,9 @@ class Signaux
 {
 	static public function banner(array $params, &$return)
 	{
-		$session = new Session;
+		$session = Session::getInstance();
 
-		if (!$session->isLogged() || !$session->canAccess('config', Membres::DROIT_ADMIN)) {
+		if (!$session->isLogged() || !$session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)) {
 			return;
 		}
 
