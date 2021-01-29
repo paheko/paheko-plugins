@@ -33,7 +33,7 @@
     <legend>Provenance</legend>
     <dl>
         <dt><label for="f_source">D'où provient le vélo ?</label> <b>(obligatoire)</b></dt>
-        <dd>{form_select name=source values=$sources}</dd>
+        <dd>{form_select name=source values=$sources default="Partenariat"}</dd>
         <dt><label for="f_source_details">Détails sur la provenance</label> (pour le don : numéro d'adhérent ou nom du donneur)</dt>
         <dd><input type="text" name="source_details" id="f_source_details" value="{form_field name=source_details}" size="70" /></dd>
     </dl>
