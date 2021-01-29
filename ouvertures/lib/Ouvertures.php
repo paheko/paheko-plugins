@@ -33,40 +33,89 @@ class Ouvertures
 	protected $data = [];
 	protected $i = 0;
 
-	public function __construct($type)
+	protected function storeConfig()
 	{
+		$plugin = new Plugin('ouvertures');
+		$config = $plugin->getConfig();
+		unset($plugin);
+
+		$config->open = (array) $config->open;
+
+		foreach ($config->open as $day => &$row)
+		{
+			$day = $day ? $day . ' ' : '';
+			$row = [strtotime($day . $row[0]), strtotime($day . $row[1])];
+		}
+
+		foreach ($config->closed as &$row)
+		{
+			$row = [strtotime($row[0]), strtotime($row[1] . ', 23:59:59')];
+
+			if (date('m', $row[1]) < date('m', $row[0]))
+			{
+				$row[1] = strtotime(date('Y-m-d', $row[1]) . ' +1 year');
+			}
+		}
+
+		self::$now = time();
+
+		self::$config = $config;
+		return true;
+	}
+
+	static public function registerTemplate(array $params)
+	{
+		$ut =& $params['template'];
+
+		$ut->registerSection('opening_hours', [self::class, 'section']);
+	}
+
+	static public function section(array $params)
+	{
+		$when = $params['when'] ?? null;
+
 		if (!self::$config)
 		{
 			$this->storeConfig();
 		}
 
-		if ($type == 'liste')
+		foreach (self::getList($when) as $row) {
+			yield $row;
+		}
+	}
+
+	static public function getList(string $when): array
+	{
+		// All opening days
+		if ($when == 'open')
 		{
 			foreach (self::$config->open as $day => $hours)
 			{
-				$this->data[] = ['date_ouverture' => $hours[0], 'date_fermeture' => $hours[1], 'jour_ouverture' => $day];
+				$this->data[] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
 			}
 		}
-		elseif ($type == 'fermetures')
+		// All closing days
+		elseif ($when == 'closings')
 		{
 			foreach (self::$config->closed as $hours)
 			{
-				$this->data[] = ['date_debut' => $hours[0], 'date_fin' => $hours[1]];
+				$this->data[] = ['start_date' => $hours[0], 'end_date' => $hours[1]];
 			}
 		}
-		elseif ($type == 'jours')
+		// All days of the week
+		elseif ($when == 'week')
 		{
 			foreach (self::$days as $day => $jour) {
 				$this->data[$day] = [
-					'jour_ouverture' => $day,
-					'date_ouverture' => null,
-					'date_fermeture' => null,
+					'opening_day' => $day,
+					'opening_time' => null,
+					'closing_time' => null,
 				];
 			}
 
 			foreach (self::$config->open as $day => $hours)
 			{
-				$this->data[$day] = ['date_ouverture' => $hours[0], 'date_fermeture' => $hours[1], 'jour_ouverture' => $day];
+				$this->data[$day] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
 			}
 
 			$this->data = array_values($this->data);
@@ -74,7 +123,8 @@ class Ouvertures
 
 		unset($hours);
 
-		if ($type == 'prochaine' || $type == 'maintenant')
+		// Next opening day
+		if ($type == 'next' || $type == 'now')
 		{
 			$open = self::$config->open;
 
@@ -87,7 +137,8 @@ class Ouvertures
 
 		}
 
-		if ($type == 'maintenant')
+		// Are we open now?
+		if ($type == 'now')
 		{
 			foreach (self::$config->closed as $hours)
 			{
@@ -102,12 +153,12 @@ class Ouvertures
 			{
 				if (self::$now >= $hours[0] && self::$now <= $hours[1])
 				{
-					$this->data[] = ['date_ouverture' => $hours[0], 'date_fermeture' => $hours[1], 'jour_ouverture' => $day];
+					$this->data[] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
 					break;
 				}
 			}
 		}
-		elseif ($type == 'prochaine')
+		elseif ($type == 'next')
 		{
 			$next = null;
 
@@ -129,7 +180,7 @@ class Ouvertures
 							}
 						}
 
-						$next = ['date_ouverture' => $hours[0], 'date_fermeture' => $hours[1], 'jour_ouverture' => $day];
+						$next = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
 						break(2);
 					}
 				}
@@ -171,87 +222,21 @@ class Ouvertures
 
 		foreach ($this->data as &$row)
 		{
-			if (!empty($row['jour_ouverture']))
+			if (!empty($row['opening_day']))
 			{
-				if (strchr($row['jour_ouverture'], ' '))
+				if (strchr($row['opening_day'], ' '))
 				{
-					list($freq, $day) = explode(' ', $row['jour_ouverture']);
+					list($freq, $day) = explode(' ', $row['opening_day']);
 
-					$row['jour_ouverture'] = sprintf('%s %s', self::$frequencies[$freq], self::$days[$day]);
+					$row['opening_day'] = sprintf('%s %s', self::$frequencies[$freq], self::$days[$day]);
 				}
 				else
 				{
-					$row['jour_ouverture'] = self::$days[$row['jour_ouverture']];
+					$row['opening_day'] = self::$days[$row['opening_day']];
 				}
 			}
 		}
-	}
 
-	public function countRows()
-	{
-		return count($this->data);
-	}
-
-	public function fetchArray($mode = null)
-	{
-		if ($this->i >= count($this->data))
-		{
-			return false;
-		}
-
-		return $this->data[$this->i++];
-	}
-
-	protected function storeConfig()
-	{
-		$plugin = new Plugin('ouvertures');
-		$config = $plugin->getConfig();
-		unset($plugin);
-
-		$config->open = (array) $config->open;
-
-		foreach ($config->open as $day => &$row)
-		{
-			$day = $day ? $day . ' ' : '';
-			$row = [strtotime($day . $row[0]), strtotime($day . $row[1])];
-		}
-
-		foreach ($config->closed as &$row)
-		{
-			$row = [strtotime($row[0]), strtotime($row[1] . ', 23:59:59')];
-
-			if (date('m', $row[1]) < date('m', $row[0]))
-			{
-				$row[1] = strtotime(date('Y-m-d', $row[1]) . ' +1 year');
-			}
-		}
-
-		self::$now = time();
-
-		self::$config = $config;
-		return true;
-	}
-
-	static public function boucle(array &$params, array &$return)
-	{
-		foreach ($params['loopCriterias'] as $criteria)
-		{
-			if ($criteria['action'] != MiniSkel::ACTION_MATCH_FIELD)
-			{
-				continue;
-			}
-
-			$action = $criteria['field'];
-			break;
-		}
-
-		if (!$action)
-		{
-			$action = 'liste';
-		}
-
-		$return['code'] = sprintf('$OBJ_VAR = new Plugin\Ouvertures\Ouvertures(%s);', var_export($action, true));
-
-		return true;
+		return $this->data;
 	}
 }
