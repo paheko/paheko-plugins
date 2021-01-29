@@ -4,7 +4,7 @@ namespace Garradin;
 
 use Garradin\Plugin\Reservations\Reservations;
 
-$session->requireAccess('config', Membres::DROIT_ADMIN);
+$session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
 
 if (null === qg('id')) {
 	throw new UserException('Numéro de catégorie manquant');

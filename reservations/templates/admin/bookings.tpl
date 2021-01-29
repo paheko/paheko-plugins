@@ -7,8 +7,8 @@
 		{foreach from=$categories item="cat"}
 		<article>
 			<h2><a href="?cat={$cat.id}">{$cat.nom}</a></h2>
-			<div class="wikiContent">
-				{$cat.introduction|raw|format_wiki}
+			<div class="web-content">
+				{$cat.introduction|raw|format_skriv}
 			</div>
 		</article>
 		{/foreach}
@@ -19,12 +19,12 @@
 		{foreach from=$bookings item="booking"}
 			{if $booking.date_change}
 				<dt>
-					{$booking.date|strftime_fr:"%A %e %B %Y"}
+					{$booking.date|strftime:"%A %e %B %Y"}
 				</dt>
 			{/if}
 			{if $booking.hour_change}
 			<dd class="hour">
-				<b>{$booking.date|strftime_fr:"%H:%M"}</b>
+				<b>{$booking.date|strftime:"%H:%M"}</b>
 			</dd>
 			{/if}
 			<dd class="spots">

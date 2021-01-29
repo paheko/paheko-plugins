@@ -65,6 +65,8 @@ $tpl->assign('booking', $booking);
 $tpl->assign('plugin_tpl', PLUGIN_ROOT . '/templates');
 $tpl->assign('css', file_get_contents(PLUGIN_ROOT . '/www/admin/style.css'));
 
+$tpl->assign('custom_css', ['/content.css']);
+
 $tpl->assign('config', Config::getInstance()->getConfig());
 
 $tpl->display(PLUGIN_ROOT . '/templates/index.tpl');

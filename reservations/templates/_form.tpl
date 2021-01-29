@@ -5,7 +5,7 @@
 			<legend>Ma réservation</legend>
 			<dl>
 				<dt>Vous avez réservé le créneau suivant&nbsp;:</dt>
-				<dd class="date">{$booking.date|strftime_fr:"%A %e %B %Y à %H:%M"}</dd>
+				<dd class="date">{$booking.date|strftime:"%A %e %B %Y à %H:%M"}</dd>
 				{if $booking.nom_categorie}<dd>Créneau : {$booking.nom_categorie}</dd>{/if}
 				{if $booking.numero}<dd>Numéro de membre : {$booking.numero}</dd>{/if}
 				{if $booking.nom}<dd>Nom : {$booking.nom}</dd>{/if}
@@ -25,8 +25,8 @@
 			{foreach from=$categories item="cat"}
 			<article>
 				<h2><a href="?cat={$cat.id}">{$cat.nom}</a></h2>
-				<div class="wikiContent">
-					{$cat.introduction|raw|format_wiki}
+				<div class="web-content">
+					{$cat.introduction|raw|format_skriv}
 				</div>
 			</article>
 			{/foreach}
@@ -37,8 +37,8 @@
 		<form method="post" action="{$self_url}">
 
 	{if empty($hide_description)}
-		<article class="wikiContent">
-			{$cat.description|raw|format_wiki}
+		<article class="web-content">
+			{$cat.description|raw|format_skriv}
 		</article>
 	{/if}
 
@@ -51,7 +51,7 @@
 			<dl class="slots">
 				{foreach from=$slots item="slot"}
 					{if $slot.date_change}
-						<dt>{$slot.timestamp|strftime_fr:"%A %e %B %Y"}</dt>
+						<dt>{$slot.timestamp|strftime:"%A %e %B %Y"}</dt>
 					{/if}
 					<dd class="hour available_{$slot.available}">
 						{if $slot.available && !$booking && $slot.bookable}

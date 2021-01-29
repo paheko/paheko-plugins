@@ -7,7 +7,7 @@ if ($plugin->needUpgrade()) {
 	$plugin->upgrade();
 }
 
-$session->requireAccess('membres', Membres::DROIT_ECRITURE);
+$session->requireAccess($session::SECTION_USERS, $session::ACCESS_WRITE);
 
 $r = new Reservations;
 
@@ -45,5 +45,6 @@ if ($cat) {
 }
 
 $tpl->assign('plugin_css', ['style.css']);
+$tpl->assign('custom_css', ['/content.css']);
 
 $tpl->display(PLUGIN_ROOT . '/templates/admin/bookings.tpl');
