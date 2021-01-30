@@ -233,9 +233,9 @@ function completeUserName(list) {
 
 	if (!v.match(/^\d+$/) && v.length < 3) return false;
 
-	g.load(g.admin_url + 'plugin/caisse/_member_search.php?q=' + encodeURIComponent(v), (list) => {
-		ur_list.innerHTML = list;
-	});
+	fetch(g.admin_url + 'plugin/caisse/_member_search.php?q=' + encodeURIComponent(v))
+		.then(response => response.text())
+		.then(list => ur_list.innerHTML = list );
 }
 
 ur_input.onkeyup = (e) => {
