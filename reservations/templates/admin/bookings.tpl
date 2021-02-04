@@ -7,9 +7,7 @@
 		{foreach from=$categories item="cat"}
 		<article>
 			<h2><a href="?cat={$cat.id}">{$cat.nom}</a></h2>
-			<div class="web-content">
-				{$cat.introduction|raw|format_skriv}
-			</div>
+			{$cat.introduction|raw|format_skriv}
 		</article>
 		{/foreach}
 	</section>

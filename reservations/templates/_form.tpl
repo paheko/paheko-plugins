@@ -25,9 +25,7 @@
 			{foreach from=$categories item="cat"}
 			<article>
 				<h2><a href="?cat={$cat.id}">{$cat.nom}</a></h2>
-				<div class="web-content">
-					{$cat.introduction|raw|format_skriv}
-				</div>
+				{$cat.introduction|raw|format_skriv}
 			</article>
 			{/foreach}
 		</section>
@@ -37,7 +35,7 @@
 		<form method="post" action="{$self_url}">
 
 	{if empty($hide_description)}
-		<article class="web-content">
+		<article>
 			{$cat.description|raw|format_skriv}
 		</article>
 	{/if}
