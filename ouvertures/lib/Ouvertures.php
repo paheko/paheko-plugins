@@ -30,10 +30,7 @@ class Ouvertures
 		'sunday'    => 'dimanche',
 	];
 
-	protected $data = [];
-	protected $i = 0;
-
-	protected function storeConfig()
+	static protected function storeConfig()
 	{
 		$plugin = new Plugin('ouvertures');
 		$config = $plugin->getConfig();
@@ -76,7 +73,7 @@ class Ouvertures
 
 		if (!self::$config)
 		{
-			$this->storeConfig();
+			self::storeConfig();
 		}
 
 		foreach (self::getList($when) as $row) {
@@ -84,14 +81,20 @@ class Ouvertures
 		}
 	}
 
-	static public function getList(string $when): array
+	static public function getList(?string $when): array
 	{
+		if (!$when) {
+			$when = 'week';
+		}
+
+		$data = [];
+
 		// All opening days
 		if ($when == 'open')
 		{
 			foreach (self::$config->open as $day => $hours)
 			{
-				$this->data[] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
+				$data[] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
 			}
 		}
 		// All closing days
@@ -99,14 +102,14 @@ class Ouvertures
 		{
 			foreach (self::$config->closed as $hours)
 			{
-				$this->data[] = ['start_date' => $hours[0], 'end_date' => $hours[1]];
+				$data[] = ['start_date' => $hours[0], 'end_date' => $hours[1]];
 			}
 		}
 		// All days of the week
 		elseif ($when == 'week')
 		{
 			foreach (self::$days as $day => $jour) {
-				$this->data[$day] = [
+				$data[$day] = [
 					'opening_day' => $day,
 					'opening_time' => null,
 					'closing_time' => null,
@@ -115,16 +118,16 @@ class Ouvertures
 
 			foreach (self::$config->open as $day => $hours)
 			{
-				$this->data[$day] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
+				$data[$day] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
 			}
 
-			$this->data = array_values($this->data);
+			$data = array_values($data);
 		}
 
 		unset($hours);
 
 		// Next opening day
-		if ($type == 'next' || $type == 'now')
+		if ($when == 'next' || $when == 'now')
 		{
 			$open = self::$config->open;
 
@@ -138,7 +141,7 @@ class Ouvertures
 		}
 
 		// Are we open now?
-		if ($type == 'now')
+		if ($when == 'now')
 		{
 			foreach (self::$config->closed as $hours)
 			{
@@ -153,12 +156,12 @@ class Ouvertures
 			{
 				if (self::$now >= $hours[0] && self::$now <= $hours[1])
 				{
-					$this->data[] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
+					$data[] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
 					break;
 				}
 			}
 		}
-		elseif ($type == 'next')
+		elseif ($when == 'next')
 		{
 			$next = null;
 
@@ -216,11 +219,11 @@ class Ouvertures
 
 			if ($next)
 			{
-				$this->data[] = $next;
+				$data[] = $next;
 			}
 		}
 
-		foreach ($this->data as &$row)
+		foreach ($data as &$row)
 		{
 			if (!empty($row['opening_day']))
 			{
@@ -237,6 +240,6 @@ class Ouvertures
 			}
 		}
 
-		return $this->data;
+		return $data;
 	}
 }
