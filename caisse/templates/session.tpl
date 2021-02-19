@@ -171,7 +171,7 @@
 				{$tab.total|raw|pos_money}
 			</td>
 			<td class="actions">
-				{linkbutton shape="menu" label="Détails" href="tab.php?id=%d"|args:$payment.tab class="noprint"}
+				{linkbutton shape="menu" label="Détails" href="tab.php?id=%d"|args:$tab.id class="noprint"}
 			</td>
 		</tr>
 		{/foreach}
