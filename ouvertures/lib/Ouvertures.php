@@ -60,7 +60,7 @@ class Ouvertures
 		return true;
 	}
 
-	static public function register(array $params)
+	static public function registerTemplate(array $params)
 	{
 		$ut =& $params['template'];
 
