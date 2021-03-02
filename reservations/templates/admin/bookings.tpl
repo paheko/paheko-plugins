@@ -29,7 +29,7 @@
 			{/if}
 			<dd class="spots">
 				<span class="actions">
-					<a href="{$self_url}&amp;delete={$booking.id}" title="Supprimer" class="icn" data-action="delete">✘</a>
+					<a href="?cat={$booking.categorie}&amp;delete={$booking.id}" title="Supprimer" class="icn" data-action="delete">✘</a>
 				</span>
 				<strong>{$booking.nom}</strong>
 				{if $booking.champ}
