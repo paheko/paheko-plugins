@@ -5,6 +5,7 @@ namespace Garradin\Plugin\Taima;
 use Garradin\Plugin\Taima\Entities\Entry;
 use Garradin\Plugin\Taima\Entities\Task;
 
+use Garradin\Config;
 use Garradin\DB;
 use KD2\DB\EntityManager as EM;
 
@@ -37,6 +38,116 @@ class Tracking
 	static public function listTasks()
 	{
 		return DB::getInstance()->getAssoc(sprintf('SELECT id, label FROM %s ORDER BY label COLLATE NOCASE;', Task::TABLE));
+	}
+
+	static public function getList()
+	{
+		$identity = Config::getInstance()->get('champ_identite');
+		$columns = [
+			'task' => [
+				'label' => 'Tâche',
+				'select' => 't.label',
+				'order' => 'transliterate_to_ascii(t.label) COLLATE NOCASE AS %s',
+			],
+			'year' => [
+				'label' => 'Année',
+				'select' => 'e.year',
+			],
+			'year' => [
+				'label' => 'Semaine',
+				'select' => 'e.week',
+			],
+			'date' => [
+				'label' => 'Date',
+				'select' => 'e.date',
+			],
+			'duration' => [
+				'label' => 'Durée',
+				'select' => 'e.duration',
+			],
+			'user_name' => [
+				'label' => 'Nom',
+				'select' => 'm.' . $identity,
+			],
+		];
+
+		$tables = 'plugin_taima_entries e
+			INNER JOIN plugin_taima_tasks t ON t.id = e.task_id
+			INNER JOIN membres m ON m.id = e.user_id';
+
+		$list = new DynamicList($columns, $tables, $conditions);
+		$list->orderBy('date', true);
+		return $list;
+	}
+
+	static public function listPerWeek(string $grouping = 'week', bool $per_user = false)
+	{
+		if ($grouping == 'week') {
+			$group = 'e.year, e.week';
+			$order = 'e.year DESC, e.week DESC';
+			$criteria = '(e.year || e.week)';
+		}
+		elseif ($grouping == 'year') {
+			$group = 'e.year';
+			$order = 'e.year DESC';
+			$criteria = 'e.year';
+		}
+		elseif ($grouping == 'month') {
+			$group = 'e.year, strftime(\'%m\', e.date)';
+			$order = 'e.year DESC, strftime(\'%m\', e.date)';
+			$criteria = 'strftime(\'%Y%m\', e.date)';
+		}
+
+		if ($per_user) {
+			$group .= ', e.user_id';
+		}
+		else {
+			$group .= ', e.task_id';
+		}
+
+		$identity = Config::getInstance()->get('champ_identite');
+		$sql = 'SELECT e.*, t.label AS task_label, m.%s AS user_name, SUM(duration) AS duration, %s AS criteria
+			FROM plugin_taima_entries e
+			INNER JOIN plugin_taima_tasks t ON t.id = e.task_id
+			INNER JOIN membres m ON m.id = e.user_id
+			GROUP BY %s
+			ORDER BY %s, SUM(duration) DESC;';
+
+		$sql = sprintf($sql, $identity, $criteria, $group, $order);
+
+		$db = DB::getInstance();
+
+		$item = $criteria = null;
+
+		foreach ($db->iterate($sql) as $row) {
+			if ($criteria != $row->criteria) {
+				if ($item !== null) {
+					$total = 0;
+					foreach ($item['entries'] as $entry) {
+						$total += $entry->duration;
+					}
+
+					$item['entries'][] = (object) ['task_label' => 'Total', 'duration' => $total];
+					yield $item;
+				}
+
+				$criteria = $row->criteria;
+				$item = (array)$row;
+				$item['entries'] = [];
+			}
+
+			$item['entries'][] = $row;
+		}
+
+		if ($item !== null) {
+			$total = 0;
+			foreach ($item['entries'] as $entry) {
+				$total += $entry->duration;
+			}
+
+			$item['entries'][] = (object) ['task_label' => 'Total', 'duration' => $total];
+			yield $item;
+		}
 	}
 
 	static public function getWeekDays(int $year, int $week, int $user_id)
