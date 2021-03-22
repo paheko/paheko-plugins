@@ -94,7 +94,7 @@ class Tracking
 		}
 		elseif ($grouping == 'month') {
 			$group = 'e.year, strftime(\'%m\', e.date)';
-			$order = 'e.year DESC, strftime(\'%m\', e.date)';
+			$order = 'e.year DESC, strftime(\'%m\', e.date) DESC';
 			$criteria = 'strftime(\'%Y%m\', e.date)';
 		}
 
