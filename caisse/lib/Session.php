@@ -55,7 +55,7 @@ class Session
 		return $db->get(POS::sql($sql));
 	}
 
-	static public function exportAccounting()
+	static public function exportAccounting(\DateTime $start, \DateTime $end)
 	{
 		$db = DB::getInstance();
 
@@ -89,13 +89,19 @@ class Session
 				) AS lines
 				ON lines.session = s.id
 			WHERE s.closed IS NOT NULL
+				AND s.closed >= ? AND s.closed <= ?
 			GROUP BY s.id, lines.account, lines.reference
 			ORDER BY s.id, lines.account, lines.reference;';
 
 		$sql = POS::sql($sql);
 
+		$name = sprintf('Export caisse compta - %s à %s', $start->format('d-m-Y'), $end->format('d-m-Y'));
+
+		$start = $start->format('Y-m-d');
+		$end = $end->format('Y-m-d');
+
 		header('Content-type: application/csv');
-		header(sprintf('Content-Disposition: attachment; filename="%s.csv"', 'Export caisse compta - ' . date('d-m-Y')));
+		header(sprintf('Content-Disposition: attachment; filename="%s.csv"', $name));
 
 		$fp = fopen('php://output', 'w');
 
@@ -114,7 +120,7 @@ class Session
 			return $digits . ',' . $decimals;
 		};
 
-		foreach ($db->iterate($sql) as $row) {
+		foreach ($db->iterate($sql, $start, $end) as $row) {
 			if (null !== $id && $row->sid === $id) {
 				$row->type = $row->status = $row->label = $row->date = $row->reference = null;
 			}
@@ -182,6 +188,22 @@ class Session
 			close_user = ?,
 			error_amount = ?
 			WHERE id = ?'), [$amount, $user_id, $error_amount, $this->id]);
+
+		// Update stock
+		$db->preparedQuery(POS::sql('INSERT INTO @PREFIX_products_stock_history (product, change, date, item, event)
+			SELECT p.id, -SUM(ti.qty), ti.added, ti.id, NULL
+				FROM @PREFIX_tabs_items ti
+				INNER JOIN @PREFIX_products p ON p.id = ti.product
+				INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
+				INNER JOIN @PREFIX_sessions s ON s.id = t.session
+				WHERE s.closed IS NOT NULL AND ti.product IS NOT NULL AND s.id = ? AND p.stock IS NOT NULL
+				GROUP BY ti.id, ti.product;'), $this->id);
+
+		$select = sprintf('FROM @PREFIX_tabs_items ti
+			INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
+			WHERE ti.product = @PREFIX_products.id
+			AND t.session = %d', $this->id);
+		$db->preparedQuery(POS::sql(sprintf('UPDATE @PREFIX_products SET stock = -(SELECT SUM(ti.qty) %s) WHERE stock IS NOT NULL AND id IN (SELECT DISTINCT ti.product %1$s);', $select)));
 
 		return $db->commit();
 	}

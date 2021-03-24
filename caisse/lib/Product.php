@@ -3,18 +3,20 @@
 namespace Garradin\Plugin\Caisse;
 
 use Garradin\DB;
+use KD2\DB\EntityManager as EM;
 
 class Product
 {
-	static public function listByCategory(): array
+	static public function listByCategory(bool $only_with_payment = true): array
 	{
 		$db = DB::getInstance();
-		$categories = $db->getAssoc(POS::sql('SELECT id, name FROM @PREFIX_categories ORDER BY name;'));
+		$categories = self::listCategoriesAssoc();
+
+		$join = $only_with_payment ? 'INNER JOIN @PREFIX_products_methods m ON m.product = p.id' : '';
 
 		// Don't select products that don't have any payment method linked: you wouldn't be able to pay for them
-		$products = $db->get(POS::sql('SELECT * FROM @PREFIX_products p
-			INNER JOIN @PREFIX_products_methods m ON m.product = p.id
-			GROUP BY p.id ORDER BY category, transliterate_to_ascii(name) COLLATE NOCASE;'));
+		$products = $db->get(POS::sql(sprintf('SELECT * FROM @PREFIX_products p %s
+			GROUP BY p.id ORDER BY category, name COLLATE NOCASE;', $join)));
 
 		$list = [];
 
@@ -29,5 +31,21 @@ class Product
 		}
 
 		return $list;
+	}
+
+	static public function get(int $id): ?Entities\Product
+	{
+		return EM::findOneById(Entities\Product::class, $id);
+	}
+
+	static public function new(): Entities\Product
+	{
+		return new Entities\Product;
+	}
+
+	static public function listCategoriesAssoc(): array
+	{
+		$db = DB::getInstance();
+		return $db->getAssoc(POS::sql('SELECT id, name FROM @PREFIX_categories ORDER BY name;'));
 	}
 }

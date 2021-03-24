@@ -8,6 +8,7 @@
 		{/if}
 		{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
 		<li><a href="export.php">Export compta CSV</a></li>
+		<li><a href="products.php">Gestion des produits</a></li>
 		{/if}
 	</ul>
 </nav>
