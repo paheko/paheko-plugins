@@ -47,7 +47,7 @@ class Tracking
 			'task' => [
 				'label' => 'Tâche',
 				'select' => 't.label',
-				'order' => 'transliterate_to_ascii(t.label) COLLATE NOCASE AS %s',
+				'order' => 't.label COLLATE NOCASE AS %s',
 			],
 			'year' => [
 				'label' => 'Année',
