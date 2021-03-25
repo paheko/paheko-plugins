@@ -76,24 +76,27 @@ class Velos
         'Jeté',
     );
 
-    static public function LoopVelos($params, &$return)
+    static public function register(array $params)
     {
-        foreach ($params['loopCriterias'] as $criteria)
-        {
-            if ($criteria['action'] == \KD2\MiniSkel::ACTION_MATCH_FIELD && $criteria['field'] == 'compter')
-            {
-                $return['query'] = 'SELECT COUNT(*) AS nb_en_vente FROM plugin_stock_velos WHERE prix > 0 AND date_sortie IS NULL;';
-                break;
-            }
-            elseif ($criteria['action'] == \KD2\MiniSkel::ACTION_MATCH_FIELD && $criteria['field'] == 'liste')
-            {
-                $return['query'] = 'SELECT prix, modele, roues, type, genre, etiquette FROM plugin_stock_velos
-                    WHERE date_sortie IS NULL AND prix > 0 ORDER BY date_entree ASC;';
-                break;
-            }
+        $ut =& $params['template'];
+
+        $ut->registerSection('velos', [self::class, 'section']);
+    }
+
+    static public function section(array $params)
+    {
+        if (isset($params['count'])) {
+            $sql = 'SELECT COUNT(*) AS count FROM plugin_stock_velos WHERE prix > 0 AND date_sortie IS NULL;';
+        }
+        else {
+            $sql = 'SELECT prix, modele, roues, type, genre, etiquette FROM plugin_stock_velos
+                WHERE date_sortie IS NULL AND prix > 0 ORDER BY date_entree ASC;';
         }
 
-        return true;
+        $db = DB::getInstance();
+        foreach ($db->iterate($sql) as $row) {
+            yield (array) $row;
+        }
     }
 
     /**
