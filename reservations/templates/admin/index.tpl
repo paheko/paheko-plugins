@@ -5,7 +5,7 @@
 {include file="%s/templates/_form.tpl"|args:$plugin_root ask_name=false}
 
 <article class="wikiContent">
-	{$config.text|raw|format_wiki}
+	{$config.text|raw|format_skriv}
 </article>
 
 {include file="admin/_foot.tpl"}
