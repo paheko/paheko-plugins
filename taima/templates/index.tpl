@@ -4,7 +4,7 @@
 $timer_icon = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke-width="2" /><path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z" /></svg>';
 ?>
 
-{if $session->canAccess('membres', Membres::DROIT_ADMIN)}
+{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)}
 <nav class="tabs">
 	<ul>
 		<li class="current"><a href="./">Mon temps</a></li>

@@ -1,6 +1,6 @@
 {include file="admin/_head.tpl" title="Suivi du temps" plugin_css=['style.css']}
 
-{if $session->canAccess('membres', Membres::DROIT_ADMIN)}
+{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)}
 <nav class="tabs">
 	<ul>
 		<li><a href="./">Mon temps</a></li>
