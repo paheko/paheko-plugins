@@ -25,7 +25,7 @@
 		<tr>
 			<th colspan="3"><h2 class="ruler">
 				{if $grouping == 'week'}{$week.year} — S{$week.week}
-				{elseif $grouping == 'month'}{$week.date|strftime_fr:'%B %Y'}
+				{elseif $grouping == 'month'}{$week.date|strftime:'%B %Y'}
 				{else}{$week.year}{/if}
 			</h2></th>
 		</tr>
