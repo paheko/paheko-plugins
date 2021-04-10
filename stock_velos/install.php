@@ -52,4 +52,4 @@ $db->exec(<<<EOF
 EOF
 );
 
-$plugin->registerSignal('boucle.velos', ['Garradin\Plugin\Stock_Velos\Velos', 'LoopVelos']);
+$plugin->registerSignal('usertemplate.init', 'Garradin\Plugin\Stock_Velos\Velos::register');

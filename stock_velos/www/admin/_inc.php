@@ -4,7 +4,7 @@ namespace Garradin;
 
 use Garradin\Plugin\Stock_Velos\Velos;
 
-$session->requireAccess('membres', Membres::DROIT_ECRITURE);
+$session->requireAccess($session::SECTION_USERS, $session::ACCESS_WRITE);
 
 $velos = new Velos;
 

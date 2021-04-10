@@ -12,11 +12,11 @@
 			<dt><label for="f_nom">Nom</label> <b title="(Champ obligatoire)">obligatoire</b></dt>
 			<dd><input type="text" name="nom" id="f_nom" value="{form_field name="nom" data=$category}" required="required" /></dd>
 			<dt><label for="f_introduction">Texte d'introduction</label> à afficher sur la page de choix de type de créneau</dt>
-			<dd class="help">Syntaxe <a href="{$admin_url}wiki/_syntaxe.html" target="_blank">SkrivML</a> acceptée</dd>
-			<dd class="help">Ne sera pas affiché que si plusieurs types de créneaux existent.</dd>
+			<dd class="help">Syntaxe <a href="{$admin_url}web/_syntaxe.html" target="_blank">SkrivML</a> acceptée</dd>
+			<dd class="help">Ne sera affiché que si plusieurs types de créneaux existent.</dd>
 			<dd><textarea name="introduction" id="f_introduction" cols="70" rows="3">{form_field name="introduction" data=$category}</textarea></dd>
 			<dt><label for="f_description">Texte de présentation</label> à afficher sur la page de réservation</dt>
-			<dd class="help">Syntaxe <a href="{$admin_url}wiki/_syntaxe.html" target="_blank">SkrivML</a> acceptée</dd>
+			<dd class="help">Syntaxe <a href="{$admin_url}web/_syntaxe.html" target="_blank">SkrivML</a> acceptée</dd>
 			<dd><textarea name="description" id="f_description" cols="70" rows="15">{form_field name="description" data=$category}</textarea></dd>
 		</dl>
 	</fieldset>

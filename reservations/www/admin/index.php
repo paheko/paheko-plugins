@@ -7,7 +7,7 @@ if ($plugin->needUpgrade()) {
 	$plugin->upgrade();
 }
 
-if ($session->canAccess('membres', Membres::DROIT_ECRITURE)) {
+if ($session->canAccess($session::SECTION_USERS, $session::ACCESS_WRITE)) {
 	Utils::redirect(Utils::plugin_url(['file' => 'bookings.php']));
 }
 

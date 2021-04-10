@@ -2,7 +2,7 @@
 
 namespace Garradin;
 
-$session->requireAccess('config', Membres::DROIT_ADMIN);
+$session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
 
 if (f('save'))
 {

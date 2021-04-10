@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8" />
 	<title>Réservations</title>
-	<link rel="stylesheet" type="text/css" href="{$www_url}admin/static/wiki.css" />
+	<link rel="stylesheet" type="text/css" href="{$www_url}content.css" />
 	<style type="text/css">
 	{literal}
 	* {
