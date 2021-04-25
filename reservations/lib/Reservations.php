@@ -142,7 +142,7 @@ class Reservations
 
 			$slot_hour = (int) str_replace(':', '', $slot->heure);
 			$slot->timestamp = DateTime::createFromFormat('Y-m-d', $slot->date)->getTimestamp();
-			$slot->available = $slot->maximum - $slot->jauge;
+			$slot->available = max(0, $slot->maximum - $slot->jauge);
 
 			if ($day_now == $slot->date && $hour_now > $slot_hour) {
 				$slot->bookable = false;
@@ -217,7 +217,10 @@ class Reservations
 			(repetition = 1 AND :date >= jour AND strftime(\'%w\', jour) = strftime(\'%w\', :date))
 			OR jour = :date)';
 
-		$booking = $db->first('SELECT prc.*, (SELECT COUNT(*) FROM plugin_reservations_personnes prp WHERE creneau = prc.id AND prc.jour = :date AND date(prp.date) = date(prc.jour)) AS jauge FROM plugin_reservations_creneaux prc WHERE ' . $test, ['id' => $slot_id, 'date' => $date->format('Y-m-d')]);
+		$booking = $db->first('SELECT prc.*,
+			(SELECT COUNT(*) FROM plugin_reservations_personnes prp WHERE creneau = prc.id AND date(date) = :date) AS jauge
+			FROM plugin_reservations_creneaux prc
+			WHERE ' . $test, ['id' => $slot_id, 'date' => $date->format('Y-m-d')]);
 
 		if (!$booking) {
 			throw new UserException('Date ou créneau invalide');
