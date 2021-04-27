@@ -35,7 +35,7 @@ class Tab
 	public function getRemainder(): int
 	{
 		return (int) DB::getInstance()->firstColumn(POS::sql('SELECT
-			(SELECT SUM(price * qty) FROM @PREFIX_tabs_items WHERE tab = ?)
+			COALESCE((SELECT SUM(price * qty) FROM @PREFIX_tabs_items WHERE tab = ?), 0)
 			- COALESCE((SELECT SUM(amount) FROM @PREFIX_tabs_payments WHERE tab = ?), 0);'), $this->id, $this->id);
 	}
 

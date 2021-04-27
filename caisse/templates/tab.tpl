@@ -145,8 +145,10 @@
 					</p>
 				</fieldset>
 			</form>
-			{elseif $remainder}
-				<p class="error">Aucun moyen de paiement possible : certains produits n'ont aucun moyen de paiement défini.</p>
+			{elseif $remainder > 0}
+				<p class="error block">Aucun moyen de paiement possible : certains produits n'ont aucun moyen de paiement défini.</p>
+			{elseif $remainder < 0}
+				<p class="error block">Des paiements ont été enregistrés, mais il n'y a pas de produits dans la note.</p>
 			{/if}
 		</section>
 	</section>
