@@ -89,7 +89,7 @@ class Session
 				) AS lines
 				ON lines.session = s.id
 			WHERE s.closed IS NOT NULL
-				AND s.closed >= ? AND s.closed <= ?
+				AND date(s.closed) >= date(?) AND date(s.closed) <= date(?)
 			GROUP BY s.id, lines.account, lines.reference
 			ORDER BY s.id, lines.account, lines.reference;';
 
