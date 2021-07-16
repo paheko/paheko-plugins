@@ -229,7 +229,7 @@ class Tab
 
 		$sql = sprintf('SELECT m.id, m.numero, m.email, m.%s AS identite,
 			MAX(su.expiry_date) AS expiry_date,
-			CASE WHEN su.expiry_date < date() THEN -1 WHEN su.expiry_date >= date() THEN 1 ELSE 0 END AS status
+			CASE WHEN su.expiry_date IS NULL THEN 0 WHEN su.expiry_date < date() THEN -1 WHEN su.expiry_date >= date() THEN 1 ELSE 0 END AS status
 			FROM membres m
 			LEFT JOIN services_users su ON su.id_user = m.id
 			WHERE m.%s

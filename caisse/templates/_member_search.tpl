@@ -7,6 +7,8 @@
 			Cotisation
 			{if $m.status == -1}
 				<span class="error"><b>En retard</b> depuis le {$m.expiry_date|date_short}</span>
+			{elseif $m.status == 0}
+				<span class="error"><b>Pas de cotisation&nbsp;!</b></span>
 			{else}
 				<b class="confirm">&#10003; À jour</b>
 				{if $m.expiry_date}
