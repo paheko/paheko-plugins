@@ -5,7 +5,7 @@
 	<ul>
 		<li><a href="./">Mon temps</a></li>
 		<li class="current"><a href="stats.php">Statistiques</a></li>
-		{*<li><a href="config.php">Configuration</a></li>*}
+		<li><a href="config.php">Configuration</a></li>
 	</ul>
 	<ul class="sub">
 		<li{if $grouping == 'week'} class="current"{/if}><a href="?g=week">Par semaine</a></li>

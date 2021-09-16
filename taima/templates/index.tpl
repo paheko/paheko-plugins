@@ -9,7 +9,7 @@ $timer_icon = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circ
 	<ul>
 		<li class="current"><a href="./">Mon temps</a></li>
 		<li><a href="stats.php">Statistiques</a></li>
-		{*<li><a href="config.php">Configuration</a></li>*}
+		<li><a href="config.php">Configuration</a></li>
 	</ul>
 </nav>
 {/if}
