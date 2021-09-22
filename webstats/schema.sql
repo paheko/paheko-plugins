@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS plugin_webstats_stats (
+	year INTEGER NOT NULL,
+	month INTEGER NOT NULL,
+	day INTEGER NOT NULL,
+
+	visits INTEGER NOT NULL DEFAULT 1,
+	hits INTEGER NOT NULL DEFAULT 1,
+	mobile_visits INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY (year, month, day)
+);
+
+CREATE TABLE IF NOT EXISTS plugin_webstats_hits (
+	uri TEXT NOT NULL PRIMARY KEY,
+	hits INTEGER NOT NULL DEFAULT 1
+);
+
