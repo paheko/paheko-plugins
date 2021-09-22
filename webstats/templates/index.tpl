@@ -37,7 +37,7 @@
 	<tbody>
 		{foreach from=$hits item="row"}
 		<tr>
-			<th><a href="{$www_url}{$row.uri}" target="_blank">{$row.uri}</a></th>
+			<th><a href="{$www_url}{$row.uri}" target="_blank">{if !$row.uri}— Page d'accueil —{else}{$row.uri}{/if}</a></th>
 			<td class="num">{$row.hits}</td>
 		</tr>
 		{/foreach}
