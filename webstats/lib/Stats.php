@@ -13,6 +13,8 @@ class Stats
 	const UA_BOTS_MATCH = '/Googlebot|Bingbot|Slurp|DuckDuckBot|Baiduspider|YandexBot|Exabot|facebookexternalhit|facebot|curl|ia_archiver|GoogleImageProxy|MJ12bot|MegaIndex|https?:\/\/|wget/i';
 	const UA_MOBILE_MATCH = '/Mobile|iPhone|Android|Opera Mobi|Opera Mini|UCBrowser|SamsungBrowser/i';
 
+	const IGNORE_URIS = '/apple-touch-icon|favicon\.ico|robots\.txt/';
+
 	static protected $new_visitor = false;
 	static protected $ua_type = null;
 
@@ -50,6 +52,10 @@ class Stats
 	{
 		// Ignore bots
 		if (self::$ua_type == self::UA_BOT) {
+			return;
+		}
+
+		if (preg_match(self::IGNORE_URIS, $params['uri'] ?? '')) {
 			return;
 		}
 
