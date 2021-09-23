@@ -152,6 +152,7 @@ class Tab
 				INNER JOIN @PREFIX_products_methods pm ON pm.method = m.id
 				INNER JOIN @PREFIX_tabs_items i ON i.product = pm.product AND i.tab = :id
 				LEFT JOIN @PREFIX_tabs_payments AS pt ON pt.tab = i.tab AND m.id = pt.method
+				WHERE m.enabled = 1
 				GROUP BY m.id
 			);'), ['id' => $this->id, 'left' => $remainder]);
 	}

@@ -47,7 +47,6 @@
 				{/if}
 				</form>
 				<form method="post" action="./pdf.php?id={$current_tab.id}" id="f_pdf">
-					<input type="submit" data-name="{if $current_tab.name}1{else}0{/if}" name="cpv" value="Facture CPV" />
 					<input type="submit" data-name="{if $current_tab.name}1{else}0{/if}" name="receipt" value="Reçu PDF" />
 				</form>
 			</div>
@@ -66,7 +65,7 @@
 				<tbody>
 				{foreach from=$items item="item"}
 				<tr>
-					<th><small class="cat">{$item.category_name}</small> {$item.name} {$item.methods|raw|show_methods}</th>
+					<th><small class="cat">{$item.category_name}</small> {$item.name}</th>
 					<td>{if !$current_tab.closed}<input type="submit" name="change_qty[{$item.id}]" value="{$item.qty}" />{else}{$item.qty}{/if}</td>
 					<td>{if !$current_tab.closed}<input type="submit" name="change_price[{$item.id}]" value="{$item.price|escape|pos_money}" />{else}{$item.price|escape|pos_money}{/if}</td>
 					<td>{$item.total|escape|pos_money}</td>
@@ -90,11 +89,6 @@
 						<td></td>
 						<td></td>
 						<td colspan="2">{$remainder|raw|pos_money}</td>
-					</tr>
-					<tr>
-						<th colspan="3">dont éligible Coup de pouce vélo
-						<em>(max: 50 €)</em></th>
-						<td colspan="2">{$eligible_alveole|escape|pos_money}</td>
 					</tr>
 				</tfoot>
 			</table>

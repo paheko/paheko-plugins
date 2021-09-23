@@ -89,16 +89,8 @@ if ($tab) {
 		}
 	}
 
-	$tpl->assign('eligible_alveole', $eligible);
 	$tpl->assign('payment_options', $options);
 }
-
-$tpl->register_modifier('show_methods', function ($m) {
-	$m = explode(',', $m);
-	if (in_array(3, $m)) {
-		return '<i>🚲</i>';
-	}
-});
 
 $tpl->assign('title', 'Caisse ouverte le ' . Utils::date_fr($current_pos_session->opened));
 $tpl->display(PLUGIN_ROOT . '/templates/tab.tpl');

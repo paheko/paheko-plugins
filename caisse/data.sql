@@ -1,20 +1,6 @@
 INSERT INTO @PREFIX_categories VALUES (1, "Adhésion", NULL);
 INSERT INTO @PREFIX_products VALUES (NULL, 1, "Adhésion normale", NULL, 1500, 1, NULL, NULL);
 INSERT INTO @PREFIX_products VALUES (NULL, 1, "Adhésion réduite", NULL, 1000, 1, NULL, NULL);
-INSERT INTO @PREFIX_products VALUES (NULL, 1, "Adhésion soutien", NULL, 2000, 1, NULL, NULL);
-
-INSERT INTO @PREFIX_categories VALUES (2, "Forfaits coup de pouce vélo", NULL);
---INSERT INTO @PREFIX_products VALUES (4, 2, "Forfait révision vélo adhérent", NULL, 1500, 1, NULL, NULL);
-INSERT INTO @PREFIX_products VALUES (NULL, 2, "Forfait réparation vélo occasion", 'Réglage d''étrier de frein ou patin
-Lubrification de la câblerie frein
-Nettoyage de la transmission
-Lubrification de la câblerie dérailleur
-Réglage d''un dérailleur et de son sélecteur de vitesse
-Serrage contrôlé des plateaux
-Serrage contrôlé du boîtier de pédalier
-Remise en état de roue
-Réglage du jeu de direction
-Réglage de l''alignement du guidon', 3500, 1, NULL, NULL);
 
 INSERT INTO @PREFIX_categories VALUES (3, "Pièces neuves", NULL);
 INSERT INTO @PREFIX_products (category, name, price) VALUES
@@ -112,48 +98,7 @@ INSERT INTO @PREFIX_products VALUES (NULL, 5, "Vélo d'occasion", NULL, 6000, 1,
 
 INSERT INTO @PREFIX_methods VALUES (1, 'Espèces', 1, NULL, NULL, NULL);
 INSERT INTO @PREFIX_methods VALUES (2, 'Chèque', 0, NULL, NULL, NULL);
-INSERT INTO @PREFIX_methods VALUES (3, 'Coup de pouce vélo', 0, 1500, 5000, NULL);
 
 -- Ajout espèces/chèque
 INSERT INTO @PREFIX_products_methods SELECT id, 1 FROM @PREFIX_products;
 INSERT INTO @PREFIX_products_methods SELECT id, 2 FROM @PREFIX_products;
-
--- Coup de pouce vélo pièces détachées
-INSERT INTO @PREFIX_products_methods SELECT id, 3 FROM @PREFIX_products WHERE category IN (3, 4) AND (
-	(name LIKE 'Chaîne%')
-	OR (name LIKE 'Chambre à air%')
-	OR (name LIKE 'Pneu%')
-	OR (name LIKE 'Selle%')
-	OR (name LIKE 'Patin%')
-	OR (name LIKE 'Gaine%')
-	OR (name LIKE 'Câble%')
-	OR (name LIKE 'Pédale%')
-	OR (name LIKE 'Roue%')
-	OR (name LIKE 'Manivelle%')
-	OR (name LIKE 'Pédalier%')
-	OR (name LIKE 'Manette%')
-	OR (name LIKE 'Levier%')
-	OR (name LIKE 'Guidon%')
-	OR (name LIKE 'Fourche%')
-	OR (name LIKE 'Cuvette%')
-	OR (name LIKE 'Cassette%')
-	OR (name LIKE 'Axe%')
-	OR (name LIKE 'Attache%')
-	OR (name LIKE 'Boîtier%')
-	OR (name LIKE 'Butée%')
-	OR (name LIKE 'Chariot%')
-	OR (name LIKE 'Clavette%')
-	OR (name LIKE 'Écrou%')
-	OR (name LIKE 'Dérailleur%')
-	OR (name LIKE 'Rayon%')
-	OR (name LIKE 'Pignon%')
-	OR (name LIKE 'Plateau%')
-	OR (name LIKE 'Fond de jante%')
-	OR (name LIKE 'Sonnette%')
-	OR (name LIKE 'Dynamo%')
-	OR (name LIKE 'Ampoule%')
-	OR (name LIKE '%reelight%')
-	OR (name IN ('Potence', 'Poignée de guidon', 'Tige de selle', 'Phare (sans ampoule)'))
-);
-
-INSERT INTO @PREFIX_products_methods SELECT id, 3 FROM @PREFIX_products WHERE category IN (1, 2);
