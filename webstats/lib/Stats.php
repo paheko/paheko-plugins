@@ -59,6 +59,11 @@ class Stats
 			return;
 		}
 
+		// Ignore unknown pages
+		if (http_response_code() != 200) {
+			return;
+		}
+
 		$db = DB::getInstance();
 
 		$sql = sprintf('BEGIN; INSERT INTO plugin_webstats_stats (year, month, day, mobile_visits) VALUES (%d, %d, %d, %d)
