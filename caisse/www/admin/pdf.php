@@ -16,8 +16,10 @@ if ('' === trim($tab->name)) {
 	throw new UserException('La note n\'a pas de nom associé : impossible de produire la facture');
 }
 
-if (!shell_exec('which prince')) {
-	die('Impossible de trouver Prince XML');
+$printer = shell_exec('which prince') ? 'prince' : (shell_exec('which chromium') ? 'chromium' : null);
+
+if (!$printer) {
+	die('Impossible de trouver Prince XML ou Chrome');
 }
 
 $items = $tab->listItems();
@@ -63,33 +65,47 @@ $tpl->assignArray(compact('tab', 'remainder', 'eligible', 'remainder_after'));
 $result = $tpl->fetch();
 $file_name = sprintf('Reçu %06d - %s.pdf', $tab->id, preg_replace('/[^\w]+/Ui', ' ', $tab->name));
 
-$descriptorspec = array(
-   0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
-   1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
-   2 => array('pipe', 'w'),
-);
+if ($printer == 'prince') {
+	$descriptorspec = array(
+	   0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
+	   1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
+	   2 => array('pipe', 'w'),
+	);
 
-$cmd = 'prince -o - -';
-$process = proc_open($cmd, $descriptorspec, $pipes);
+	$cmd = 'prince -o - -';
+	$process = proc_open($cmd, $descriptorspec, $pipes);
 
-if (is_resource($process)) {
-	// $pipes now looks like this:
-	// 0 => writeable handle connected to child stdin
-	// 1 => readable handle connected to child stdout
+	if (is_resource($process)) {
+		// $pipes now looks like this:
+		// 0 => writeable handle connected to child stdin
+		// 1 => readable handle connected to child stdout
 
-	fwrite($pipes[0], $result);
-	fclose($pipes[0]);
+		fwrite($pipes[0], $result);
+		fclose($pipes[0]);
 
-	$pdf_content = stream_get_contents($pipes[1]);
-	fclose($pipes[1]);
+		$pdf_content = stream_get_contents($pipes[1]);
+		fclose($pipes[1]);
 
-	// It is important that you close any pipes before calling
-	// proc_close in order to avoid a deadlock
-	$return_value = proc_close($process);
+		// It is important that you close any pipes before calling
+		// proc_close in order to avoid a deadlock
+		$return_value = proc_close($process);
+
+		header('Content-type: application/pdf');
+		header(sprintf('Content-Disposition: attachment; filename="%s"', $file_name));
+		echo $pdf_content;
+	}
+}
+elseif ($printer == 'chromium') {
+	$tmpname = sprintf('%s/print-%s.html', CACHE_ROOT, md5(random_bytes(16)));
+	file_put_contents($tmpname, $result);
+
+	exec(sprintf('chromium --headless --disable-gpu --run-all-compositor-stages-before-draw --print-to-pdf-no-header --print-to-pdf=%s %s', escapeshellarg($tmpname . '.pdf'), escapeshellarg($tmpname)));
 
 	header('Content-type: application/pdf');
-	//header(sprintf('Content-Length: %d', strlen($pdf_content)));
+	header(sprintf('Content-Length: %d', filesize($tmpname . '.pdf')));
 	header(sprintf('Content-Disposition: attachment; filename="%s"', $file_name));
-	echo $pdf_content;
-}
+	readfile($tmpname . '.pdf');
 
+	unlink($tmpname . '.pdf');
+	unlink($tmpname);
+}

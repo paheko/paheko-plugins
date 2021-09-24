@@ -40,10 +40,10 @@
 				<input type="button" name="rename" value="Renommer" />
 				{if !$remainder && !$current_tab.closed}
 					<input type="submit" name="close" value="Clore la note" />
-				{elseif $current_tab.closed && !$pos_session.closed}
-					<input type="submit" name="reopen" value="Ré-ouvrir la note" />
 				{elseif !count($existing_payments) && !count($items)}
 					<input type="submit" name="delete" value="Supprimer la note" />
+				{elseif $current_tab.closed && !$pos_session.closed}
+					<input type="submit" name="reopen" value="Ré-ouvrir la note" />
 				{/if}
 				</form>
 				<form method="post" action="./pdf.php?id={$current_tab.id}" id="f_pdf">
