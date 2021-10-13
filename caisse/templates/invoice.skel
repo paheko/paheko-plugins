@@ -96,7 +96,6 @@
 </section>
 
 <section class="items">
-	<form method="post">
 	<table class="list">
 		<thead>
 			<th>Dénomination</th>
