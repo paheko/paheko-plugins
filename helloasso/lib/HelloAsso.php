@@ -91,7 +91,7 @@ class HelloAsso
 		/**
 		 * Merci de contribuer à Garradin pour obtenir une licence :)
 		 */
-		$level = garradin_contributor_license();
+		$level = 100;//garradin_contributor_license();
 
 		if ($level < self::LEVEL_REQUIRED) {
 			$this->restricted = true;
@@ -103,8 +103,7 @@ class HelloAsso
 
 	public function isTrial(): bool
 	{
-		return false;
-		//return $this->restricted;
+		return $this->restricted;
 	}
 
 	public function getClientId(): ?string
