@@ -23,4 +23,12 @@
 	</tbody>
 </table>
 
+<p>
+	Pour aider au développement de cette extension, vous pouvez cliquer sur le bouton suivant, qui procédera à l'envoi d'une copie de vos derniers paiements HelloAsso, cela enverra au développeur une copie de la liste des valeurs disponibles dans HelloAsso (sans les valeurs elle-même, donc aucune information personnelle ne sera envoyée).
+</p>
+
+<p>
+	{linkbutton shape="upload" label="Envoyer les valeurs possibles" href="?send_debug"}
+</p>
+
 {include file="admin/_foot.tpl"}

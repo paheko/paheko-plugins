@@ -12,7 +12,7 @@ use function Garradin\garradin_contributor_license;
 class HelloAsso
 {
 	const CACHE_TABLE = 'plugin_helloasso_forms';
-	const PER_PAGE = 50;
+	const PER_PAGE = 20;
 
 	const MERGE_NAMES_FIRST_LAST = 0;
 	const MERGE_NAMES_LAST_FIRST = 1;
@@ -198,7 +198,7 @@ class HelloAsso
 		}
 	}
 
-	public function listPayments(\stdClass $form, int $page = 1, &$count): array
+	public function listPayments(\stdClass $form, int $page = 1, &$count = null): array
 	{
 		$per_page = self::PER_PAGE;
 
@@ -223,7 +223,7 @@ class HelloAsso
 		return $result->data;
 	}
 
-	public function listOrganizationPayments(string $org_slug, int $page = 1): array
+	public function listOrganizationPayments(string $org_slug, int $page = 1, &$count = null): array
 	{
 		$per_page = self::PER_PAGE;
 
@@ -234,7 +234,9 @@ class HelloAsso
 
 		$result = $this->api->listOrganizationPayments($org_slug, $page, $per_page);
 
-		foreach ($result as &$row) {
+		$count = $result->pagination->totalCount;
+
+		foreach ($result->data as &$row) {
 			$row->date = new \DateTime($row->date);
 			$row->reference = $row->order->id;
 			$row->payer_name = $this->getPayerName($row->payer);
@@ -243,7 +245,7 @@ class HelloAsso
 
 		unset($row);
 
-		return $result;
+		return $result->data;
 	}
 
 	public function getPayerName(\stdClass $payer)

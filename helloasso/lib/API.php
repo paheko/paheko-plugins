@@ -129,9 +129,26 @@ class API
 		return $oauth->access_token;
 	}
 
+	protected function assert($condition)
+	{
+		if (!$condition) {
+			throw new \RuntimeException('Données manquantes depuis HelloAsso !');
+		}
+	}
+
 	public function listOrganizations(): array
 	{
-		return $this->GET('v5/users/me/organizations');
+		$result = $this->GET('v5/users/me/organizations');
+
+		$this->assert(is_array($result));
+
+		if (count($result)) {
+			$r = $result[0];
+			$this->assert(isset($r->name));
+			$this->assert(isset($r->organizationSlug));
+		}
+
+		return $result;
 	}
 
 	public function listForms(string $organization): array
@@ -144,14 +161,21 @@ class API
 
 		$result = $this->GET(sprintf('v5/organizations/%s/forms', $organization), $params);
 
-		if (!isset($result->data)) {
-			throw new \RuntimeException('Invalid result');
+		$this->assert(isset($result->data));
+		$this->assert(is_array($result->data));
+
+		if (count($result->data)) {
+			$r = $result->data[0];
+			$this->assert(isset($r->title));
+			$this->assert(isset($r->formType));
+			$this->assert(isset($r->formSlug));
+			$this->assert(isset($r->state));
 		}
 
 		return $result->data;
 	}
 
-	public function listOrganizationPayments(string $organization, int $page, int $per_page): array
+	public function listOrganizationPayments(string $organization, int $page, int $per_page): \stdClass
 	{
 		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {
 			throw new \RuntimeException('Invalid organization slug');
@@ -164,11 +188,28 @@ class API
 
 		$result = $this->GET(sprintf('v5/organizations/%s/payments', $organization), $params);
 
-		if (!isset($result->data)) {
-			throw new \RuntimeException('Invalid result');
-		}
+		$this->assertPayments($result);
 
-		return $result->data;
+		return $result;
+	}
+
+	protected function assertPayments($result)
+	{
+		$this->assert(isset($result->data));
+		$this->assert(is_array($result->data));
+		$this->assert(isset($result->pagination->totalCount));
+
+		if (count($result->data)) {
+			$r = $result->data[0];
+			$this->assert(isset($r->date));
+			$this->assert(strtotime($r->date));
+			$this->assert(isset($r->order->id));
+			$this->assert(isset($r->payer));
+			$this->assert(isset($r->state));
+			$this->assert(isset($r->id));
+			$this->assert(isset($r->paymentReceiptUrl));
+			$this->assert(isset($r->amount) && ctype_digit($r->amount));
+		}
 	}
 
 	public function listPayments(string $organization, string $form_type, string $form_slug, int $page, int $per_page): \stdClass
@@ -192,9 +233,7 @@ class API
 
 		$result = $this->GET(sprintf('v5/organizations/%s/forms/%s/%s/payments', $organization, $form_type, $form_slug), $params);
 
-		if (!isset($result->data)) {
-			throw new \RuntimeException('Invalid result');
-		}
+		$this->assertPayments($result);
 
 		return $result;
 	}
