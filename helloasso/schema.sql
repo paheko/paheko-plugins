@@ -23,17 +23,42 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_targets (
 
 	last_sync TEXT NULL,
 
-	-- Targets in Garradin
-	id_category INTEGER NOT NULL REFERENCES users_categories(id),
-	id_fee INTEGER NULL REFERENCES services_fees(id),
-	id_account INTEGER NULL REFERENCES acc_accounts(id),
+	-- If not null, create a user in this category
+	id_category INTEGER NOT NULL REFERENCES users_categories(id) ON DELETE SET NULL,
 
-	CHECK (id_account IS NULL OR (id_account IS NOT NULL AND id_fee IS NOT NULL))
+	-- If not null, subscribe the user (if found) to this fee
+	id_fee INTEGER NULL REFERENCES services_fees(id),
+	-- If not null, create a related payment in this account
+	id_fee_account INTEGER NULL REFERENCES acc_accounts(id),
+
+	-- If not null, create a transaction in these accounts and this year
+	id_year INTEGER NULL REFERENCES acc_years(id),
+	id_account1 INTEGER NULL REFERENCES acc_accounts(id),
+	id_account2 INTEGER NULL REFERENCES acc_accounts(id),
+
+	CHECK (id_fee_account IS NULL OR (id_fee_account IS NOT NULL AND id_fee IS NOT NULL)),
+	CHECK (COALESCE(id_year, id_account1, id_account2) IS NULL OR (id_account1 IS NOT NULL AND id_account2 IS NOT NULL AND id_year IS NOT NULL))
 );
 
 -- Make sure we can't link to an invalid account if the linked fee changes its accounting chart
-CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_safe AFTER UPDATE OF id_year ON services_fees BEGIN
+CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_fee_update AFTER UPDATE OF id_year ON services_fees BEGIN
     UPDATE plugin_helloasso_targets SET id_account = NULL WHERE id_fee = OLD.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_fee_delete BEFORE DELETE ON services_fees BEGIN
+    UPDATE plugin_helloasso_targets SET id_account = NULL, id_fee = NULL WHERE id_fee = OLD.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_fee_account_delete BEFORE DELETE ON acc_accounts BEGIN
+    UPDATE plugin_helloasso_targets SET id_account = NULL WHERE id_fee_account = OLD.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_account_delete BEFORE DELETE ON acc_accounts BEGIN
+    UPDATE plugin_helloasso_targets SET id_account1 = NULL, id_account2 = NULL, id_year = NULL WHERE id_account1 = OLD.id OR id_account2 = OLD.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_year_delete BEFORE DELETE ON acc_years BEGIN
+    UPDATE plugin_helloasso_targets SET id_account1 = NULL, id_account2 = NULL, id_year = NULL WHERE id_year = OLD.id;
 END;
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_sync (
