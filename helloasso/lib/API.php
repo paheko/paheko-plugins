@@ -151,6 +151,26 @@ class API
 		return $result->data;
 	}
 
+	public function listOrganizationPayments(string $organization, int $page, int $per_page): array
+	{
+		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {
+			throw new \RuntimeException('Invalid organization slug');
+		}
+
+		$params = [
+			'pageSize'  => $per_page,
+			'pageIndex' => $page,
+		];
+
+		$result = $this->GET(sprintf('v5/organizations/%s/payments', $organization), $params);
+
+		if (!isset($result->data)) {
+			throw new \RuntimeException('Invalid result');
+		}
+
+		return $result->data;
+	}
+
 	public function listPayments(string $organization, string $form_type, string $form_slug, int $page, int $per_page): \stdClass
 	{
 		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {

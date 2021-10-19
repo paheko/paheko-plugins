@@ -21,7 +21,13 @@
 <dl class="describe">
 	{foreach from=$payment.payer_infos key="key" item="value"}
 	<dt>{$key}</dt>
-	<dd>{$value}</dd>
+	<dd>
+		{if $value instanceof \DateTime}
+			{$value|date:'d/m/Y'}
+		{else}
+			{$value}
+		{/if}
+	</dd>
 	{/foreach}
 </dl>
 

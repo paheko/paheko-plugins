@@ -69,6 +69,7 @@ class HelloAsso
 		'zipCode'   => 'Code postal',
 		'city'      => 'Ville',
 		'country'   => 'Pays',
+		'dateOfBirth' => 'Date de naissance',
 	];
 
 	static protected $_instance;
@@ -213,13 +214,50 @@ class HelloAsso
 		foreach ($result->data as &$row) {
 			$row->date = new \DateTime($row->date);
 			$row->reference = $row->order->id;
-			$row->payer_name = sprintf('%s %s %s (%s)', $row->payer->company, $row->payer->firstName, $row->payer->lastName, $row->payer->city);
+			$row->payer_name = $this->getPayerName($row->payer);
 			$row->status = self::PAYMENT_STATES[$row->state] ?? '--';
 		}
 
 		unset($row);
 
 		return $result->data;
+	}
+
+	public function listOrganizationPayments(string $org_slug, int $page = 1): array
+	{
+		$per_page = self::PER_PAGE;
+
+		if ($this->isTrial()) {
+			$per_page = self::PER_PAGE_TRIAL;
+			$page = 1;
+		}
+
+		$result = $this->api->listOrganizationPayments($org_slug, $page, $per_page);
+
+		foreach ($result as &$row) {
+			$row->date = new \DateTime($row->date);
+			$row->reference = $row->order->id;
+			$row->payer_name = $this->getPayerName($row->payer);
+			$row->status = self::PAYMENT_STATES[$row->state] ?? '--';
+		}
+
+		unset($row);
+
+		return $result;
+	}
+
+	public function getPayerName(\stdClass $payer)
+	{
+		$names = [$row->payer->company ?? null, $row->payer->firstName ?? null, $row->payer->lastName ?? null];
+		$names = array_filter($names);
+
+		$names = implode(' ', $names);
+
+		if (isset($payer->city)) {
+			$names .= sprintf(' (%s)', $payer->city);
+		}
+
+		return $names;
 	}
 
 	public function getPayment(string $id, &$json): \stdClass
@@ -232,12 +270,19 @@ class HelloAsso
 		$data->reference = $data->order->id;
 		$data->payer_infos = [];
 
-		foreach (self::PAYER_FIELDS as $key => $value) {
+		foreach (self::PAYER_FIELDS as $key => $name) {
 			if (!isset($data->payer->$key)) {
 				continue;
 			}
 
-			$data->payer_infos[$value] = $data->payer->$key;
+			$value = $data->payer->$key;
+
+			if ($key == 'dateOfBirth') {
+				$value = new \DateTime($value);
+			}
+
+			$data->payer_infos[$name] = $value;
+
 		}
 
 		return $data;

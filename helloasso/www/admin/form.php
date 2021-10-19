@@ -24,4 +24,7 @@ $restricted_results = $restricted ? $count - $ha::PER_PAGE_TRIAL : null;
 
 $tpl->assign(compact('list', 'form', 'per_page', 'count', 'page', 'restricted', 'restricted_results'));
 
+$tpl->assign('payments_json', json_encode($ha->listOrganizationPayments($form->org_slug), JSON_PRETTY_PRINT));
+
+
 $tpl->display(PLUGIN_ROOT . '/templates/form.tpl');

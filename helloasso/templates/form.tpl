@@ -40,4 +40,10 @@
 {/if}
 
 
+<h3>Informations brutes de développement</h3>
+
+<p><textarea readonly="readonly" cols="70" rows="10" onclick="this.select();">{$payments_json}</textarea></p>
+
+
+
 {include file="admin/_foot.tpl"}
