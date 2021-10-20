@@ -34,4 +34,7 @@
 	</p>
 </form>
 
+<h3>Identifiants de connexion temporaire (debug)</h3>
+<p><textarea readonly="readonly" cols="70" rows="10" onclick="this.select();">{$oauth}</textarea></p>
+
 {include file="admin/_foot.tpl"}
