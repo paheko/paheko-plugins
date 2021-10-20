@@ -2,6 +2,7 @@
 
 namespace Garradin;
 
+use KD2\HTTP;
 use Garradin\Plugin\HelloAsso\HelloAsso;
 
 $session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
@@ -46,7 +47,7 @@ if (isset($_GET['send_debug'])) {
 
 	}
 
-	mail('bohwaz@garradin.eu', 'Liste de champs HelloAsso', json_encode(compact('keys_org', 'keys_forms'), JSON_PRETTY_PRINT));
+	(new HTTP)->POST('https://garradin.eu/helloasso.php', compact('keys_org', 'keys_forms'), HTTP::JSON);
 	die('Envoi réalisé, merci !');
 }
 
