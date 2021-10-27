@@ -43,7 +43,7 @@ if (f('save'))
 		$open[$day] = $hours;
 	}
 
-	$closed_nb = count(f('closed')['day_start']);
+	$closed_nb = f('closed') ? count(f('closed')['day_start']): 0;
 	$closed_list = [];
 
 	for ($i = 0; $i < $closed_nb; $i++)
