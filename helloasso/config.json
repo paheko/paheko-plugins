@@ -1,16 +1,5 @@
 {
     "oauth": null,
     "client_id": null,
-    "match_email_field": true,
-    "merge_names": 0,
-    "map_user_fields": {
-		"firstName": "nom",
-		"lastName": "nom",
-		"company": null,
-		"email": "email",
-		"address": "adresse",
-		"city": "ville",
-		"zipCode": "code_postal",
-		"country": "pays"
-    }
+    "match_email_field": true
 }

@@ -11,9 +11,34 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms (
 	form_slug TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS plugin_helloasso_orders (
+	id INTEGER PRIMARY KEY NOT NULL,
+	id_user INTEGER NULL REFERENCES membres(id) ON DELETE SET NULL,
+	date TEXT NOT NULL,
+	amount INTEGER NOT NULL,
+	status INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS plugin_helloasso_payments (
+	id INTEGER PRIMARY KEY NOT NULL,
+	id_order INTEGER NOT NULL REFERENCES plugin_helloasso_orders(id) ON DELETE CASCADE,
+	id_user INTEGER NULL REFERENCES membres(id) ON DELETE SET NULL,
+	amount INTEGER NOT NULL,
+	state TEXT NOT NULL,
+	date TEXT NOT NULL,
+	receipt_url TEXT NULL
+);
+
+CREATE TABLE plugin_helloasso_targets_fields (
+	id INTEGER PRIMARY KEY NOT NULL,
+	id_target INTEGER NOT NULL REFERENCES plugin_helloasso_targets(id) ON DELETE CASCADE,
+	source TEXT NOT NULL,
+	target TEXT NULL
+);
+
 CREATE TABLE IF NOT EXISTS plugin_helloasso_targets (
 -- List of forms that should create users or subscriptions
-	id INTEGER PRIMARY KEY,
+	id INTEGER PRIMARY KEY NOT NULL,
 
 	label TEXT NOT NULL,
 
@@ -26,23 +51,23 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_targets (
 	-- If not null, create a user in this category
 	id_category INTEGER NOT NULL REFERENCES users_categories(id) ON DELETE SET NULL,
 
-	-- If not null, subscribe the user (if found) to this fee
+	-- If not null, subscribe the user (if found) to this fee, and add payments to the subscription
 	id_fee INTEGER NULL REFERENCES services_fees(id),
-	-- If not null, create a related payment in this account
-	id_fee_account INTEGER NULL REFERENCES acc_accounts(id),
 
-	-- If not null, create a transaction in these accounts and this year
+	-- If not null, creates transactions in this year and use this account as "bank"
 	id_year INTEGER NULL REFERENCES acc_years(id),
-	id_account1 INTEGER NULL REFERENCES acc_accounts(id),
-	id_account2 INTEGER NULL REFERENCES acc_accounts(id),
+	id_account_provider INTEGER NULL REFERENCES acc_accounts(id),
+	id_account_donations INTEGER NULL REFERENCES acc_accounts(id),
+	id_account_memberships INTEGER NULL REFERENCES acc_accounts(id),
 
-	CHECK (id_fee_account IS NULL OR (id_fee_account IS NOT NULL AND id_fee IS NOT NULL)),
-	CHECK (COALESCE(id_year, id_account1, id_account2) IS NULL OR (id_account1 IS NOT NULL AND id_account2 IS NOT NULL AND id_year IS NOT NULL))
+	account_select_code TEXT NULL, -- Brindille code to select the target account, overrides id_account_donations and id_account_memberships
+
+	CHECK (COALESCE(id_year, id_account_provider) IS NULL OR (id_account_provider IS NOT NULL AND id_year IS NOT NULL))
 );
 
 -- Make sure we can't link to an invalid account if the linked fee changes its accounting chart
 CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_fee_update AFTER UPDATE OF id_year ON services_fees BEGIN
-    UPDATE plugin_helloasso_targets SET id_account = NULL WHERE id_fee = OLD.id;
+    DELETE FROM plugin_helloasso_targets_payments WHERE id_account = NULL AND id_fee = OLD.id;
 END;
 
 CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_fee_delete BEFORE DELETE ON services_fees BEGIN

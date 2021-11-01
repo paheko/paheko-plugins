@@ -60,6 +60,13 @@ class HelloAsso
 		'WaitingBankWithdraw'   => 'Attente retrait de la banque',
 	];
 
+	const PAYMENT_STATE_OK = 'Authorized';
+
+	const PAYMENT_CASH_OUT_OK = 'CashedOut';
+
+	const ORDER_STATUS_PAID = 1;
+	const ORDER_STATUS_WAITING = 0;
+
 	const PAYER_FIELDS = [
 		'firstName' => 'Prénom',
 		'lastName'  => 'Nom',
@@ -117,6 +124,10 @@ class HelloAsso
 		$this->config->client_id = trim($client_id);
 		$this->api->createToken(trim($client_secret));
 		$this->plugin->setConfig('client_id', $this->config->client_id);
+
+		// Clear forms
+		$db = DB::getInstance();
+		$db->exec(sprintf('DELETE FROM %s;', self::CACHE_TABLE));
 	}
 
 	public function saveOAuth(\stdClass $data): void
@@ -162,7 +173,7 @@ class HelloAsso
 
 	public function listForms(): array
 	{
-		$sql = sprintf('SELECT * FROM %s ORDER BY status = \'désactivé\', org_name COLLATE NOCASE, name COLLATE NOCASE;', self::CACHE_TABLE);
+		$sql = sprintf('SELECT * FROM %s ORDER BY status = \'désactivé\', type, org_name COLLATE NOCASE, name COLLATE NOCASE;', self::CACHE_TABLE);
 		$list = DB::getInstance()->get($sql);
 
 		if (!count($list)) {
@@ -207,13 +218,13 @@ class HelloAsso
 			$page = 1;
 		}
 
-		$result = $this->api->listPayments($form->org_slug, $form->form_type, $form->form_slug, $page, $per_page);
+		$result = $this->api->listFormPayments($form->org_slug, $form->form_type, $form->form_slug, $page, $per_page);
 
 		$count = $result->pagination->totalCount;
 
 		foreach ($result->data as &$row) {
 			$row->date = new \DateTime($row->date);
-			$row->reference = $row->order->id;
+			$row->order_id = $row->order->id;
 			$row->payer_name = $this->getPayerName($row->payer);
 			$row->status = self::PAYMENT_STATES[$row->state] ?? '--';
 		}
@@ -238,7 +249,7 @@ class HelloAsso
 
 		foreach ($result->data as &$row) {
 			$row->date = new \DateTime($row->date);
-			$row->reference = $row->order->id;
+			$row->order_id = $row->order->id;
 			$row->payer_name = $this->getPayerName($row->payer);
 			$row->status = self::PAYMENT_STATES[$row->state] ?? '--';
 		}
@@ -248,46 +259,169 @@ class HelloAsso
 		return $result->data;
 	}
 
+	public function listOrganizationOrders(string $org_slug, int $page = 1, &$count = null): array
+	{
+		$per_page = self::PER_PAGE;
+
+		if ($this->isTrial()) {
+			$per_page = self::PER_PAGE_TRIAL;
+			$page = 1;
+		}
+
+		$result = $this->api->listOrganizationOrders($org_slug, $page, $per_page);
+
+		$count = $result->pagination->totalCount;
+
+		foreach ($result->data as &$row) {
+			$row = $this->transformOrder($row);
+		}
+
+		unset($row);
+
+		return $result->data;
+	}
+
+	public function listFormOrders(\stdClass $form, int $page = 1, &$count = null): array
+	{
+		$per_page = self::PER_PAGE;
+
+		if ($this->isTrial()) {
+			$per_page = self::PER_PAGE_TRIAL;
+			$page = 1;
+		}
+
+		$result = $this->api->listFormOrders($form->org_slug, $form->form_type, $form->form_slug, $page, $per_page);
+
+		$count = $result->pagination->totalCount;
+
+		foreach ($result->data as &$row) {
+			$row = $this->transformOrder($row);
+		}
+
+		unset($row);
+
+		return $result->data;
+	}
+
+	protected function transformOrder(\stdClass $order)
+	{
+		$order->date = new \DateTime($order->date);
+		$order->payer_name = $this->getPayerName($order->payer);
+		$order->status = $this->getOrderStatus($order);
+		$order->payer_infos = $this->getPayerInfos($order->payer);
+
+		foreach ($order->payments as &$payment) {
+			$payment = $this->transformPayment($payment);
+		}
+
+		unset($payment);
+
+		$order->items = $this->transformItems($order->items);
+
+		unset($item);
+
+		return $order;
+	}
+
+	protected function getPayerInfos(\stdClass $payer)
+	{
+		$data = [];
+
+		foreach (self::PAYER_FIELDS as $key => $name) {
+			if (!isset($payer->$key)) {
+				continue;
+			}
+
+			$value = $payer->$key;
+
+			if ($key == 'dateOfBirth') {
+				$value = new \DateTime($value);
+			}
+
+			$data[$name] = $value;
+		}
+
+		return $data;
+	}
+
+	protected function getOrderStatus(\stdClass $order)
+	{
+		$total = $order->amount->total;
+		$paid = 0;
+
+		foreach ($order->payments as $payment) {
+			if ($payment->state == self::PAYMENT_STATE_OK) {
+				$paid += $payment->amount;
+			}
+		}
+
+		return $paid >= $total ? self::ORDER_STATUS_PAID : self::ORDER_STATUS_WAITING;
+	}
+
 	public function getPayerName(\stdClass $payer)
 	{
-		$names = [$row->payer->company ?? null, $row->payer->firstName ?? null, $row->payer->lastName ?? null];
+		$names = [!empty($payer->company) ? $payer->company . ' — ' : null, $payer->firstName ?? null, $payer->lastName ?? null];
 		$names = array_filter($names);
 
 		$names = implode(' ', $names);
 
-		if (isset($payer->city)) {
+		if (!empty($payer->city)) {
 			$names .= sprintf(' (%s)', $payer->city);
 		}
 
 		return $names;
 	}
 
-	public function getPayment(string $id, &$json): \stdClass
+	public function getOrder(string $id): \stdClass
+	{
+		$data = $this->api->getOrder($id);
+		return $this->transformOrder($data);
+	}
+
+	public function getPayment(string $id): \stdClass
 	{
 		$data = $this->api->getPayment($id);
-		$json = json_encode($data, JSON_PRETTY_PRINT);
+		return $this->transformPayment($data);
+	}
 
-		$data->date = new \DateTime($data->date);
-		$data->status = self::PAYMENT_STATES[$data->state] ?? '--';
-		$data->reference = $data->order->id;
-		$data->payer_infos = [];
+	public function transformItems(array $items): array
+	{
+		$out = [];
 
-		foreach (self::PAYER_FIELDS as $key => $name) {
-			if (!isset($data->payer->$key)) {
+		foreach ($items as $item) {
+			$item->user_name = isset($item->user) ? $this->getPayerName($item->user) : '';
+
+			if ($item->type == 'Donation') {
+				$item->name = 'Don';
+			}
+
+			$item->type_name = self::FORM_TYPES[$item->type] ?? '';
+
+			$out[] = $item;
+
+			if (!isset($item->options)) {
 				continue;
 			}
 
-			$value = $data->payer->$key;
-
-			if ($key == 'dateOfBirth') {
-				$value = new \DateTime($value);
+			foreach ($item->options as $option) {
+				$option->type_name = 'Option';
+				$out[] = $option;
 			}
-
-			$data->payer_infos[$name] = $value;
-
 		}
 
-		return $data;
+		return $out;
+	}
+
+	public function transformPayment(\stdClass $payment): \stdClass
+	{
+		$payment->date = new \DateTime($payment->date);
+		$payment->status = self::PAYMENT_STATES[$payment->state] ?? '--';
+		$payment->transferred = isset($payment->cashOutState) && $payment->cashOutState == self::PAYMENT_CASH_OUT_OK ? true : false;
+
+		$payment->payer_infos = isset($payment->payer) ? $this->getPayerInfos($payment->payer) : null;
+
+
+		return $payment;
 	}
 
 	public function findUserForPayment(\stdClass $payer)
@@ -333,6 +467,10 @@ class HelloAsso
 
 		foreach ($map as $key => $target) {
 			if (!$target) {
+				continue;
+			}
+
+			if (!isset($payer->$key)) {
 				continue;
 			}
 

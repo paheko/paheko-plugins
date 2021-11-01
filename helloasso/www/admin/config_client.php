@@ -19,7 +19,6 @@ $tpl->assign([
 	'secret'     => '',
 	'csrf_key'   => $csrf_key,
 	'restricted' => $ha->isTrial(),
-	'oauth' => json_encode($ha->getOAuth(), JSON_PRETTY_PRINT),
 ]);
 
 $tpl->display(PLUGIN_ROOT . '/templates/config_client.tpl');

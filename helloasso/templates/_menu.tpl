@@ -5,7 +5,7 @@
 	</aside>
 	{/if}
 	<ul>
-		<li{if $current == 'home'} class="current"{/if}><a href="./">Paiements HelloAsso</a></li>
+		<li{if $current == 'home'} class="current"{/if}><a href="./">Commandes HelloAsso</a></li>
 		{*<li{if $current == 'targets'} class="current"{/if}><a href="targets.php">Synchronisation</a></li>*}
 		{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
 			<li{if $current == 'config'} class="current"{/if}><a href="config.php">Configuration</a></li>

@@ -17,14 +17,13 @@
 		{foreach from=$list item="row"}
 		<tr>
 			<td class="check"></td>
-			<th><a href="payment.php?id={$row.id}">{$row.reference}</a></th>
-			<td class="money">{$row.amount|money_currency|raw}</td>
+			<th><a href="order.php?id={$row.id}">{$row.id}</a></th>
+			<td class="money">{$row.amount.total|money_currency|raw}</td>
 			<td>{$row.date|date}</td>
 			<td>{$row.payer_name}</td>
-			<td>{$row.status}</td>
+			<td>{if $row.status}Payée{else}Paiement incomplet{/if}</td>
 			<td class="actions">
-				{linkbutton href="payment.php?id=%s"|args:$row.id shape="help" label="Détails"}
-				{linkbutton href=$row.paymentReceiptUrl target="_blank" shape="print" label="Attestation de paiement"}
+				{linkbutton href="order.php?id=%s"|args:$row.order_id shape="help" label="Détails"}
 			</td>
 		</tr>
 		{/foreach}
@@ -38,12 +37,6 @@
 {else}
 	{pagination url="?id=%d&p=[ID]"|args:$form.id page=$page bypage=$per_page total=$count}
 {/if}
-
-
-<h3>Informations brutes de développement</h3>
-
-<p><textarea readonly="readonly" cols="70" rows="10" onclick="this.select();">{$payments_json}</textarea></p>
-
 
 
 {include file="admin/_foot.tpl"}

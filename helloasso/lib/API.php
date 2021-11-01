@@ -175,6 +175,69 @@ class API
 		return $result->data;
 	}
 
+	public function listOrganizationOrders(string $organization, int $page, int $per_page): \stdClass
+	{
+		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {
+			throw new \RuntimeException('Invalid organization slug');
+		}
+
+		$params = [
+			'pageSize'    => $per_page,
+			'pageIndex'   => $page,
+			'withDetails' => 'true',
+		];
+
+		$result = $this->GET(sprintf('v5/organizations/%s/orders', $organization), $params);
+
+		$this->assertOrders($result);
+
+		return $result;
+	}
+
+	public function listFormOrders(string $organization, string $form_type, string $form_slug, int $page, int $per_page): \stdClass
+	{
+		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {
+			throw new \RuntimeException('Invalid organization slug');
+		}
+
+		if (!preg_match('/^[a-z0-9_-]+$/', $form_slug)) {
+			throw new \RuntimeException('Invalid form slug');
+		}
+
+		if (!preg_match('/^[a-z0-9_-]+$/i', $form_type)) {
+			throw new \RuntimeException('Invalid form type');
+		}
+
+		$params = [
+			'pageSize'    => $per_page,
+			'pageIndex'   => $page,
+			'withDetails' => 'true',
+		];
+
+		$result = $this->GET(sprintf('v5/organizations/%s/forms/%s/%s/orders', $organization, $form_type, $form_slug), $params);
+
+		$this->assertOrders($result);
+
+		return $result;
+	}
+
+	public function assertOrders(\stdClass $result)
+	{
+		$this->assert(isset($result->data));
+		$this->assert(is_array($result->data));
+		$this->assert(isset($result->pagination->totalCount));
+
+		if (count($result->data)) {
+			$r = $result->data[0];
+			$this->assert(isset($r->date));
+			$this->assert(strtotime($r->date));
+			$this->assert(isset($r->id));
+			$this->assert(isset($r->payer->firstName));
+			$this->assert(isset($r->payer->lastName));
+			$this->assert(isset($r->amount->total) && ctype_digit($r->amount->total));
+		}
+	}
+
 	public function listOrganizationPayments(string $organization, int $page, int $per_page): \stdClass
 	{
 		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {
@@ -212,7 +275,7 @@ class API
 		}
 	}
 
-	public function listPayments(string $organization, string $form_type, string $form_slug, int $page, int $per_page): \stdClass
+	public function listFormPayments(string $organization, string $form_type, string $form_slug, int $page, int $per_page): \stdClass
 	{
 		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {
 			throw new \RuntimeException('Invalid organization slug');
@@ -241,5 +304,10 @@ class API
 	public function getPayment(string $id): \stdClass
 	{
 		return $this->GET(sprintf('v5/payments/%s', $id));
+	}
+
+	public function getOrder(string $id): \stdClass
+	{
+		return $this->GET(sprintf('v5/orders/%s', $id));
 	}
 }

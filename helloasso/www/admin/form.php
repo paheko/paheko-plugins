@@ -17,14 +17,11 @@ if (!$form) {
 $page = qg('p') ?? 1;
 $per_page = $ha::PER_PAGE;
 
-$list = $ha->listPayments($form, $page, $count);
+$list = $ha->listFormOrders($form, $page, $count);
 
 $restricted = $ha->isTrial();
 $restricted_results = $restricted ? $count - $ha::PER_PAGE_TRIAL : null;
 
 $tpl->assign(compact('list', 'form', 'per_page', 'count', 'page', 'restricted', 'restricted_results'));
-
-$tpl->assign('payments_json', json_encode($ha->listOrganizationPayments($form->org_slug), JSON_PRETTY_PRINT));
-
 
 $tpl->display(PLUGIN_ROOT . '/templates/form.tpl');
