@@ -148,7 +148,7 @@ class Ouvertures
 				if (self::$now >= $hours[0] && self::$now <= $hours[1])
 				{
 					// En période de fermeture
-					return $this;
+					return [];
 				}
 			}
 
