@@ -6,7 +6,9 @@
 
 <dl class="describe">
 	<dt>Référence</dt>
-	<dd>{$payment.reference}</dd>
+	<dd>{$payment.id}</dd>
+	<dt>Commande</dt>
+	<dd><a href="order.php?id={$payment.order_id}">{$payment.order_id}</a></dd>
 	<dt>Montant</dt>
 	<dd>{$payment.amount|money_currency|raw}</dd>
 	<dt>Date</dt>
@@ -30,25 +32,5 @@
 	</dd>
 	{/foreach}
 </dl>
-
-{if $found_user}
-<p class="block confirm">
-	Membre correspondant trouvé : <a href="{$admin_url}membres/fiche.php?id={$found_user.id}">{$found_user.identity}</a>
-</p>
-{else}
-<form method="post" action="{$admin_url}membres/ajouter.php">
-<p class="alert block">
-	Aucun membre correspondant n'a été trouvé.<br />
-	{foreach from=$mapped_user key="key" item="value"}
-	<input type="hidden" name="{$key}" value="{$value}" />
-	{/foreach}
-	{button type="submit" shape="plus" label="Créer un membre avec ces informations"}
-</p>
-</form>
-{/if}
-
-<h3>Informations brutes</h3>
-
-<p><textarea readonly="readonly" cols="70" rows="10">{$payment_json}</textarea></p>
 
 {include file="admin/_foot.tpl"}

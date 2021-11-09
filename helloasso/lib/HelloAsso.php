@@ -45,7 +45,7 @@ class HelloAsso
 	];
 
 	const PAYMENT_STATES = [
-		'Pending'               => 'En attente',
+		'Pending'               => 'À venir',
 		'Authorized'            => 'Autorisé',
 		'Refused'               => 'Refusé',
 		'Unknown'               => 'Inconnu',
@@ -223,10 +223,7 @@ class HelloAsso
 		$count = $result->pagination->totalCount;
 
 		foreach ($result->data as &$row) {
-			$row->date = new \DateTime($row->date);
-			$row->order_id = $row->order->id;
-			$row->payer_name = $this->getPayerName($row->payer);
-			$row->status = self::PAYMENT_STATES[$row->state] ?? '--';
+			$row = $this->transformPayment($row);
 		}
 
 		unset($row);
@@ -248,10 +245,7 @@ class HelloAsso
 		$count = $result->pagination->totalCount;
 
 		foreach ($result->data as &$row) {
-			$row->date = new \DateTime($row->date);
-			$row->order_id = $row->order->id;
-			$row->payer_name = $this->getPayerName($row->payer);
-			$row->status = self::PAYMENT_STATES[$row->state] ?? '--';
+			$row = $this->transformPayment($row);
 		}
 
 		unset($row);
@@ -414,12 +408,12 @@ class HelloAsso
 
 	public function transformPayment(\stdClass $payment): \stdClass
 	{
+		$payment->order_id = $payment->order->id ?? null;
 		$payment->date = new \DateTime($payment->date);
 		$payment->status = self::PAYMENT_STATES[$payment->state] ?? '--';
 		$payment->transferred = isset($payment->cashOutState) && $payment->cashOutState == self::PAYMENT_CASH_OUT_OK ? true : false;
 
 		$payment->payer_infos = isset($payment->payer) ? $this->getPayerInfos($payment->payer) : null;
-
 
 		return $payment;
 	}

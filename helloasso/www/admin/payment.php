@@ -8,15 +8,15 @@ $session->requireAccess($session::SECTION_USERS, $session::ACCESS_WRITE);
 
 $ha = HelloAsso::getInstance();
 
-$payment = $ha->getPayment((int)qg('id'), $payment_json);
+$payment = $ha->getPayment((int)qg('id'));
 
 if (!$payment) {
 	throw new UserException('Formulaire inconnu');
 }
 
-$found_user = $ha->findUserForPayment($payment->payer);
-$mapped_user = $ha->getMappedUser($payment->payer);
+$found_user = null;//$ha->findUserForPayment($payment->payer);
+$mapped_user = [];//$ha->getMappedUser($payment->payer);
 
-$tpl->assign(compact('payment', 'payment_json', 'found_user', 'mapped_user'));
+$tpl->assign(compact('payment', 'found_user', 'mapped_user'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/payment.tpl');

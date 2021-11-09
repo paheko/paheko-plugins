@@ -22,21 +22,32 @@
 <table class="list">
 	<thead>
 		<tr>
-			<th>Réference</th>
-			<td>Date</td>
+			<td class="num">Réference</td>
 			<td class="money">Montant</td>
 			<td>Type</td>
 			<td>Libellé</td>
+			<td>Personne</td>
+			<td>Détails</td>
 		</tr>
 	</thead>
 	<tbody>
 		{foreach from=$order.items item="item"}
 		<tr>
-			<th>{$item.id}</th>
-			<td>{$item.date|date}</td>
+			<td class="num">{$item.id}</td>
 			<td class="money">{$item.amount|money_currency|raw}</td>
 			<td>{$item.type_name}</td>
 			<td>{$item.name}</td>
+			<th>{$item.user_name}</th>
+			<td>
+			{if $item.customFields}
+				<dl class="describe">
+				{foreach from=$item.customFields item="field"}
+				<dt>{$field.name}</dt>
+				<dd>{$field.answer}</dd>
+				{/foreach}
+				</dl>
+			{/if}
+			</td>
 		</tr>
 		{/foreach}
 	</tbody>
