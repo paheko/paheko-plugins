@@ -304,11 +304,13 @@ class HelloAsso
 		$order->status = $this->getOrderStatus($order);
 		$order->payer_infos = $this->getPayerInfos($order->payer);
 
-		foreach ($order->payments as &$payment) {
-			$payment = $this->transformPayment($payment);
-		}
+		if (isset($order->payments)) {
+			foreach ($order->payments as &$payment) {
+				$payment = $this->transformPayment($payment);
+			}
 
-		unset($payment);
+			unset($payment);
+		}
 
 		$order->items = $this->transformItems($order->items);
 
@@ -343,9 +345,11 @@ class HelloAsso
 		$total = $order->amount->total;
 		$paid = 0;
 
-		foreach ($order->payments as $payment) {
-			if ($payment->state == self::PAYMENT_STATE_OK) {
-				$paid += $payment->amount;
+		if (isset($order->payments)) {
+			foreach ($order->payments as $payment) {
+				if ($payment->state == self::PAYMENT_STATE_OK) {
+					$paid += $payment->amount;
+				}
 			}
 		}
 

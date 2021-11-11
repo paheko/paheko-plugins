@@ -23,7 +23,7 @@
 			<td>{$row.payer_name}</td>
 			<td>{if $row.status}Payée{else}Paiement incomplet{/if}</td>
 			<td class="actions">
-				{linkbutton href="order.php?id=%s"|args:$row.order_id shape="help" label="Détails"}
+				{linkbutton href="order.php?id=%s"|args:$row.id shape="help" label="Détails"}
 			</td>
 		</tr>
 		{/foreach}
