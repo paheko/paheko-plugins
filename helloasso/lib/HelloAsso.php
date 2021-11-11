@@ -493,6 +493,9 @@ class HelloAsso
 		return $out;
 	}
 
+	static public function cron() {
+	}
+
 	/**
 	 * Toutes ces lignes de code ne se sont pas écrites toutes seules…
 	 * Merci de contribuer à Garradin ;)
