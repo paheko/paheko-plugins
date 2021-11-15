@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_payments (
 	receipt_url TEXT NULL
 );
 
-CREATE TABLE plugin_helloasso_targets_fields (
+CREATE TABLE IF NOT EXISTS plugin_helloasso_targets_fields (
 	id INTEGER PRIMARY KEY NOT NULL,
 	id_target INTEGER NOT NULL REFERENCES plugin_helloasso_targets(id) ON DELETE CASCADE,
 	source TEXT NOT NULL,
