@@ -12,7 +12,6 @@
 
 <div class="help block">
 	<p>Cette extension permet d'importer les données des personnes ayant effectué un règlement à votre association sur la plateforme HelloAsso : création de membre, inscription à une cotisation ou activité, et enregistrement en comptabilité.</p>
-	<p>Attention HelloAsso ne permet pas d'importer la liste des membres que vous avez rentré sur leur site&nbsp;! Pour cela il est conseillé de faire un export en CSV depuis leur site et de l'importer ensuite sur Garradin. Ceci est une limitation de HelloAsso.</p>
 	<p>Cette extension est accessible aux membres qui ont le droit de modifier les membres.</p>
 </div>
 

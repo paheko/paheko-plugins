@@ -2,18 +2,15 @@
 
 namespace Garradin;
 
-use KD2\HTTP;
-use Garradin\Plugin\HelloAsso\HelloAsso;
+use Garradin\Plugin\HelloAsso\Forms;
 
-$session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
+require __DIR__ . '/_inc.php';
 
-$ha = HelloAsso::getInstance();
-
-if (!$ha->getOAuth()) {
-	Utils::redirect(PLUGIN_URL . 'config_client.php');
+if (!$ha->getLastSync()) {
+	Utils::redirect(PLUGIN_URL . 'sync.php');
 }
 
-$tpl->assign('list', $ha->listForms());
-$tpl->assign('restricted', $ha->isTrial());
+$tpl->assign('list', Forms::list());
+$tpl->assign('restricted', $ha::isTrial());
 
 $tpl->display(PLUGIN_ROOT . '/templates/index.tpl');

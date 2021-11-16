@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Commande n°%s — %s"|args:$order.id,$order.payer_name current="plugin_%s"|args:$plugin.id}
+{include file="admin/_head.tpl" title="Commande n°%s — %s"|args:$order.id,$order.person current="plugin_%s"|args:$plugin.id}
 
 {include file="%s/templates/_menu.tpl"|args:$plugin_root current="home"}
 
@@ -6,11 +6,11 @@
 
 <dl class="describe">
 	<dt>Personne</dt>
-	<dd>{$order.payer_name}</dd>
+	<dd>{$order.person}</dd>
 	<dt>Référence</dt>
 	<dd>{$order.id}</dd>
 	<dt>Montant total</dt>
-	<dd>{$order.amount.total|money_currency|raw}</dd>
+	<dd>{$order.amount|money_currency|raw}</dd>
 	<dt>Date</dt>
 	<dd>{$order.date|date}</dd>
 	<dt>Statut</dt>
@@ -19,76 +19,16 @@
 
 <h2 class="ruler">Éléments de la commande</h2>
 
-<table class="list">
-	<thead>
-		<tr>
-			<td class="num">Réference</td>
-			<td class="money">Montant</td>
-			<td>Type</td>
-			<td>Libellé</td>
-			<td>Personne</td>
-			<td>Détails</td>
-		</tr>
-	</thead>
-	<tbody>
-		{foreach from=$order.items item="item"}
-		<tr>
-			<td class="num">{$item.id}</td>
-			<td class="money">{$item.amount|money_currency|raw}</td>
-			<td>{$item.type_name}</td>
-			<td>{$item.name}</td>
-			<th>{$item.user_name}</th>
-			<td>
-			{if $item.customFields}
-				<dl class="describe">
-				{foreach from=$item.customFields item="field"}
-				<dt>{$field.name}</dt>
-				<dd>{$field.answer}</dd>
-				{/foreach}
-				</dl>
-			{/if}
-			</td>
-		</tr>
-		{/foreach}
-	</tbody>
-</table>
+{include file="%s/templates/_items_list.tpl"|args:$plugin_root list=$items}
 
 <h2 class="ruler">Paiements</h2>
 
-<table class="list">
-	<thead>
-		<tr>
-			<th>Réference</th>
-			<td>Date</td>
-			<td class="money">Montant</td>
-			<td>Statut</td>
-			<td>Versement</td>
-			<td></td>
-		</tr>
-	</thead>
-	<tbody>
-		{foreach from=$order.payments item="row"}
-		<tr>
-			<th><a href="payment.php?id={$row.id}">{$row.id}</a></th>
-			<td>{$row.date|date}</td>
-			<td class="money">{$row.amount|money_currency|raw}</td>
-			<td>{$row.status}</td>
-			<td>{if $row.transferred}Effectué{else}En attente{/if}</td>
-			<td class="actions">
-				{if $row.paymentReceiptUrl}
-				{linkbutton href=$row.paymentReceiptUrl target="_blank" shape="print" label="Attestation de paiement"}
-				{/if}
-				{linkbutton href="payment.php?id=%s"|args:$row.id shape="help" label="Détails"}
-			</td>
-		</tr>
-		{/foreach}
-	</tbody>
-</table>
+{include file="%s/templates/_payments_list.tpl"|args:$plugin_root list=$payments}
 
 <h2 class="ruler">Personne ayant effectué le paiement</h2>
 
 <dl class="describe">
-	{foreach from=$order.payer_infos key="key" item="value"}
+	{foreach from=$payer_infos key="key" item="value"}
 	<dt>{$key}</dt>
 	<dd>
 		{if $value instanceof \DateTime}

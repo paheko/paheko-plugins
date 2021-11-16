@@ -11,12 +11,30 @@ class API
 	const BASE_URL = 'https://api.helloasso.com/';
 
 	protected $ha;
+	protected $oauth;
+	protected $client_id;
 
-	public function __construct(HelloAsso $ha)
+	static protected $_instance = null;
+
+	static public function getInstance()
 	{
-		$this->ha = $ha;
+		if (null === self::$_instance) {
+			self::$_instance = new self;
+		}
+
+		return self::$_instance;
 	}
 
+	protected function __construct()
+	{
+		$this->ha = HelloAsso::getInstance();
+		$this->oauth = $this->ha->plugin()->getConfig('oauth');
+		$this->client_id = $this->ha->plugin()->getConfig('client_id');
+	}
+
+	private function __clone()
+	{
+	}
 
 	protected function GET(string $url, array $data = [])
 	{
@@ -68,41 +86,50 @@ class API
 	/******* OAUTH METHODS ********/
 	protected function getToken(): string
 	{
-		$oauth = $this->ha->getOAuth();
-
-		if (empty($oauth->access_token) || empty($oauth->expiry)) {
+		if (empty($this->oauth->access_token) || empty($this->oauth->expiry)) {
 			throw new UserException('Authentification à l\'API impossible, merci de renseigner les informations de connexion à l\'API dans la configuration.');
 		}
-		elseif ($oauth->expiry - 10 <= time()) {
-			return $this->refreshToken($oauth->refresh_token);
+		elseif ($this->oauth->expiry - 10 <= time()) {
+			$this->oauth = $this->refreshToken($this->oauth->refresh_token);
+			$this->ha->plugin()->setConfig('oauth', $this->oauth);
 		}
 
-		return $oauth->access_token;
+		return $this->oauth->access_token;
 	}
 
-	public function createToken(string $secret): string
+	public function register(string $client_id, string $secret): bool
+	{
+		$this->client_id = trim($client_id);
+		$this->oauth = $this->createToken(trim($secret));
+
+		$this->ha->plugin()->setConfig('client_id', $this->client_id);
+		$this->ha->plugin()->setConfig('oauth', $this->oauth);
+		return true;
+	}
+
+	public function createToken(string $secret): \stdClass
 	{
 		$params = [
 			'grant_type'    => 'client_credentials',
-			'client_id'     => $this->ha->getClientId(),
+			'client_id'     => $this->client_id,
 			'client_secret' => $secret,
 		];
 
 		return $this->requestToken($params);
 	}
 
-	protected function refreshToken(string $token): string
+	protected function refreshToken(string $token): \stdClass
 	{
 		$params = [
 			'grant_type'    => 'refresh_token',
-			'client_id'     => $this->ha->getClientId(),
+			'client_id'     => $this->client_id,
 			'refresh_token' => $token,
 		];
 
 		return $this->requestToken($params);
 	}
 
-	protected function requestToken(array $params): string
+	protected function requestToken(array $params): \stdClass
 	{
 		$url = self::BASE_URL . 'oauth2/token';
 
@@ -125,8 +152,7 @@ class API
 
 		$oauth->expiry = time() + $oauth->expires_in;
 
-		$this->ha->saveOAuth($oauth);
-		return $oauth->access_token;
+		return $oauth;
 	}
 
 	protected function assert($condition)
@@ -175,46 +201,15 @@ class API
 		return $result->data;
 	}
 
-	public function listOrganizationOrders(string $organization, int $page, int $per_page): \stdClass
+	public function listOrganizationOrders(string $organization, array $params = []): \stdClass
 	{
 		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {
 			throw new \RuntimeException('Invalid organization slug');
 		}
 
-		$params = [
-			'pageSize'    => $per_page,
-			'pageIndex'   => $page,
-			'withDetails' => 'true',
-		];
+		$params['withDetails'] = 'true';
 
 		$result = $this->GET(sprintf('v5/organizations/%s/orders', $organization), $params);
-
-		$this->assertOrders($result);
-
-		return $result;
-	}
-
-	public function listFormOrders(string $organization, string $form_type, string $form_slug, int $page, int $per_page): \stdClass
-	{
-		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {
-			throw new \RuntimeException('Invalid organization slug');
-		}
-
-		if (!preg_match('/^[a-z0-9_-]+$/', $form_slug)) {
-			throw new \RuntimeException('Invalid form slug');
-		}
-
-		if (!preg_match('/^[a-z0-9_-]+$/i', $form_type)) {
-			throw new \RuntimeException('Invalid form type');
-		}
-
-		$params = [
-			'pageSize'    => $per_page,
-			'pageIndex'   => $page,
-			'withDetails' => 'true',
-		];
-
-		$result = $this->GET(sprintf('v5/organizations/%s/forms/%s/%s/orders', $organization, $form_type, $form_slug), $params);
 
 		$this->assertOrders($result);
 
@@ -232,23 +227,15 @@ class API
 			$this->assert(isset($r->date));
 			$this->assert(strtotime($r->date));
 			$this->assert(isset($r->id));
-			$this->assert(isset($r->payer->firstName));
-			$this->assert(isset($r->payer->lastName));
 			$this->assert(isset($r->amount->total) && ctype_digit($r->amount->total));
 		}
 	}
 
-	public function listOrganizationPayments(string $organization, int $page, int $per_page): \stdClass
+	public function listOrganizationPayments(string $organization, array $params): \stdClass
 	{
 		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {
 			throw new \RuntimeException('Invalid organization slug');
 		}
-
-		$params = [
-			'pageSize'  => $per_page,
-			'pageIndex' => $page,
-		];
-
 		$result = $this->GET(sprintf('v5/organizations/%s/payments', $organization), $params);
 
 		$this->assertPayments($result);
@@ -275,39 +262,36 @@ class API
 		}
 	}
 
-	public function listFormPayments(string $organization, string $form_type, string $form_slug, int $page, int $per_page): \stdClass
+	public function listOrganizationItems(string $organization, array $params = []): \stdClass
 	{
 		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {
 			throw new \RuntimeException('Invalid organization slug');
 		}
 
-		if (!preg_match('/^[a-z0-9_-]+$/', $form_slug)) {
-			throw new \RuntimeException('Invalid form slug');
-		}
+		$params['withDetails'] = 'true';
 
-		if (!preg_match('/^[a-z0-9_-]+$/i', $form_type)) {
-			throw new \RuntimeException('Invalid form type');
-		}
+		$result = $this->GET(sprintf('v5/organizations/%s/items', $organization), $params);
 
-		$params = [
-			'pageSize'  => $per_page,
-			'pageIndex' => $page,
-		];
-
-		$result = $this->GET(sprintf('v5/organizations/%s/forms/%s/%s/payments', $organization, $form_type, $form_slug), $params);
-
-		$this->assertPayments($result);
+		$this->assertItems($result);
 
 		return $result;
 	}
 
-	public function getPayment(string $id): \stdClass
+	protected function assertItems($result)
 	{
-		return $this->GET(sprintf('v5/payments/%s', $id));
+		$this->assert(isset($result->data));
+		$this->assert(is_array($result->data));
+		$this->assert(isset($result->pagination->totalCount));
+
+		if (count($result->data)) {
+			$r = $result->data[0];
+			$this->assert(isset($r->order->id));
+			$this->assert(isset($r->payer));
+			$this->assert(isset($r->state));
+			$this->assert(isset($r->type));
+			$this->assert(isset($r->id));
+			$this->assert(isset($r->amount) && ctype_digit($r->amount));
+		}
 	}
 
-	public function getOrder(string $id): \stdClass
-	{
-		return $this->GET(sprintf('v5/orders/%s', $id));
-	}
 }

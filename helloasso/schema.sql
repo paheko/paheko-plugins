@@ -1,32 +1,67 @@
 -- Cache list of forms
 CREATE TABLE IF NOT EXISTS plugin_helloasso_forms (
 	id INTEGER PRIMARY KEY,
-	org_name TEXT NOT NULL,
-	name TEXT NOT NULL,
-	type TEXT NOT NULL,
-	status TEXT NOT NULL,
 
+	org_name TEXT NOT NULL,
 	org_slug TEXT NOT NULL,
-	form_type TEXT NOT NULL,
-	form_slug TEXT NOT NULL
+
+	name TEXT NOT NULL,
+	slug TEXT NOT NULL,
+	type TEXT NOT NULL,
+	state TEXT NOT NULL
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS plugin_helloasso_forms_key ON plugin_helloasso_forms(org_slug, slug);
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_orders (
 	id INTEGER PRIMARY KEY NOT NULL,
+	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
 	id_user INTEGER NULL REFERENCES membres(id) ON DELETE SET NULL,
+	id_transaction INTEGER NULL REFERENCES acc_transactions(id) ON DELETE SET NULL,
 	date TEXT NOT NULL,
+	person TEXT NOT NULL,
 	amount INTEGER NOT NULL,
-	status INTEGER NOT NULL DEFAULT 0
+	status TEXT NOT NULL,
+	raw_data TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS plugin_helloasso_items (
+	id INTEGER PRIMARY KEY NOT NULL,
+	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
+	id_order INTEGER NOT NULL REFERENCES plugin_helloasso_orders(id) ON DELETE CASCADE,
+	id_user INTEGER NULL REFERENCES membres(id) ON DELETE SET NULL,
+	type TEXT NOT NULL,
+	state TEXT NOT NULL,
+	person TEXT NOT NULL,
+	label TEXT NOT NULL,
+	amount INTEGER NOT NULL,
+	raw_data TEXT NOT NULL
+);
+
+/*
+CREATE TABLE IF NOT EXISTS plugin_helloasso_options (
+	id INTEGER PRIMARY KEY NOT NULL,
+	id_order INTEGER NOT NULL REFERENCES plugin_helloasso_orders(id) ON DELETE CASCADE,
+	hash TEXT NOT NULL,
+	label TEXT NOT NULL,
+	amount INTEGER NOT NULL,
+	raw_data TEXT NOT NULL
+);
+*/
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_payments (
 	id INTEGER PRIMARY KEY NOT NULL,
+	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
 	id_order INTEGER NOT NULL REFERENCES plugin_helloasso_orders(id) ON DELETE CASCADE,
 	id_user INTEGER NULL REFERENCES membres(id) ON DELETE SET NULL,
+	id_transaction INTEGER NULL REFERENCES acc_transactions(id) ON DELETE SET NULL,
 	amount INTEGER NOT NULL,
 	state TEXT NOT NULL,
+	transferred INTEGER NOT NULL DEFAULT 0,
+	person TEXT NULL,
 	date TEXT NOT NULL,
-	receipt_url TEXT NULL
+	receipt_url TEXT NULL,
+	raw_data TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_targets_fields (
@@ -42,9 +77,7 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_targets (
 
 	label TEXT NOT NULL,
 
-	org_slug TEXT NOT NULL,
-	form_type TEXT NOT NULL,
-	form_slug TEXT NOT NULL,
+	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
 
 	last_sync TEXT NULL,
 
@@ -85,19 +118,3 @@ END;
 CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_year_delete BEFORE DELETE ON acc_years BEGIN
     UPDATE plugin_helloasso_targets SET id_account1 = NULL, id_account2 = NULL, id_year = NULL WHERE id_year = OLD.id;
 END;
-
-CREATE TABLE IF NOT EXISTS plugin_helloasso_sync (
--- Contains the list of payments synced
-	id INTEGER PRIMARY KEY,
-	id_user INTEGER NULL REFERENCES membres (id),
-	id_service_user INTEGER NULL REFERENCES services_users (id),
-
-	order_id TEXT NOT NULL,
-	payment_id TEXT NOT NULL,
-	date TEXT NOT NULL,
-	amount INTEGER NOT NULL,
-	receipt_url TEXT
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS plugin_helloasso_sync_id ON plugin_helloasso_sync (payment_id);
-CREATE INDEX IF NOT EXISTS plugin_helloasso_sync_date ON plugin_helloasso_sync (date);
