@@ -50,7 +50,7 @@ class HelloAsso
 
 	public function getLastSync(): ?\DateTime
 	{
-		$date = $this->config->last_sync ?? null;
+		$date = $this->plugin->getConfig('last_sync') ?? null;
 
 		if ($date) {
 			$date = new \DateTime($date);

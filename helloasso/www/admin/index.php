@@ -6,6 +6,10 @@ use Garradin\Plugin\HelloAsso\Forms;
 
 require __DIR__ . '/_inc.php';
 
+if ($plugin->needUpgrade()) {
+	$plugin->upgrade();
+}
+
 if (!$ha->getLastSync()) {
 	Utils::redirect(PLUGIN_URL . 'sync.php');
 }
