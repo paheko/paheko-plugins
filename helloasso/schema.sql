@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_items (
 	label TEXT NOT NULL,
 	amount INTEGER NOT NULL,
 	raw_data TEXT NOT NULL,
-	custom_fields TEXT NOT NULL
+	custom_fields TEXT NULL
 );
 
 /*
