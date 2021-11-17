@@ -4,6 +4,9 @@ namespace Garradin;
 
 use Garradin\Plugin\HelloAsso\HelloAsso;
 
+// FIXME
+Utils::redirect(PLUGIN_URL . 'config_client.php');
+
 $session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
 
 $csrf_key = sprintf('config_plugin_%s', $plugin->id);
