@@ -21,8 +21,8 @@ class GitDocuments
 			$user_arg = '';
 		}
 
-		$cmd = 'cd %s && git reset --merge && git add -A && git commit -a -m %s %s';
-		$cmd = sprintf($cmd, escapeshellarg(\Garradin\DATA_ROOT), escapeshellarg(self::MESSAGE), $user_arg);
+		$cmd = 'cd %s && git reset --merge 2>&1 && git add -A 2>&1 && git commit -a -m %s %s 2>&1';
+		$cmd = sprintf($cmd, escapeshellarg(\Garradin\FILE_STORAGE_CONFIG), escapeshellarg(self::MESSAGE), $user_arg);
 
 		exec($cmd, $out, $code);
 
