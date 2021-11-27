@@ -27,7 +27,7 @@ class GitDocuments
 		exec($cmd, $out, $code);
 
 		if ($code) {
-			throw new \RuntimeException(sprintf('Git command (%s) failed: %s', $cmd, $out));
+			throw new \RuntimeException(sprintf('Git command (%s) failed: %s', $cmd, implode("\n", $out)));
 		}
 	}
 }
