@@ -1,6 +1,6 @@
 <?php
 
-namespace Garradin\Plugin\GitDocuments\GitDocuments;
+namespace Garradin\Plugin\Git_Documents;
 
 class GitDocuments
 {
