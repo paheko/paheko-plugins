@@ -2,6 +2,8 @@
 
 namespace Garradin\Plugin\Git_Documents;
 
+use Garradin\Membres\Session;
+
 class GitDocuments
 {
 	const MESSAGE = "Modification depuis l'interface de Garradin";
