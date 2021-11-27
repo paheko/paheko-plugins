@@ -21,9 +21,13 @@ class GitDocuments
 			$user_arg = '';
 		}
 
-		$cmd = 'cd %s && git reset -q --merge && git add -A && git commit -q -a -m %s %s > /dev/null';
+		$cmd = 'cd %s && git reset --merge && git add -A && git commit -a -m %s %s';
 		$cmd = sprintf($cmd, escapeshellarg(\Garradin\DATA_ROOT), escapeshellarg(self::MESSAGE), $user_arg);
 
-		shell_exec($cmd);
+		exec($cmd, $out, $code);
+
+		if ($code) {
+			throw new \RuntimeException(sprintf('Git command (%s) failed: %s', $cmd, $out));
+		}
 	}
 }
