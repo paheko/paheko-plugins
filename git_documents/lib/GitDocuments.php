@@ -24,6 +24,7 @@ class GitDocuments
 		$cmd = '{ cd %s && git reset --merge 2>&1 && git add -A 2>&1 && git commit -a -m %s %s 2>&1; } > /dev/null &';
 		$cmd = sprintf($cmd, escapeshellarg(\Garradin\FILE_STORAGE_CONFIG), escapeshellarg(self::MESSAGE), $user_arg);
 
+		putenv('LANG=fr_FR.UTF-8');
 		exec($cmd, $out, $code);
 
 		if ($code) {
