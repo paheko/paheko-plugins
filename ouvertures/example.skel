@@ -9,7 +9,7 @@
 <ul itemscope itemtype="http://schema.org/BikeStore" class="openingHours">
 {{#opening_hours}}
 	<li itemprop="openingHours" content="{{$opening_time|strftime:"%a %H:%M":"en"}}-{{$closing_time|strftime:"%a %H:%M":"en"}}">
-		{{$opening_time|date_day}}
+		{{$opening_day}}
 		—
 		{{if $closed}}fermé
 		{{else}}de {{$opening_time|strftime:"%H"}}h à {{$closing_time|strftime:"%H"}}h
