@@ -72,7 +72,7 @@ class Tracking
 		];
 
 		$tables = 'plugin_taima_entries e
-			INNER JOIN plugin_taima_tasks t ON t.id = e.task_id
+			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
 			INNER JOIN membres m ON m.id = e.user_id';
 
 		$list = new DynamicList($columns, $tables, $conditions);
