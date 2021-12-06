@@ -24,6 +24,12 @@ class Session
 		}
 	}
 
+	static public function listYears(): array
+	{
+		return DB::getInstance()->getAssoc(POS::sql('SELECT strftime(\'%Y\', opened), strftime(\'%Y\', opened)
+			FROM @PREFIX_sessions GROUP BY strftime(\'%Y\', opened);'));
+	}
+
 	static public function open(int $user_id, int $amount): int
 	{
 		$db = DB::getInstance();
@@ -203,7 +209,7 @@ class Session
 			INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
 			WHERE ti.product = @PREFIX_products.id
 			AND t.session = %d', $this->id);
-		$db->preparedQuery(POS::sql(sprintf('UPDATE @PREFIX_products SET stock = -(SELECT SUM(ti.qty) %s) WHERE stock IS NOT NULL AND id IN (SELECT DISTINCT ti.product %1$s);', $select)));
+		$db->preparedQuery(POS::sql(sprintf('UPDATE @PREFIX_products SET stock = -(SELECT SUM(ti.qty) %s) + stock WHERE stock IS NOT NULL AND id IN (SELECT DISTINCT ti.product %1$s);', $select)));
 
 		return $db->commit();
 	}

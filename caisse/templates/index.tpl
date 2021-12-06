@@ -10,6 +10,7 @@
 		<li><a href="export.php">Export compta CSV</a></li>
 		<li><a href="products.php">Gestion des produits</a></li>
 		<li><a href="products_print.php">Impression produits et tarifs</a></li>
+		<li><a href="stats.php">Statistiques</a></li>
 		{/if}
 	</ul>
 </nav>
