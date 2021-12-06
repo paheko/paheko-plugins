@@ -108,7 +108,7 @@ class Tracking
 		$identity = Config::getInstance()->get('champ_identite');
 		$sql = 'SELECT e.*, t.label AS task_label, m.%s AS user_name, SUM(duration) AS duration, %s AS criteria
 			FROM plugin_taima_entries e
-			INNER JOIN plugin_taima_tasks t ON t.id = e.task_id
+			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
 			INNER JOIN membres m ON m.id = e.user_id
 			GROUP BY %s
 			ORDER BY %s, SUM(duration) DESC;';
