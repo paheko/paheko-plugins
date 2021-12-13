@@ -175,7 +175,7 @@ $tpl->register_function('html_closing_day_select', function ($params) {
 	return $out;
 });
 
-$tpl->assign('config', $plugin->getConfig());
+$tpl->assign('plugin_config', $plugin->getConfig());
 $tpl->assign('example', file_get_contents($plugin->path() . DIRECTORY_SEPARATOR . 'example.skel'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/config.tpl');

@@ -16,7 +16,7 @@
                 </tr>
             </thead>
             <tbody>
-                {foreach from=$config->open key="day" item="hours"}
+                {foreach from=$plugin_config->open key="day" item="hours"}
                 <tr>
                     <th>{html_opening_day_select value=$day}</th>
                     <td>{html_opening_hour_select value=$hours[0] start_end="start"}</td>
@@ -40,7 +40,7 @@
                 </tr>
             </thead>
             <tbody>
-                {foreach from=$config->closed item="days"}
+                {foreach from=$plugin_config->closed item="days"}
                 <tr>
                     <td>{html_closing_day_select value=$days[0] start_end="start"}</td>
                     <td>{html_closing_day_select value=$days[1] start_end="end"} inclus</td>
