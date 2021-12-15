@@ -1,21 +1,14 @@
 {include file="admin/_head.tpl" title="Sessions de caisse" current="plugin_%s"|args:$plugin.id}
 
-{if !$current_pos_session || $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
-<nav class="tabs">
-	<ul>
-		{if !$current_pos_session}
-		<li><a href="session.php">Ouvrir la caisse</a></li>
-		{/if}
-		{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
-		<li><a href="export.php">Export compta CSV</a></li>
-		<li><a href="products.php">Gestion des produits</a></li>
-		<li><a href="products_print.php">Impression produits et tarifs</a></li>
-		<li><a href="stats.php">Statistiques</a></li>
-		{/if}
-	</ul>
-</nav>
+{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
+<p>{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}</p>
 {/if}
 
+{if !$current_pos_session}
+<p>{linkbutton href="session.php" shape="right" label="Ouvrir la caisse" class="main"}</p>
+{/if}
+
+{if count($pos_sessions)}
 <table class="list">
 	<thead>
 		<tr>
@@ -29,13 +22,13 @@
 		<tr>
 			<td>{$pos_session.opened|date}</td>
 			<th>{$pos_session.open_user_name}</th>
-			<td>{$pos_session.open_amount|raw|pos_money}</td>
+			<td>{$pos_session.open_amount|raw|money_currency}</td>
 			<td>{if !$pos_session.closed}<strong>En cours</strong>{else}{$pos_session.closed|date}{/if}</td>
 			<th>{$pos_session.close_user_name}</th>
-			<td>{$pos_session.close_amount|raw|pos_money}</td>
+			<td>{$pos_session.close_amount|raw|money_currency}</td>
 			<td>
 				{if $pos_session.error_amount}
-					<span class="error">Erreur de {$pos_session.error_amount|raw|pos_money}</span>
+					<span class="error">Erreur de {$pos_session.error_amount|raw|money_currency}</span>
 				{/if}
 			</td>
 			<td class="actions">
@@ -49,5 +42,6 @@
 		{/foreach}
 	</tbody>
 </table>
+{/if}
 
 {include file="admin/_foot.tpl"}

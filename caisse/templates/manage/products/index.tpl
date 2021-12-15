@@ -1,12 +1,6 @@
 {include file="admin/_head.tpl" title="Gestion produits" current="plugin_%s"|args:$plugin.id}
 
-<nav class="tabs">
-	<ul>
-		<li><a href="./">Caisse</a></li>
-		<li class="current"><a href="{$self_url}">Gestion des produits</a></li>
-		<li><a href="product_edit.php?new">Nouveau produit</a></li>
-	</ul>
-</nav>
+{include file="%s/manage/_nav.tpl"|args:$pos_templates_root current='products'}
 
 <table class="list">
 	<thead>
@@ -28,12 +22,13 @@
 				<tr>
 					<th>{$product.name}</th>
 					<td>{if $product.image}<img src="{$product.image|image_base64}" alt="" />{/if}</td>
-					<td>{$product.price|escape|pos_money}</td>
+					<td>{$product.price|escape|money_currency}</td>
 					<td class="num">{$product.qty}</td>
 					<td class="num">{$product.stock}</td>
 					<td class="actions">
-						{linkbutton href="product_edit.php?id=%d"|args:$product.id label="Modifier" shape="edit"}
-						{*{linkbutton href="product_delete.php?id=%d"|args:$product.id label="Supprimer" shape="delete"}*}
+						{linkbutton href="history.php?id=%d"|args:$product.id label="Historique" shape="calendar"}
+						{linkbutton href="edit.php?id=%d"|args:$product.id label="Modifier" shape="edit" target="_dialog"}
+						{linkbutton href="edit.php?id=%d&delete"|args:$product.id label="Supprimer" shape="delete" target="_dialog"}
 					</td>
 				</tr>
 			{/foreach}

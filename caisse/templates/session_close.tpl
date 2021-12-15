@@ -1,7 +1,7 @@
 {include file="admin/_head.tpl" title="Clôturer la caisse" current="plugin_%s"|args:$plugin.id}
 
 {if $open_notes}
-<p class="error">
+<p class="error block">
 	Cette caisse a des notes qui ne sont pas closes, il ne sera pas possible de la clôturer.
 </p>
 {/if}
@@ -16,9 +16,9 @@
 		<dt>Ouverture</dt>
 		<dd>Caisse ouverte le {$pos_session.opened|date_format:"%d/%m/%Y à %H:%M"}</dd>
 		<dt>Solde à l'ouverture</dt>
-		<dd>{$pos_session.open_amount|raw|pos_money}</dd>
+		<dd>{$pos_session.open_amount|raw|money_currency}</dd>
 		<dt>Solde théorique à la fermeture</dt>
-		<dd><strong>{$close_total|raw|pos_money}</strong> (+{$cash_total|raw|pos_money} par rapport à l'ouverture)</dd>
+		<dd><strong>{$close_total|raw|money_currency}</strong> (+{$cash_total|raw|money_currency} par rapport à l'ouverture)</dd>
 		<dt>Solde constaté à la fermeture</dt>
 		<dd class="help">Merci de compter le contenu de la caisse lors de la fermeture.</dd>
 		<dd><input type="text" pattern="\d+([,.]\d+)?" name="amount" id="f_amount" data-expected="{$close_total}" required="required" size="8" />&nbsp;€</dd>
@@ -26,7 +26,7 @@
 </fieldset>
 
 <div class="cash_diff" style="display: none">
-	<p class="error">
+	<p class="error block">
 		Erreur de caisse de
 		<strong id="cash_diff_count" /></strong>&nbsp;€.
 		Merci de bien vouloir recompter la caisse.
@@ -36,12 +36,12 @@
 	</p>
 </div>
 
-<h2 class="ruler">2. Vérifier les paiements</h2>
+<h2 class="ruler">2. Vérifier les chèques</h2>
 
 <fieldset>
-	<legend>Cocher les paiements</legend>
+	<legend>Cocher les chèques</legend>
 	<p class="help">
-		Cocher chacun des paiements reçus, en vérifiant la correspondance du montant et de la référence.<br />
+		Cocher chacun des chèques reçus, en vérifiant la correspondance du montant et de la référence.<br />
 		En cas d'erreur de saisie, ré-ouvrir la note associée pour corriger.
 	</p>
 	<table class="list">
@@ -68,7 +68,7 @@
 				</td>
 				<td>{$payment.method_name}</td>
 				<th>
-					{$payment.amount|raw|pos_money}
+					{$payment.amount|raw|money_currency}
 				</th>
 				<td>{$payment.reference}</td>
 				<td class="actions">
@@ -78,7 +78,7 @@
 			{/foreach}
 		</tbody>
 	</table>
-	<p class="help">Vérifier également qu'il n'y a pas de paiement qui ne figurerait pas dans cette liste.</p>
+	<p class="help">Vérifier également qu'il n'y a pas de chèque qui ne figurerait pas dans cette liste.</p>
 </fieldset>
 
 <h2 class="ruler">3. Confirmer et clôturer</h2>

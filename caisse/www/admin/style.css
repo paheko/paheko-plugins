@@ -47,12 +47,6 @@
 	margin: 1rem 0;
 }
 
-
-.tabs li.closed a {
-	text-decoration: line-through;
-	opacity: 0.5;
-}
-
 input[name="q"] {
 	font-size: 2rem;
 }
@@ -75,17 +69,23 @@ input[name="q"] {
 	display: block;
 }
 
-.tabs li {
+.tabs .pos-tabs li {
 	padding: .2rem .1rem;
 	margin: 0;
 }
 
-.tabs ul li a {
+.tabs .pos-tabs li a {
 	border-radius: .5rem;
 }
 
-.tabs ul {
+.tabs .pos-tabs {
 	padding: 0;
+	border: none;
+}
+
+.tabs .pos-tabs li.closed a {
+	text-decoration: line-through;
+	opacity: 0.5;
 }
 
 #user_rename {
@@ -133,4 +133,11 @@ input[name="q"] {
 
 #user_rename input {
 	font-size: 2em;
+}
+
+@media screen and (max-width: 800px) {
+	.pos {
+		display: block;
+	}
+
 }

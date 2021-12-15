@@ -1,23 +1,22 @@
 {include file="admin/_head.tpl" current="plugin_%s"|args:$plugin.id}
 
 <nav class="tabs">
-	<ul>
-		<li><a href="session.php?id={$pos_session.id}">Résumé</a>
 	{if !$pos_session.closed}
-		<li><a href="{$self_url_no_qs}?new"><strong>Nouvelle note</strong></a></li>
+		{linkbutton href="?new" label="Nouvelle note" shape="plus"}
+		{linkbutton href="session.php?id=%d"|args:$pos_session.id label="Résumé" shape="menu"}
+		{linkbutton href="session_close.php?id=%d"|args:$pos_session.id label="Clôturer la caisse" shape="delete"}
 	{/if}
+
+	<ul class="pos-tabs">
 	{foreach from=$tabs item="tab"}
-		<li class="{if $tab.id == $tab_id}current{/if} {if $tab.closed}closed{/if}">
+		<li class="tab {if $tab.id == $tab_id}current{/if} {if $tab.closed}closed{/if}">
 			<a href="{$self_url_no_qs}?id={$tab.id}">
 				{$tab.id}. {$tab.opened|date_format:"%H:%M"}
-				{if $tab.total} — {$tab.total|escape|pos_money}{/if}
+				{if $tab.total} — {$tab.total|escape|money_currency}{/if}
 				{if $tab.name} — {$tab.name}{/if}
 			</a>
 		</li>
 	{/foreach}
-	{if !$pos_session.closed}
-		<li><a href="session_close.php?id={$pos_session.id}"><strong>Clôturer la caisse</strong></a></li>
-	{/if}
 	</ul>
 </nav>
 
@@ -37,14 +36,19 @@
 			</div>
 			<div>
 				<form method="post">
-				<input type="button" name="rename" value="Renommer" />
+				{if $current_tab.user_id}
+					{linkbutton href="!membres/fiche.php?id=%d"|args:$current_tab.user_id label="" shape="user" target="_blank" title="Ouvrir la fiche membre"}
+				{/if}
 				{if !$remainder && !$current_tab.closed}
 					<input type="submit" name="close" value="Clore la note" />
 				{elseif !count($existing_payments) && !count($items)}
 					<input type="submit" name="delete" value="Supprimer la note" />
 				{elseif $current_tab.closed && !$pos_session.closed}
 					<input type="submit" name="reopen" value="Ré-ouvrir la note" />
+				{elseif !$current_tab.closed}
+					<input type="button" name="reopen" value="Clore la note" disabled="disabled" title="La note ne peut être close, elle n'est pas soldée." />
 				{/if}
+				<input type="button" name="rename" value="Renommer" />
 				</form>
 				<form method="post" action="./pdf.php?id={$current_tab.id}" id="f_pdf">
 					<input type="submit" data-name="{if $current_tab.name}1{else}0{/if}" name="receipt" value="Reçu PDF" />
@@ -59,19 +63,19 @@
 					<th></th>
 					<td>Qté</td>
 					<td>Prix</td>
-					<td>Total</td>
+					<td class="money">Total</td>
 					<td></td>
 				</thead>
 				<tbody>
 				{foreach from=$items item="item"}
 				<tr>
 					<th><small class="cat">{$item.category_name}</small> {$item.name}</th>
-					<td>{if !$current_tab.closed}<input type="submit" name="change_qty[{$item.id}]" value="{$item.qty}" />{else}{$item.qty}{/if}</td>
-					<td>{if !$current_tab.closed}<input type="submit" name="change_price[{$item.id}]" value="{$item.price|escape|pos_money}" />{else}{$item.price|escape|pos_money}{/if}</td>
-					<td>{$item.total|escape|pos_money}</td>
+					<td>{if !$current_tab.closed}<input type="submit" name="change_qty[{$item.id}]" value="{$item.qty}" title="Cliquer pour changer la quantité" />{else}{$item.qty}{/if}</td>
+					<td>{if !$current_tab.closed}<button type="submit" title="Cliquer pour changer le prix unitaire" name="change_price[{$item.id}]">{$item.price|escape|money_currency:false}</button>{else}{$item.price|raw|money_currency:false}{/if}</td>
+					<td class="money">{$item.total|escape|money_currency:false}</td>
 					<td class="actions">
 						{if !$current_tab.closed}
-							{linkbutton label="" shape="delete" href="?id=%d&delete_item=%d"|args:$current_tab.id,$item.id}
+							{linkbutton label="" shape="delete" href="?id=%d&delete_item=%d"|args:$current_tab.id,$item.id title="Cliquer pour supprimer la ligne"}
 						{/if}
 					</td>
 				</tr>
@@ -82,13 +86,15 @@
 						<th>Total</th>
 						<td></td>
 						<td></td>
-						<td colspan="2">{$current_tab.total|escape|pos_money}</td>
+						<td class="money">{$current_tab.total|escape|money_currency:false}</td>
+						<td></td>
 					</tr>
 					<tr>
 						<th>Reste à payer</th>
 						<td></td>
 						<td></td>
-						<td colspan="2">{$remainder|raw|pos_money}</td>
+						<td class="money">{$remainder|raw|money_currency:false}</td>
+						<td></td>
 					</tr>
 				</tfoot>
 			</table>
@@ -103,7 +109,7 @@
 				{foreach from=$existing_payments item="payment"}
 				<tr>
 					<th>{$payment.method_name}</th>
-					<td>{$payment.amount|escape|pos_money}</td>
+					<td>{$payment.amount|escape|money_currency}</td>
 					<td><em>{$payment.reference}</em></td>
 					<td class="actions">{if !$current_tab.closed}<a class="icn" href="?id={$current_tab.id}&amp;delete_payment={$payment.id}" title="Supprimer">✘</a>{/if}</td>
 				</tr>
@@ -115,24 +121,18 @@
 			{if $remainder && count($payment_options)}
 			<form method="post">
 				<fieldset>
-					<legend>Reste {$remainder|escape|pos_money} à payer</legend>
+					<legend>Reste {$remainder|escape|money_currency} à payer</legend>
 					<dl>
 						<dt><label for="f_method_id">Moyen de paiement</label></dt>
 						<dd>
 							<select name="method_id" id="f_method_id">
 								{foreach from=$payment_options item="method"}
-								<option value="{$method.id}" data-amount="{$method.amount|pos_amount}">{$method.name} (jusqu'à {$method.amount|escape|pos_money})</option>
+								<option value="{$method.id}" data-amount="{$method.amount|pos_amount}">{$method.name} (jusqu'à {$method.amount|escape|money_currency})</option>
 								{/foreach}
 							</select>
 						</dd>
-						<dt><label for="f_method_amount">Montant</label></dt>
-						<dd>
-							<input type="text" pattern="\d+([,.]\d+)?" name="amount" id="f_method_amount" value="{$remainder|pos_amount}" required="required" size="5" /> €
-						</dd>
-						<dt><label for="f_method_reference">Référence du paiement (numéro de chèque…)</label></dt>
-						<dd>
-							<input type="text" name="reference" id="f_method_reference" />
-						</dd>
+						{input type="money" label="Montant" default=$remainder required=true name="amount"}
+						{input type="text" label="Référence du paiement (numéro de chèque…)" name="reference"}
 					</dl>
 					<p class="submit">
 						{button type="submit" name="pay" label="Enregistrer le paiement" shape="right" class="main"}
@@ -159,7 +159,7 @@
 				{foreach from=$products item="product"}
 					<button name="add_item[{$product.id}]">
 						<h3>{$product.name}</h3>
-						<h4>{$product.price|escape|pos_money}</h4>
+						<h4>{$product.price|escape|money_currency}</h4>
 						{if $product.image}
 							<figure><img src="{$product.image|image_base64}" alt="" /></figure>
 						{/if}
@@ -240,7 +240,7 @@ ur_input.onkeyup = (e) => {
 	return false;
 };
 
-document.querySelectorAll('input[name*="change_qty"], input[name*="change_price"]').forEach((elm) => {
+document.querySelectorAll('input[name*="change_qty"], button[name*="change_price"]').forEach((elm) => {
 	elm.onclick = (e) => {
 		var v = prompt('?', elm.value);
 		if (v === null) return false;
@@ -253,7 +253,7 @@ var pm = document.querySelector('select[name="method_id"]');
 if (pm) {
 	pm.onchange = (e) => {
 		var o = pm.options[pm.selectedIndex];
-		document.querySelector('#f_method_amount').value = o.getAttribute('data-amount');
+		document.querySelector('#f_amount').value = o.getAttribute('data-amount');
 	};
 }
 

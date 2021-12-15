@@ -1,13 +1,9 @@
-{include file="admin/_head.tpl" title="Statistiques" current="plugin_%s"|args:$plugin.id}
+{include file="admin/_head.tpl" title="Gestion de la caisse" current="plugin_%s"|args:$plugin.id}
 
-<nav class="tabs">
-	<ul>
-		<li><a href="./">Caisse</a></li>
-		<li class="current"><a href="{$self_url}">Statistiques</a></li>
-	</ul>
-</nav>
+{include file="%s/manage/_nav.tpl"|args:$pos_templates_root current='stats'}
 
 {if !$year}
+<p class="help">Sélectionner une année ci-dessous.</p>
 <ul>
 	{foreach from=$years item="year"}
 	<li><a href="?year={$year}">{$year}</a></li>
@@ -42,6 +38,28 @@
 				<tr>
 					<th>{$row.date|strftime:'%B'}</th>
 					<td>{$row.method}</td>
+					<td>{$row.count}</td>
+					<td>{$row.sum|escape|money_currency}</td>
+				</tr>
+			{/foreach}
+		</tbody>
+	</table>
+
+	<table class="list">
+		<caption>Par mois et catégorie</caption>
+		<thead>
+			<tr>
+				<th>Mois</th>
+				<td>Catégorie</td>
+				<td>Nombre de produits vendus</td>
+				<td>Montant</td>
+			</tr>
+		</thead>
+		<tbody>
+			{foreach from=$categories_per_month item="row"}
+				<tr>
+					<th>{$row.date|strftime:'%B'}</th>
+					<td>{$row.category_name}</td>
 					<td>{$row.count}</td>
 					<td>{$row.sum|escape|money_currency}</td>
 				</tr>

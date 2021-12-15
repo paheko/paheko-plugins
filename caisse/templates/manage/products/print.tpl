@@ -65,7 +65,7 @@
 			{foreach from=$products item="product"}
 				<tr>
 					<th>{$product.name}</th>
-					<td>{$product.price|escape|pos_money}</td>
+					<td>{$product.price|escape|money_currency}</td>
 				</tr>
 			{/foreach}
 			</table>

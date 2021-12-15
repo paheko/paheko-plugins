@@ -49,6 +49,18 @@ class Product
 		return $db->getAssoc(POS::sql('SELECT id, name FROM @PREFIX_categories ORDER BY name;'));
 	}
 
+	static public function getStatsPerMonth(int $year): array
+	{
+		$sql = 'SELECT strftime(\'%m\', i.added) AS month, i.added AS date, i.category_name, SUM(i.qty * i.price) AS sum, SUM(i.qty) AS count
+			FROM @PREFIX_tabs_items i
+			WHERE strftime(\'%Y\', i.added) = ?
+			GROUP BY strftime(\'%m\', i.added), i.category_name
+			ORDER BY month, i.category_name;';
+		$sql = POS::sql($sql);
+
+		return DB::getInstance()->get($sql, (string) $year);
+	}
+
 	static public function graphStatsPerMonth(int $year): string
 	{
 		$sql = 'SELECT strftime(\'%m\', i.added) AS month, i.category_name, SUM(i.qty * i.price) / 100

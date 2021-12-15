@@ -28,6 +28,7 @@ if ($year) {
 	}
 
 	$tpl->assign('methods_per_month', Method::getStatsPerMonth($year));
+	$tpl->assign('categories_per_month', Product::getStatsPerMonth($year));
 }
 else {
 	$tpl->assign('years', Session::listYears());
@@ -35,4 +36,4 @@ else {
 
 $tpl->assign(compact('year'));
 
-$tpl->display(PLUGIN_ROOT . '/templates/stats.tpl');
+$tpl->display(PLUGIN_ROOT . '/templates/manage/stats.tpl');

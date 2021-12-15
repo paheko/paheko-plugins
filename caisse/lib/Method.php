@@ -30,7 +30,7 @@ class Method
 			$args[] = (string)$year;
 		}
 
-		return DB::getInstance()->getGrouped($sql, $args);
+		return DB::getInstance()->get($sql, $args);
 	}
 
 	static public function graphStatsPerMonth(int $year): string

@@ -22,4 +22,4 @@ if ($start && $end && f('export')) {
 
 $tpl->assign(compact('start', 'end'));
 
-$tpl->display(PLUGIN_ROOT . '/templates/export.tpl');
+$tpl->display(PLUGIN_ROOT . '/templates/manage/export.tpl');

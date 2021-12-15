@@ -1,35 +1,38 @@
 {include file="admin/_head.tpl" current="plugin_%s"|args:$plugin.id}
 
 {if !$pos_session.closed}
-	<ul class="actions">
-		<li><a href="session_close.php?id={$pos_session.id}">Clôturer la caisse</a></li>
-	</ul>
+	<nav class="tabs">
+		{linkbutton href="tab.php" label="Retour à l'encaissement" shape="left"}
+		{linkbutton href="session_close.php?id=%d"|args:$pos_session.id label="Clôturer la caisse" shape="delete"}
+	</nav>
 {/if}
 
 <h1>{$title}</h1>
 
 {if $pos_session.error_amount}
-	<p class="error">Erreur de {$pos_session.error_amount|raw|pos_money}</span>
+	<p class="error block">Erreur de {$pos_session.error_amount|raw|money_currency}</span>
 {/if}
 
 <p class="details">
 	Ouverture&nbsp;: {$pos_session.opened|date}
 	— par {$names.open_user_name}
-	— Caisse = {$pos_session.open_amount|raw|pos_money}
+	— Caisse = {$pos_session.open_amount|raw|money_currency}
 </p>
 <p class="details">
 	Fermeture&nbsp;:
-	{if !$pos_session.closed}<strong>En cours</strong>{else}{$pos_session.closed|date}{/if}
-	— par {$names.close_user_name}
-	— Caisse = {$pos_session.close_amount|raw|pos_money}
-	{if !$pos_session.error_amount}
-		— pas d'erreur
+	{if !$pos_session.closed}<strong>En cours</strong>
+	{else}{$pos_session.closed|date}
+		— par {$names.close_user_name}
+		— Caisse = {$pos_session.close_amount|raw|money_currency}
+		{if !$pos_session.error_amount}
+			— pas d'erreur
+		{/if}
 	{/if}
 </p>
 
 {if count($missing_users_tabs)}
 <div class="noprint">
-	<h2 class="ruler">Membres à inscrire</h2>
+	<h2 class="ruler">Membres non inscrits</h2>
 
 	<table class="list">
 		<thead>
@@ -73,7 +76,7 @@
 		<tr>
 			<th>{$cat.category_name}</th>
 			<td>
-				{$cat.total|raw|pos_money}
+				{$cat.total|raw|money_currency}
 			</td>
 		</tr>
 		{/foreach}
@@ -81,7 +84,7 @@
 	<tfoot>
 		<tr>
 			<th>Total</th>
-			<td>{$total|raw|pos_money}</td>
+			<td>{$total|raw|money_currency}</td>
 		</tr>
 	</tfoot>
 </table>
@@ -101,7 +104,7 @@
 		<tr>
 			<th>{$payment.method_name}</th>
 			<td>
-				{$payment.total|raw|pos_money}
+				{$payment.total|raw|money_currency}
 			</td>
 			<td></td>
 		</tr>
@@ -132,7 +135,7 @@
 			</th>
 			<td>{$payment.method_name}</td>
 			<td>
-				{$payment.amount|raw|pos_money}
+				{$payment.amount|raw|money_currency}
 			</td>
 			<td>{$payment.reference}</td>
 			<td class="actions">
@@ -168,7 +171,7 @@
 				— {$tab.name}
 			</th>
 			<td>
-				{$tab.total|raw|pos_money}
+				{$tab.total|raw|money_currency}
 			</td>
 			<td class="actions">
 				{linkbutton shape="menu" label="Détails" href="tab.php?id=%d"|args:$tab.id class="noprint"}
@@ -180,7 +183,7 @@
 		<tr>
 			<td></td>
 			<th>Total</th>
-			<td>{$total|raw|pos_money}</td>
+			<td>{$total|raw|money_currency}</td>
 			<td></td>
 		</tr>
 	</tfoot>
@@ -209,8 +212,8 @@
 			<tr>
 				<th><small class="cat">{$item.category_name}</small> {$item.name}</th>
 				<td>{$item.qty}</td>
-				<td>{$item.price|raw|pos_money}</td>
-				<td>{$item.total|raw|pos_money}</td>
+				<td>{$item.price|raw|money_currency}</td>
+				<td>{$item.total|raw|money_currency}</td>
 			</tr>
 			{/foreach}
 			</tbody>
@@ -219,7 +222,7 @@
 					<th>Total</th>
 					<td></td>
 					<td></td>
-					<td>{$tab.total|raw|pos_money}</td>
+					<td>{$tab.total|raw|money_currency}</td>
 				</tr>
 			</tfoot>
 		</table>

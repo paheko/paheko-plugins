@@ -1,16 +1,16 @@
 {include file="admin/_head.tpl" title="Ouverture de caisse" current="plugin_%s"|args:$plugin.id}
 
 <form method="post" action="">
-<fieldset>
-	<legend>Ouvrir la caisse</legend>
-	<dl>
-		<dt><label for="f_amount">Solde de la caisse à l'ouverture</label></dt>
-		<dd><input type="text" pattern="\d+([.,]\d+)?" name="amount" id="f_amount" size="5" required="required" />&nbsp;€</dd>
-	</dl>
+	<fieldset>
+		<legend>Ouvrir la caisse</legend>
+		<dl>
+			{input type="money" name="amount" label="Solde de la caisse à l'ouverture" help="Uniquement les espèces, ne pas compter les chèques" required=true}
+		</dl>
+	</fieldset>
 	<p class="submit">
-		<input type="submit" name="open" value="Ouvrir la caisse" />
+		{csrf_field key=$csrf_key}
+		{button type="submit" shape="right" label="Ouvrir la caisse" class="main" name="open"}
 	</p>
-</fieldset>
 </form>
 
 {include file="admin/_foot.tpl"}

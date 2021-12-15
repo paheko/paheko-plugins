@@ -14,4 +14,9 @@ class Category extends Entity
 	protected int $id;
 	protected string $name = '';
 	protected ?string $account = null;
+
+	public function selfCheck(): void
+	{
+		$this->assert(trim($this->name) !== '', 'Le nom ne peut rester vide.');
+	}
 }

@@ -8,13 +8,13 @@ use Garradin\UserTemplate\UserTemplate;
 
 use Garradin\Plugin\Caisse\Product;
 
-require __DIR__ . '/_inc.php';
+require __DIR__ . '/../_inc.php';
 
 $products = Product::listByCategory();
 
 $tpl->assign('products_categories', $products);
 
-$out = $tpl->fetch(PLUGIN_ROOT . '/templates/products_print.tpl');
+$out = $tpl->fetch(PLUGIN_ROOT . '/templates/manage/products/print.tpl');
 $filename = 'Produits.pdf';
 
 header('Content-type: application/pdf');
