@@ -28,3 +28,5 @@ INSERT INTO @PREFIX_methods VALUES (2, 'Chèque', 0, NULL, NULL, NULL, 1);
 -- Ajout espèces/chèque
 INSERT INTO @PREFIX_products_methods SELECT id, 1 FROM @PREFIX_products;
 INSERT INTO @PREFIX_products_methods SELECT id, 2 FROM @PREFIX_products;
+
+UPDATE @PREFIX_products SET stock = 0 WHERE category IN (3, 4, 5);

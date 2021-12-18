@@ -7,16 +7,18 @@ use KD2\DB\EntityManager as EM;
 
 class Product
 {
-	static public function listByCategory(bool $only_with_payment = true): array
+	static public function listByCategory(bool $only_with_payment = true, bool $only_stockable = false): array
 	{
 		$db = DB::getInstance();
 		$categories = self::listCategoriesAssoc();
 
 		$join = $only_with_payment ? 'INNER JOIN @PREFIX_products_methods m ON m.product = p.id' : '';
+		$where = $only_stockable ? 'AND p.stock IS NOT NULL' : '';
 
 		// Don't select products that don't have any payment method linked: you wouldn't be able to pay for them
 		$products = $db->get(POS::sql(sprintf('SELECT * FROM @PREFIX_products p %s
-			GROUP BY p.id ORDER BY category, name COLLATE NOCASE;', $join)));
+			WHERE 1 %s
+			GROUP BY p.id ORDER BY category, name COLLATE NOCASE;', $join, $where)));
 
 		$list = [];
 

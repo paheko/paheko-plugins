@@ -71,9 +71,9 @@ class Product extends Entity
 
 		$db = EM::getInstance(self::class)->DB();
 		$sql = sprintf(POS::sql('SELECT
-			h.*, e.label AS event_label, ti.tab
+			h.*, e.label AS event_label, e.type AS event_type, ti.tab
 			FROM @PREFIX_products_stock_history h
-			LEFT JOIN @PREFIX_stock_events e ON e.id = h.event
+			LEFT JOIN @PREFIX_stock_events e ON e.id = h.event AND e.applied = 1
 			LEFT JOIN @PREFIX_tabs_items ti ON ti.id = h.item
 			WHERE h.product = ? %s
 			ORDER BY h.date DESC;'), $events);

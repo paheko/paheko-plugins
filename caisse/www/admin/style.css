@@ -1,6 +1,6 @@
 .pos {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: .5fr .5fr;
 	grid-column-gap: 1rem;
 }
 
@@ -8,6 +8,10 @@
 	display: flex;
 	justify-content: space-between;
 	margin-bottom: 1rem;
+}
+
+.pos .products {
+	text-align: center;
 }
 
 .pos .products button {
@@ -49,6 +53,8 @@
 
 input[name="q"] {
 	font-size: 2rem;
+	min-width: 5em;
+	width: calc(100% - 1em);
 }
 .pos form {
 	display: inline;

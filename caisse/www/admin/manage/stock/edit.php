@@ -2,6 +2,7 @@
 
 namespace Garradin;
 use Garradin\Plugin\Caisse\Stock;
+use Garradin\Plugin\Caisse\Entities\StockEvent;
 
 require __DIR__ . '/../_inc.php';
 
@@ -17,7 +18,9 @@ else {
 	throw new UserException('Appel invalide');
 }
 
-$tpl->assign(compact('event', 'csrf_key'));
+$types = StockEvent::TYPES;
+
+$tpl->assign(compact('event', 'csrf_key', 'types'));
 
 if (qg('delete') !== null) {
 	$form->runIf('delete', function () use ($event) {
@@ -34,8 +37,7 @@ else {
 	$form->runIf('save', function () use ($event) {
 		$event->importForm();
 		$event->save();
-		Utils::redirect(PLUGIN_URL . 'manage/stock/details.php?id=' . $event->id());
-	}, $csrf_key);
+	}, $csrf_key, './');
 
 	$tpl->display(PLUGIN_ROOT . '/templates/manage/stock/edit.tpl');
 }
