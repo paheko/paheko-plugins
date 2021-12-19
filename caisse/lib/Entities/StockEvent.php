@@ -83,14 +83,29 @@ class StockEvent extends Entity
 
 		$sql = POS::sql('SELECT
 			c.name AS category_name, p.name AS product_name, p.stock AS current_stock,
-			h.change AS change, p.id AS product_id
+			h.change AS change, p.id AS product_id,
+			SUM(p.price * h.change) AS value
 			FROM @PREFIX_products_stock_history h
 			LEFT JOIN @PREFIX_products p ON p.id = h.product
 			LEFT JOIN @PREFIX_categories c ON c.id = p.category
 			WHERE event = ?
+			GROUP BY p.id
 			ORDER BY c.name, p.name;');
 
 		return $db->get($sql, $this->id());
+	}
+
+	public function totalChanges(array $changes): \stdClass
+	{
+		$total = ['change' => 0, 'value' => 0, 'current_stock' => 0];
+
+		foreach ($changes as $row) {
+			foreach ($total as $key => &$value) {
+				$value += $row->$key;
+			}
+		}
+
+		return (object)$total;
 	}
 
 	public function delete(): bool
@@ -125,7 +140,6 @@ class StockEvent extends Entity
 		$p->save();
 		return $p;
 	}
-
 
 	public function deleteProduct(int $id): void
 	{

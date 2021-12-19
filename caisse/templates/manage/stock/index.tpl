@@ -2,6 +2,8 @@
 
 {include file="%s/manage/_nav.tpl"|args:$pos_templates_root current='stock'}
 
+<h2 class="ruler">Événements de stock</h2>
+
 <table class="list">
 	<thead>
 		<tr>
@@ -21,6 +23,27 @@
 					{linkbutton href="details.php?id=%d"|args:$event.id label="Détails" shape="menu"}
 					{linkbutton href="edit.php?id=%d&delete"|args:$event.id label="Supprimer" shape="delete" target="_dialog"}
 				</td>
+			</tr>
+		{/foreach}
+	</tbody>
+</table>
+
+<h2 class="ruler">Stock actuel</h2>
+
+<table class="list">
+	<thead>
+		<tr>
+			<th>Catégorie</th>
+			<td>Produits en stock</td>
+			<td class="money">Valeur des produits</td>
+		</tr>
+	</thead>
+	<tbody>
+		{foreach from=$value_list item="row"}
+			<tr>
+				<th>{$row.label}</th>
+				<td>{$row.count}</td>
+				<td class="money">{$row.value|raw|money_currency}</td>
 			</tr>
 		{/foreach}
 	</tbody>

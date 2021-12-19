@@ -29,8 +29,9 @@ if (!$event->applied) {
 }
 
 $list = $event->listChanges();
+$total = $event->totalChanges($list);
 $tpl->assign('products_categories', Product::listByCategory(false, true));
 
-$tpl->assign(compact('event', 'csrf_key', 'list'));
+$tpl->assign(compact('event', 'csrf_key', 'list', 'total'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/manage/stock/details.tpl');
