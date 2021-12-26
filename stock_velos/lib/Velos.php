@@ -567,4 +567,28 @@ class Velos
         ';
         return DB::getInstance()->get($sql);
     }
+
+    public function statsByYear()
+    {
+        $sql = '
+            SELECT
+                strftime(\'%Y\', date_sortie) AS year,
+                \'Sortie\' AS type,
+                raison_sortie AS details,
+                COUNT(*) AS nb
+                FROM plugin_stock_velos
+                WHERE raison_sortie IS NOT NULL
+                GROUP BY strftime(\'%Y\', date_sortie), raison_sortie
+            UNION ALL
+            SELECT
+                strftime(\'%Y\', date_entree) AS year,
+                \'Entrée\' AS type,
+                source AS details,
+                COUNT(*) AS nb
+                FROM plugin_stock_velos
+                GROUP BY strftime(\'%Y\', date_entree), source
+            ORDER BY month DESC, type, details;
+        ';
+        return DB::getInstance()->get($sql);
+    }
 }

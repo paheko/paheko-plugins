@@ -4,7 +4,20 @@
 
 <table class="list">
     <tbody>
-        {foreach from=$stats item="row"}
+        {foreach from=$stats_years item="row"}
+        <tr>
+            <th>{$row.year}</th>
+            <td>{$row.type}</td>
+            <td>{$row.details}</td>
+            <td>{$row.nb}</td>
+        </tr>
+        {/foreach}
+    </tbody>
+</table>
+
+<table class="list">
+    <tbody>
+        {foreach from=$stats_years item="row"}
         <tr>
             <th>{$row.month}</th>
             <td>{$row.type}</td>
