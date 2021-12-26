@@ -587,7 +587,7 @@ class Velos
                 COUNT(*) AS nb
                 FROM plugin_stock_velos
                 GROUP BY strftime(\'%Y\', date_entree), source
-            ORDER BY month DESC, type, details;
+            ORDER BY year DESC, type, details;
         ';
         return DB::getInstance()->get($sql);
     }
