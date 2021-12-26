@@ -8,6 +8,9 @@ use Garradin\UserException;
 use Garradin\Utils;
 use Garradin\DynamicList;
 
+use KD2\Graphics\SVG\Bar;
+use KD2\Graphics\SVG\Bar_Data_Set;
+
 class Velos
 {
     const A_DEMONTER = -1;
@@ -590,5 +593,87 @@ class Velos
             ORDER BY year DESC, type, details;
         ';
         return DB::getInstance()->get($sql);
+    }
+
+    static public function graphStatsPerYear(): string
+    {
+        $sql = '
+           SELECT
+                strftime(\'%Y\', date_sortie) AS year,
+                \'Sortie\' AS type,
+                COUNT(*) AS nb
+                FROM plugin_stock_velos
+                WHERE raison_sortie IS NOT NULL
+                GROUP BY strftime(\'%Y\', date_sortie)
+            UNION ALL
+            SELECT
+                strftime(\'%Y\', date_entree) AS year,
+                \'Entrée\' AS type,
+                COUNT(*) AS nb
+                FROM plugin_stock_velos
+                GROUP BY strftime(\'%Y\', date_entree)
+            ORDER BY year, type;';
+
+        $data = DB::getInstance()->getAssocMulti($sql);
+        return self::barGraph(null, $data);
+    }
+
+    static public function graphStatsPerExit(): string
+    {
+        $sql = '
+           SELECT
+                strftime(\'%Y\', date_sortie) AS year,
+                raison_sortie,
+                COUNT(*) AS nb
+                FROM plugin_stock_velos
+                WHERE raison_sortie IS NOT NULL
+                GROUP BY strftime(\'%Y\', date_sortie), raison_sortie ORDER BY year, raison_sortie;
+        ';
+
+        $data = DB::getInstance()->getAssocMulti($sql);
+        return self::barGraph(null, $data);
+    }
+
+    static public function graphStatsPerEntry(): string
+    {
+        $sql = '
+           SELECT
+                strftime(\'%Y\', date_entree) AS year,
+                source,
+                COUNT(*) AS nb
+                FROM plugin_stock_velos
+                WHERE raison_sortie IS NOT NULL
+                GROUP BY strftime(\'%Y\', date_entree), source ORDER BY year, source;
+        ';
+
+        $data = DB::getInstance()->getAssocMulti($sql);
+        return self::barGraph(null, $data);
+    }
+
+    static public function barGraph(?string $title, array $data): string
+    {
+        $bar = new Bar(1000, 400);
+        $bar->setTitle($title);
+        $current_group = null;
+        $set = null;
+        $sum = 0;
+
+        $color = function (string $str): string {
+            return sprintf('#%s', substr(md5($str), 0, 6));
+        };
+
+        foreach ($data as $group_label => $group) {
+            $set = new Bar_Data_Set($group_label);
+            $sum = 0;
+
+            foreach ($group as $label => $value) {
+                $set->add($value, $label, $color($label));
+                $sum += $value;
+            }
+
+            $bar->add($set);
+        }
+
+        return $bar->output();
     }
 }

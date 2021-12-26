@@ -2,6 +2,18 @@
 
 {include file="%s_nav.tpl"|args:$plugin_tpl current="stats"}
 
+<figure>
+    <img src="?graph=years" alt="" />
+</figure>
+
+<figure>
+    <img src="?graph=exit" alt="" />
+</figure>
+
+<figure>
+    <img src="?graph=entry" alt="" />
+</figure>
+
 <table class="list">
     <tbody>
         {foreach from=$stats_years item="row"}
@@ -17,7 +29,7 @@
 
 <table class="list">
     <tbody>
-        {foreach from=$stats_years item="row"}
+        {foreach from=$stats_months item="row"}
         <tr>
             <th>{$row.month}</th>
             <td>{$row.type}</td>
