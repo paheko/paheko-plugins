@@ -10,11 +10,11 @@ require __DIR__ . '/_inc.php';
 
 $tab = null;
 
-if (null !== qg('id')) {
-	$tab = new Tab(qg('id'));
-}
-
 try {
+	if (null !== qg('id')) {
+		$tab = new Tab(qg('id'));
+	}
+
 	$current_pos_session = new Session($tab ? $tab->session : Session::getCurrentId());
 }
 catch (\InvalidArgumentException $e) {
