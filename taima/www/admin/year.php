@@ -7,7 +7,7 @@ use Garradin\Plugin\Taima\Tracking;
 require_once __DIR__ . '/_inc.php';
 
 $user_id = $session->getUser()->id;
-$weeks = Tracking::listWeeks($user_id);
+$weeks = Tracking::listUserWeeks($user_id);
 
 $tpl->assign(compact('weeks'));
 

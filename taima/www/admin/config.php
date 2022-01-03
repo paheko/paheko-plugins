@@ -2,6 +2,8 @@
 
 namespace Garradin\Plugin\Taima;
 
+use Garradin\Entities\Accounting\Account;
+
 use Garradin\Plugin\Taima\Entities\Task;
 use Garradin\Plugin\Taima\Tracking;
 
@@ -36,10 +38,11 @@ $form->runIf('delete', function () {
 
 
 $tpl->assign(compact('csrf_key'));
+$tpl->assign('account_targets', Account::TYPE_VOLUNTEERING);
 
 if (qg('edit')) {
 	$task = EM::findOneById(Task::class, (int) qg('edit'));
-	$tpl->assign('task', $task);
+	$tpl->assign(compact('task'));
 	$tpl->display(__DIR__ . '/../../templates/config_edit.tpl');
 }
 elseif (qg('delete')) {

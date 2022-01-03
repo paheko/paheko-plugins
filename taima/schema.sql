@@ -1,6 +1,8 @@
 CREATE TABLE IF NOT EXISTS plugin_taima_tasks (
 	id INTEGER NOT NULL PRIMARY KEY,
-	label TEXT NOT NULL
+	label TEXT NOT NULL,
+	value INTEGER NULL,
+	account TEXT NULL
 );
 
 CREATE TABLE IF NOT EXISTS plugin_taima_entries (
@@ -15,4 +17,7 @@ CREATE TABLE IF NOT EXISTS plugin_taima_entries (
 	timer_started INTEGER NULL -- date time for the start of the timer, is null if no timer is running
 );
 
-INSERT INTO plugin_taima_tasks (label) VALUES ('Comptabilité'), ('Administratif'), ('Communication adhérent⋅e⋅s');
+INSERT INTO plugin_taima_tasks (label, value, account) VALUES
+	('Comptabilité', 2500, 875),
+	('Administratif', 2500, 875),
+	('Communication adhérent⋅e⋅s', 2500, 875);

@@ -70,7 +70,7 @@ $today_url = taima_url($today);
 $year = (int) $day->format('o');
 $week = (int) $day->format('W');
 
-$weekdays = Tracking::getWeekDays($year, $week, $user_id);
+$weekdays = Tracking::listUserWeekDays($year, $week, $user_id);
 $week_total = 0;
 
 // Add URL
@@ -88,7 +88,7 @@ $tasks = ['' => '--'] + Tracking::listTasks();
 
 $is_today = $day->format('Ymd') == $today->format('Ymd');
 
-$running_timers = Tracking::listRunningTimers($day, $user_id);
+$running_timers = Tracking::listUserRunningTimers($day, $user_id);
 
 $tpl->assign(compact('is_today', 'tasks', 'entries', 'week_total', 'weekdays', 'prev_url', 'next_url', 'today_url', 'day', 'year', 'week', 'csrf_key', 'running_timers'));
 

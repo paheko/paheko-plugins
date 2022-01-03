@@ -29,7 +29,7 @@ class Tracking
 		return DB::getInstance()->get($sql, $day->format('Y-m-d'), $user_id);
 	}
 
-	static public function listWeeks(int $user_id)
+	static public function listUserWeeks(int $user_id)
 	{
 		$sql = sprintf('SELECT year, week, SUM(duration) AS duration, COUNT(id) AS entries,
 			date(date, \'weekday 0\', \'-6 day\') AS first,
@@ -43,10 +43,49 @@ class Tracking
 		return DB::getInstance()->getAssoc(sprintf('SELECT id, label FROM %s ORDER BY label COLLATE NOCASE;', Task::TABLE));
 	}
 
-	static public function listRunningTimers(DateTime $except, int $user_id)
+	static public function listUserRunningTimers(DateTime $except, int $user_id)
 	{
 		return DB::getInstance()->get(sprintf('SELECT date FROM %s
 			WHERE date != ? AND user_id = ? AND timer_started IS NOT NULL;', Entry::TABLE), $except->format('Y-m-d'), $user_id);
+	}
+
+	static public function listUserWeekDays(int $year, int $week, int $user_id)
+	{
+		$weekdays = [];
+
+		$weekday = new DateTime;
+		$weekday->setISODate($year, $week);
+
+		$db = DB::getInstance();
+
+		$sql = sprintf('SELECT strftime(\'%%w\', date) - 1 AS weekday,
+			SUM(CASE WHEN timer_started IS NOT NULL
+				THEN IFNULL(duration, 0) + (strftime(\'%%s\', \'now\') - timer_started) / 60
+				ELSE duration
+			END) AS total,
+			COUNT(timer_started) AS timers
+			FROM %s WHERE year = ? AND week = ? AND user_id = ?
+			GROUP BY weekday ORDER BY weekday;', Entry::TABLE);
+
+		$filled_days = $db->getGrouped($sql, [$year, $week, $user_id]);
+
+		// SQLite has Sunday as first day of week
+		if (isset($filled_days[-1])) {
+			$filled_days[6] = $filled_days[-1];
+		}
+
+		for ($i = 0; $i < 7; $i++) {
+			$weekdays[] = (object) [
+				'day'     => clone $weekday,
+				'minutes' => array_key_exists($i, $filled_days) ? $filled_days[$i]->total : 0,
+				'timers'  => array_key_exists($i, $filled_days) ? $filled_days[$i]->timers : 0,
+				'duration' => array_key_exists($i, $filled_days) ? $filled_days[$i]->total : 0,
+			];
+
+			$weekday->modify('+1 day');
+		}
+
+		return $weekdays;
 	}
 
 	static public function getList()
@@ -157,45 +196,6 @@ class Tracking
 			$item['entries'][] = (object) ['task_label' => 'Total', 'duration' => $total];
 			yield $item;
 		}
-	}
-
-	static public function getWeekDays(int $year, int $week, int $user_id)
-	{
-		$weekdays = [];
-
-		$weekday = new DateTime;
-		$weekday->setISODate($year, $week);
-
-		$db = DB::getInstance();
-
-		$sql = sprintf('SELECT strftime(\'%%w\', date) - 1 AS weekday,
-			SUM(CASE WHEN timer_started IS NOT NULL
-				THEN IFNULL(duration, 0) + (strftime(\'%%s\', \'now\') - timer_started) / 60
-				ELSE duration
-			END) AS total,
-			COUNT(timer_started) AS timers
-			FROM %s WHERE year = ? AND week = ? AND user_id = ?
-			GROUP BY weekday ORDER BY weekday;', Entry::TABLE);
-
-		$filled_days = $db->getGrouped($sql, [$year, $week, $user_id]);
-
-		// SQLite has Sunday as first day of week
-		if (isset($filled_days[-1])) {
-			$filled_days[6] = $filled_days[-1];
-		}
-
-		for ($i = 0; $i < 7; $i++) {
-			$weekdays[] = (object) [
-				'day'     => clone $weekday,
-				'minutes' => array_key_exists($i, $filled_days) ? $filled_days[$i]->total : 0,
-				'timers'  => array_key_exists($i, $filled_days) ? $filled_days[$i]->timers : 0,
-				'duration' => array_key_exists($i, $filled_days) ? $filled_days[$i]->total : 0,
-			];
-
-			$weekday->modify('+1 day');
-		}
-
-		return $weekdays;
 	}
 
 	static public function formatMinutes(?int $minutes): string
