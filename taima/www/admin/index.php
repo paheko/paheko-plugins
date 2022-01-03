@@ -11,6 +11,10 @@ use function Garradin\{f, qg};
 
 use DateTime;
 
+if ($plugin->needUpgrade()) {
+	$plugin->upgrade();
+}
+
 $csrf_key = 'plugin_taima_sheet';
 $user_id = $session->getUser()->id;
 
@@ -83,7 +87,7 @@ $prev_url = taima_url((clone $day)->modify('-1 week'));
 $next_url = taima_url((clone $day)->modify('+1 week'));
 $today_url = taima_url($today);
 
-$year = (int) $day->format('Y');
+$year = (int) $day->format('o');
 $week = (int) $day->format('W');
 
 $weekdays = Tracking::getWeekDays($year, $week, $user_id);

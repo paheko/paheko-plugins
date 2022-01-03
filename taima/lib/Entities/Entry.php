@@ -45,7 +45,7 @@ class Entry extends Entity
 
 	public function setDate(DateTime $date)
 	{
-		$this->set('year', (int) $date->format('Y'));
+		$this->set('year', (int) $date->format('o'));
 		$this->set('week', (int) $date->format('W'));
 		$this->set('date', $date);
 	}
