@@ -21,8 +21,8 @@ class Tracking
 	static public function listUserEntries(DateTime $day, int $user_id)
 	{
 		$sql = sprintf('SELECT e.*, t.label AS task_label,
-			CASE WHEN e.timer_started
-				THEN e.duration + (strftime(\'%%s\') - e.timer_started) / 60
+			CASE WHEN e.timer_started IS NOT NULL
+				THEN IFNULL(e.duration, 0) + (strftime(\'%%s\', \'now\') - e.timer_started) / 60
 				ELSE e.duration
 			END AS timer_running
 			FROM %s e LEFT JOIN %s t ON t.id = e.task_id WHERE date = ? AND user_id = ? ORDER BY id;', Entry::TABLE, Task::TABLE);
@@ -31,13 +31,22 @@ class Tracking
 
 	static public function listWeeks(int $user_id)
 	{
-		$sql = sprintf('SELECT year, week, SUM(duration) AS hours FROM %s WHERE user_id = ? GROUP BY year, week ORDER BY year, week;', Entry::TABLE);
+		$sql = sprintf('SELECT year, week, SUM(duration) AS duration, COUNT(id) AS entries,
+			date(date, \'weekday 0\', \'-6 day\') AS first,
+			date(date, \'weekday 0\') AS last
+			FROM %s WHERE user_id = ? GROUP BY year, week ORDER BY year, week;', Entry::TABLE);
 		return DB::getInstance()->get($sql, $user_id);
 	}
 
 	static public function listTasks()
 	{
 		return DB::getInstance()->getAssoc(sprintf('SELECT id, label FROM %s ORDER BY label COLLATE NOCASE;', Task::TABLE));
+	}
+
+	static public function listRunningTimers(DateTime $except, int $user_id)
+	{
+		return DB::getInstance()->get(sprintf('SELECT date FROM %s
+			WHERE date != ? AND user_id = ? AND timer_started IS NOT NULL;', Entry::TABLE), $except->format('Y-m-d'), $user_id);
 	}
 
 	static public function getList()
@@ -159,7 +168,12 @@ class Tracking
 
 		$db = DB::getInstance();
 
-		$sql = sprintf('SELECT strftime(\'%%w\', date) - 1 AS weekday, SUM(duration) AS total, SUM(timer_started) > 0 AS timers
+		$sql = sprintf('SELECT strftime(\'%%w\', date) - 1 AS weekday,
+			SUM(CASE WHEN timer_started IS NOT NULL
+				THEN IFNULL(duration, 0) + (strftime(\'%%s\', \'now\') - timer_started) / 60
+				ELSE duration
+			END) AS total,
+			COUNT(timer_started) AS timers
 			FROM %s WHERE year = ? AND week = ? AND user_id = ?
 			GROUP BY weekday ORDER BY weekday;', Entry::TABLE);
 

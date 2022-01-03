@@ -1,12 +1,8 @@
 {include file="admin/_head.tpl" title="Suivi du temps" plugin_css=['style.css']}
 
-{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)}
+{include file="%s/templates/_nav.tpl"|args:$plugin_root current="stats"}
+
 <nav class="tabs">
-	<ul>
-		<li><a href="./">Mon temps</a></li>
-		<li class="current"><a href="stats.php">Statistiques</a></li>
-		<li><a href="config.php">Configuration</a></li>
-	</ul>
 	<ul class="sub">
 		<li{if $grouping == 'week'} class="current"{/if}><a href="?g=week">Par semaine</a></li>
 		<li{if $grouping == 'month'} class="current"{/if}><a href="?g=month">Par mois</a></li>
@@ -17,7 +13,6 @@
 		<li{if $per_user} class="current"{/if}><a href="?g={$grouping}&per_user">Par personne</a></li>
 	</ul>
 </nav>
-{/if}
 
 <table class="">
 	{foreach from=$per_week item="week"}

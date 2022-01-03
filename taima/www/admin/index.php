@@ -11,33 +11,13 @@ use function Garradin\{f, qg};
 
 use DateTime;
 
+require_once __DIR__ . '/_inc.php';
+
 if ($plugin->needUpgrade()) {
 	$plugin->upgrade();
 }
 
 $csrf_key = 'plugin_taima_sheet';
-$user_id = $session->getUser()->id;
-
-function taima_url(?DateTime $day = null)
-{
-	return Utils::plugin_url($day ? ['query' => 'day=' . $day->format('Y-m-d')] : []);
-}
-
-$day = $today = new DateTime;
-$day->setTime(0, 0, 0);
-
-if (qg('day')) {
-	$day = DateTime::createFromFormat('!Y-m-d', qg('day'));
-}
-
-$tpl->register_modifier('taima_date', function (\DateTime $date, string $format) {
-	return \IntlDateFormatter::formatObject($date, $format, 'fr_FR');
-});
-
-$tpl->register_modifier('taima_minutes', [Tracking::class, 'formatMinutes']);
-$tpl->register_function('taima_url', function (array $params) {
-	return Utils::plugin_url(['query' => http_build_query($params)]);
-});
 
 $form->runIf('add', function () use ($day, $user_id) {
 	$entry = new Entry;
@@ -108,6 +88,8 @@ $tasks = ['' => '--'] + Tracking::listTasks();
 
 $is_today = $day->format('Ymd') == $today->format('Ymd');
 
-$tpl->assign(compact('is_today', 'tasks', 'entries', 'week_total', 'weekdays', 'prev_url', 'next_url', 'today_url', 'day', 'year', 'week', 'csrf_key'));
+$running_timers = Tracking::listRunningTimers($day, $user_id);
+
+$tpl->assign(compact('is_today', 'tasks', 'entries', 'week_total', 'weekdays', 'prev_url', 'next_url', 'today_url', 'day', 'year', 'week', 'csrf_key', 'running_timers'));
 
 $tpl->display(__DIR__ . '/../../templates/index.tpl');

@@ -4,14 +4,17 @@
 $timer_icon = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke-width="2" /><path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z" /></svg>';
 ?>
 
-{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)}
-<nav class="tabs">
+{include file="%s/templates/_nav.tpl"|args:$plugin_root current="index"}
+
+{if $running_timers}
+<div class="block alert">
+	Des chronos sont démarrés&nbsp;:
 	<ul>
-		<li class="current"><a href="./">Mon temps</a></li>
-		<li><a href="stats.php">Statistiques</a></li>
-		<li><a href="config.php">Configuration</a></li>
+		{foreach from=$running_timers item="timer"}
+		<li><a href="{$timer.date|taima_url}">{$timer.date|taima_date:'EEEE d MMMM yyyy'}</a></li>
+		{/foreach}
 	</ul>
-</nav>
+</div>
 {/if}
 
 <section class="taima-header">
@@ -62,9 +65,9 @@ $timer_icon = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circ
 				</td>
 				<td>
 					{if $entry.timer_started}
-						<a class="icn-btn stop-timer" href="{taima_url stop=$entry.id}">{$timer_icon|raw} Arrêter</a>
+						<a class="icn-btn stop-timer" href="{$entry.date|taima_url}&amp;stop={$entry.id}">{$timer_icon|raw} Arrêter</a>
 					{elseif $is_today}
-						<a class="icn-btn start-timer" href="{taima_url start=$entry.id}">{$timer_icon|raw} Démarrer</a>
+						<a class="icn-btn start-timer" href="?start={$entry.id}">{$timer_icon|raw} Démarrer</a>
 					{/if}
 				</td>
 				<td>
@@ -175,9 +178,10 @@ window.setInterval(function () {
 
 g.script('scripts/datepicker2.js', () => {
 	var dp = $('#datepicker');
-	var d = new DatePicker(dp, null, {format: 0, onchange: (v) => {
-		location.search = 'day=' + v;
-	}});
+	dp.onchange = () => {
+		location.search = 'day=' + dp.dataset.date;
+	};
+	var d = new DatePicker(dp, null, {format: 0});
 });
 </script>
 {/literal}
