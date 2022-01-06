@@ -33,7 +33,7 @@
 		<legend>Ajouter une tâche</legend>
 		<dl>
 			{input type="text" name="label" required=true label="Libellé"}
-			{input type="list" target="!acc/charts/accounts/selector.php?targets=%s"|args:$account_targets name="account" label="Compte de valorisation" required=false help="Compte qui sera utilisé pour reporter le temps bénévole dans le bilan comptable"}
+			{input type="list" target="!acc/charts/accounts/selector.php?targets=%s"|args:$account_targets name="account" label="Compte de valorisation" required=false help="Compte qui sera utilisé pour reporter le temps bénévole dans le bilan comptable, généralement c'est le compte 875."}
 			{input type="money" name="value" required=false label="Valorisation d'une heure" help="Inscrire ici la valeur d'une heure de temps pour le bilan comptable"}
 			<dd class="help">On utilise ici généralement le SMIC avec les charges, environ 12 €, et on multiplie selon le niveau de responsabilité&nbsp;: x3 pour un niveau cadre, x5 pour une fonction de direction, etc.</dd>
 		</dl>

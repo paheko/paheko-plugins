@@ -5,9 +5,15 @@ namespace Garradin\Plugin\Taima;
 use Garradin\Plugin\Taima\Entities\Entry;
 use Garradin\Plugin\Taima\Entities\Task;
 
+use Garradin\Entities\Accounting\Transaction;
+use Garradin\Entities\Accounting\Line;
+use Garradin\Entities\Accounting\Year;
+use Garradin\Accounting\Accounts;
+
 use Garradin\Config;
 use Garradin\DB;
 use Garradin\DynamicList;
+use Garradin\Utils;
 use KD2\DB\EntityManager as EM;
 
 use DateTime;
@@ -223,6 +229,74 @@ class Tracking
 			$item['entries'][] = (object) ['task_label' => 'Total', 'duration' => $total];
 			yield $item;
 		}
+	}
+
+	static public function getFinancialReport(Year $year, DateTime $start, DateTime $end)
+	{
+		$sql = 'SELECT
+				t.label, SUM(e.duration) / 60 AS hours, SUM(e.duration) / 60 * t.value AS total, t.value AS value,
+				t.account AS account_code, a.label AS account_label, a.id AS id_account
+			FROM plugin_taima_entries e
+			INNER JOIN plugin_taima_tasks t ON t.id = e.task_id
+			LEFT JOIN acc_accounts a ON a.id_chart = ? AND a.code = t.account
+			WHERE t.value IS NOT NULL AND t.account IS NOT NULL
+			AND e.date >= ? AND e.date <= ?
+			GROUP BY t.id;';
+		return DB::getInstance()->get($sql, $year->id_chart, $start, $end);
+	}
+
+	static public function createReport(Year $year, DateTime $start, DateTime $end, int $id_creator): Transaction
+	{
+		$date = new \DateTime;
+
+		if ($date > $year->end_date) {
+			$date = clone $year->end_date;
+		}
+		elseif ($date < $year->start_date) {
+			$date = clone $year->start_date;
+		}
+
+		$t = new Transaction;
+		$t->date = $date;
+		$t->label = 'Valorisation du bénévolat';
+		$t->notes = 'Écriture créée par Tāima, extension de suivi du temps';
+		$t->type = $t::TYPE_ADVANCED;
+		$t->id_year = $year->id();
+		$t->id_creator = $id_creator;
+		$t->reference = 'VALORISATION-TAIMA';
+
+		$report = self::getFinancialReport($year, $start, $end);
+
+		foreach ($report as $row) {
+			if (!$row->id_account) {
+				continue;
+			}
+
+			$line = new Line;
+			$line->credit = $row->total;
+			$line->debit = 0;
+			$line->id_account = $row->id_account;
+			$line->label = sprintf('%s (%d heures à %s / h)', $row->label, $row->hours, Utils::money_format($row->value));
+
+			$t->addLine($line);
+		}
+
+		$sum = $t->getLinesCreditSum();
+
+		if (!$sum) {
+			throw new UserException('Rien ne peut être valorisé : peut-être que des codes de compte sont invalides ?');
+		}
+
+		$id_account = (new Accounts($year->id_chart))->getIdFromCode('864');
+
+		$line = new Line;
+		$line->credit = 0;
+		$line->debit = $sum;
+		$line->id_account = $id_account;
+		$line->label = 'Temps bénévole';
+		$t->addLine($line);
+
+		return $t;
 	}
 
 	static public function formatMinutes(?int $minutes): string
