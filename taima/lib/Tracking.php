@@ -7,6 +7,7 @@ use Garradin\Plugin\Taima\Entities\Task;
 
 use Garradin\Config;
 use Garradin\DB;
+use Garradin\DynamicList;
 use KD2\DB\EntityManager as EM;
 
 use DateTime;
@@ -88,22 +89,27 @@ class Tracking
 		return $weekdays;
 	}
 
-	static public function getList()
+	static public function getList(?int $id_user = null, ?int $except = null): DynamicList
 	{
 		$identity = Config::getInstance()->get('champ_identite');
 		$columns = [
 			'task' => [
 				'label' => 'Tâche',
 				'select' => 't.label',
-				'order' => 't.label COLLATE NOCASE AS %s',
+				'order' => 't.label COLLATE NOCASE %s',
+			],
+			'notes' => [
+				'select' => 'e.notes',
 			],
 			'year' => [
 				'label' => 'Année',
 				'select' => 'e.year',
+				'order' => 'e.year %s, e.week %1$s',
 			],
-			'year' => [
+			'week' => [
 				'label' => 'Semaine',
 				'select' => 'e.week',
+				'order' => 'e.year %s, e.week %1$s',
 			],
 			'date' => [
 				'label' => 'Date',
@@ -117,18 +123,28 @@ class Tracking
 				'label' => 'Nom',
 				'select' => 'm.' . $identity,
 			],
+			'id' => ['select' => 'e.id'],
 		];
 
 		$tables = 'plugin_taima_entries e
 			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
 			INNER JOIN membres m ON m.id = e.user_id';
 
+		$conditions = '1';
+
+		if ($except) {
+			$conditions = 'e.user_id != ' . $except;
+		}
+		elseif ($id_user) {
+			$conditions = 'e.user_id = ' . $id_user;
+		}
+
 		$list = new DynamicList($columns, $tables, $conditions);
 		$list->orderBy('date', true);
 		return $list;
 	}
 
-	static public function listPerWeek(string $grouping = 'week', bool $per_user = false)
+	static public function listPerInterval(string $grouping = 'week', bool $per_user = false)
 	{
 		if ($grouping == 'week') {
 			$group = 'e.year, e.week';

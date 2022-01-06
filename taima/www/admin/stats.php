@@ -16,7 +16,7 @@ $tpl->register_modifier('taima_minutes', [Tracking::class, 'formatMinutes']);
 
 $per_user = qg('per_user') !== null;
 $grouping = qg('g') ?? 'week';
-$per_week = Tracking::listPerWeek($grouping, $per_user);
+$per_week = Tracking::listPerInterval($grouping, $per_user);
 
 $tpl->assign(compact('per_week', 'per_user', 'grouping'));
 

@@ -22,7 +22,7 @@ class Entry extends Entity
 
 	protected $_types = [
 		'id'            => 'int',
-		'user_id'       => 'int',
+		'user_id'       => '?int',
 		'task_id'       => '?int',
 		'date'          => 'date',
 		'notes'         => '?string',
@@ -40,6 +40,8 @@ class Entry extends Entity
 			$this->task_id = null;
 		}
 
+		$this->assert($this->user_id || $this->task_id);
+
 		$this->assert(!(is_null($this->duration) && is_null($this->timer_started)), 'Duration cannot be NULL if timer is not running');
 	}
 
@@ -48,6 +50,11 @@ class Entry extends Entity
 		$this->set('year', (int) $date->format('o'));
 		$this->set('week', (int) $date->format('W'));
 		$this->set('date', $date);
+	}
+
+	public function setDateString(string $date)
+	{
+		$this->setDate($this->filterUserValue('date', $date, 'date'));
 	}
 
 	public function setDuration(string $duration = null)
