@@ -17,6 +17,8 @@ if ($plugin->needUpgrade()) {
 	$plugin->upgrade();
 }
 
+Tracking::autoStopRunningTimers();
+
 $csrf_key = 'plugin_taima_sheet';
 
 $form->runIf('add', function () use ($day, $user_id) {

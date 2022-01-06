@@ -1,7 +1,7 @@
 {include file="admin/_head.tpl" title="Suivi du temps" plugin_css=['style.css'] current="plugin_taima"}
 
 <?php
-$timer_icon = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke-width="2" /><path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z" /></svg>';
+$timer_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke-width="2" /><path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z" /></svg>';
 ?>
 
 {include file="%s/templates/_nav.tpl"|args:$plugin_root current="index"}
@@ -111,12 +111,16 @@ $timer_icon = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circ
 				{button type="submit" name="submit" label=$submit_label class="main" shape="right"}
 				{button type="submit" name="delete" label="Supprimer" shape="delete"}
 			</p>
+			{if $is_today}
+				<p class="help">Si vous oubliez d'arrêter le chrono, celui-ci sera arrêté automatiquement après 13h37 sans interaction.</p>
+			{/if}
 		</fieldset>
 	</form>
 </template>
 
-{literal}
 <script type="text/javascript">
+const timer_icon = '{$timer_icon|raw}';
+{literal}
 document.querySelectorAll('button[data-action="add-entry"]').forEach((e) => {
 	e.onclick = () => {
 		var c = g.openDialog(document.getElementById('taimaDialog').content);
@@ -159,22 +163,39 @@ document.querySelectorAll('button[data-action="edit-entry"]').forEach((e) => {
 	};
 });
 
+function updateTimer(time) {
+	var t = time.firstChild.textContent.split(':');
+	t[1]++;
+	if (t[1] >= 60) {
+		t[1] = 0;
+		t[0]++;
+	}
+	t[1] = ('0' + t[1]).slice(-2);
+	time.firstChild.textContent = t.join(':');
+	document.title = t.join(':') + ' - Chrono en cours';
+}
 
 var times = document.querySelectorAll('.running .taima-clock');
 
 // Mise à jour des compteurs
 window.setInterval(function () {
-	times.forEach(function (time) {
-		var t = time.firstChild.textContent.split(':');
-		t[1]++;
-		if (t[1] >= 60) {
-			t[1] = 0;
-			t[0]++;
-		}
-		t[1] = ('0' + t[1]).slice(-2);
-		time.firstChild.textContent = t.join(':');
-	});
+	times.forEach(updateTimer);
 }, 60*1000);
+
+document.head.querySelector('link[rel="icon"]').remove();
+let icon = timer_icon;
+
+if (times.length) {
+	icon = icon.replace(/(<svg.*?>)/, '$1<style>svg { animation: spinner 3s linear infinite; } path { stroke: rgb(0, 180, 180); stroke-width: 2px; fill: rgb(0, 180, 180); } circle { stroke: rgb(0, 180, 180); } @keyframes spinner { to {transform: rotate(360deg);} }</style>');
+
+	updateTimer(times[0]);
+}
+else {
+	icon = icon.replace(/(<svg.*?>)/, '$1<style>path { stroke: gray; stroke-width: 2px; fill: gray; } circle { stroke: gray; }</style>');
+}
+
+icon = "data:image/svg+xml;utf8," + encodeURI(icon).replace('#', '%23');
+document.head.innerHTML += `<link sizes="any" rel="icon" type="image/svg+xml" href="${icon}" />`;
 
 g.script('scripts/datepicker2.js', () => {
 	var dp = $('#datepicker');

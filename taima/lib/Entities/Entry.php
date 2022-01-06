@@ -88,7 +88,7 @@ class Entry extends Entity
 	public function start(): void
 	{
 		if ($this->timer_started) {
-			throw new \LogicException('Timer already started');
+			return;
 		}
 
 		$this->set('timer_started', time());
@@ -96,7 +96,7 @@ class Entry extends Entity
 
 	public function stop(): void {
 		if (!$this->timer_started) {
-			throw new \LogicException('Timer is not running');
+			return;
 		}
 
 		$this->set('duration', intval($this->duration + (time() - $this->timer_started) / 60));

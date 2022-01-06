@@ -30,6 +30,17 @@ class Tracking
 		return DB::getInstance()->get($sql, $day->format('Y-m-d'), $user_id);
 	}
 
+	static public function autoStopRunningTimers()
+	{
+		$max = 13*60+37; // 13h37
+		$db = DB::getInstance();
+		$db->exec(sprintf('UPDATE %s
+			SET timer_started = NULL,
+				duration = IFNULL(duration, 0) + %d
+			WHERE timer_started IS NOT NULL
+				AND (strftime(\'%%s\', \'now\') - timer_started) > %2$d*60;', Entry::TABLE, $max));
+	}
+
 	static public function listUserWeeks(int $user_id)
 	{
 		$sql = sprintf('SELECT year, week, SUM(duration) AS duration, COUNT(id) AS entries,
