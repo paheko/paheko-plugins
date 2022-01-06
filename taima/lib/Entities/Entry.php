@@ -40,7 +40,7 @@ class Entry extends Entity
 			$this->task_id = null;
 		}
 
-		$this->assert($this->user_id || $this->task_id);
+		$this->assert($this->user_id || $this->task_id, 'Il est obligatoire de spécifier soit un membre, soit une tâche.');
 
 		$this->assert(!(is_null($this->duration) && is_null($this->timer_started)), 'Duration cannot be NULL if timer is not running');
 	}
