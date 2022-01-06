@@ -28,7 +28,7 @@
 		</tr>
 		{foreach from=$week.entries item="entry"}
 		<tr>
-			<th>{if $entry.user_name}<a href="others.php?id_user={$entry.user_id}">{$entry.user_name}</a>{else}{$entry.task_label}{/if}</th>
+			<th>{if $per_user && $entry.user_name}<a href="others.php?id_user={$entry.user_id}">{$entry.user_name}</a>{else}{$entry.task_label}{/if}</th>
 			<td class="num">{$entry.duration|taima_minutes}</td>
 		</tr>
 		{/foreach}
