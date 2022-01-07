@@ -52,7 +52,7 @@ class Tracking
 		$sql = sprintf('SELECT year, week, SUM(duration) AS duration, COUNT(id) AS entries,
 			date(date, \'weekday 0\', \'-6 day\') AS first,
 			date(date, \'weekday 0\') AS last
-			FROM %s WHERE user_id = ? GROUP BY year, week ORDER BY year, week;', Entry::TABLE);
+			FROM %s WHERE user_id = ? GROUP BY year, week ORDER BY year DESC, week DESC;', Entry::TABLE);
 		return DB::getInstance()->get($sql, $user_id);
 	}
 
