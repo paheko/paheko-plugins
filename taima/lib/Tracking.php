@@ -14,6 +14,7 @@ use Garradin\Config;
 use Garradin\DB;
 use Garradin\DynamicList;
 use Garradin\Utils;
+use Garradin\UserException;
 use KD2\DB\EntityManager as EM;
 
 use DateTime;
