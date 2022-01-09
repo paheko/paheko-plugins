@@ -5,9 +5,9 @@ namespace Garradin;
 use Garradin\Plugin\Dompdf\PDF;
 
 // Download and unzip DomPDF library
-$url = 'https://github.com/dompdf/dompdf/releases/download/v1.0.2/dompdf_1-0-2.zip';
+$url = 'https://github.com/dompdf/dompdf/releases/download/v1.1.1/dompdf_1-1-1.zip';
 
-$file = tempnam(sys_get_temp_dir(), 'dompdf');
+$file = tempnam(CACHE_ROOT, 'dompdf');
 
 copy($url, $file);
 
