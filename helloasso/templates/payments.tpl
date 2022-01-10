@@ -2,7 +2,7 @@
 
 {include file="%s/templates/_menu.tpl"|args:$plugin_root current="home" current_sub="payments" show_export=true}
 
-{include file="%s/templates/_payments_list.tpl"|args:$plugin_root}
+{include file="%s/templates/_payments_list.tpl"|args:$plugin_root details=true}
 
 {pagination url=$list->paginationURL() page=$list.page bypage=$list.per_page total=$list->count()}
 

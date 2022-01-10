@@ -104,7 +104,7 @@ class Orders
 		$data->status = Order::getStatus($data);
 		$data->payer_name = isset($data->payer) ? Payment::getPayerName($data->payer) : null;
 		$data->payer_infos = isset($data->payer) ? Payment::getPayerInfos($data->payer) : null;
-		$data->amount = (int) $data->amount->total;
+		$data->amount = (int) ($data->amount->total ?? 0);
 		$data->form_slug = $data->formSlug;
 		$data->org_slug = $data->organizationSlug;
 

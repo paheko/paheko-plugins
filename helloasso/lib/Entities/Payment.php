@@ -19,7 +19,7 @@ class Payment extends Entity
 	protected ?int $id_transaction;
 	protected int $amount;
 	protected string $state;
-	protected bool $transferred;
+	protected ?\DateTime $transfer_date;
 	protected string $person;
 	protected \DateTime $date;
 	protected ?string $receipt_url;

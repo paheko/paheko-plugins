@@ -11,17 +11,14 @@ use DateTime;
 class Target extends Entity
 {
 	const TABLE = 'plugin_helloasso_targets';
-	const SYNC_TABLE = 'plugin_helloasso_sync';
 
 	protected int $id;
 	protected string $label;
-	protected string $org_slug;
-	protected string $form_type;
-	protected string $form_slug;
+	protected int $id_form;
 	protected ?DateTime $last_sync;
 	protected ?int $id_category;
 	protected ?int $id_fee;
-	protected ?int $id_account;
+	protected ?int $id_year;
 
 	public function sync() {
 		$api = HelloAsso::getInstance()->api;

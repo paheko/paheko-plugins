@@ -58,11 +58,39 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_payments (
 	id_transaction INTEGER NULL REFERENCES acc_transactions(id) ON DELETE SET NULL,
 	amount INTEGER NOT NULL,
 	state TEXT NOT NULL,
-	transferred INTEGER NOT NULL DEFAULT 0,
+	transfer_date TEXT NULL,
 	person TEXT NULL,
 	date TEXT NOT NULL,
 	receipt_url TEXT NULL,
 	raw_data TEXT NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS plugin_helloasso_targets (
+-- List of forms that should create users or subscriptions
+	id INTEGER PRIMARY KEY NOT NULL,
+	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
+
+	label TEXT NOT NULL,
+	last_sync TEXT NULL,
+
+	-- If not null, create a user in this category
+	id_category INTEGER NOT NULL REFERENCES users_categories(id) ON DELETE SET NULL,
+
+	-- If not null, subscribe the user (if found) to this fee, and add payments to the subscription
+	id_fee INTEGER NULL REFERENCES services_fees(id) ON DELETE SET NULL,
+
+	-- If not null, creates transactions in this year
+	id_year INTEGER NULL REFERENCES acc_years(id) ON DELETE SET NULL,
+
+	split_payments INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS plugin_helloasso_targets_accounts (
+	id INTEGER NOT NULL PRIMARY KEY,
+	id_target INTEGER NOT NULL REFERENCES plugin_helloasso_targets (id) ON DELETE CASCADE,
+	type TEXT NOT NULL,
+	id_account INTEGER NOT NULL REFERENCES acc_accounts(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_targets_fields (
@@ -70,33 +98,6 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_targets_fields (
 	id_target INTEGER NOT NULL REFERENCES plugin_helloasso_targets(id) ON DELETE CASCADE,
 	source TEXT NOT NULL,
 	target TEXT NULL
-);
-
-CREATE TABLE IF NOT EXISTS plugin_helloasso_targets (
--- List of forms that should create users or subscriptions
-	id INTEGER PRIMARY KEY NOT NULL,
-
-	label TEXT NOT NULL,
-
-	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
-
-	last_sync TEXT NULL,
-
-	-- If not null, create a user in this category
-	id_category INTEGER NOT NULL REFERENCES users_categories(id) ON DELETE SET NULL,
-
-	-- If not null, subscribe the user (if found) to this fee, and add payments to the subscription
-	id_fee INTEGER NULL REFERENCES services_fees(id),
-
-	-- If not null, creates transactions in this year and use this account as "bank"
-	id_year INTEGER NULL REFERENCES acc_years(id),
-	id_account_provider INTEGER NULL REFERENCES acc_accounts(id),
-	id_account_donations INTEGER NULL REFERENCES acc_accounts(id),
-	id_account_memberships INTEGER NULL REFERENCES acc_accounts(id),
-
-	account_select_code TEXT NULL, -- Brindille code to select the target account, overrides id_account_donations and id_account_memberships
-
-	CHECK (COALESCE(id_year, id_account_provider) IS NULL OR (id_account_provider IS NOT NULL AND id_year IS NOT NULL))
 );
 
 -- Make sure we can't link to an invalid account if the linked fee changes its accounting chart
@@ -108,14 +109,6 @@ CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_fee_delete BEFORE DELETE O
     UPDATE plugin_helloasso_targets SET id_account = NULL, id_fee = NULL WHERE id_fee = OLD.id;
 END;
 
-CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_fee_account_delete BEFORE DELETE ON acc_accounts BEGIN
-    UPDATE plugin_helloasso_targets SET id_account = NULL WHERE id_fee_account = OLD.id;
-END;
-
-CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_account_delete BEFORE DELETE ON acc_accounts BEGIN
-    UPDATE plugin_helloasso_targets SET id_account1 = NULL, id_account2 = NULL, id_year = NULL WHERE id_account1 = OLD.id OR id_account2 = OLD.id;
-END;
-
 CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_year_delete BEFORE DELETE ON acc_years BEGIN
-    UPDATE plugin_helloasso_targets SET id_account1 = NULL, id_account2 = NULL, id_year = NULL WHERE id_year = OLD.id;
+    DELETE FROM plugin_helloasso_targets_accounts WHERE id_target IN (SELECT id FROM plugin_helloasso_targets WHERE id_year = OLD.id);
 END;

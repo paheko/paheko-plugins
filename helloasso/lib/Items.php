@@ -30,6 +30,9 @@ class Items
 			'amount' => [
 				'label' => 'Montant',
 			],
+			'type' => [
+				'label' => 'Type',
+			],
 			'label' => [
 				'label' => 'Objet',
 			],
@@ -38,9 +41,6 @@ class Items
 			],
 			'custom_fields' => [
 				'label' => 'Champs',
-			],
-			'type' => [
-				'label' => 'Type',
 			],
 			'state' => [
 				'label' => 'Statut',

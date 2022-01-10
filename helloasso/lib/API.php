@@ -227,7 +227,7 @@ class API
 			$this->assert(isset($r->date));
 			$this->assert(strtotime($r->date));
 			$this->assert(isset($r->id));
-			$this->assert(isset($r->amount->total) && ctype_digit($r->amount->total));
+			$this->assert(!isset($r->amount->total) || ctype_digit($r->amount->total)); // This can be empty if it's free
 		}
 	}
 

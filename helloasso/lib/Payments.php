@@ -41,7 +41,7 @@ class Payments
 			'state' => [
 				'label' => 'Statut',
 			],
-			'transferred' => [
+			'transfer_date' => [
 				'label' => 'Versement',
 			],
 			'receipt_url' => [],
@@ -67,7 +67,6 @@ class Payments
 
 		$list->setModifier(function ($row) {
 			$row->state = Payment::STATES[$row->state] ?? 'Inconnu';
-			$row->transferred = $row->transferred ? 'Effectué' : 'En attente';
 		});
 
 		$list->setExportCallback(function (&$row) {
@@ -139,7 +138,7 @@ class Payments
 		$entity->set('amount', $data->amount);
 		$entity->set('state', $data->state);
 		$entity->set('date', $data->date);
-		$entity->set('transferred', $data->transferred);
+		$entity->set('transfer_date', $data->transfer_date);
 		$entity->set('person', $data->payer_name);
 		$entity->set('receipt_url', $data->paymentReceiptUrl ?? null);
 
@@ -153,6 +152,7 @@ class Payments
 		$data->date = new \DateTime($data->date);
 		$data->status = Payment::STATES[$data->state] ?? '--';
 		$data->transferred = isset($data->cashOutState) && $data->cashOutState == Payment::CASH_OUT_OK ? true : false;
+		$data->transfer_date = isset($data->cashOutDate) ? new \DateTime($data->cashOutDate) : null;
 		$data->payer_name = isset($data->payer) ? Payment::getPayerName($data->payer) : null;
 		$data->payer_infos = isset($data->payer) ? Payment::getPayerInfos($data->payer) : null;
 		$data->form_slug = $data->order->formSlug;

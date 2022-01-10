@@ -14,7 +14,7 @@
 				{if $row.receipt_url}
 					{linkbutton href=$row.receipt_url target="_blank" shape="print" label="Attestation de paiement"}
 				{/if}
-				{linkbutton href="order.php?id=%s"|args:$row.id_order shape="help" label="Détails"}
+				{if $details}{linkbutton href="order.php?id=%s"|args:$row.id_order shape="help" label="Détails"}{/if}
 			</td>
 		</tr>
 

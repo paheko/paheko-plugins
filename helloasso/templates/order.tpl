@@ -19,11 +19,11 @@
 
 <h2 class="ruler">Éléments de la commande</h2>
 
-{include file="%s/templates/_items_list.tpl"|args:$plugin_root list=$items}
+{include file="%s/templates/_items_list.tpl"|args:$plugin_root list=$items details=false}
 
 <h2 class="ruler">Paiements</h2>
 
-{include file="%s/templates/_payments_list.tpl"|args:$plugin_root list=$payments}
+{include file="%s/templates/_payments_list.tpl"|args:$plugin_root list=$payments details=false}
 
 <h2 class="ruler">Personne ayant effectué le paiement</h2>
 
