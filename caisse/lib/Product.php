@@ -18,7 +18,7 @@ class Product
 		// Don't select products that don't have any payment method linked: you wouldn't be able to pay for them
 		$products = $db->get(POS::sql(sprintf('SELECT * FROM @PREFIX_products p %s
 			WHERE 1 %s
-			GROUP BY p.id ORDER BY category, name COLLATE NOCASE;', $join, $where)));
+			GROUP BY p.id ORDER BY category, name COLLATE U_NOCASE;', $join, $where)));
 
 		$list = [];
 

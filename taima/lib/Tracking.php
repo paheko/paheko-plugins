@@ -59,7 +59,7 @@ class Tracking
 
 	static public function listTasks()
 	{
-		return DB::getInstance()->getAssoc(sprintf('SELECT id, label FROM %s ORDER BY label COLLATE NOCASE;', Task::TABLE));
+		return DB::getInstance()->getAssoc(sprintf('SELECT id, label FROM %s ORDER BY label COLLATE U_NOCASE;', Task::TABLE));
 	}
 
 	static public function listUserRunningTimers(DateTime $except, int $user_id)
@@ -114,7 +114,7 @@ class Tracking
 			'task' => [
 				'label' => 'Tâche',
 				'select' => 't.label',
-				'order' => 't.label COLLATE NOCASE %s',
+				'order' => 't.label COLLATE U_NOCASE %s',
 			],
 			'notes' => [
 				'select' => 'e.notes',

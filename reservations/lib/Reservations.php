@@ -18,7 +18,7 @@ class Reservations
 
 	public function listCategories()
 	{
-		return DB::getInstance()->get('SELECT * FROM plugin_reservations_categories ORDER BY nom COLLATE NOCASE;');
+		return DB::getInstance()->get('SELECT * FROM plugin_reservations_categories ORDER BY nom COLLATE U_NOCASE;');
 	}
 
 	public function addCategory(string $nom)

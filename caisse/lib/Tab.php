@@ -235,7 +235,7 @@ class Tab
 			LEFT JOIN services_users su ON su.id_user = m.id
 			WHERE m.%s
 			GROUP BY m.id
-			ORDER BY m.%1$s COLLATE NOCASE LIMIT 0, 7;', $identite, $sql);
+			ORDER BY m.%1$s COLLATE U_NOCASE LIMIT 0, 7;', $identite, $sql);
 
 		return DB::getInstance()->get($sql, $q);
 	}

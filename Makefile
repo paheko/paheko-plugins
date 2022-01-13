@@ -3,7 +3,7 @@ all: archives release
 
 archives:
 	@mkdir -p archives
-	for i in */garradin_plugin.ini; \
+	for i in $(cat plugins.list); \
 	do \
 		PLUGIN=`dirname $$i`; \
 		echo $$PLUGIN; \

@@ -338,7 +338,7 @@ class Velos
             $order = 'etiquette';
 
         return DB::getInstance()->get('SELECT * FROM plugin_stock_velos WHERE date_sortie IS NULL
-            ORDER BY '.$order.' COLLATE NOCASE '.($desc ? 'DESC' : 'ASC').';');
+            ORDER BY '.$order.' COLLATE U_NOCASE '.($desc ? 'DESC' : 'ASC').';');
     }
 
     public function listVelosHistorique()
