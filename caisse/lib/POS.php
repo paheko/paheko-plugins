@@ -43,7 +43,7 @@ class POS
 			}
 
 			$label = 'Total';
-			$set->add($value, $label, $color($label));
+			$set->add($sum, $label, $color($label));
 			$bar->add($set);
 		}
 
