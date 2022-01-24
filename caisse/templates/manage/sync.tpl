@@ -3,7 +3,10 @@
 {include file="%s/manage/_nav.tpl"|args:$pos_templates_root current='sync'}
 
 {if isset($_GET['ok'])}
-<p class="block confirm">{if !$_GET.ok}Aucune écriture n'avait besoin d'être ajoutée.{else}{$_GET.ok} écritures ont été ajoutées.{/if}</p>
+<p class="block confirm">
+	{if !$_GET.ok}Aucune écriture n'avait besoin d'être ajoutée.{else}{$_GET.ok} écritures ont été ajoutées.{/if}
+	{linkbutton href="!acc/search.php?qt=POS-SESSION-&year=%d"|args:$year.id label="Voir les écritures" shape="menu"}
+</p>
 {/if}
 
 {form_errors}

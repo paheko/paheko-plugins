@@ -9,7 +9,8 @@ use Garradin\Accounting\Years;
 
 require __DIR__ . '/_inc.php';
 
-$year = Years::get((int)f('year'));
+$year = f('year') ? Years::get((int)f('year')) : null;
+$tpl->assign('year', $year);
 
 $form->runIf($year && f('sync'), function () use ($year) {
 	$added = POS::syncAccounting(UserSession::getInstance()->getUser()->id, $year);
