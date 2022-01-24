@@ -20,6 +20,7 @@
 		<li{if $current == 'products'} class="current"{/if}><a href="{$plugin_url}manage/products/">Produits</a></li>
 		<li{if $current == 'categories'} class="current"{/if}><a href="{$plugin_url}manage/categories/">Catégories</a></li>
 		<li{if $current == 'stock'} class="current"{/if}><a href="{$plugin_url}manage/stock/">Stock</a></li>
-		<li{if $current == 'export'} class="current"{/if}><a href="{$plugin_url}manage/export.php">Export compta CSV</a></li>
+		<li{if $current == 'sync'} class="current"{/if}><a href="{$plugin_url}manage/sync.php">Comptabilité</a></li>
+		<li{if $current == 'export'} class="current"{/if}><a href="{$plugin_url}manage/export.php">Export données</a></li>
 	</ul>
 </nav>

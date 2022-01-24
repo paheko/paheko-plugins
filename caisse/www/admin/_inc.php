@@ -2,6 +2,7 @@
 
 namespace Garradin\Plugin\Caisse;
 
+use Garradin\Membres\Session;
 use Garradin\Utils;
 use Garradin\UserTemplate\CommonModifiers;
 
@@ -21,6 +22,8 @@ $tpl->register_modifier('pos_amount', __NAMESPACE__ . '\\pos_amount');
 $tpl->register_modifier('image_base64', function (string $blob) {
 	return 'data:image/png;base64,' . base64_encode($blob);
 });
+
+Session::getInstance()->requireAccess(Session::SECTION_USERS, Session::ACCESS_WRITE);
 
 $tpl->assign('pos_templates_root', \Garradin\PLUGIN_ROOT . '/templates');
 

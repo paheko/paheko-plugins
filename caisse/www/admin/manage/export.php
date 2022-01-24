@@ -2,7 +2,7 @@
 
 namespace Garradin;
 
-use Garradin\Plugin\Caisse\Session;
+use Garradin\Plugin\Caisse\POS;
 
 require __DIR__ . '/_inc.php';
 
@@ -16,7 +16,7 @@ else {
 }
 
 if ($start && $end && f('export')) {
-	Session::exportAccounting($start, $end);
+	POS::exportSessionsCSV($start, $end);
 	exit;
 }
 

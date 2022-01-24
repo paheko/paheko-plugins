@@ -4,7 +4,10 @@ namespace Garradin\Plugin\Caisse;
 
 use Garradin\DB;
 use Garradin\Config;
+use Garradin\Template;
 use Garradin\UserException;
+use Garradin\Utils;
+use const Garradin\PLUGIN_ROOT;
 
 class Session
 {
@@ -59,90 +62,6 @@ class Session
 			LEFT JOIN membres m2 ON s.close_user = m2.id
 			ORDER BY s.opened DESC;', $db->quoteIdentifier($name_field));
 		return $db->get(POS::sql($sql));
-	}
-
-	static public function exportAccounting(\DateTime $start, \DateTime $end)
-	{
-		$db = DB::getInstance();
-
-		$sql = 'SELECT
-			NULL AS id,
-			\'Avancé\' AS type,
-			NULL AS status,
-			\'Session de caisse n°\' || s.id AS label,
-			strftime(\'%d/%m/%Y\', s.closed) AS date,
-			NULL AS notes,
-			\'POS-SESSION-\' || s.id AS reference,
-			NULL AS line_id,
-			lines.account,
-			SUM(lines.credit) AS credit,
-			SUM(lines.debit) AS debit,
-			lines.reference AS line_reference,
-			NULL AS line_label,
-			0 AS reconciled,
-			s.id AS sid
-			FROM @PREFIX_sessions s
-			INNER JOIN (
-				SELECT session, account, SUM(price * qty) AS credit, 0 AS debit, NULL AS reference
-				FROM @PREFIX_tabs_items ti
-				INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
-				GROUP BY t.session, account
-				UNION ALL
-				SELECT session, account, 0 AS credit, SUM(amount) AS debit, reference
-				FROM @PREFIX_tabs_payments tp
-				INNER JOIN @PREFIX_tabs t ON t.id = tp.tab
-				GROUP BY t.session, account, reference
-				) AS lines
-				ON lines.session = s.id
-			WHERE s.closed IS NOT NULL
-				AND date(s.closed) >= date(?) AND date(s.closed) <= date(?)
-			GROUP BY s.id, lines.account, lines.reference
-			ORDER BY s.id, lines.account, lines.reference;';
-
-		$sql = POS::sql($sql);
-
-		$name = sprintf('Export caisse compta - %s à %s', $start->format('d-m-Y'), $end->format('d-m-Y'));
-
-		$start = $start->format('Y-m-d');
-		$end = $end->format('Y-m-d');
-
-		header('Content-type: application/csv');
-		header(sprintf('Content-Disposition: attachment; filename="%s.csv"', $name));
-
-		$fp = fopen('php://output', 'w');
-
-		fputcsv($fp, ['id', 'type', 'status', 'label', 'date', 'notes', 'reference',
-			'line_id', 'account', 'credit', 'debit', 'line_reference', 'line_label', 'reconciled']);
-
-		$id = null;
-
-		$money = function (int $value): string {
-			if (!$value) {
-				return '0';
-			}
-
-			$decimals = substr($value, -2);
-			$digits = substr($value, 0, -2) ?: '0';
-			return $digits . ',' . $decimals;
-		};
-
-		foreach ($db->iterate($sql, $start, $end) as $row) {
-			if (null !== $id && $row->sid === $id) {
-				$row->type = $row->status = $row->label = $row->date = $row->reference = null;
-			}
-
-			if (null === $id || $row->sid !== $id) {
-				$id = $row->sid;
-			}
-
-			$row->credit = $money($row->credit);
-			$row->debit = $money($row->debit);
-
-			unset($row->sid);
-			fputcsv($fp, (array) $row);
-		}
-
-		fclose($fp);
 	}
 
 	public function usernames()
@@ -222,7 +141,7 @@ class Session
 
 	public function listPayments()
 	{
-		return DB::getInstance()->get(POS::sql('SELECT tp.*,
+		return DB::getInstance()->get(POS::sql('SELECT tp.*, t.name AS tab_name,
 			m.name AS method_name
 			FROM @PREFIX_tabs_payments tp
 			INNER JOIN @PREFIX_tabs t ON tp.tab = t.id AND t.session = ?
@@ -270,7 +189,8 @@ class Session
 	{
 		return DB::getInstance()->get(POS::sql('SELECT
 			SUM(ti.qty * ti.price) AS total,
-			ti.category_name
+			ti.category_name,
+			c.account
 			FROM @PREFIX_tabs_items ti
 			LEFT JOIN @PREFIX_products p ON ti.product = p.id
 			LEFT JOIN @PREFIX_categories c ON c.id = p.category
@@ -300,5 +220,33 @@ class Session
 
 	public function listMissingUsers() {
 		return DB::getInstance()->get(POS::sql('SELECT * FROM @PREFIX_tabs WHERE user_id IS NULL AND session = ?;'), $this->id);
+	}
+
+	public function export(bool $details = false, int $print = 0)
+	{
+		$tpl = Template::getInstance();
+		$tpl->assign('pos_session', $this);
+		$tpl->assign('payments', $this->listPayments());
+		$tpl->assign('payments_totals', $this->listPaymentTotals());
+		$tpl->assign('tabs', $this->listTabsWithItems());
+		$tpl->assign('totals_categories', $this->listTotalsByCategory());
+		$tpl->assign('total', $this->getTotal());
+		$tpl->assign('names', $this->usernames());
+		$tpl->assign('missing_users_tabs', $this->listMissingUsers());
+
+		$tpl->assign('title', sprintf('Session de caisse n°%d du %s', $this->id, Utils::date_fr($this->opened)));
+
+		$tpl->assign('print', (bool) $print);
+		$tpl->assign('details', $details);
+
+		if ($print == 2) {
+			$tpl->PDF(PLUGIN_ROOT . '/templates/session_export.tpl', sprintf('Session de caisse numéro %d du %s', $this->id, Utils::date_fr($this->opened, 'd-m-Y')));
+		}
+		elseif ($print) {
+			return $tpl->fetch(PLUGIN_ROOT . '/templates/session_export.tpl');
+		}
+		else {
+			return $tpl->fetch(PLUGIN_ROOT . '/templates/session.tpl');
+		}
 	}
 }
