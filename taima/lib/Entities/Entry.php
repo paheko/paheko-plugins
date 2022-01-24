@@ -99,7 +99,7 @@ class Entry extends Entity
 			return;
 		}
 
-		$this->set('duration', intval($this->duration + (time() - $this->timer_started) / 60));
+		$this->set('duration', intval($this->duration + ceil((time() - $this->timer_started) / 60)));
 		$this->set('timer_started', null);
 	}
 }
