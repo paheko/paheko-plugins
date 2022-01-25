@@ -155,7 +155,7 @@ class POS
 			lines.reference AS line_reference,
 			NULL AS line_label,
 			0 AS reconciled,
-			s.id AS sid,
+			s.id AS sid
 			FROM @PREFIX_sessions s
 			INNER JOIN (
 				SELECT session, account, SUM(price * qty) AS credit, 0 AS debit, NULL AS reference
