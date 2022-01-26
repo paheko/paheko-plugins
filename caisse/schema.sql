@@ -41,10 +41,10 @@ CREATE TABLE IF NOT EXISTS @PREFIX_methods (
 	-- Payment methods
 	id INTEGER NOT NULL PRIMARY KEY,
 	name TEXT NOT NULL,
-	is_cash INTEGER NOT NULL DEFAULT 0,
-	min INTEGER NULL,
-	max INTEGER NULL,
-	account TEXT NULL,
+	is_cash INTEGER NOT NULL DEFAULT 0, -- If "1" then no reference will be asked, if "0" then a reference can be attached, and the payment needs to be checked when closing the register
+	min INTEGER NULL, -- Minimum amount that can be paid using this method
+	max INTEGER NULL, -- Maximum amount that can be paid using this method
+	account TEXT NULL, -- Accounting account code
 	enabled INTEGER NOT NULL DEFAULT 1
 );
 

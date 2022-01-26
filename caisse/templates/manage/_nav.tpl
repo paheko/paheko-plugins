@@ -8,6 +8,10 @@
 	<aside>
 		{linkbutton href="edit.php?new" label="Nouvelle catégorie" shape="plus" target="_dialog"}
 	</aside>
+	{elseif $current == 'methods'}
+	<aside>
+		{linkbutton href="edit.php?new" label="Nouveau moyen de paiement" shape="plus" target="_dialog"}
+	</aside>
 	{elseif $current == 'stock'}
 	<aside>
 		{linkbutton href="edit.php?new" label="Nouvel événement" shape="plus" target="_dialog"}
@@ -19,6 +23,7 @@
 		<li{if $current == 'stats'} class="current"{/if}><a href="{$plugin_url}manage/stats.php">Statistiques</a></li>
 		<li{if $current == 'products'} class="current"{/if}><a href="{$plugin_url}manage/products/">Produits</a></li>
 		<li{if $current == 'categories'} class="current"{/if}><a href="{$plugin_url}manage/categories/">Catégories</a></li>
+		<li{if $current == 'methods'} class="current"{/if}><a href="{$plugin_url}manage/methods/">Moyens de paiement</a></li>
 		<li{if $current == 'stock'} class="current"{/if}><a href="{$plugin_url}manage/stock/">Stock</a></li>
 		<li{if $current == 'sync'} class="current"{/if}><a href="{$plugin_url}manage/sync.php">Comptabilité</a></li>
 		<li{if $current == 'export'} class="current"{/if}><a href="{$plugin_url}manage/export.php">Export données</a></li>

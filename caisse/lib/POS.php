@@ -61,7 +61,11 @@ class POS
 			throw new UserException('Des catégories de produits n\'ont pas de compte associé. Merci d\'associer les catégories à des comptes du plan comptable pour pouvoir procéder à la synchronisation.');
 		}
 
-		$accounts_codes = $db->getAssoc(self::sql('SELECT account, account FROM @PREFIX_categories;'));
+		if ($db->test(self::sql('@PREFIX_methods'), 'account IS NULL')) {
+			throw new UserException('Des moyens de paiement n\'ont pas de compte associé. Merci de les associer à des comptes du plan comptable pour pouvoir procéder à la synchronisation.');
+		}
+
+		$accounts_codes = $db->getAssoc(self::sql('SELECT account, account FROM @PREFIX_categories UNION ALL SELECT account, account FROM @PREFIX_methods;'));
 		$accounts_codes['758'] = '758'; // Erreurs de caisse
 		$accounts_codes['658'] = '658';
 		$accounts = (new Accounts($year->id_chart))->listForCodes($accounts_codes);
