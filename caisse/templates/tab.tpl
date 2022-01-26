@@ -7,6 +7,10 @@
 		{linkbutton href="session_close.php?id=%d"|args:$pos_session.id label="Clôturer la caisse" shape="delete"}
 	{/if}
 
+	{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
+		{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}
+	{/if}
+
 	<ul class="pos-tabs">
 	{foreach from=$tabs item="tab"}
 		<li class="tab {if $tab.id == $tab_id}current{/if} {if $tab.closed}closed{/if}">

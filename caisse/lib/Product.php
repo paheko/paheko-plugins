@@ -10,20 +10,20 @@ class Product
 	static public function listByCategory(bool $only_with_payment = true, bool $only_stockable = false): array
 	{
 		$db = DB::getInstance();
-		$categories = self::listCategoriesAssoc();
 
 		$join = $only_with_payment ? 'INNER JOIN @PREFIX_products_methods m ON m.product = p.id' : '';
 		$where = $only_stockable ? 'AND p.stock IS NOT NULL' : '';
 
 		// Don't select products that don't have any payment method linked: you wouldn't be able to pay for them
-		$products = $db->get(POS::sql(sprintf('SELECT * FROM @PREFIX_products p %s
+		$products = $db->get(POS::sql(sprintf('SELECT p.*, c.name AS category_name FROM @PREFIX_products p %s
+			INNER JOIN @PREFIX_categories c ON c.id = p.category
 			WHERE 1 %s
-			GROUP BY p.id ORDER BY category, name COLLATE U_NOCASE;', $join, $where)));
+			GROUP BY p.id ORDER BY category_name COLLATE U_NOCASE, name COLLATE U_NOCASE;', $join, $where)));
 
 		$list = [];
 
 		foreach ($products as $product) {
-			$cat = $categories[$product->category];
+			$cat = $product->category_name;
 
 			if (!array_key_exists($cat, $list)) {
 				$list[$cat] = [];
