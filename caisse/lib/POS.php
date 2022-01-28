@@ -84,13 +84,13 @@ class POS
 
 		$save_transaction = function ($transaction) use ($attach, &$count, $accounts) {
 			// In some rare cases, the product may have disappeared (WTF?!), we consider it to be an error
-			$error = $transaction->getLinesDebitSum() - $transaction->getLinesCreditSum();
+			$error = abs($transaction->getLinesDebitSum()) - $transaction->getLinesCreditSum();
 			if ($error != 0) {
 				if ($error > 0) {
-					$line = Line::create($accounts['758']->id, $error, 0, 'Erreur de caisse');
+					$line = Line::create($accounts['758']->id, abs($error), 0, 'Erreur de caisse');
 				}
 				else {
-					$line = Line::create($accounts['658']->id, 0, $error, 'Erreur de caisse');
+					$line = Line::create($accounts['658']->id, 0, abs($error), 'Erreur de caisse');
 				}
 
 				$transaction->addLine($line);
@@ -111,6 +111,15 @@ class POS
 			// Skip POS sessions already added as transactions
 			if (array_key_exists($row->reference, $exists)) {
 				continue;
+			}
+
+			// Skip lines with no account, they will be treated like errors
+			if (empty($row->account)) {
+				continue;
+			}
+
+			if (empty($accounts[$row->account]->id)) {
+				throw new \LogicException($row->account . ': this account has not been found?');
 			}
 
 			unset($row->id);
@@ -140,9 +149,11 @@ class POS
 		return $count;
 	}
 
-	static public function iterateSessions(\DateTime $start, \DateTime $end)
+	static public function iterateSessions(\DateTime $start, \DateTime $end, bool $errors_only = false)
 	{
 		$db = DB::getInstance();
+
+		$errors_only = $errors_only ? 'AND account IS NULL' : '';
 
 		$sql = 'SELECT
 			NULL AS id,
@@ -175,6 +186,7 @@ class POS
 				ON lines.session = s.id
 			WHERE s.closed IS NOT NULL
 				AND date(s.closed) >= date(?) AND date(s.closed) <= date(?)
+				' . $errors_only . '
 			GROUP BY s.id, lines.account, lines.reference
 			ORDER BY s.id, lines.account, lines.reference;';
 
