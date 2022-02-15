@@ -5,6 +5,7 @@ namespace Garradin\Plugin\Taima;
 use Garradin\Plugin\Taima\Tracking;
 use Garradin\Accounting\Years;
 use Garradin\Utils;
+use Garradin\UserException;
 use Garradin\Membres\Session;
 
 use function Garradin\{f, qg};
