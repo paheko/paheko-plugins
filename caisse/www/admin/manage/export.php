@@ -16,7 +16,7 @@ else {
 }
 
 if ($start && $end && f('export')) {
-	POS::exportSessionsCSV($start, $end);
+	POS::exportSessionsCSV($start, $end, true);
 	exit;
 }
 

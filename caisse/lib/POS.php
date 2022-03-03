@@ -205,8 +205,8 @@ class POS
 		$fp = fopen('php://output', 'w');
 
 		if ($localized_header) {
-			fputcsv($fp, ['Numéro', 'Type d\'écriture', 'Statut', 'Libellé', 'Date', 'Notes', 'Numéro de pièce comptable',
-				'Numéro de ligne', 'Compte', 'Crédit', 'Débit', 'Référence de ligne', 'Libellé de ligne', 'Rapprochement']);
+			fputcsv($fp, ['Numéro d\'écriture', 'Type', 'Statut', 'Libellé', 'Date', 'Remarques', 'Numéro pièce comptable',
+				'Numéro ligne', 'Compte', 'Crédit', 'Débit', 'Référence ligne', 'Libellé ligne', 'Rapprochement']);
 		}
 		else {
 			fputcsv($fp, ['id', 'type', 'status', 'label', 'date', 'notes', 'reference',
