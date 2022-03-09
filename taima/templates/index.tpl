@@ -197,7 +197,7 @@ else {
 icon = "data:image/svg+xml;utf8," + encodeURI(icon).replace('#', '%23');
 document.head.innerHTML += `<link sizes="any" rel="icon" type="image/svg+xml" href="${icon}" />`;
 
-g.script('scripts/datepicker2.js', () => {
+g.script('scripts/lib/datepicker2.min.js', () => {
 	var dp = $('#datepicker');
 	dp.onchange = () => {
 		location.search = 'day=' + dp.dataset.date;
