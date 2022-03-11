@@ -52,7 +52,7 @@ class Reservations
 			return $cat;
 		}
 
-		$cat->champ = json_decode($cat->champ);
+		$cat->champ = json_decode($cat->champ ?? '');
 
 		if (!empty($cat->champ) && is_object($cat->champ)) {
 			$cat->champ->type = 'text';
@@ -76,7 +76,7 @@ class Reservations
 
 	public function listUpcomingBookings(int $cat_id)
 	{
-		$query = 'SELECT p.*, strftime(\'%s\', datetime(p.date, \'utc\')) AS date, c.categorie
+		$query = 'SELECT p.*, datetime(p.date) AS date, c.categorie
 			FROM plugin_reservations_personnes p
 			INNER JOIN plugin_reservations_creneaux c ON c.id = p.creneau
 			WHERE date(date) >= date(\'now\') AND categorie = ? ORDER BY date;';
@@ -85,7 +85,7 @@ class Reservations
 		$date = null;
 		$hour = null;
 		foreach ($bookings as &$booking) {
-			$d = DateTime::createFromFormat('U', $booking->date);
+			$d = DateTime::createFromFormat('!Y-m-d H:i:s', $booking->date);
 			$h = $d->format('Hi');
 			$d = $d->format('Ymd');
 
@@ -141,7 +141,7 @@ class Reservations
 			}
 
 			$slot_hour = (int) str_replace(':', '', $slot->heure);
-			$slot->timestamp = DateTime::createFromFormat('Y-m-d', $slot->date)->getTimestamp();
+			$slot->timestamp = DateTime::createFromFormat('!Y-m-d', $slot->date)->getTimestamp();
 			$slot->available = max(0, $slot->maximum - $slot->jauge);
 
 			if ($day_now == $slot->date && $hour_now > $slot_hour) {
@@ -258,7 +258,6 @@ class Reservations
 		}
 
 		return DB::getInstance()->first('SELECT p.*,
-			strftime(\'%s\', p.date, \'utc\') AS date,
 			c.categorie,
 			cat.nom AS nom_categorie
 			FROM plugin_reservations_personnes p
