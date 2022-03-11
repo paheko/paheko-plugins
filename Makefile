@@ -1,12 +1,14 @@
+SHELL:=/bin/bash
 .PHONY: archives release
 all: archives release
 
 archives:
+	@find . -type d -name '.phpintel' -exec rm -rf '{}' \;
 	@mkdir -p archives
-	for i in $(cat plugins.list); \
+	@for PLUGIN in $(shell cat plugins.list); \
 	do \
-		PLUGIN=`dirname $$i`; \
 		echo $$PLUGIN; \
+		rm -f archives/$$PLUGIN.tar.gz; \
 		php make_plugin.php $$PLUGIN archives/$$PLUGIN.tar.gz; \
 	done;
 
