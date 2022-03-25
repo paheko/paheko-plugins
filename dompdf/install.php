@@ -4,6 +4,10 @@ namespace Garradin;
 
 use Garradin\Plugin\Dompdf\PDF;
 
+if (!class_exists('ZipArchive')) {
+	throw new UserException('Cette extension nécessite l\'installation du module PHP zip (apt install php-zip).');
+}
+
 // Download and unzip DomPDF library
 $url = 'https://github.com/dompdf/dompdf/releases/download/v1.2.0/dompdf_1-2-0.zip';
 
