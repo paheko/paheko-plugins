@@ -9,7 +9,7 @@ if (!class_exists('ZipArchive')) {
 }
 
 // Download and unzip DomPDF library
-$url = 'https://github.com/dompdf/dompdf/releases/download/v1.2.0/dompdf_1-2-0.zip';
+$url = 'https://github.com/dompdf/dompdf/releases/download/v1.2.1/dompdf_1-2-1.zip';
 
 $file = tempnam(CACHE_ROOT, 'dompdf');
 
