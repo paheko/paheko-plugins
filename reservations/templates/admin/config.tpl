@@ -38,7 +38,7 @@
 			Si vous ne définissez qu'un seul type de créneaux, la personne faisant une réservation ne verra que le texte de présentation et les créneaux associés.
 		</p>
 		<p class="help">
-			Si vous définissez plusieurs types de créneaux, elle devra d'abord choisir un type de créneau, et sera verra présentée la liste des types de créneaux avec leurs noms et textes d'introduction.
+			Si vous définissez plusieurs types de créneaux, elle devra d'abord choisir un type de créneau, et se verra présenter la liste des types de créneaux avec leurs noms et textes d'introduction.
 		</p>
 		<dl>
 			<dt><label for="f_nom">Nom</label></dt>
