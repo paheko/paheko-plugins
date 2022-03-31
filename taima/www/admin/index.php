@@ -37,6 +37,11 @@ $form->runIf('edit', function () {
 
 	$id = key(f('edit'));
 	$entry = Tracking::get((int) $id);
+
+	if (!$entry) {
+		return;
+	}
+
 	$entry->importForm();
 	$entry->setDuration(f('duration'));
 	$entry->save();
@@ -49,17 +54,30 @@ $form->runIf('delete', function () {
 
 	$id = key(f('delete'));
 	$entry = Tracking::get((int) $id);
+
+	if (!$entry) {
+		return;
+	}
+
 	$entry->delete();
 }, $csrf_key, taima_url($day));
 
 if (qg('start')) {
 	$entry = Tracking::get((int) qg('start'));
+
+	if (!$entry) {
+		return;
+	}
 	$entry->start();
 	$entry->save();
 	Utils::redirect(taima_url($entry->date));
 }
 elseif (qg('stop')) {
 	$entry = Tracking::get((int) qg('stop'));
+
+	if (!$entry) {
+		return;
+	}
 	$entry->stop();
 	$entry->save();
 	Utils::redirect(taima_url($entry->date));
