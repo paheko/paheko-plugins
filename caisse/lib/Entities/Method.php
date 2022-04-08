@@ -13,7 +13,7 @@ class Method extends Entity
 {
 	const TABLE = POS::TABLES_PREFIX . 'methods';
 
-	protected int $id;
+	protected ?int $id;
 	protected string $name = '';
 	protected bool $is_cash = false;
 	protected ?int $min = null;

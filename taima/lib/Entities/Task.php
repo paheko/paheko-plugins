@@ -11,7 +11,7 @@ class Task extends Entity
 {
 	const TABLE = 'plugin_taima_tasks';
 
-	protected int $id;
+	protected ?int $id;
 	protected string $label;
 	protected ?int $value;
 	protected ?string $account;

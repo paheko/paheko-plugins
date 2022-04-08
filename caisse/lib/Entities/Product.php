@@ -11,7 +11,7 @@ class Product extends Entity
 {
 	const TABLE = POS::TABLES_PREFIX . 'products';
 
-	protected int $id;
+	protected ?int $id;
 	protected int $category = 0;
 	protected string $name = '';
 	protected ?string $description = null;

@@ -11,7 +11,7 @@ class Category extends Entity
 {
 	const TABLE = POS::TABLES_PREFIX . 'categories';
 
-	protected int $id;
+	protected ?int $id;
 	protected string $name = '';
 	protected ?string $account = null;
 

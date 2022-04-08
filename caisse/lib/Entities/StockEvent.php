@@ -10,7 +10,7 @@ class StockEvent extends Entity
 {
 	const TABLE = POS::TABLES_PREFIX . 'stock_events';
 
-	protected int $id;
+	protected ?int $id;
 	protected \DateTime $date;
 	protected int $type = 0;
 	protected string $label = '';

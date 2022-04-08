@@ -10,7 +10,7 @@ class ProductStockHistory extends Entity
 {
 	const TABLE = POS::TABLES_PREFIX . 'products_stock_history';
 
-	protected int $id;
+	protected ?int $id;
 	protected int $product;
 	protected int $change;
 	protected \DateTime $date;
