@@ -79,17 +79,7 @@ if ($tab) {
 	$tpl->assign('items', $tab->listItems());
 	$tpl->assign('existing_payments', $tab->listPayments());
 	$tpl->assign('remainder', $tab->getRemainder());
-
-	$options = $tab->listPaymentOptions();
-	$eligible = 0;
-
-	foreach ($options as $option) {
-		if ($option->id == 3) {
-			$eligible = $option->amount;
-		}
-	}
-
-	$tpl->assign('payment_options', $options);
+	$tpl->assign('payment_options', $tab->listPaymentOptions());
 }
 
 $tpl->assign('title', 'Caisse ouverte le ' . Utils::date_fr($current_pos_session->opened));

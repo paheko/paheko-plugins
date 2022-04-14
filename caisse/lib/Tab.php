@@ -143,9 +143,9 @@ class Tab
 		$remainder = $this->getRemainder();
 		return DB::getInstance()->getGrouped(POS::sql('SELECT id, *,
 			CASE
-				WHEN max IS NOT NULL AND paid >= max THEN 0
-				WHEN max IS NOT NULL AND payable > max THEN MIN(:left, max)
-				WHEN min IS NOT NULL AND payable < min THEN 0
+				WHEN max IS NOT NULL AND max > 0 AND paid >= max THEN 0 -- We cannot use this payment method, we paid the max allowed amount with it
+				WHEN max IS NOT NULL AND max > 0 AND payable > max THEN max -- We have to pay more than max allowed, then just return max
+				WHEN min IS NOT NULL AND payable < min THEN 0 -- We cannot use as the minimum required amount has not been reached
 				ELSE MIN(:left, payable) END AS amount
 			FROM (SELECT m.*, SUM(pt.amount) AS paid, SUM(i.qty * i.price) AS payable
 				FROM @PREFIX_methods m

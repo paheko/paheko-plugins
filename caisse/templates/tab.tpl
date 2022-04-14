@@ -131,7 +131,7 @@
 						<dd>
 							<select name="method_id" id="f_method_id">
 								{foreach from=$payment_options item="method"}
-								<option value="{$method.id}" data-amount="{$method.amount|pos_amount}">{$method.name} (jusqu'à {$method.amount|escape|money_currency})</option>
+								<option value="{$method.id}" data-amount="{$method.amount|pos_amount}">{$method.name} (jusqu'à {$method.amount|escape|money_currency:false})</option>
 								{/foreach}
 							</select>
 						</dd>
