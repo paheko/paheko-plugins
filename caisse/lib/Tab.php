@@ -200,6 +200,19 @@ class Tab
 		return DB::getInstance()->getGrouped(POS::sql('SELECT id, *, COALESCE((SELECT SUM(qty*price) FROM @PREFIX_tabs_items WHERE tab = @PREFIX_tabs.id), 0) AS total FROM @PREFIX_tabs WHERE session = ? ORDER BY closed IS NOT NULL, opened DESC;'), $session_id);
 	}
 
+	static public function listForUser(string $q): ?array
+	{
+		$user = current(self::searchMember($q));
+
+		if (!$user) {
+			return null;
+		}
+
+		$id = $user->id;
+
+		return DB::getInstance()->get(POS::sql('SELECT * FROM @PREFIX_tabs WHERE user_id = ? ORDER BY opened DESC;'), $id);
+	}
+
 	static public function searchMember($q) {
 		$operator = 'LIKE';
 		$identite = Config::getInstance()->get('champ_identite');
