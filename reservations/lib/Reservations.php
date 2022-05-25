@@ -211,6 +211,10 @@ class Reservations
 	{
 		$db = DB::getInstance();
 
+		if (strtolower(trim($nom)) == 'zap') {
+			die(' ');
+		}
+
 		// Pour qu'une réservation soit valide, il faut qu'elle soit à la date-même
 		// ou alors si la répétition est activée, au même jour d'une date ultérieure
 		$test = 'id = :id AND (
