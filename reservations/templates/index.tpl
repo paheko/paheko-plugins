@@ -67,7 +67,7 @@
 {include file="%s/_form.tpl"|args:$plugin_tpl ask_name=true}
 
 <footer>
-	<a href="{$config.site_asso}">Retourner sur notre site — {$config.nom_asso}</a>
+	<a href="{if $config.site_asso}{$config.site_asso}{else}{$www_url}{/if}">Retourner sur notre site — {$config.nom_asso}</a>
 </footer>
 </section>
 </body>
