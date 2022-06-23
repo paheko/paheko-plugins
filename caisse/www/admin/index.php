@@ -10,5 +10,5 @@ if ($plugin->needUpgrade()) {
 require __DIR__ . '/_inc.php';
 
 $tpl->assign('current_pos_session', Sessions::getCurrentId());
-$tpl->assign('pos_sessions', Sessions::list());
+$tpl->assign('list', Sessions::list());
 $tpl->display(PLUGIN_ROOT . '/templates/index.tpl');

@@ -8,29 +8,37 @@
 <p>{linkbutton href="session.php" shape="right" label="Ouvrir la caisse" class="main"}</p>
 {/if}
 
-{if count($pos_sessions)}
-<table class="list">
-	<thead>
+{include file="common/dynamic_list_head.tpl"}
+		{foreach from=$list->iterate() item="pos_session"}
 		<tr>
-			<td colspan="3">Ouverture</td>
-			<td colspan="4">Clôture</td>
-			<td></td>
-		</tr>
-	</thead>
-	<tbody>
-		{foreach from=$pos_sessions item="pos_session"}
-		<tr>
-			<td>{$pos_session.opened|date}</td>
-			<th>{$pos_session.open_user_name}</th>
-			<td>{$pos_session.open_amount|raw|money_currency}</td>
-			<td>{if !$pos_session.closed}<strong>En cours</strong>{else}{$pos_session.closed|date}{/if}</td>
-			<th>{$pos_session.close_user_name}</th>
-			<td>{$pos_session.close_amount|raw|money_currency}</td>
+			<td class="num">
+				{link href="session.php?id=%d"|args:$pos_session.id label=$pos_session.id}
+			</td>
+			<th>
+				{$pos_session.opened|date}
+				<small>({$pos_session.open_user_name})</small>
+			</th>
+			<td class="money">{$pos_session.open_amount|raw|money_currency}</td>
 			<td>
-				{if $pos_session.error_amount}
-					<span class="error">Erreur de {$pos_session.error_amount|raw|money_currency}</span>
+				{if !$pos_session.closed}
+					<strong>En cours</strong>
+				{else}
+					{if $pos_session.closed_same_day}
+						à {$pos_session.closed|date_hour}
+					{else}
+						{$pos_session.closed|date}
+					{/if}
+
+					{if $pos_session.close_user_name != $pos_session.open_user_name}<small>({$pos_session.close_user_name})</small>{/if}
 				{/if}
 			</td>
+			<td class="money">{$pos_session.close_amount|raw|money_currency}</td>
+			<td class="money">
+				{if $pos_session.error_amount}
+					<span class="error">{$pos_session.error_amount|raw|money_currency}</span>
+				{/if}
+			</td>
+			<td class="money">{$pos_session.total|raw|money_currency}</td>
 			<td class="actions">
 				{if !$pos_session.closed}
 				{linkbutton shape="right" label="Reprendre" href="tab.php"}
@@ -42,6 +50,7 @@
 		{/foreach}
 	</tbody>
 </table>
-{/if}
+
+{pagination url=$list->paginationURL() page=$list.page bypage=$list.per_page total=$list->count()}
 
 {include file="admin/_foot.tpl"}

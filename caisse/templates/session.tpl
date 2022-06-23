@@ -5,6 +5,7 @@
 		{linkbutton href="tab.php" label="Retour à l'encaissement" shape="left"}
 		{linkbutton href="session_close.php?id=%d"|args:$pos_session.id label="Clôturer la caisse" shape="delete"}
 	{else}
+		{linkbutton href="./" label="Retour" shape="left"}
 		{linkbutton href="%s&pdf=1"|args:$self_url label="Télécharger en PDF" shape="print"}
 	{/if}
 
