@@ -9,7 +9,7 @@
 			{input type="select" name="category" label="Catégorie" required="true" source=$product options=$categories}
 			{input type="text" name="name" label="Nom" required="true" source=$product}
 			{input type="textarea" name="description" label="Description" source=$product}
-			{input type="money" name="price" label="Prix unitaire" source=$product required=true}
+			{input type="money" name="price" label="Prix unitaire" source=$product required=true help="Indiquer un montant négatif pour une sortie de la caisse (par exemple un remboursement)."}
 			{input type="number" name="qty" label="Quantité" help="Quantité par défaut quand le produit est ajouté à une note" source=$product required=true}
 			{input type="number" name="stock" label="Stock" help="Stock actuel du produit, celui-ci sera décrémenté à chaque clôture de caisse. Ne modifier que si vous faites un inventaire. Laisser vide pour les produits non-stockables (adhésions, services, etc.)." source=$product}
 			<dt>Moyens de paiement</dt>

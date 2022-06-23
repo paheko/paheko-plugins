@@ -22,7 +22,7 @@
 				<tr>
 					<th>{$product.name}</th>
 					<td>{if $product.image}<img src="{$product.image|image_base64}" alt="" />{/if}</td>
-					<td>{$product.price|escape|money_currency}</td>
+					<td class="money">{if $product.price < 0}<span class="alert">{/if}{$product.price|escape|money_currency}{if $product.price < 0}</span>{/if}</td>
 					<td class="num">{$product.qty}</td>
 					<td class="num">{$product.stock}</td>
 					<td class="actions">
