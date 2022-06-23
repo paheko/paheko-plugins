@@ -94,7 +94,7 @@
 						<td></td>
 					</tr>
 					<tr>
-						<th>Reste à payer</th>
+						<th>{if $remainder < 0}<span class="error">Reste à rembourser</span>{else}Reste à payer{/if}</th>
 						<td></td>
 						<td></td>
 						<td class="money">{$remainder|raw|money_currency:false}</td>
@@ -125,7 +125,13 @@
 			{if $remainder && count($payment_options)}
 			<form method="post">
 				<fieldset>
-					<legend>Reste {$remainder|escape|money_currency} à payer</legend>
+					<legend>
+						{if $remainder < 0}
+							Reste {$remainder|escape|abs|money_currency} à rembourser
+						{else}
+							Reste {$remainder|escape|money_currency} à payer
+						{/if}
+					</legend>
 					<dl>
 						<dt><label for="f_method_id">Moyen de paiement</label></dt>
 						<dd>
@@ -188,115 +194,7 @@
 	</ul>
 </div>
 
-<script type="text/javascript">
-{literal}
-var fr = document.querySelector('input[name="rename"]');
-
-
-var ur = $('#user_rename');
-var ur_input = $(' #user_rename input[type=text]')[0];
-var ur_id = $('[name="rename_id"]')[0];
-var ur_list = $(' #user_rename ul')[0];
-var ur_list_template = '';
-var ur_timeout = null;
-
-if (fr) {
-	fr.onclick = function(e) {
-		g.toggle(' #user_rename', true);
-		ur_input.focus();
-		ur_input.select();
-		return false;
-	}
-}
-
-ur.onclick = (e) => {
-	if (e.target === ur) closeUserRename();
-};
-
-function closeUserRename () {
-	g.toggle(' #user_rename', false);
-	ur_input.value = '';
-	$(' #user_rename ul')[0].innerHTML = '';
-	return false;
-}
-
-function selectUserRename (id, name) {
-	closeUserRename();
-	ur_id.value = id;
-	ur_input.value = name;
-	ur_input.form.submit();
-	return false;
-}
-
-function completeUserName(list) {
-	var v = ur_input.value.replace(/^\s+|\s+$/g, '');
-
-	if (!v.match(/^\d+$/) && v.length < 3) return false;
-
-	fetch(g.admin_url + 'plugin/caisse/_member_search.php?q=' + encodeURIComponent(v))
-		.then(response => response.text())
-		.then(list => ur_list.innerHTML = list );
-}
-
-ur_input.onkeyup = (e) => {
-	window.clearTimeout(ur_timeout);
-	ur_timeout = window.setTimeout(completeUserName, 300);
-	return false;
-};
-
-document.querySelectorAll('input[name*="change_qty"], button[name*="change_price"]').forEach((elm) => {
-	elm.onclick = (e) => {
-		var v = prompt('?', elm.value);
-		if (v === null) return false;
-		elm.value = v;
-	};
-});
-
-var pm = document.querySelector('select[name="method_id"]');
-
-if (pm) {
-	pm.onchange = (e) => {
-		var o = pm.options[pm.selectedIndex];
-		document.querySelector('#f_amount').value = o.getAttribute('data-amount');
-	};
-}
-
-var q = document.querySelector('input[name="q"]');
-
-RegExp.escape = function(string) {
-  return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
-};
-
-function normalizeString(str) {
-	return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
-}
-
-if (q) {
-	q.onkeyup = (e) => {
-		var search = new RegExp(RegExp.escape(normalizeString(q.value)), 'i');
-
-		document.querySelectorAll('.products button h3').forEach((elm) => {
-			if (normalizeString(elm.innerText).match(search)) {
-				elm.parentNode.style.display = null;
-			}
-			else {
-				elm.parentNode.style.display = 'none';
-			}
-		})
-	};
-
-	q.focus();
-}
-
-var pdf = document.getElementById('f_pdf');
-pdf.onsubmit = (e) => {
-	if (pdf.querySelector('input').getAttribute('data-name') == 0) {
-		alert("Merci de donner un nom à la facture d'abord.");
-		return false;
-	}
-};
-{/literal}
-</script>
+<script type="text/javascript" src="{$plugin_url}tab.js" async="async"></script>
 {/if}
 
 {include file="admin/_foot.tpl"}
