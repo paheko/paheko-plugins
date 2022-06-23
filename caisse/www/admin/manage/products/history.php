@@ -1,7 +1,7 @@
 <?php
 
 namespace Garradin;
-use Garradin\Plugin\Caisse\Product;
+use Garradin\Plugin\Caisse\Products;
 
 require __DIR__ . '/../_inc.php';
 
