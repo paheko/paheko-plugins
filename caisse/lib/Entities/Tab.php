@@ -20,6 +20,15 @@ class Tab extends Entity
 	protected ?string $name;
 	protected ?int $user_id;
 
+	public int $total;
+
+	public function load(array $data): self
+	{
+		parent::load($data);
+		$this->total = $this->total();
+		return $this;
+	}
+
 	public function total(): int
 	{
 		$db = DB::getInstance();

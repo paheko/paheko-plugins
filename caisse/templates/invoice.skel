@@ -131,7 +131,7 @@
 				<td colspan="3"><em>Association exonérée des impôts commerciaux</em></td>
 			</tr>
 			<tr class="foot">
-				<th colspan="3">Total</th>
+				<th colspan="3">{{if $tab.total < 0}}Total dû{{else}}Total{{/if}}</th>
 				<td>{{$tab.total|raw|money_currency:false}}</td>
 			</tr>
 			{{#payments}}
@@ -142,7 +142,7 @@
 			</tr>
 			{{/payments}}
 			<tr class="foot">
-				<th colspan="3">Reste à payer</th>
+				<th colspan="3">{{if $tab.total < 0}}Reste à régler{{else}}Reste à payer{{/if}}</th>
 				<td>{{$remainder_after|raw|money_currency:false}}</td>
 			</tr>
 		</tbody>
