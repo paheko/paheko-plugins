@@ -62,11 +62,16 @@ document.querySelectorAll('input[name*="change_qty"], button[name*="change_price
 
 var pm = document.querySelector('select[name="method_id"]');
 
+function toggleMethod() {
+	var o = pm.options[pm.selectedIndex];
+	console.log(o.dataset.reference);
+	document.querySelector('#f_amount').value = o.getAttribute('data-amount');
+	document.querySelector('.reference').style.display = (o.dataset.iscash != 1) ? null : 'none';
+}
+
 if (pm) {
-	pm.onchange = (e) => {
-		var o = pm.options[pm.selectedIndex];
-		document.querySelector('#f_amount').value = o.getAttribute('data-amount');
-	};
+	pm.onchange = toggleMethod;
+	toggleMethod();
 }
 
 var q = document.querySelector('input[name="q"]');

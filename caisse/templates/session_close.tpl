@@ -36,12 +36,15 @@
 	</p>
 </div>
 
-<h2 class="ruler">2. Vérifier les chèques</h2>
+<h2 class="ruler">2. Vérifier les paiements hors espèces (chèques, carte, etc.)</h2>
 
+{if !count($payments_except_cash)}
+<p class="help">Aucun paiement à vérifier :-)</p>
+{else}
 <fieldset>
-	<legend>Cocher les chèques</legend>
+	<legend>Cocher les paiements</legend>
 	<p class="help">
-		Cocher chacun des chèques reçus, en vérifiant la correspondance du montant et de la référence.<br />
+		Cocher chacun des paiements reçus (chèques, paiement en carte), en vérifiant la correspondance du montant et de la référence.<br />
 		En cas d'erreur de saisie, ré-ouvrir la note associée pour corriger.
 	</p>
 	<table class="list">
@@ -78,8 +81,9 @@
 			{/foreach}
 		</tbody>
 	</table>
-	<p class="help">Vérifier également qu'il n'y a pas de chèque qui ne figurerait pas dans cette liste.</p>
+	<p class="help">Vérifier également qu'il n'y a pas de chèque ou paiement par carte qui ne figurerait pas dans cette liste.</p>
 </fieldset>
+{/if}
 
 <h2 class="ruler">3. Confirmer et clôturer</h2>
 

@@ -137,11 +137,13 @@
 						<dd>
 							<select name="method_id" id="f_method_id">
 								{foreach from=$payment_options item="method"}
-								<option value="{$method.id}" data-amount="{$method.amount|pos_amount}">{$method.name} (jusqu'à {$method.amount|escape|money_currency:false})</option>
+								<option value="{$method.id}" data-amount="{$method.amount|pos_amount}" data-iscash="{$method.is_cash}">{$method.name} (jusqu'à {$method.amount|escape|money_currency:false})</option>
 								{/foreach}
 							</select>
 						</dd>
 						{input type="money" label="Montant" default=$remainder required=true name="amount"}
+					</dl>
+					<dl class="reference">
 						{input type="text" label="Référence du paiement (numéro de chèque…)" name="reference"}
 					</dl>
 					<p class="submit">

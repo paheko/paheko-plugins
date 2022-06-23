@@ -7,13 +7,15 @@ use function Garradin\Plugin\Caisse\get_amount;
 
 require __DIR__ . '/_inc.php';
 
-$pos_session = null;
+$pos_session = Sessions::get((int)qg('id'));
 
-if (null === qg('id')) {
+if (!$pos_session) {
 	throw new UserException('Numéro de session inconnu');
 }
 
-$pos_session = Sessions::get((int)qg('id'));
+if ($pos_session->closed) {
+	throw new UserException('Cette session est déjà clôturée');
+}
 
 if (isset($_POST['close'], $_POST['amount']) && !empty($_POST['confirm'])) {
 	$payments = f('payments') ? array_keys(f('payments')) : [];
