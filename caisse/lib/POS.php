@@ -165,8 +165,17 @@ class POS
 			\'POS-SESSION-\' || s.id AS reference,
 			NULL AS line_id,
 			lines.account,
-			SUM(lines.credit) AS credit,
-			SUM(lines.debit) AS debit,
+			-- Flip debit/credit if negative
+			CASE
+				WHEN SUM(lines.debit) < 0 THEN ABS(SUM(lines.debit))
+				WHEN SUM(lines.credit) < 0 THEN 0
+				ELSE SUM(lines.credit)
+			END AS credit,
+			CASE
+				WHEN SUM(lines.credit) < 0 THEN ABS(SUM(lines.credit))
+				WHEN SUM(lines.debit) < 0 THEN 0
+				ELSE SUM(lines.debit)
+			END AS debit,
 			lines.reference AS line_reference,
 			NULL AS line_label,
 			0 AS reconciled,

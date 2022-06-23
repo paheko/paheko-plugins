@@ -23,7 +23,7 @@ class Product extends Entity
 	public function selfCheck(): void
 	{
 		$this->assert(trim($this->name) !== '', 'Le nom ne peut rester vide.');
-		$this->assert($this->price >= 0);
+		$this->assert($this->price != 0);
 		$this->assert($this->qty >= 0);
 
 		$this->assert((bool) EM::findOneById(Category::class, $this->category), 'Catégorie invalide');
@@ -31,9 +31,10 @@ class Product extends Entity
 
 	public function listPaymentMethods()
 	{
-		$sql = POS::sql('SELECT m.*, pm.method IS NOT NULL AS checked FROM @PREFIX_methods m
+		$value = $this->exists() ? 'pm.method IS NOT NULL' : '1';
+		$sql = POS::sql(sprintf('SELECT m.*, %s AS checked FROM @PREFIX_methods m
 			LEFT JOIN @PREFIX_products_methods pm ON pm.method = m.id AND pm.product = ?
-			ORDER BY m.name;');
+			ORDER BY m.name;', $value));
 		return EM::getInstance(Method::class)->DB()->get($sql, $this->exists() ? $this->id() : null);
 	}
 
