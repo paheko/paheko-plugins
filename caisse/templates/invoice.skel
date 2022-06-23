@@ -22,10 +22,14 @@
 		font-size: 10pt;
 	}
 	header {
-		background: #fff url("{{$root_url}}config/admin_bg.png") no-repeat top left;
-		background-size: contain;
 		border: 2px solid #999;
 		padding-left: 5em;
+		display: flex;
+		flex-direction: row;
+		padding: .4em;
+	}
+	header figure img {
+		max-height: 100px;
 	}
 	header div {
 		text-align: left;
@@ -79,6 +83,9 @@
 <body>
 
 <header>
+	<figure>
+		{{if $config.files.logo}}<img src="{{$config.files.logo}}&150px" alt="" class="logo" />{{/if}}
+	</figure>
 	<div>
 		<h1>{{$config.nom_asso}}</h1>
 		<h2>Association « loi 1901 » à but non lucratif</h2>

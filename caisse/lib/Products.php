@@ -5,7 +5,7 @@ namespace Garradin\Plugin\Caisse;
 use Garradin\DB;
 use KD2\DB\EntityManager as EM;
 
-class Product
+class Products
 {
 	static public function listByCategory(bool $only_with_payment = true, bool $only_stockable = false): array
 	{

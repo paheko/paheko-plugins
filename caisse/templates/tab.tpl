@@ -90,7 +90,7 @@
 						<th>Total</th>
 						<td></td>
 						<td></td>
-						<td class="money">{$current_tab.total|escape|money_currency:false}</td>
+						<td class="money">{$current_tab->total()|escape|money_currency:false}</td>
 						<td></td>
 					</tr>
 					<tr>

@@ -1,9 +1,9 @@
 <?php
 
 namespace Garradin;
-use Garradin\Plugin\Caisse\Method;
-use Garradin\Plugin\Caisse\Session;
-use Garradin\Plugin\Caisse\Product;
+use Garradin\Plugin\Caisse\Methods;
+use Garradin\Plugin\Caisse\Sessions;
+use Garradin\Plugin\Caisse\Products;
 
 require __DIR__ . '/_inc.php';
 
@@ -13,25 +13,25 @@ $year = qg('year');
 if ($year) {
 	if ($graph == 'methods') {
 		header('Content-Type: image/svg+xml');
-		echo Method::graphStatsPerMonth($year);
+		echo Methods::graphStatsPerMonth($year);
 		exit;
 	}
 	elseif ($graph == 'categories') {
 		header('Content-Type: image/svg+xml');
-		echo Product::graphStatsPerMonth($year);
+		echo Products::graphStatsPerMonth($year);
 		exit;
 	}
 	elseif ($graph == 'categories_qty') {
 		header('Content-Type: image/svg+xml');
-		echo Product::graphStatsQtyPerMonth($year);
+		echo Products::graphStatsQtyPerMonth($year);
 		exit;
 	}
 
-	$tpl->assign('methods_per_month', Method::getStatsPerMonth($year));
-	$tpl->assign('categories_per_month', Product::getStatsPerMonth($year));
+	$tpl->assign('methods_per_month', Methods::getStatsPerMonth($year));
+	$tpl->assign('categories_per_month', Products::getStatsPerMonth($year));
 }
 else {
-	$tpl->assign('years', Session::listYears());
+	$tpl->assign('years', Sessions::listYears());
 }
 
 $tpl->assign(compact('year'));

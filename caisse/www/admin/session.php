@@ -2,7 +2,7 @@
 
 namespace Garradin;
 
-use Garradin\Plugin\Caisse\Session;
+use Garradin\Plugin\Caisse\Sessions;
 use function Garradin\Plugin\Caisse\get_amount;
 
 require __DIR__ . '/_inc.php';
@@ -11,10 +11,10 @@ $pos_session = null;
 $csrf_key = 'pos_open_session';
 
 if (null !== qg('id')) {
-	$pos_session = new Session((int)qg('id'));
+	$pos_session = Sessions::get((int)qg('id'));
 }
-elseif ($current_pos_session = Session::getCurrentId()) {
-	$pos_session = new Session($current_pos_session);
+elseif ($current_pos_session = Sessions::getCurrent()) {
+	$pos_session = $current_pos_session;
 }
 
 $form->runIf('open', function () use ($session) {
@@ -22,12 +22,12 @@ $form->runIf('open', function () use ($session) {
 		throw new UserException('Le solde de la caisse ne peut être laissé vide.');
 	}
 
-	Session::open($session->getUser()->id, get_amount(f('amount')));
+	Sessions::open($session->getUser()->id, get_amount(f('amount')));
 }, $csrf_key, Utils::plugin_url(['file' => 'tab.php']));
 
 $tpl->assign(compact('csrf_key', 'pos_session'));
 
-$tpl->assign('current_pos_session', Session::getCurrentId());
+$tpl->assign('current_pos_session', Sessions::getCurrentId());
 
 if ($pos_session) {
 	echo $pos_session->export((bool) qg('details'), qg('pdf') ? 2 : 0);

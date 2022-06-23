@@ -2,7 +2,7 @@
 
 namespace Garradin;
 use Garradin\Plugin\Caisse\Stock;
-use Garradin\Plugin\Caisse\Product;
+use Garradin\Plugin\Caisse\Products;
 
 require __DIR__ . '/../_inc.php';
 
@@ -30,7 +30,7 @@ if (!$event->applied) {
 
 $list = $event->listChanges();
 $total = $event->totalChanges($list);
-$tpl->assign('products_categories', Product::listByCategory(false, true));
+$tpl->assign('products_categories', Products::listByCategory(false, true));
 
 $tpl->assign(compact('event', 'csrf_key', 'list', 'total'));
 

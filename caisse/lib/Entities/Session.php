@@ -1,6 +1,6 @@
 <?php
 
-namespace Garradin\Plugin\Caisse;
+namespace Garradin\Plugin\Caisse\Entities;
 
 use Garradin\DB;
 use Garradin\Config;
@@ -9,60 +9,23 @@ use Garradin\UserException;
 use Garradin\Utils;
 use const Garradin\PLUGIN_ROOT;
 
-class Session
+use Garradin\Plugin\Caisse\POS;
+use Garradin\Plugin\Caisse\Tabs;
+use Garradin\Entity;
+use Garradin\ValidationException;
+
+class Session extends Entity
 {
-	public $id;
+	const TABLE = POS::TABLES_PREFIX . 'sessions';
 
-	public function __construct(int $id) {
-		$this->id = $id;
-
-		$record = DB::getInstance()->first(POS::sql('SELECT * FROM @PREFIX_sessions WHERE id = ?;'), $id);
-
-		if (!$record) {
-			throw new \InvalidArgumentException('Invalid session ID');
-		}
-
-		foreach ($record as $key => $value) {
-			$this->$key = $value;
-		}
-	}
-
-	static public function listYears(): array
-	{
-		return DB::getInstance()->getAssoc(POS::sql('SELECT strftime(\'%Y\', opened), strftime(\'%Y\', opened)
-			FROM @PREFIX_sessions GROUP BY strftime(\'%Y\', opened);'));
-	}
-
-	static public function open(int $user_id, int $amount): int
-	{
-		$db = DB::getInstance();
-		$db->insert(POS::tbl('sessions'), [
-			'open_user'   => $user_id,
-			'open_amount' => $amount,
-		]);
-
-		return $db->lastInsertId();
-	}
-
-	static public function getCurrentId()
-	{
-		$db = DB::getInstance();
-		return $db->firstColumn(POS::sql('SELECT id FROM @PREFIX_sessions WHERE closed IS NULL LIMIT 1;'));
-	}
-
-	static public function list()
-	{
-		$db = DB::getInstance();
-		$name_field = Config::getInstance()->get('champ_identite');
-		$sql = sprintf('SELECT s.*,
-				m.%s AS open_user_name,
-				m2.%1$s AS close_user_name
-			FROM @PREFIX_sessions s
-			LEFT JOIN membres m ON s.open_user = m.id
-			LEFT JOIN membres m2 ON s.close_user = m2.id
-			ORDER BY s.opened DESC;', $db->quoteIdentifier($name_field));
-		return $db->get(POS::sql($sql));
-	}
+	protected ?int $id;
+	protected \DateTime $opened;
+	protected ?\DateTime $closed;
+	protected int $open_user;
+	protected int $open_amount;
+	protected ?int $close_amount;
+	protected ?int $close_user;
+	protected ?int $error_amount;
 
 	public function usernames()
 	{
@@ -178,7 +141,7 @@ class Session
 			);'), $this->id);
 
 		foreach ($tabs as &$tab) {
-			$t = new Tab($tab->id, false);
+			$t = Tabs::get($tab->id);
 			$tab->items = $t->listItems();
 		}
 
@@ -248,5 +211,18 @@ class Session
 		else {
 			return $tpl->fetch(PLUGIN_ROOT . '/templates/session.tpl');
 		}
+	}
+
+	public function openTab(): Tab
+	{
+		if (!$this->exists()) {
+			throw new \LogicException('Cannot open tab for unsaved session');
+		}
+
+		$tab = new Tab;
+		$tab->session = $this->id();
+		$tab->opened = new \DateTime;
+		$tab->save();
+		return $tab;
 	}
 }

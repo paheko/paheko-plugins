@@ -2,7 +2,7 @@
 
 namespace Garradin;
 
-use Garradin\Plugin\Caisse\Session;
+use Garradin\Plugin\Caisse\Sessions;
 use function Garradin\Plugin\Caisse\get_amount;
 
 require __DIR__ . '/_inc.php';
@@ -13,7 +13,7 @@ if (null === qg('id')) {
 	throw new UserException('Numéro de session inconnu');
 }
 
-$pos_session = new Session(qg('id'));
+$pos_session = Sessions::get((int)qg('id'));
 
 if (isset($_POST['close'], $_POST['amount']) && !empty($_POST['confirm'])) {
 	$payments = f('payments') ? array_keys(f('payments')) : [];

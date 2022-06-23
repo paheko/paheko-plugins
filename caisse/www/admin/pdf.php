@@ -6,11 +6,11 @@ use Garradin\Files\Files;
 use Garradin\Entities\Files\File;
 use Garradin\UserTemplate\UserTemplate;
 
-use Garradin\Plugin\Caisse\Tab;
+use Garradin\Plugin\Caisse\Tabs;
 
 require __DIR__ . '/_inc.php';
 
-$tab = new Tab(qg('id'));
+$tab = Tabs::get(qg('id'));
 
 if ('' === trim($tab->name)) {
 	throw new UserException('La note n\'a pas de nom associé : impossible de produire la facture');

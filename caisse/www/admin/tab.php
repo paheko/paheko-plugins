@@ -2,7 +2,7 @@
 
 namespace Garradin;
 
-use Garradin\Plugin\Caisse\{Session, Tab, Product};
+use Garradin\Plugin\Caisse\{Sessions, Tabs, Products};
 
 use function Garradin\Plugin\Caisse\{reload,get_amount};
 
@@ -12,10 +12,10 @@ $tab = null;
 
 try {
 	if (null !== qg('id')) {
-		$tab = new Tab(qg('id'));
+		$tab = Tabs::get(qg('id'));
 	}
 
-	$current_pos_session = new Session($tab ? $tab->session : Session::getCurrentId());
+	$current_pos_session = Sessions::get($tab ? $tab->session : Sessions::getCurrentId());
 }
 catch (\InvalidArgumentException $e) {
 	throw new UserException('Aucune session de caisse en cours et aucune note sélectionnée');
@@ -46,8 +46,8 @@ elseif (qg('delete_payment')) {
 	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab->id]));
 }
 elseif (null !== qg('new')) {
-	$id = Tab::open($current_pos_session->id);
-	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $id]));
+	$tab = $current_pos_session->openTab();
+	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab->id()]));
 }
 elseif (!empty($_POST['rename_name'])) {
 	$tab->rename($_POST['rename_name'], (int) f('rename_id') ?: null);
@@ -66,12 +66,12 @@ elseif (!empty($_POST['delete'])) {
 	Utils::redirect(Utils::plugin_url(['file' => 'tab.php']));
 }
 
-$tabs = Tab::listForSession($current_pos_session->id);
+$tabs = Tabs::listForSession($current_pos_session->id);
 
 $tpl->assign('pos_session', $current_pos_session);
 $tpl->assign('tab_id', $tab ? $tab->id : null);
 
-$tpl->assign('products_categories', Product::listByCategory());
+$tpl->assign('products_categories', Products::listByCategory());
 $tpl->assign('tabs', $tabs);
 
 if ($tab) {

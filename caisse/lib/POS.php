@@ -101,7 +101,7 @@ class POS
 
 			if ($attach) {
 				$sid = (int) str_replace('POS-SESSION-', '', $transaction->reference);
-				$session = new Session($sid);
+				$session = Sessions::get($sid);
 				$path = $transaction->getAttachementsDirectory();
 				$file = File::createAndStore($path, sprintf('session-%d.html', $sid), null, $session->export(true, 1));
 			}

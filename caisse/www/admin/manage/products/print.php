@@ -6,11 +6,11 @@ use Garradin\Files\Files;
 use Garradin\Entities\Files\File;
 use Garradin\UserTemplate\UserTemplate;
 
-use Garradin\Plugin\Caisse\Product;
+use Garradin\Plugin\Caisse\Products;
 
 require __DIR__ . '/../_inc.php';
 
-$products = Product::listByCategory();
+$products = Products::listByCategory();
 
 $tpl->assign('products_categories', $products);
 

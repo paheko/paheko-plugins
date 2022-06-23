@@ -1,35 +1,29 @@
 <?php
 
-namespace Garradin\Plugin\Caisse;
+namespace Garradin\Plugin\Caisse\Entities;
 
-use Garradin\Config;
 use Garradin\DB;
-use Garradin\Membres\Cotisations;
 use Garradin\UserException;
 
-class Tab
+use Garradin\Plugin\Caisse\POS;
+use Garradin\Entity;
+use Garradin\ValidationException;
+
+class Tab extends Entity
 {
-	public $id;
+	const TABLE = POS::TABLES_PREFIX . 'tabs';
 
-	public function __construct(int $id, bool $fetch = true)
+	protected ?int $id;
+	protected int $session;
+	protected \DateTime $opened;
+	protected ?\DateTime $closed;
+	protected ?string $name;
+	protected ?int $user_id;
+
+	public function total(): int
 	{
-		$this->id = $id;
-
-		if ($fetch) {
-			$sql = POS::sql('SELECT *,
-				COALESCE((SELECT SUM(qty*price) FROM @PREFIX_tabs_items WHERE tab = @PREFIX_tabs.id), 0) AS total
-				FROM @PREFIX_tabs WHERE id = ?;');
-
-			$record = DB::getInstance()->first($sql, $id);
-
-			if (!$record) {
-				throw new \InvalidArgumentException('Unknown tab ID');
-			}
-
-			foreach ($record as $key => $value) {
-				$this->$key = $value;
-			}
-		}
+		$db = DB::getInstance();
+		return $db->firstColumn(POS::sql('SELECT SUM(qty*price) FROM @PREFIX_tabs_items WHERE tab = ?;'), $this->id()) ?: 0;
 	}
 
 	public function getRemainder(): int
@@ -157,16 +151,6 @@ class Tab
 			);'), ['id' => $this->id, 'left' => $remainder]);
 	}
 
-	static public function open(int $session_id)
-	{
-		$db = DB::getInstance();
-		$db->insert(POS::tbl('tabs'), [
-			'session' => $session_id,
-		]);
-
-		return $db->lastInsertRowID();
-	}
-
 	public function rename(string $new_name, ?int $user_id) {
 		$new_name = trim($new_name);
 		$db = DB::getInstance();
@@ -187,69 +171,12 @@ class Tab
 		return DB::getInstance()->preparedQuery(POS::sql('UPDATE @PREFIX_tabs SET closed = NULL WHERE id = ?;'), [$this->id]);
 	}
 
-	public function delete() {
+	public function delete(): bool {
 		$db = DB::getInstance();
 		if ($db->count(POS::tbl('tabs_items'), 'tab = ?', $this->id) && $db->test(POS::tbl('tabs'), 'closed IS NULL AND id = ?', $this->id)) {
 			throw new UserException('Impossible de supprimer une note qui n\'est pas close');
 		}
 
-		$db->delete(POS::tbl('tabs'), 'id = ?', $this->id);
-	}
-
-	static public function listForSession(int $session_id) {
-		return DB::getInstance()->getGrouped(POS::sql('SELECT id, *, COALESCE((SELECT SUM(qty*price) FROM @PREFIX_tabs_items WHERE tab = @PREFIX_tabs.id), 0) AS total FROM @PREFIX_tabs WHERE session = ? ORDER BY closed IS NOT NULL, opened DESC;'), $session_id);
-	}
-
-	static public function listForUser(string $q): ?array
-	{
-		$user = current(self::searchMember($q));
-
-		if (!$user) {
-			return null;
-		}
-
-		$id = $user->id;
-
-		return DB::getInstance()->get(POS::sql('SELECT * FROM @PREFIX_tabs WHERE user_id = ? ORDER BY opened DESC;'), $id);
-	}
-
-	static public function searchMember($q) {
-		$operator = 'LIKE';
-		$identite = Config::getInstance()->get('champ_identite');
-
-		if (is_numeric(trim($q)))
-		{
-			$column = 'numero';
-			$operator = '=';
-		}
-		elseif (strpos($q, '@') !== false)
-		{
-			$column = 'email';
-		}
-		else
-		{
-			$column = $identite;
-		}
-
-		if ($operator == 'LIKE') {
-			$q = str_replace(['%', '_'], ['\\%', '\\_'], $q);
-
-			$q = '%' . $q . '%';
-			$sql = sprintf('%s %s ? ESCAPE \'\\\'', $column, $operator);
-		}
-		else {
-			$sql = sprintf('%s %s ?', $column, $operator);
-		}
-
-		$sql = sprintf('SELECT m.id, m.numero, m.email, m.%s AS identite,
-			MAX(su.expiry_date) AS expiry_date,
-			CASE WHEN su.expiry_date IS NULL THEN 0 WHEN su.expiry_date < date() THEN -1 WHEN su.expiry_date >= date() THEN 1 ELSE 0 END AS status
-			FROM membres m
-			LEFT JOIN services_users su ON su.id_user = m.id
-			WHERE m.%s
-			GROUP BY m.id
-			ORDER BY m.%1$s COLLATE U_NOCASE LIMIT 0, 7;', $identite, $sql);
-
-		return DB::getInstance()->get($sql, $q);
+		return parent::delete();
 	}
 }

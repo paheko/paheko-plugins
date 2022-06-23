@@ -18,7 +18,7 @@
 		<dt>Solde à l'ouverture</dt>
 		<dd>{$pos_session.open_amount|raw|money_currency}</dd>
 		<dt>Solde théorique à la fermeture</dt>
-		<dd><strong>{$close_total|raw|money_currency}</strong> (+{$cash_total|raw|money_currency} par rapport à l'ouverture)</dd>
+		<dd><strong>{$close_total|raw|money_currency}</strong> ({$cash_total|raw|money:false:true} par rapport à l'ouverture)</dd>
 		<dt>Solde constaté à la fermeture</dt>
 		<dd class="help">Merci de compter le contenu de la caisse lors de la fermeture.</dd>
 		<dd><input type="text" pattern="\d+([,.]\d+)?" name="amount" id="f_amount" data-expected="{$close_total}" required="required" size="8" />&nbsp;€</dd>

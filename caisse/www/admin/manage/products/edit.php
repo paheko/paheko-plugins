@@ -1,16 +1,16 @@
 <?php
 
 namespace Garradin;
-use Garradin\Plugin\Caisse\Product;
+use Garradin\Plugin\Caisse\Products;
 
 require __DIR__ . '/../_inc.php';
 
 if (qg('new') !== null) {
-	$product = Product::new();
+	$product = Products::new();
 	$csrf_key = 'product_new';
 }
 else {
-	$product = Product::get((int) qg('id'));
+	$product = Products::get((int) qg('id'));
 	$csrf_key = 'product_edit_' . $product->id();
 }
 
@@ -35,7 +35,7 @@ else {
 	}, $csrf_key, './');
 
 	$methods = $product->listPaymentMethods();
-	$categories = Product::listCategoriesAssoc();
+	$categories = Products::listCategoriesAssoc();
 
 	$tpl->assign(compact('methods', 'categories'));
 
