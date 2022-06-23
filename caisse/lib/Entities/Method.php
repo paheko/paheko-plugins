@@ -83,4 +83,13 @@ class Method extends Entity
 
 		$db->commit();
 	}
+
+	/**
+	 * Link all products to this method
+	 */
+	public function linkAllProducts(): void
+	{
+		$db = EntityManager::getInstance(static::class)->DB();
+		$db->exec(sprintf(POS::sql('INSERT OR IGNORE INTO @PREFIX_products_methods SELECT id, %d FROM @PREFIX_products;'), $this->id));
+	}
 }

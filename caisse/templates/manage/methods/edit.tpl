@@ -12,6 +12,10 @@
 			{input type="money" name="max" label="Maximum" source=$method help="Si renseigné, ce moyen de paiement ne pourra pas être utilisé pour un paiement supérieur à ce montant."}
 			{input type="checkbox" name="is_cash" value=1 label="Ne pas demander de référence de paiement" source=$method help="Si décoché, une référence sera demandée pour chaque paiement avec ce moyen (par exemple : numéro de chèque), et il faudra valider chaque paiement lors de la clôture de la caisse (pour vérifier que le paiement n'a pas été égaré)."}
 			{input type="checkbox" name="enabled" value=1 label="Activer ce moyen de paiement" source=$method help="Si décoché, ce moyen de paiement ne sera pas utilisable dans la caisse."}
+
+			{if !$method->exists()}
+				{input type="checkbox" name="link_all" value=1 label="Accepter ce moyen de paiement pour tous les produits" help="Si cette case est décochée, il faudra manuellement choisir quels produits peuvent être payés avec ce moyen de paiement." default=1}
+			{/if}
 		</dl>
 	</fieldset>
 	<p class="submit">

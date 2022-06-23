@@ -29,8 +29,13 @@ if (qg('delete') !== null) {
 }
 else {
 	$form->runIf('save', function () use ($method) {
+		$new = $method->exists() ? false : true;
 		$method->importForm();
 		$method->save();
+
+		if ($new && f('link_all')) {
+			$method->linkAllProducts();
+		}
 	}, $csrf_key, './');
 
 	$tpl->display(PLUGIN_ROOT . '/templates/manage/methods/edit.tpl');
