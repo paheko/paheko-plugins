@@ -11,7 +11,7 @@
 		</dl>
 	</fieldset>
 	<p class="help">
-		Cet export peut ensuite {link href="!acc/years/import.php" label="être importé dans la comptabilité"} en sélectionnant «&nbsp;Journal général au format CSV Garradin&nbsp;».
+		Cet export peut ensuite {link href="!acc/years/import.php" label="être importé dans la comptabilité"} en sélectionnant le format «&nbsp;Complet groupé (comptabilité d'engagement)&nbsp;».
 	</p>
 	<p class="submit">
 		{button name="export" label="Créer un export CSV correspondant à ces dates" shape="right" type="submit" class="main"}

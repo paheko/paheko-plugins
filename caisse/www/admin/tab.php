@@ -10,14 +10,13 @@ require __DIR__ . '/_inc.php';
 
 $tab = null;
 
-try {
-	if (null !== qg('id')) {
-		$tab = Tabs::get(qg('id'));
-	}
-
-	$current_pos_session = Sessions::get($tab ? $tab->session : Sessions::getCurrentId());
+if (null !== qg('id')) {
+	$tab = Tabs::get(qg('id'));
 }
-catch (\InvalidArgumentException $e) {
+
+$current_pos_session = Sessions::get($tab ? $tab->session : Sessions::getCurrentId());
+
+if (!$current_pos_session) {
 	throw new UserException('Aucune session de caisse en cours et aucune note sélectionnée');
 }
 
