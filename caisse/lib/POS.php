@@ -197,6 +197,7 @@ class POS
 				AND date(s.closed) >= date(?) AND date(s.closed) <= date(?)
 				' . $errors_only . '
 			GROUP BY s.id, lines.account, lines.reference
+			HAVING SUM(lines.debit) != 0 OR SUM(lines.credit) != 0
 			ORDER BY s.id, lines.account, lines.reference;';
 
 		$sql = POS::sql($sql);
