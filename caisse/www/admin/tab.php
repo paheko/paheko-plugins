@@ -12,6 +12,10 @@ $tab = null;
 
 if (null !== qg('id')) {
 	$tab = Tabs::get(qg('id'));
+
+	if (!$tab) {
+		throw new UserException('La note sélectionnée n\'existe pas ou plus.');
+	}
 }
 
 $current_pos_session = Sessions::get($tab ? $tab->session : Sessions::getCurrentId());

@@ -7,7 +7,7 @@
 
 {if isset($_GET.ok)}
 	<p class="block confirm">
-		L'écriture numéro {link href="!acc/transactions/details.php?id=%d"|args:$_GET.ok class="num" label=$_GET.ok} a été ajoutée.
+		L'écriture numéro {link href="!acc/transactions/details.php?id=%d"|args:$_GET.ok class="num" label="#%d"|args:$_GET.ok} a été ajoutée.
 	</p>
 {/if}
 <form method="post" action="">
