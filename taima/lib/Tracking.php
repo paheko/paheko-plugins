@@ -257,6 +257,12 @@ class Tracking
 			$date = clone $year->start_date;
 		}
 
+		$id_account = (new Accounts($year->id_chart))->getIdFromCode('875');
+
+		if (!$id_account) {
+			throw new UserException('Le compte 875 n\'existe pas au plan comptable, merci de le créer');
+		}
+
 		$t = new Transaction;
 		$t->date = $date;
 		$t->label = 'Valorisation du bénévolat';
@@ -274,25 +280,21 @@ class Tracking
 			}
 
 			$line = new Line;
-			$line->credit = $row->total;
-			$line->debit = 0;
+			$line->debit = $row->total;
 			$line->id_account = $row->id_account;
 			$line->label = sprintf('%s (%d heures à %s / h)', $row->label, $row->hours, Utils::money_format($row->value));
 
 			$t->addLine($line);
 		}
 
-		$sum = $t->getLinesCreditSum();
+		$sum = $t->getLinesDebitSum();
 
 		if (!$sum) {
 			throw new UserException('Rien ne peut être valorisé : peut-être que des codes de compte sont invalides ?');
 		}
 
-		$id_account = (new Accounts($year->id_chart))->getIdFromCode('864');
-
 		$line = new Line;
-		$line->credit = 0;
-		$line->debit = $sum;
+		$line->credit = $sum;
 		$line->id_account = $id_account;
 		$line->label = 'Temps bénévole';
 		$t->addLine($line);
