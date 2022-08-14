@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="HelloAsso" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="HelloAsso" current="plugin_%s"|args:$plugin.id}
 
 {include file="%s/templates/_menu.tpl"|args:$plugin_root current="home"}
 
@@ -21,4 +21,4 @@
 	</form>
 {/if}
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

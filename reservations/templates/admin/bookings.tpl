@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title=$plugin.nom current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title=$plugin.nom current="plugin_%s"|args:$plugin.id}
 
 {include file="%s/templates/admin/_menu.tpl"|args:$plugin_root current="bookings"}
 
@@ -49,4 +49,4 @@
 {/if}
 
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

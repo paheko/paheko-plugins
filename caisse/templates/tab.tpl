@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" current="plugin_%s"|args:$plugin.id}
 
 <nav class="tabs">
 	{if !$pos_session.closed}
@@ -199,4 +199,4 @@
 <script type="text/javascript" src="{$plugin_url}tab.js" async="async"></script>
 {/if}
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

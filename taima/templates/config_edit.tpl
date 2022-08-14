@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Suivi du temps" plugin_css=['style.css']}
+{include file="_head.tpl" title="Suivi du temps" plugin_css=['style.css']}
 
 {form_errors}
 
@@ -18,4 +18,4 @@
 </form>
 
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

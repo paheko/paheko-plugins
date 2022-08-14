@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Extension — %s"|args:$plugin.nom current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Extension — %s"|args:$plugin.nom current="plugin_%s"|args:$plugin.id}
 
 <p class="alert block">Cette extension n'est qu'un test.</p>
 
@@ -9,4 +9,4 @@
 {/if}
 
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

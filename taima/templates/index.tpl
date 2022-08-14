@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Suivi du temps" plugin_css=['style.css'] current="plugin_taima"}
+{include file="_head.tpl" title="Suivi du temps" plugin_css=['style.css'] current="plugin_taima"}
 
 <?php
 $timer_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke-width="2" /><path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z" /></svg>';
@@ -207,4 +207,4 @@ g.script('scripts/lib/datepicker2.min.js', () => {
 </script>
 {/literal}
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

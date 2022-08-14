@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Clôturer la caisse" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Clôturer la caisse" current="plugin_%s"|args:$plugin.id}
 
 {if $open_notes}
 <p class="error block">
@@ -140,4 +140,4 @@ document.querySelectorAll('tbody tr td.check input[type=checkbox]').forEach((elm
 {/literal}
 </script>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

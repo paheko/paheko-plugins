@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Ouverture de caisse" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Ouverture de caisse" current="plugin_%s"|args:$plugin.id}
 
 <form method="post" action="">
 	<fieldset>
@@ -13,4 +13,4 @@
 	</p>
 </form>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

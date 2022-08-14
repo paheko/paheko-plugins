@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Gestion stock" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Gestion stock" current="plugin_%s"|args:$plugin.id}
 
 {include file="common/delete_form.tpl"
 	legend="Supprimer cet événement de stock ?"
@@ -8,4 +8,4 @@
 	}
 
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

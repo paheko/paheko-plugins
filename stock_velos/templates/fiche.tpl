@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Vélo n°%s"|args:$velo.id current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Vélo n°%s"|args:$velo.id current="plugin_%s"|args:$plugin.id}
 
 {include file="%s_nav.tpl"|args:$plugin_tpl current=""}
 
@@ -131,4 +131,4 @@
     {/if}
 </section>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="%s vélos en stock"|args:$total current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="%s vélos en stock"|args:$total current="plugin_%s"|args:$plugin.id}
 
 {include file="%s_nav.tpl"|args:$plugin_tpl current="index"}
 
@@ -50,4 +50,4 @@
     </tbody>
 </table>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

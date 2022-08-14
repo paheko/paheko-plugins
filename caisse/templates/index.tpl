@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Sessions de caisse" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Sessions de caisse" current="plugin_%s"|args:$plugin.id}
 
 {if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
 <p>{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}</p>
@@ -53,4 +53,4 @@
 
 {pagination url=$list->paginationURL() page=$list.page bypage=$list.per_page total=$list->count()}
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

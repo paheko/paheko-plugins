@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Ajouter une tâche" plugin_css=['style.css'] current="plugin_taima"}
+{include file="_head.tpl" title="Ajouter une tâche" plugin_css=['style.css'] current="plugin_taima"}
 
 {if isset($_GET.ok)}
 	<p class="confirm block">Tâche enregistrée.</p>
@@ -23,4 +23,4 @@
 	</p>
 </form>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

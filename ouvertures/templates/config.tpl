@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Configuration — %s"|args:$plugin.nom current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Configuration — %s"|args:$plugin.nom current="plugin_%s"|args:$plugin.id}
 
 {form_errors}
 
@@ -86,4 +86,4 @@
     <pre>{$example}</pre>
 </div>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

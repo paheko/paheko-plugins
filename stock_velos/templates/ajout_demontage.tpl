@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Enregistrer vélos démontés" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Enregistrer vélos démontés" current="plugin_%s"|args:$plugin.id}
 
 {include file="%s_nav.tpl"|args:$plugin_tpl current="ajout_demontage"}
 
@@ -22,4 +22,4 @@
 </p>
 </form>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

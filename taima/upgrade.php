@@ -32,7 +32,7 @@ if (version_compare($old_version, '0.4.1', '<')) {
 	DROP TABLE plugin_taima_entries_old;');
 }
 
-if (version_compare($old_version, '0.4.4', '<') && version_compare(garradin_version(), '1.2.0', '>=')) {
+if (version_compare($old_version, '0.4.4', '<') && version_compare(garradin_version(), '1.2.0-alpha1', '>=')) {
 	$db->beginSchemaUpdate();
 
 	$db->exec('ALTER TABLE plugin_taima_entries RENAME TO plugin_taima_entries_old;

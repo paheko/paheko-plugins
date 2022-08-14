@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Statistiques web" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Statistiques web" current="plugin_%s"|args:$plugin.id}
 
 <p class="help block">Note : les visites des robots et moteurs de recherche ne sont pas prises en compte.</p>
 
@@ -44,4 +44,4 @@
 	</tbody>
 </table>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

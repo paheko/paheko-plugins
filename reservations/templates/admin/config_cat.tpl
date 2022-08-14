@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Configuration — %s"|args:$plugin.nom current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Configuration — %s"|args:$plugin.nom current="plugin_%s"|args:$plugin.id}
 
 {include file="%s/templates/admin/_menu.tpl"|args:$plugin_root current="config"}
 
@@ -123,4 +123,4 @@ var champ_identite = "f_{$config.champ_identite|escape:'js'}";
 {/literal}
 </script>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

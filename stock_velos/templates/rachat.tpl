@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Racheter un vélo" current="plugin_`$plugin.id`"}
+{include file="_head.tpl" title="Racheter un vélo" current="plugin_`$plugin.id`"}
 
 {include file="%s_nav.tpl"|args:$plugin_tpl current=""}
 
@@ -85,4 +85,4 @@
 
 </section>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

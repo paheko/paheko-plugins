@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Gestion catégorie" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Gestion catégorie" current="plugin_%s"|args:$plugin.id}
 
 {form_errors}
 
@@ -16,4 +16,4 @@
 	</p>
 </form>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}
