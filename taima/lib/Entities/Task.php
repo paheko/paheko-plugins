@@ -22,10 +22,6 @@ class Task extends Entity
 			$source = $_POST;
 		}
 
-		if (isset($source['account']) && is_array($source['account'])) {
-			$source['account'] = Accounts::getCodeFromId(key($source['account']));
-		}
-
 		if (isset($source['value'])) {
 			$source['value'] = Utils::moneyToInteger($source['value']) ?: null;
 		}

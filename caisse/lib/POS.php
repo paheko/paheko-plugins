@@ -7,7 +7,7 @@ use Garradin\UserException;
 use Garradin\Entities\Accounting\Line;
 use Garradin\Entities\Accounting\Transaction;
 use Garradin\Entities\Accounting\Year;
-use Garradin\Entities\Files\File;
+use Garradin\Files\Files;
 use Garradin\Accounting\Accounts;
 
 use KD2\Graphics\SVG\Bar;
@@ -103,7 +103,7 @@ class POS
 				$sid = (int) str_replace('POS-SESSION-', '', $transaction->reference);
 				$session = Sessions::get($sid);
 				$path = $transaction->getAttachementsDirectory();
-				$file = File::createAndStore($path, sprintf('session-%d.html', $sid), null, $session->export(true, 1));
+				$file = Files::createFromString(sprintf('%s/session-%d.html', $path, $sid), $session->export(true, 1));
 			}
 		};
 
