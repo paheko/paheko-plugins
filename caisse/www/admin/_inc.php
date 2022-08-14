@@ -2,7 +2,7 @@
 
 namespace Garradin\Plugin\Caisse;
 
-use Garradin\Membres\Session;
+use Garradin\Users\Session;
 use Garradin\Utils;
 use Garradin\UserTemplate\CommonModifiers;
 

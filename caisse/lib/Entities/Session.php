@@ -7,6 +7,8 @@ use Garradin\Config;
 use Garradin\Template;
 use Garradin\UserException;
 use Garradin\Utils;
+use Garradin\Users\DynamicFields;
+
 use const Garradin\PLUGIN_ROOT;
 
 use Garradin\Plugin\Caisse\POS;
@@ -30,10 +32,10 @@ class Session extends Entity
 	public function usernames()
 	{
 		$db = DB::getInstance();
-		$name_field = Config::getInstance()->get('champ_identite');
+		$id_field = DynamicFields::getNameFieldsSQL();
 		$sql = sprintf('SELECT x.a AS open_user_name, y.b AS close_user_name FROM
-			(SELECT %s AS a FROM membres WHERE id = ?) AS x,
-			(SELECT %1$s AS b FROM membres WHERE id = ?) AS y;', $db->quoteIdentifier($name_field));
+			(SELECT %s AS a FROM users WHERE id = ?) AS x,
+			(SELECT %1$s AS b FROM users WHERE id = ?) AS y;', $id_field);
 		return $db->first(POS::sql($sql), $this->open_user, $this->close_user);
 	}
 
@@ -201,6 +203,7 @@ class Session extends Entity
 
 		$tpl->assign('print', (bool) $print);
 		$tpl->assign('details', $details);
+		$tpl->assign('id_field', DynamicFields::getFirstNameField());
 
 		if ($print == 2) {
 			$tpl->PDF(PLUGIN_ROOT . '/templates/session_export.tpl', sprintf('Session de caisse numéro %d du %s', $this->id, Utils::date_fr($this->opened, 'd-m-Y')));

@@ -2,9 +2,10 @@
 
 namespace Garradin;
 
+use Garradin\Users\DynamicList;
+
 $old_version = $plugin->getInfos('version');
 $db = DB::getInstance();
-$config = Config::getInstance();
 
 if (version_compare($old_version, '0.5', '<')) {
 	$db->toggleForeignKeys(false);
@@ -47,10 +48,10 @@ if (version_compare($old_version, '0.5', '<')) {
 	INSERT INTO plugin_reservations_categories (nom) VALUES (\'Réservations\');
 	INSERT INTO plugin_reservations_creneaux SELECT id, 1, jour, heure, repetition, maximum FROM plugin_reservations_creneaux_old;
 
-	INSERT INTO plugin_reservations_personnes SELECT id, creneau, date, CASE WHEN id_membre IS NOT NULL THEN (SELECT %s FROM membres WHERE id = id_membre) ELSE nom END, NULL FROM plugin_reservations_personnes_old;
+	INSERT INTO plugin_reservations_personnes SELECT id, creneau, date, CASE WHEN id_membre IS NOT NULL THEN (SELECT %s FROM users WHERE id = id_membre) ELSE nom END, NULL FROM plugin_reservations_personnes_old;
 
 	DROP TABLE plugin_reservations_creneaux_old;
-	DROP TABLE plugin_reservations_personnes_old;', $config->get('champ_identite')));
+	DROP TABLE plugin_reservations_personnes_old;', DynamicFields::getNameFieldsSQL()));
 
 	// Remise en place du texte
 	$db->update('plugin_reservations_categories', ['description' => $plugin->getConfig('text')], 'id = 1');

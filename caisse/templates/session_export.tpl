@@ -9,6 +9,7 @@
 	body {
 		font-family: sans-serif;
 		font-size: 11pt;
+		background: #fff;
 	}
 
 	.error {
@@ -108,8 +109,8 @@
 					{$tab.name}
 				</td>
 				<td class="actions">
-					<form method="post" action="{$admin_url}membres/ajouter.php">
-						<input type="hidden" name="{$config.champ_identite}" value="{$tab.name}" />
+					<form method="post" action="{$admin_url}users/new.php">
+						<input type="hidden" name="{$id_field}" value="{$tab.name}" />
 						<input type="submit" value="Inscrire ce membre" />
 					</form>
 				</td>

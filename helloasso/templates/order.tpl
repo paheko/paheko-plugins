@@ -43,10 +43,10 @@
 {*
 {if $found_user}
 <p class="block confirm">
-	Membre correspondant trouvé : <a href="{$admin_url}membres/fiche.php?id={$found_user.id}">{$found_user.identity}</a>
+	Membre correspondant trouvé : <a href="{$admin_url}users/details.php?id={$found_user.id}">{$found_user.identity}</a>
 </p>
 {else}
-<form method="post" action="{$admin_url}membres/ajouter.php">
+<form method="post" action="{$admin_url}users/new.php">
 <p class="alert block">
 	Aucun membre correspondant n'a été trouvé.<br />
 	{foreach from=$mapped_user key="key" item="value"}

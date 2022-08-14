@@ -2,9 +2,9 @@
 
 namespace Garradin\Plugin\Caisse;
 
-use Garradin\Config;
 use Garradin\DB;
 use Garradin\DynamicList;
+use Garradin\Users\DynamicFields;
 use KD2\DB\EntityManager as EM;
 
 use Garradin\Plugin\Caisse\Entities\Session;
@@ -46,7 +46,6 @@ class Sessions
 	static public function list(): DynamicList
 	{
 		$db = DB::getInstance();
-		$name_field = Config::getInstance()->get('champ_identite');
 
 		$columns = [
 			'id' => [
@@ -58,7 +57,7 @@ class Sessions
 				'select' => 's.opened',
 			],
 			'open_user_name' => [
-				'select' => 'm.' . $db->quoteIdentifier($name_field),
+				'select' => DynamicFields::getNameFieldsSQL('u'),
 			],
 			'open_amount' => [
 				'label' => 'Montant',
@@ -72,7 +71,7 @@ class Sessions
 				'select' => 'date(s.closed) = date(s.opened)',
 			],
 			'close_user_name' => [
-				'select' => 'm2.' . $db->quoteIdentifier($name_field),
+				'select' => DynamicFields::getNameFieldsSQL('u2'),
 			],
 			'close_amount' => [
 				'label' => 'Montant clôture',
@@ -91,8 +90,8 @@ class Sessions
 		$tables = '@PREFIX_sessions s
 			LEFT JOIN @PREFIX_tabs t ON t.session = s.id
 			LEFT JOIN @PREFIX_tabs_items ti ON ti.tab = t.id
-			LEFT JOIN membres m ON s.open_user = m.id
-			LEFT JOIN membres m2 ON s.close_user = m2.id';
+			LEFT JOIN users u ON s.open_user = u.id
+			LEFT JOIN users u2 ON s.close_user = u2.id';
 
 		$tables = POS::sql($tables);
 

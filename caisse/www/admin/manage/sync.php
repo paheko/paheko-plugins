@@ -3,7 +3,7 @@
 namespace Garradin;
 
 use Garradin\Plugin\Caisse\POS;
-use Garradin\Membres\Session as UserSession;
+use Garradin\Users\Session as UserSession;
 
 use Garradin\Accounting\Years;
 

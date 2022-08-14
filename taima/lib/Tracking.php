@@ -10,11 +10,12 @@ use Garradin\Entities\Accounting\Line;
 use Garradin\Entities\Accounting\Year;
 use Garradin\Accounting\Accounts;
 
-use Garradin\Config;
 use Garradin\DB;
 use Garradin\DynamicList;
 use Garradin\Utils;
 use Garradin\UserException;
+use Garradin\Users\DynamicFields;
+
 use KD2\DB\EntityManager as EM;
 
 use DateTime;
@@ -109,7 +110,6 @@ class Tracking
 
 	static public function getList(?int $id_user = null, ?int $except = null): DynamicList
 	{
-		$identity = Config::getInstance()->get('champ_identite');
 		$columns = [
 			'task' => [
 				'label' => 'Tâche',
@@ -139,14 +139,14 @@ class Tracking
 			],
 			'user_name' => [
 				'label' => 'Nom',
-				'select' => 'm.' . $identity,
+				'select' => DynamicFields::getNameFieldsSQL('u'),
 			],
 			'id' => ['select' => 'e.id'],
 		];
 
 		$tables = 'plugin_taima_entries e
 			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
-			INNER JOIN membres m ON m.id = e.user_id';
+			INNER JOIN users u ON u.id = e.user_id';
 
 		$conditions = '1';
 
@@ -187,15 +187,15 @@ class Tracking
 			$group .= ', e.task_id';
 		}
 
-		$identity = Config::getInstance()->get('champ_identite');
-		$sql = 'SELECT e.*, t.label AS task_label, m.%s AS user_name, SUM(duration) AS duration, %s AS criteria
+		$id_field = DynamicFields::getNameFieldsSQL('u');
+		$sql = 'SELECT e.*, t.label AS task_label, %s AS user_name, SUM(duration) AS duration, %s AS criteria
 			FROM plugin_taima_entries e
 			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
-			INNER JOIN membres m ON m.id = e.user_id
+			INNER JOIN users u ON u.id = e.user_id
 			GROUP BY %s
 			ORDER BY %s, SUM(duration) DESC;';
 
-		$sql = sprintf($sql, $identity, $criteria, $group, $order);
+		$sql = sprintf($sql, $id_field, $criteria, $group, $order);
 
 		$db = DB::getInstance();
 

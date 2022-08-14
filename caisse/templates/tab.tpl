@@ -41,7 +41,7 @@
 			<div>
 				<form method="post">
 				{if $current_tab.user_id}
-					{linkbutton href="!membres/fiche.php?id=%d"|args:$current_tab.user_id label="" shape="user" target="_blank" title="Ouvrir la fiche membre"}
+					{linkbutton href="!users/details.php?id=%d"|args:$current_tab.user_id label="" shape="user" target="_blank" title="Ouvrir la fiche membre"}
 				{/if}
 				{if !$remainder && !$current_tab.closed}
 					<input type="submit" name="close" value="Clore la note" />

@@ -94,7 +94,7 @@
             <dt>Provenance</dt>
             <dd>{$velo.source|escape} &mdash;
                 {if $velo.source == 'Don' && is_numeric($velo.source_details)}
-                    <a href="{$admin_url}membres/fiche.php?id={$velo.source_details|escape}">Membre n°{$velo.source_details|escape} — {$source_membre.identite|escape}</a>
+                    <a href="{$admin_url}users/details.php?id={$velo.source_details|escape}">Membre n°{$velo.source_details|escape} — {$source_membre.identite|escape}</a>
                 {elseif $velo.source == 'Rachat'}
                     Racheté (ancienne référence : <a href="fiche.php?id={$velo.source_details|escape}">{$velo.source_details|escape}</a>)
                 {else}
@@ -112,7 +112,7 @@
             <dd>Raison de sortie :
                 {$velo.raison_sortie|escape} &mdash;
                 {if $velo.raison_sortie == 'Vendu' && is_numeric($velo.details_sortie)}
-                    <a href="{$admin_url}membres/fiche.php?id={$velo.details_sortie|escape}">Membre n°{$velo.details_sortie|escape} — {$sortie_membre.identite|escape}</a>
+                    <a href="{$admin_url}users/details.php?id={$velo.details_sortie|escape}">Membre n°{$velo.details_sortie|escape} — {$sortie_membre.identite|escape}</a>
                 {else}
                     {$velo.details_sortie|escape}
                 {/if}
