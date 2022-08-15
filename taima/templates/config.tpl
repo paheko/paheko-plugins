@@ -2,6 +2,10 @@
 
 {include file="%s/templates/_nav.tpl"|args:$plugin_root current="config"}
 
+<p class="actions">
+	{linkbutton href="import.php" shape="upload" label="Import Bénévalibre"}
+</p>
+
 {form_errors}
 
 <table class="list">

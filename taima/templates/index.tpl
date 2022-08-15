@@ -6,6 +6,8 @@ $timer_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" vi
 
 {include file="%s/templates/_nav.tpl"|args:$plugin_root current="index"}
 
+{form_errors}
+
 {if $running_timers}
 <div class="block alert">
 	Des chronos sont démarrés&nbsp;:
