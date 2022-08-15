@@ -42,7 +42,7 @@ $timer_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" vi
 			</a>
 		</li>
 	{/foreach}
-	<li class="total"><h3>Total</h3><strong>{$week_total}</strong></li>
+	<li class="total"><span><h3>Total</h3><strong>{$week_total}</strong></span></li>
 	<li class="add">
 		{button shape="plus" data-action="add-entry" label="Nouvelle entrée"}
 	</li>
@@ -102,7 +102,7 @@ $timer_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" vi
 			<legend>Événement</legend>
 			<dl>
 				{input type="select" options=$tasks name="task_id" label="Tâche"}
-				{input type="text" name="duration" placeholder="0:30" pattern="\\d+[:h]\\d+|\\d+([.,]\\d+)?" help="Formats acceptés : 1h30, 1:30, 1.5 ou 1,5. Laisser vide pour démarrer un chrono." label="Durée" size="5"}
+				{input type="text" name="duration" placeholder="0:30" pattern="\d+[:h]\d+|\d+([.,]\d+)?" help="Formats acceptés : 1h30, 1:30, 1.5 ou 1,5. Laisser vide pour démarrer un chrono." label="Durée" size="5"}
 				{input type="textarea" name="notes" label="Notes"}
 			</dl>
 			<p class="submit">

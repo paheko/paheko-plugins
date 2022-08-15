@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS plugin_taima_tasks (
 
 CREATE TABLE IF NOT EXISTS plugin_taima_entries (
 	id INTEGER NOT NULL PRIMARY KEY,
-	user_id INTEGER NULL REFERENCES membres (id) ON DELETE CASCADE,
+	user_id INTEGER NULL REFERENCES membres (id) ON DELETE SET NULL,
 	task_id INTEGER NULL REFERENCES plugin_taima_tasks(id) ON DELETE SET NULL,
 	year INTEGER NOT NULL CHECK (LENGTH(year) = 4),
 	week INTEGER NOT NULL CHECK (week >= 1 AND week <= 53),
