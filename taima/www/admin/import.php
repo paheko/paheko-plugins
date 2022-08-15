@@ -28,6 +28,11 @@ $links = null;
 $tasks = [null => '--'] + DB::getInstance()->getAssoc('SELECT id, label FROM plugin_taima_tasks;');
 $json = $session->get('taima_import_json');
 
+if (isset($_GET['cancel'])) {
+	$json = null;
+	$session->set('taima_import_json', $json);
+}
+
 $form->runIf('load', function () use (&$session) {
 	$file = $_FILES['json'] ?? null;
 
@@ -82,7 +87,7 @@ $form->runIf(f('preview') && $json && count($links), function () use ($json, &$a
 	foreach ($json as $l => $row) {
 		$e = new Entry;
 		$e->setDateString($row['Date']);
-		$e->setDuration($row['Heures, en décimal']);
+		$e->duration = intval($row['Heures, en décimal'] * 60);
 
 		if ($id = $db->firstColumn(sprintf('SELECT id FROM membres WHERE %s = ?;', $id_field), $row['Bénévole'])) {
 			$e->user_id = $id;
@@ -116,7 +121,6 @@ $form->runIf('save', function () use ($session) {
 		$e = new Entry;
 		$e->importForm($entry);
 		$e->setDateString($entry['date']);
-		$e->setDuration($entry['duration']);
 		$e->save();
 	}
 
