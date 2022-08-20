@@ -27,7 +27,7 @@ svg path {
 .taima-weekdays {
 	background: #fff;
 	list-style: none;
-	display: inline-flex;
+	display: flex;
 	align-items: stretch;
 	padding: 0;
 	border-radius: .5em;
@@ -36,7 +36,7 @@ svg path {
 	margin: 1em;
 }
 
-.taima-weekdays li a, .taima-weekdays li.total {
+.taima-weekdays li a, .taima-weekdays li span {
 	display: block;
 	padding: .5em 1em;
 	border-right: 1px solid #ccf;
@@ -72,13 +72,15 @@ svg path {
 	color: darkred;
 }
 
+.taima-weekdays li {
+}
+
 .taima-weekdays li.total {
 	color: #666;
 }
 
 .taima-weekdays li.add {
 	padding: .5em;
-	align-self: center;
 }
 
 .taima-weekdays li.week {
@@ -170,4 +172,74 @@ a.start-timer, a.stop-timer {
 	padding: 1em;
 	background: #fff;
 	border-radius: .5em;
+}
+
+@media screen and (max-width: 800px) {
+	.taima-weekdays {
+		display: block;
+		text-align: center;
+	}
+
+	.taima-weekdays li {
+		margin: .2em;
+		display: inline-block;
+	}
+
+	.taima-weekdays li a, .taima-weekdays li span, .taima-weekdays li.week {
+		border: none;
+	}
+
+	.taima-weekdays li.week {
+		display: block;
+	}
+
+	.taima-weekdays li.week * {
+		display: inline;
+		margin: 0 .5em;
+	}
+
+	.taima-weekdays li a, .taima-weekdays span {
+		border-radius: .5em;
+	}
+
+	.taima-entries {
+		display: flex;
+		border: none;
+		width: auto;
+		flex-direction: column;
+		margin: 1em;
+	}
+
+	.taima-entries tr {
+		display: flex;
+		flex-direction: column;
+		border: none;
+		align-items: center;
+		border: 1px solid #ccc;
+		border-radius: .5em;
+		margin-bottom: .5em;
+		text-align: center;
+	}
+
+	.taima-entries tr.notes {
+		border-radius: 0;
+		border: none;
+		padding: .5em;
+	}
+
+	.taima-entries tr th {
+	}
+
+	.taima-entries tr td {
+		padding: .2em;
+	}
+
+	.taima-header {
+		display: block;
+		text-align: center;
+	}
+
+	.taima-header .btns, .taima-header h2 {
+		margin: .3em 0;
+	}
 }

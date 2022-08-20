@@ -146,12 +146,12 @@ class Tracking
 
 		$tables = 'plugin_taima_entries e
 			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
-			INNER JOIN users u ON u.id = e.user_id';
+			LEFT JOIN users u ON u.id = e.user_id';
 
 		$conditions = '1';
 
 		if ($except) {
-			$conditions = 'e.user_id != ' . $except;
+			$conditions = 'e.user_id IS NULL OR e.user_id != ' . $except;
 		}
 		elseif ($id_user) {
 			$conditions = 'e.user_id = ' . $id_user;
@@ -191,7 +191,7 @@ class Tracking
 		$sql = 'SELECT e.*, t.label AS task_label, %s AS user_name, SUM(duration) AS duration, %s AS criteria
 			FROM plugin_taima_entries e
 			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
-			INNER JOIN users u ON u.id = e.user_id
+			LEFT JOIN users u ON u.id = e.user_id
 			GROUP BY %s
 			ORDER BY %s, SUM(duration) DESC;';
 

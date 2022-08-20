@@ -2,7 +2,7 @@
 
 namespace Garradin\Plugin\Git_Documents;
 
-use Garradin\Membres\Session;
+use Garradin\Users\Session;
 
 class GitDocuments
 {
