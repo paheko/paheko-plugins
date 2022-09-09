@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Import Bénévalibre" plugin_css=['style.css']}
+{include file="_head.tpl" title="Import Bénévalibre" plugin_css=['style.css']}
 
 {include file="%s/templates/_nav.tpl"|args:$plugin_root current="config"}
 {form_errors}
@@ -100,4 +100,4 @@
 </form>
 {/if}
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}
