@@ -104,7 +104,7 @@ class Stats
 			SUM(hits) AS hits
 			FROM plugin_webstats_stats
 			GROUP BY year, month
-			ORDER BY year DESC, month ASC;');
+			ORDER BY year DESC, month DESC;');
 	}
 
 	static public function getHits()
