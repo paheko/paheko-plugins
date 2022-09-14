@@ -60,6 +60,14 @@ document.querySelectorAll('input[name*="change_qty"], button[name*="change_price
 	};
 });
 
+document.querySelectorAll('button[name*="rename_item"]').forEach((elm) => {
+	elm.onclick = (e) => {
+		var v = prompt('Renommer ce produit :', elm.value);
+		if (v === null) return false;
+		elm.value = v;
+	};
+});
+
 var pm = document.querySelector('select[name="method_id"]');
 
 function toggleMethod() {
@@ -117,7 +125,7 @@ if (q) {
 var pdf = document.getElementById('f_pdf');
 pdf.onsubmit = (e) => {
 	if (pdf.querySelector('input').getAttribute('data-name') == 0) {
-		alert("Merci de donner un nom à la facture d'abord.");
+		alert("Merci de donner un nom à la note d'abord.");
 		return false;
 	}
 };
