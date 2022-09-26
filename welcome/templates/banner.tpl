@@ -1,7 +1,7 @@
 {literal}
 <style type="text/css">
 .block.banner {
-	background: #9c4f15 url("static/gdin_bg.png") no-repeat right -250px top 0px;
+	background: #20787a url("static/bg.png") no-repeat right -220px top 0px;
 	color: #fff;
 	border-radius: 1em;
 	padding: 1em;
