@@ -6,12 +6,13 @@ use Garradin\Plugin\Taima\Tracking;
 use Garradin\Accounting\Years;
 use Garradin\Utils;
 use Garradin\UserException;
-use Garradin\Membres\Session;
+use Garradin\Users\Session;
 
 use function Garradin\{f, qg};
 
 require_once __DIR__ . '/_inc.php';
 
+$session = Session::getInstance();
 $session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
 $session->requireAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE);
 
@@ -26,7 +27,7 @@ $start = f('start') ? Utils::get_datetime(f('start')) : $year->start_date;
 $end = f('end') ? Utils::get_datetime(f('end')) : $year->end_date;
 
 $form->runIf('save', function () use ($year, $start, $end) {
-	$id_user = Session::getInstance()->getUser()->id;
+	$id_user = Session::getUserId();
 	$t = Tracking::createReport($year, $start, $end, $id_user);
 	$t->save();
 	Utils::redirect(Utils::getSelfURI(['ok' => $t->id()]));

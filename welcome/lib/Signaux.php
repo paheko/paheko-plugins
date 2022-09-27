@@ -2,7 +2,7 @@
 
 namespace Garradin\Plugin\Welcome;
 
-use Garradin\{Template, Membres\Session, Membres};
+use Garradin\Template;
 
 class Signaux
 {
