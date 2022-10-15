@@ -16,4 +16,4 @@ $per_week = Tracking::listPerInterval($grouping, $per_user);
 
 $tpl->assign(compact('per_week', 'per_user', 'grouping'));
 
-$tpl->display(__DIR__ . '/../../templates/stats.tpl');
+$tpl->display(__DIR__ . '/../templates/stats.tpl');

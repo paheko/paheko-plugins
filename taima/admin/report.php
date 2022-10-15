@@ -37,4 +37,4 @@ $report = Tracking::getFinancialReport($year, $start, $end);
 
 $tpl->assign(compact('report', 'year', 'csrf_key'));
 
-$tpl->display(__DIR__ . '/../../templates/report.tpl');
+$tpl->display(__DIR__ . '/../templates/report.tpl');

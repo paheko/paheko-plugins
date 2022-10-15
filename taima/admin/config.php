@@ -43,14 +43,14 @@ $tpl->assign('account_targets', Account::TYPE_VOLUNTEERING);
 if (qg('edit')) {
 	$task = EM::findOneById(Task::class, (int) qg('edit'));
 	$tpl->assign(compact('task'));
-	$tpl->display(__DIR__ . '/../../templates/config_edit.tpl');
+	$tpl->display(__DIR__ . '/../templates/config_edit.tpl');
 }
 elseif (qg('delete')) {
 	$task = EM::findOneById(Task::class, (int) qg('delete'));
 	$tpl->assign('task', $task);
-	$tpl->display(__DIR__ . '/../../templates/config_delete.tpl');
+	$tpl->display(__DIR__ . '/../templates/config_delete.tpl');
 }
 else {
 	$tpl->assign('tasks', EM::getInstance(Task::class)->all('SELECT * FROM @TABLE ORDER BY label;'));
-	$tpl->display(__DIR__ . '/../../templates/config.tpl');
+	$tpl->display(__DIR__ . '/../templates/config.tpl');
 }

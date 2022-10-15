@@ -2,6 +2,8 @@
 
 namespace Garradin;
 
+use Garradin\Plugin\Taima\Tracking;
+
 $old_version = $plugin->getInfos('version');
 $db = DB::getInstance();
 
@@ -52,4 +54,6 @@ if (version_compare($old_version, '0.5.1', '<')) {
 	DROP TABLE plugin_taima_entries_old;');
 
 	$db->commitSchemaUpdate();
+
+	$plugin->registerSignal('home.button', [Tracking::class, 'homeButton']);
 }

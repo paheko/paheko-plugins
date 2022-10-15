@@ -112,4 +112,4 @@ $running_timers = Tracking::listUserRunningTimers($day, $user_id);
 
 $tpl->assign(compact('is_today', 'tasks', 'entries', 'week_total', 'weekdays', 'prev_url', 'next_url', 'today_url', 'day', 'year', 'week', 'csrf_key', 'running_timers'));
 
-$tpl->display(__DIR__ . '/../../templates/index.tpl');
+$tpl->display(__DIR__ . '/../templates/index.tpl');

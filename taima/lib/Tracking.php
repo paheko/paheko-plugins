@@ -12,9 +12,11 @@ use Garradin\Accounting\Accounts;
 
 use Garradin\DB;
 use Garradin\DynamicList;
+use Garradin\Plugin;
 use Garradin\Utils;
 use Garradin\UserException;
 use Garradin\Users\DynamicFields;
+use Garradin\UserTemplate\CommonFunctions;
 
 use KD2\DB\EntityManager as EM;
 
@@ -22,6 +24,15 @@ use DateTime;
 
 class Tracking
 {
+	static public function homeButton(array $params, array &$buttons): void
+	{
+		$buttons['taima'] = CommonFunctions::linkbutton([
+			'label' => 'Tāima - Suivi du temps',
+			'icon' => Plugin::getURL('taima', 'icon.svg'),
+			'href' => Plugin::getURL('taima'),
+		]);
+	}
+
 	static public function get(int $id)
 	{
 		return EM::findOneById(Entry::class, $id);
