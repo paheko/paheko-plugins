@@ -17,10 +17,10 @@ class Sessions
 			FROM @PREFIX_sessions GROUP BY strftime(\'%Y\', opened);'));
 	}
 
-	static public function open(int $user_id, int $amount): Session
+	static public function open(string $user_name, int $amount): Session
 	{
 		$session = new Session;
-		$session->set('open_user', $user_id);
+		$session->set('open_user', $user_name);
 		$session->set('open_amount', $amount);
 		$session->set('opened', new \DateTime);
 		$session->save();
@@ -56,8 +56,8 @@ class Sessions
 				'label' => 'Ouverture',
 				'select' => 's.opened',
 			],
-			'open_user_name' => [
-				'select' => DynamicFields::getNameFieldsSQL('u'),
+			'open_user' => [
+				'select' => 's.open_user',
 			],
 			'open_amount' => [
 				'label' => 'Montant',
@@ -70,8 +70,8 @@ class Sessions
 			'closed_same_day' => [
 				'select' => 'date(s.closed) = date(s.opened)',
 			],
-			'close_user_name' => [
-				'select' => DynamicFields::getNameFieldsSQL('u2'),
+			'close_user' => [
+				'select' => 's.close_user',
 			],
 			'close_amount' => [
 				'label' => 'Montant clôture',
@@ -89,9 +89,7 @@ class Sessions
 
 		$tables = '@PREFIX_sessions s
 			LEFT JOIN @PREFIX_tabs t ON t.session = s.id
-			LEFT JOIN @PREFIX_tabs_items ti ON ti.tab = t.id
-			LEFT JOIN users u ON s.open_user = u.id
-			LEFT JOIN users u2 ON s.close_user = u2.id';
+			LEFT JOIN @PREFIX_tabs_items ti ON ti.tab = t.id';
 
 		$tables = POS::sql($tables);
 

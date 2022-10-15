@@ -16,7 +16,7 @@
 			</td>
 			<th>
 				{$pos_session.opened|date}
-				<small>({$pos_session.open_user_name})</small>
+				<small>({$pos_session.open_user})</small>
 			</th>
 			<td class="money">{$pos_session.open_amount|raw|money_currency}</td>
 			<td>
@@ -29,7 +29,7 @@
 						{$pos_session.closed|date}
 					{/if}
 
-					{if $pos_session.close_user_name != $pos_session.open_user_name}<small>({$pos_session.close_user_name})</small>{/if}
+					{if $pos_session.close_user != $pos_session.open_user}<small>({$pos_session.close_user})</small>{/if}
 				{/if}
 			</td>
 			<td class="money">{$pos_session.close_amount|raw|money_currency}</td>

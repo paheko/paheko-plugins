@@ -196,7 +196,7 @@
 	</ul>
 </div>
 
-<script type="text/javascript" src="{$plugin_url}tab.js" async="async"></script>
+<script type="text/javascript" src="{$plugin_admin_url}tab.js" async="async"></script>
 {/if}
 
 {include file="_foot.tpl"}

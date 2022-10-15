@@ -6,7 +6,7 @@
 </p>
 {/if}
 
-<form method="post" action="">
+<form method="post" action="" data-focus="1">
 
 <h2 class="ruler">1. Vérifier la caisse</h2>
 
@@ -87,11 +87,18 @@
 
 <h2 class="ruler">3. Confirmer et clôturer</h2>
 
-<h3 class="warning">
-	{input type="checkbox" name="confirm" value="1" label="Je confirme que les informations indiquées dans ce formulaire sont justes"}
-</h3>
+<fieldset>
+	<dl>
+		<dl>
+			{if $plugin.config.allow_custom_user_name}
+				{input type="text" name="user_name" label="Nom de la personne clôturant la caisse" required=true default=$user_name}
+			{/if}
+			{input type="checkbox" name="confirm" value="1" label="Je confirme que les informations indiquées dans ce formulaire sont justes" class="alert"}
+		</dl>
+	</dl>
+</fieldset>
 
-<p class="alert">
+<p class="alert block">
 	Il ne sera plus possible de corriger les informations une fois la caisse clôturée.
 </p>
 

@@ -41,9 +41,9 @@
 				</td>
 				<td class="actions">
 					{if $row.tab}
-						{linkbutton href="%stab.php?id=%d"|args:$plugin_url,$row.tab label="Note de caisse" shape="menu"}
+						{linkbutton href="%stab.php?id=%d"|args:$plugin_admin_url,$row.tab label="Note de caisse" shape="menu"}
 					{elseif $row.event}
-						{linkbutton href="%smanage/stock/details.php?id=%d"|args:$plugin_url,$row.event label="Événement de stock" shape="table"}
+						{linkbutton href="%smanage/stock/details.php?id=%d"|args:$plugin_admin_url,$row.event label="Événement de stock" shape="table"}
 					{/if}
 				</td>
 			</tr>

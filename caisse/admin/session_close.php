@@ -19,7 +19,7 @@ if ($pos_session->closed) {
 
 if (isset($_POST['close'], $_POST['amount']) && !empty($_POST['confirm'])) {
 	$payments = f('payments') ? array_keys(f('payments')) : [];
-	$pos_session->close($session->getUser()->id, get_amount(f('amount')), (bool) f('recheck'), $payments);
+	$pos_session->close(f('user_name') ?: Session::getInstance()->getUser()->name(), get_amount(f('amount')), (bool) f('recheck'), $payments);
 	Utils::redirect(Utils::plugin_url(['file' => 'session.php', 'query' => 'id=' . $pos_session->id]));
 }
 
@@ -29,6 +29,7 @@ $tpl->assign('open_notes', $pos_session->hasOpenNotes());
 
 $cash_total = $pos_session->getCashTotal();
 $tpl->assign('cash_total', $cash_total);
+$tpl->assign('user_name', $session->getUser()->name());
 $tpl->assign('close_total', $cash_total + $pos_session->open_amount);
 $tpl->assign('payments_except_cash', $pos_session->listPaymentWithoutCash());
 

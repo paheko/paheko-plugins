@@ -60,10 +60,10 @@ CREATE TABLE IF NOT EXISTS @PREFIX_sessions (
 	id INTEGER NOT NULL PRIMARY KEY,
 	opened TEXT NOT NULL DEFAULT (datetime('now','localtime')),
 	closed TEXT NULL,
-	open_user INTEGER NULL,
+	open_user_name TEXT NULL,
 	open_amount INTEGER NULL,
 	close_amount INTEGER NULL,
-	close_user INTEGER NULL,
+	close_user_name TEXT NULL,
 	error_amount INTEGER NULL
 );
 

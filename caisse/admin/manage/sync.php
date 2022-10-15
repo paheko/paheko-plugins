@@ -14,7 +14,7 @@ $tpl->assign('year', $year);
 
 $form->runIf($year && f('sync'), function () use ($year) {
 	$added = POS::syncAccounting(UserSession::getInstance()->getUser()->id, $year);
-	Utils::redirect(PLUGIN_URL . 'manage/sync.php?ok=' . $added . '&year=' . $year->id);
+	Utils::redirect(PLUGIN_ADMIN_URL . 'manage/sync.php?ok=' . $added . '&year=' . $year->id);
 });
 
 $tpl->assign('years', Years::listOpenAssoc());

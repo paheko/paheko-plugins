@@ -23,27 +23,17 @@ class Session extends Entity
 	protected ?int $id;
 	protected \DateTime $opened;
 	protected ?\DateTime $closed;
-	protected int $open_user;
+	protected string $open_user;
 	protected int $open_amount;
 	protected ?int $close_amount;
-	protected ?int $close_user;
+	protected ?string $close_user;
 	protected ?int $error_amount;
-
-	public function usernames()
-	{
-		$db = DB::getInstance();
-		$id_field = DynamicFields::getNameFieldsSQL();
-		$sql = sprintf('SELECT x.a AS open_user_name, y.b AS close_user_name FROM
-			(SELECT %s AS a FROM users WHERE id = ?) AS x,
-			(SELECT %1$s AS b FROM users WHERE id = ?) AS y;', $id_field);
-		return $db->first(POS::sql($sql), $this->open_user, $this->close_user);
-	}
 
 	public function hasOpenNotes() {
 		return DB::getInstance()->test(POS::tbl('tabs'), 'session = ? AND closed IS NULL', $this->id);
 	}
 
-	public function close(int $user_id, int $amount, ?bool $confirm_error, array $payments)
+	public function close(string $user_name, int $amount, ?bool $confirm_error, array $payments)
 	{
 		$db = DB::getInstance();
 
@@ -77,7 +67,7 @@ class Session extends Entity
 			close_amount = ?,
 			close_user = ?,
 			error_amount = ?
-			WHERE id = ?'), [$amount, $user_id, $error_amount, $this->id]);
+			WHERE id = ?'), [$amount, $user_name, $error_amount, $this->id]);
 
 		// Update stock
 		$db->preparedQuery(POS::sql('INSERT INTO @PREFIX_products_stock_history (product, change, date, item, event)
@@ -196,7 +186,6 @@ class Session extends Entity
 		$tpl->assign('tabs', $this->listTabsWithItems());
 		$tpl->assign('totals_categories', $this->listTotalsByCategory());
 		$tpl->assign('total', $this->getTotal());
-		$tpl->assign('names', $this->usernames());
 		$tpl->assign('missing_users_tabs', $this->listMissingUsers());
 
 		$tpl->assign('title', sprintf('Session de caisse n°%d du %s', $this->id, Utils::date_fr($this->opened)));

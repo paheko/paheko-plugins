@@ -22,7 +22,7 @@ $form->runIf('open', function () use ($session) {
 		throw new UserException('Le solde de la caisse ne peut être laissé vide.');
 	}
 
-	Sessions::open($session->getUser()->id, get_amount(f('amount')));
+	Sessions::open(f('user_name') ?: $session->getUser()->name(), get_amount(f('amount')));
 }, $csrf_key, Utils::plugin_url(['file' => 'tab.php']));
 
 $tpl->assign(compact('csrf_key', 'pos_session'));
@@ -33,5 +33,6 @@ if ($pos_session) {
 	echo $pos_session->export((bool) qg('details'), qg('pdf') ? 2 : 0);
 }
 else {
+	$tpl->assign('user_name', $session->getUser()->name());
 	$tpl->display(PLUGIN_ROOT . '/templates/session_open.tpl');
 }
