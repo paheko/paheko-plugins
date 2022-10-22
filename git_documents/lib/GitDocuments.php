@@ -35,8 +35,6 @@ class GitDocuments
 		if ($code) {
 			throw new \RuntimeException(sprintf('Git command (%s) failed: %s', $cmd, implode("\n", $out)));
 		}
-
-		self::sendDiff();
 	}
 
 	static public function sendDiff(): void
@@ -49,20 +47,31 @@ class GitDocuments
 		}
 
 		$body = '';
+		$last = trim(shell_exec(sprintf('cd %s && git rev-parse HEAD', escapeshellarg(\Garradin\FILE_STORAGE_CONFIG))));
 
 		if (!empty($config->last_commit_hash)) {
+			if ($last == $config->last_commit_hash) {
+				return;
+			}
+
 			$revs = sprintf('HEAD...%s', $config->last_commit_hash);
 		}
 		else {
 			$revs = 'HEAD...HEAD^';
 		}
 
+		$plugin->setConfig('last_commit_hash', $last);
+
 		$diff_cmd = sprintf('cd %s && git log -p %s',
 			escapeshellarg(\Garradin\FILE_STORAGE_CONFIG),
 			escapeshellarg($revs)
 		);
 
-		$body .= shell_exec($diff_cmd . ' --no-color');
+		$body = shell_exec($diff_cmd . ' --no-color');
+
+		if (!trim($body)) {
+			return;
+		}
 
 		$html = null;
 
@@ -81,14 +90,5 @@ class GitDocuments
 		}
 
 		Emails::sendMessage(Emails::CONTEXT_SYSTEM, $msg);
-
-		/*
-		$date = shell_exec(sprintf('cd %s && git log -n 1 | sed -n -e "3,3p"', escapeshellarg(\Garradin\FILE_STORAGE_CONFIG)));
-		$date = str_replace('Date:', '', $date);
-		$date = trim($date);
-		$date = strtotime($date);
-		*/
-		$last = trim(shell_exec(sprintf('cd %s && git rev-parse HEAD', escapeshellarg(\Garradin\FILE_STORAGE_CONFIG))));
-		$plugin->setConfig('last_commit_hash', $last);
 	}
 }

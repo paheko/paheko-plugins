@@ -10,7 +10,7 @@
 	<fieldset>
 		<legend>Configuration</legend>
 		<dl>
-			{input type="email" name="diff_email" required=false default=$plugin.config.diff_email label="Adresse e-mail pour l'envoi des diff" help="Si laissé vide, aucun email ne sera envoyé, sinon un diff sera envoyé à chaque modification"}
+			{input type="email" name="diff_email" required=false default=$plugin.config.diff_email label="Adresse e-mail pour l'envoi des diff" help="Si laissé vide, aucun email ne sera envoyé"}
 	</fieldset>
 	<p class="submit">
 		{csrf_field key=$csrf_key}
