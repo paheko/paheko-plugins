@@ -62,6 +62,7 @@ class GitDocuments
 
 		$plugin->setConfig('last_commit_hash', $last);
 
+		putenv('LANG=fr_FR.UTF-8');
 		$diff_cmd = sprintf('cd %s && git log -p %s',
 			escapeshellarg(\Garradin\FILE_STORAGE_CONFIG),
 			escapeshellarg($revs)
