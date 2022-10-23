@@ -208,6 +208,24 @@ class Ouvertures
 				$data[] = $next;
 			}
 		}
+		// All days of the week
+		elseif ($when == 'week')
+		{
+			foreach ($open as $slot) {
+				$data[$slot[2]] = [
+					'opening_day' => $slot[2],
+					'opening_time' => null,
+					'closing_time' => null,
+				];
+			}
+
+			foreach (self::$config->open as $hours)
+			{
+				$data[$hours[2]] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $hours[2]];
+			}
+
+			$data = array_values($data);
+		}
 
 		foreach ($data as &$row)
 		{
