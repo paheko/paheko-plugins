@@ -219,7 +219,7 @@ class Ouvertures
 				];
 			}
 
-			foreach (self::$config->open as $hours)
+			foreach ($open as $hours)
 			{
 				$data[$hours[2]] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $hours[2]];
 			}
