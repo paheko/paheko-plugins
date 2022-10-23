@@ -36,14 +36,14 @@ class Ouvertures
 		$config = $plugin->getConfig();
 		unset($plugin);
 
-		$config->open = (array) $config->open;
+		$config->open = $config->open;
 
-		$config->days = [];
+		$config->open_days = [];
 
 		foreach ($config->open as $row)
 		{
 			$day = $row->day ? $row->day . ' ' : '';
-			$config->open_days = [strtotime($day . $row->open), strtotime($day . $row->close), $row->day];
+			$config->open_days[] = [strtotime($day . $row->open), strtotime($day . $row->close), $row->day];
 		}
 
 		foreach ($config->closed as &$row)
@@ -90,11 +90,12 @@ class Ouvertures
 		}
 
 		$data = [];
+		$open = self::$config->open_days;
 
 		// All opening days
 		if ($when == 'open')
 		{
-			foreach (self::$config->open_days as $day => $hours)
+			foreach ($open as $day => $hours)
 			{
 				$data[] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $hours[2]];
 			}
@@ -113,8 +114,6 @@ class Ouvertures
 		// Next opening day
 		if ($when == 'next' || $when == 'now')
 		{
-			$open = self::$config->open_days;
-
 			// trier du plus petit au plus grand
 			// la prochaine ouverture devrait donc être au début
 			uasort($open, function ($a, $b) {
