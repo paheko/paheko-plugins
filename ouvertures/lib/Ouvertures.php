@@ -42,6 +42,10 @@ class Ouvertures
 
 		foreach ($config->open as $row)
 		{
+			if (is_array($row)) {
+				continue;
+			}
+
 			$day = $row->day ? $row->day . ' ' : '';
 			$config->open_days[] = [strtotime($day . $row->open), strtotime($day . $row->close), $row->day];
 		}
