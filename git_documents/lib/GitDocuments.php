@@ -77,7 +77,7 @@ class GitDocuments
 		$html = null;
 
 		if (shell_exec('which aha')) {
-			$html = shell_exec($diff_cmd . ' --color | aha');
+			$html = shell_exec($diff_cmd . ' --color --word-diff=color | aha');
 		}
 
 		$msg = new Mail_Message;
