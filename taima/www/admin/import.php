@@ -2,8 +2,6 @@
 
 namespace Garradin\Plugin\Taima;
 
-use Garradin\Entities\Accounting\Account;
-
 use Garradin\Plugin\Taima\Entities\Entry;
 use Garradin\Plugin\Taima\Entities\Task;
 use Garradin\Plugin\Taima\Tracking;
