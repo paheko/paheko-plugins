@@ -1,5 +1,9 @@
 {include file="_head.tpl" title="Configuration — %s"|args:$plugin.nom current="plugin_%s"|args:$plugin.id}
 
+{if isset($_GET['saved'])}
+<p class="block confirm">Enregistré.</p>
+{/if}
+
 {form_errors}
 
 <form method="post" action="{$self_url|escape}">
@@ -16,11 +20,11 @@
                 </tr>
             </thead>
             <tbody>
-                {foreach from=$plugin_config->open key="day" item="hours"}
+                {foreach from=$plugin_config->open item="slot"}
                 <tr>
-                    <th>{html_opening_day_select value=$day}</th>
-                    <td>{html_opening_hour_select value=$hours[0] start_end="start"}</td>
-                    <td>{html_opening_hour_select value=$hours[1] start_end="end"}</td>
+                    <th>{html_opening_day_select value=$slot->day}</th>
+                    <td>{html_opening_hour_select value=$slot->open name="open"}</td>
+                    <td>{html_opening_hour_select value=$slot->close name="close"}</td>
                     <td class="actions"><a href="#unsupported" onclick="return removeRow(this);" class="icn" title="Supprimer cette ligne">➖</a></td>
                 </tr>
                 {/foreach}

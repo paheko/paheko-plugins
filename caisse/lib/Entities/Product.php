@@ -23,8 +23,8 @@ class Product extends Entity
 	public function selfCheck(): void
 	{
 		$this->assert(trim($this->name) !== '', 'Le nom ne peut rester vide.');
-		$this->assert($this->price != 0);
-		$this->assert($this->qty >= 0);
+		$this->assert($this->price != 0, 'Le prix doit ne peut être égal à zéro.');
+		$this->assert($this->qty >= 0, 'La quantité doit être supérieure ou égale à zéro.');
 
 		$this->assert((bool) EM::findOneById(Category::class, $this->category), 'Catégorie invalide');
 	}

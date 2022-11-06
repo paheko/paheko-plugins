@@ -38,7 +38,7 @@ $form->runIf('delete', function () {
 
 
 $tpl->assign(compact('csrf_key'));
-$tpl->assign('account_targets', Account::TYPE_VOLUNTEERING);
+$tpl->assign('account_targets', Account::TYPE_VOLUNTEERING_EXPENSE);
 
 if (qg('edit')) {
 	$task = EM::findOneById(Task::class, (int) qg('edit'));

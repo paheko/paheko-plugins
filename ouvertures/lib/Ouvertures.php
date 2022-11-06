@@ -36,12 +36,18 @@ class Ouvertures
 		$config = $plugin->getConfig();
 		unset($plugin);
 
-		$config->open = (array) $config->open;
+		$config->open = $config->open;
 
-		foreach ($config->open as $day => &$row)
+		$config->open_days = [];
+
+		foreach ($config->open as $row)
 		{
-			$day = $day ? $day . ' ' : '';
-			$row = [strtotime($day . $row[0]), strtotime($day . $row[1])];
+			if (is_array($row)) {
+				continue;
+			}
+
+			$day = $row->day ? $row->day . ' ' : '';
+			$config->open_days[] = [strtotime($day . $row->open), strtotime($day . $row->close), $row->day];
 		}
 
 		foreach ($config->closed as &$row)
@@ -88,13 +94,14 @@ class Ouvertures
 		}
 
 		$data = [];
+		$open = self::$config->open_days;
 
 		// All opening days
 		if ($when == 'open')
 		{
-			foreach (self::$config->open as $day => $hours)
+			foreach ($open as $day => $hours)
 			{
-				$data[] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
+				$data[] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $hours[2]];
 			}
 		}
 		// All closing days
@@ -105,32 +112,12 @@ class Ouvertures
 				$data[] = ['start_date' => $hours[0], 'end_date' => $hours[1]];
 			}
 		}
-		// All days of the week
-		elseif ($when == 'week')
-		{
-			foreach (self::$days as $day => $jour) {
-				$data[$day] = [
-					'opening_day' => $day,
-					'opening_time' => null,
-					'closing_time' => null,
-				];
-			}
-
-			foreach (self::$config->open as $day => $hours)
-			{
-				$data[$day] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
-			}
-
-			$data = array_values($data);
-		}
 
 		unset($hours);
 
 		// Next opening day
 		if ($when == 'next' || $when == 'now')
 		{
-			$open = self::$config->open;
-
 			// trier du plus petit au plus grand
 			// la prochaine ouverture devrait donc être au début
 			uasort($open, function ($a, $b) {
@@ -152,11 +139,11 @@ class Ouvertures
 				}
 			}
 
-			foreach ($open as $day => $hours)
+			foreach ($open as $hours)
 			{
 				if (self::$now >= $hours[0] && self::$now <= $hours[1])
 				{
-					$data[] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
+					$data[] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $hours[2]];
 					break;
 				}
 			}
@@ -183,7 +170,7 @@ class Ouvertures
 							}
 						}
 
-						$next = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $day];
+						$next = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $hours[2]];
 						break(2);
 					}
 				}
@@ -192,8 +179,10 @@ class Ouvertures
 				// On va donc chercher sur les créneaux suivants
 				if (!$next)
 				{
-					foreach ($open as $day => &$hours)
+					foreach ($open as &$hours)
 					{
+						$day = $hours[2];
+
 						// Find the next opening after current one
 						if (strstr($day, ' '))
 						{
@@ -210,6 +199,7 @@ class Ouvertures
 						$hours = [
 							strtotime($day . date(' H:i', $hours[0])),
 							strtotime($day . date(' H:i', $hours[1])),
+							$hours[2],
 						];
 					}
 
@@ -221,6 +211,18 @@ class Ouvertures
 			{
 				$data[] = $next;
 			}
+		}
+		// All days of the week
+		elseif ($when == 'week')
+		{
+			$data = [];
+
+			foreach ($open as $hours)
+			{
+				$data[] = ['opening_time' => $hours[0], 'closing_time' => $hours[1], 'opening_day' => $hours[2]];
+			}
+
+			$data = array_values($data);
 		}
 
 		foreach ($data as &$row)

@@ -44,6 +44,10 @@ class Tab extends Entity
 
 	public function addItem(int $id)
 	{
+		if ($this->closed) {
+			throw new \LogicException('Cannot modify a closed tab');
+		}
+
 		$db = DB::getInstance();
 		$product = $db->first(POS::sql('SELECT p.*, c.name AS category_name, c.account AS category_account
 			FROM @PREFIX_products p
@@ -64,23 +68,35 @@ class Tab extends Entity
 
 	public function removeItem(int $id)
 	{
+		if ($this->closed) {
+			throw new \LogicException('Cannot modify a closed tab');
+		}
+
 		return DB::getInstance()->delete(POS::tbl('tabs_items'), 'id = ? AND tab = ?', $id, $this->id);
 	}
 
 	public function updateItemQty(int $id, int $qty)
 	{
+		if ($this->closed) {
+			throw new \LogicException('Cannot modify a closed tab');
+		}
+
 		$db = DB::getInstance();
 		return $db->update(POS::tbl('tabs_items'),
 			['qty' => $qty],
-			$db->where('id', $id));
+			sprintf('id = %d AND tab = %d', $id, $this->id));
 	}
 
 	public function updateItemPrice(int $id, int $price)
 	{
+		if ($this->closed) {
+			throw new \LogicException('Cannot modify a closed tab');
+		}
+
 		$db = DB::getInstance();
 		return $db->update(POS::tbl('tabs_items'),
 			['price' => $price],
-			$db->where('id', $id));
+			sprintf('id = %d AND tab = %d', $id, $this->id));
 	}
 
 	public function listItems()
@@ -99,6 +115,10 @@ class Tab extends Entity
 
 	public function pay(int $method_id, int $amount, ?string $reference)
 	{
+		if ($this->closed) {
+			throw new \LogicException('Cannot modify a closed tab');
+		}
+
 		if ('' === trim($reference)) {
 			$reference = NULL;
 		}
@@ -129,6 +149,10 @@ class Tab extends Entity
 
 	public function removePayment(int $id)
 	{
+		if ($this->closed) {
+			throw new \LogicException('Cannot modify a closed tab');
+		}
+
 		return DB::getInstance()->delete(POS::tbl('tabs_payments'), 'id = ? AND tab = ?', $id, $this->id);
 	}
 
@@ -164,6 +188,14 @@ class Tab extends Entity
 		$new_name = trim($new_name);
 		$db = DB::getInstance();
 		return $db->update(POS::tbl('tabs'), ['name' => $new_name, 'user_id' => $user_id], $db->where('id', $this->id));
+	}
+
+	public function renameItem(int $id, string $name) {
+		if ($this->closed) {
+			throw new \LogicException('Cannot modify a closed tab');
+		}
+
+		return DB::getInstance()->update(POS::tbl('tabs_items'), ['name' => trim($name)], sprintf('id = %d AND tab = %d', $id, $this->id));
 	}
 
 	public function close() {

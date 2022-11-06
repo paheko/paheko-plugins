@@ -5,4 +5,4 @@ namespace Garradin;
 use Garradin\Plugin\Dompdf\PDF;
 
 // Delete DOMPDF library
-Utils::deleteRecursive(PDF::DIRECTORY);
+Utils::deleteRecursive(PDF::DIRECTORY, true);

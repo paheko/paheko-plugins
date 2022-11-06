@@ -1,10 +1,7 @@
 {
-	"open": {
-		"monday": ["16:00", "20:00"],
-		"friday": ["16:00", "20:00"],
-		"saturday": ["14:00", "18:00"],
-		"sunday": ["14:00", "18:00"]
-	},
+	"open": [
+		{"day": "monday", "open": "16:00", "close": "20:00"}
+	],
 	"closed": [
 		["december 25", "january 01"]
 	]

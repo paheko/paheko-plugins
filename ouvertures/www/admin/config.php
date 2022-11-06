@@ -6,41 +6,30 @@ use Garradin\Plugin\Ouvertures\Ouvertures;
 
 $session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
 
-if (f('save'))
-{
-	$form->check('config_plugin_' . $plugin->id(), [
-		'open'   => 'array',
-		'closed' => 'array',
-	]);
+$csrf_key = 'config_plugin_' . $plugin->id();
 
-	$open_nb = count(f('open')['frequency']);
-	$open = [];
+$form->runIf('save', function () use ($plugin) {
+	$slots = Utils::array_transpose(f('slots'));
+	$days = [];
 
-	for ($i = 0; $i < $open_nb; $i++)
-	{
-		$day = f('open')['frequency'][$i];
-		$day .= ($day != '') ? ' ' : '';
-		$day .= f('open')['day'][$i];
+	foreach ($slots as $i => $slot) {
+		$day = $slot['frequency'] . ' ' . $slot['day'];
+		$day = trim($day);
 
-		if (!strtotime($day))
-		{
-			$form->addError(sprintf('Le sélecteur de jour %s est invalide', $day));
-			break;
+		if (!strtotime($day)) {
+			throw new UserException(sprintf('Ligne %d: le sélecteur de jour %s est invalide', $i+1, $day));
 		}
 
-		$hours = [
-			sprintf('%02d:%02d', f('open')['hours_start'][$i], f('open')['minutes_start'][$i]),
-			sprintf('%02d:%02d', f('open')['hours_end'][$i], f('open')['minutes_end'][$i]),
-		];
+		$open = sprintf('%02d:%02d', $slot['open_hour'], $slot['open_minutes']);
+		$close = sprintf('%02d:%02d', $slot['close_hour'], $slot['close_minutes']);
 
-		if (!preg_match('/^(2[0-3]|[01][0-9]):([0-5][0-9])/', $hours[0])
-			|| !preg_match('/^(2[0-3]|[01][0-9]):([0-5][0-9])/', $hours[1]))
+		if (!preg_match('/^(2[0-3]|[01][0-9]):([0-5][0-9])/', $open)
+			|| !preg_match('/^(2[0-3]|[01][0-9]):([0-5][0-9])/', $close))
 		{
-			$form->addError(sprintf('Format d\'heures invalide pour %s', $day));
-			break;
+			throw new UserException(sprintf('Ligne %d: format d\'heures invalide pour %s', $i + 1, $day));
 		}
 
-		$open[$day] = $hours;
+		$days[] = compact('day', 'open', 'close');
 	}
 
 	$closed_nb = f('closed') ? count(f('closed')['day_start']): 0;
@@ -55,20 +44,15 @@ if (f('save'))
 
 		if (!strtotime($closed[0]) || !strtotime($closed[1]))
 		{
-			$form->addError('Format invalide pour jours de fermeture');
+			throw new UserException('Format invalide pour jours de fermeture');
 		}
 
 		$closed_list[] = $closed;
 	}
 
-	if (!$form->hasErrors())
-	{
-		$plugin->setConfig('open', $open);
-		$plugin->setConfig('closed', $closed_list);
-
-		utils::redirect(utils::plugin_url(['file' => 'config.php', 'query' => 'saved']));
-	}
-}
+	$plugin->setConfig('open', $days);
+	$plugin->setConfig('closed', $closed_list);
+}, $csrf_key, utils::plugin_url(['file' => 'config.php', 'query' => 'saved']));
 
 $tpl->register_function('html_opening_day_select', function ($params) {
 	$value = $params['value'];
@@ -83,7 +67,7 @@ $tpl->register_function('html_opening_day_select', function ($params) {
 		$day = $value;
 	}
 
-	$out = '<select name="open[frequency][]">';
+	$out = '<select name="slots[frequency][]">';
 
 	foreach (Ouvertures::$frequencies as $name => $label)
 	{
@@ -96,7 +80,7 @@ $tpl->register_function('html_opening_day_select', function ($params) {
 
 	$out .= '</select> ';
 
-	$out .= '<select name="open[day][]">';
+	$out .= '<select name="slots[day][]">';
 
 	foreach (Ouvertures::$days as $name => $label)
 	{
@@ -114,19 +98,18 @@ $tpl->register_function('html_opening_day_select', function ($params) {
 
 $tpl->register_function('html_opening_hour_select', function ($params) {
 	$hours = explode(':', $params['value']);
-	$start_end = $params['start_end'];
 
-	$out = sprintf('<input type="number" name="open[hours_%s][]" min="0" 
+	$out = sprintf('<input type="number" name="slots[%s_hour][]" min="0"
 		max="23" step="1" required="required" value="%02d" size="2" class="time" pattern="^\d{1,2}$" />',
-		$start_end,
+		$params['name'],
 		$hours[0]
 	);
 
 	$out .= ':';
 
-	$out .= sprintf('<input type="number" name="open[minutes_%s][]" min="0" 
+	$out .= sprintf('<input type="number" name="slots[%s_minutes][]" min="0"
 		max="59" step="1" required="required" value="%02d" size="2" class="time" pattern="^\d{1,2}$" />',
-		$start_end,
+		$params['name'],
 		$hours[1]
 	);
 

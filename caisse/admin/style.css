@@ -94,6 +94,12 @@ input[name="q"] {
 	opacity: 0.5;
 }
 
+.pos .items th button {
+	font-size: 10px;
+	padding: .2em .3em;
+	border-width: 1px;
+}
+
 #user_rename {
 	position: fixed;
 	left: 0;

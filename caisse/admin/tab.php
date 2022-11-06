@@ -56,6 +56,10 @@ elseif (!empty($_POST['rename_name'])) {
 	$tab->rename($_POST['rename_name'], (int) f('rename_id') ?: null);
 	reload();
 }
+elseif (!empty($_POST['rename_item'])) {
+	$tab->renameItem((int) key($_POST['rename_item']), current($_POST['rename_item']));
+	reload();
+}
 elseif (!empty($_POST['close'])) {
 	$tab->close();
 	reload();
