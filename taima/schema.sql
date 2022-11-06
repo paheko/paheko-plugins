@@ -21,6 +21,6 @@ CREATE TABLE IF NOT EXISTS plugin_taima_entries (
 );
 
 INSERT INTO plugin_taima_tasks (label, value, account) VALUES
-	('Comptabilité', 2500, 875),
-	('Administratif', 2500, 875),
-	('Communication adhérent⋅e⋅s', 2500, 875);
+	('Comptabilité', 2500, 864),
+	('Administratif', 2500, 864),
+	('Communication adhérent⋅e⋅s', 2500, 864);
