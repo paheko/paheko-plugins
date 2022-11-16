@@ -20,11 +20,11 @@
                 </tr>
             </thead>
             <tbody>
-                {foreach from=$plugin_config->open item="slot"}
+                {foreach from=$plugin_config.open item="slot"}
                 <tr>
-                    <th>{html_opening_day_select value=$slot->day}</th>
-                    <td>{html_opening_hour_select value=$slot->open name="open"}</td>
-                    <td>{html_opening_hour_select value=$slot->close name="close"}</td>
+                    <th>{html_opening_day_select value=$slot.day}</th>
+                    <td>{html_opening_hour_select value=$slot.open name="open"}</td>
+                    <td>{html_opening_hour_select value=$slot.close name="close"}</td>
                     <td class="actions"><a href="#unsupported" onclick="return removeRow(this);" class="icn" title="Supprimer cette ligne">➖</a></td>
                 </tr>
                 {/foreach}
@@ -44,7 +44,7 @@
                 </tr>
             </thead>
             <tbody>
-                {foreach from=$plugin_config->closed item="days"}
+                {foreach from=$plugin_config.closed item="days"}
                 <tr>
                     <td>{html_closing_day_select value=$days[0] start_end="start"}</td>
                     <td>{html_closing_day_select value=$days[1] start_end="end"} inclus</td>
