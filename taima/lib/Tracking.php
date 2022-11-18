@@ -9,6 +9,7 @@ use Garradin\Entities\Accounting\Transaction;
 use Garradin\Entities\Accounting\Line;
 use Garradin\Entities\Accounting\Year;
 use Garradin\Accounting\Accounts;
+use Garradin\Accounting\Transactions;
 
 use Garradin\Config;
 use Garradin\DB;
@@ -263,14 +264,16 @@ class Tracking
 			throw new UserException('Le compte 875 n\'existe pas au plan comptable, merci de le créer');
 		}
 
-		$t = new Transaction;
-		$t->date = $date;
-		$t->label = 'Valorisation du bénévolat';
-		$t->notes = 'Écriture créée par Tāima, extension de suivi du temps';
-		$t->type = $t::TYPE_ADVANCED;
-		$t->id_year = $year->id();
+		$t = Transactions::create([
+			'date' => $date,
+			'label' => 'Valorisation du bénévolat',
+			'notes' => 'Écriture créée par Tāima, extension de suivi du temps',
+			'type' => Transaction::TYPE_ADVANCED,
+			'id_year' => $year->id(),
+			'reference' => 'VALORISATION-TAIMA',
+		]);
+
 		$t->id_creator = $id_creator;
-		$t->reference = 'VALORISATION-TAIMA';
 
 		$report = self::getFinancialReport($year, $start, $end);
 
