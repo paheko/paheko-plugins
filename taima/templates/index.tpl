@@ -22,7 +22,7 @@ $timer_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" vi
 <section class="taima-header">
 	<p class="btns">
 		<a href="{$prev_url}" class="icn-btn" title="Semaine précédente">{icon shape="left"}</a>
-		<button type="button" id="datepicker" class="icn" data-date="<?=$day->format('Y-m-d');?>">{icon shape="calendar"}</button>
+		{button id="datepicker" shape="calendar" data-date=$day|date_format:'%Y-%m-%d'}
 		<a href="{$next_url}" class="icn-btn" title="Semaine suivante">{icon shape="right"}</a>
 	</p>
 	<h2>{$day|taima_date:'EEEE d MMMM yyyy'}</h2>

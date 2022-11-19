@@ -117,7 +117,7 @@
 					<th>{$payment.method_name}</th>
 					<td>{$payment.amount|escape|money_currency}</td>
 					<td><em>{$payment.reference}</em></td>
-					<td class="actions">{if !$current_tab.closed}<a class="icn" href="?id={$current_tab.id}&amp;delete_payment={$payment.id}" title="Supprimer">✘</a>{/if}</td>
+					<td class="actions">{if !$current_tab.closed}{linkbutton shape="delete" href="?id=%d&delete_payment=%d"|args:$current_tab.id,$payment.id title="Supprimer" label=""}{/if}</td>
 				</tr>
 				{/foreach}
 				</tbody>
