@@ -2,6 +2,7 @@
 
 namespace Garradin\Plugin\Caisse\Entities;
 
+use Garradin\Email\Emails;
 use Garradin\DB;
 use Garradin\Config;
 use Garradin\Template;
@@ -15,6 +16,8 @@ use Garradin\Plugin\Caisse\POS;
 use Garradin\Plugin\Caisse\Tabs;
 use Garradin\Entity;
 use Garradin\ValidationException;
+
+use KD2\Mail_Message;
 
 class Session extends Entity
 {
@@ -33,7 +36,7 @@ class Session extends Entity
 		return DB::getInstance()->test(POS::tbl('tabs'), 'session = ? AND closed IS NULL', $this->id);
 	}
 
-	public function close(string $user_name, int $amount, ?bool $confirm_error, array $payments)
+	public function close(string $user_name, int $amount, ?bool $confirm_error, array $payments, ?string $send_email)
 	{
 		$db = DB::getInstance();
 
@@ -85,7 +88,17 @@ class Session extends Entity
 			AND t.session = %d', $this->id);
 		$db->preparedQuery(POS::sql(sprintf('UPDATE @PREFIX_products SET stock = -(SELECT SUM(ti.qty) %s) + stock WHERE stock IS NOT NULL AND id IN (SELECT DISTINCT ti.product %1$s);', $select)));
 
-		return $db->commit();
+		$db->commit();
+
+		if ($send_email) {
+			$msg = new Mail_Message;
+			$msg->setHeader('Subject', sprintf('Clôture de caisse n°%d du %s', $this->id, date('d/m/Y à H:i')));
+			$msg->setHeader('To', $send_email);
+			$msg->setHeader('From', Emails::getFromHeader());
+			$msg->addPart('text/html', $this->export(true, 1), sprintf('session-%d.html', $this->id));
+			$msg->setBody('Voir les détails dans le contenu HTML ci-joint.');
+			Emails::sendMessage(Emails::CONTEXT_SYSTEM, $msg);
+		}
 	}
 
 	public function getTotal()

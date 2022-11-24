@@ -2,6 +2,7 @@
 
 namespace Garradin;
 
+use Garradin\Users\Session;
 use Garradin\Plugin\Caisse\Sessions;
 use function Garradin\Plugin\Caisse\get_amount;
 
@@ -19,7 +20,13 @@ if ($pos_session->closed) {
 
 if (isset($_POST['close'], $_POST['amount']) && !empty($_POST['confirm'])) {
 	$payments = f('payments') ? array_keys(f('payments')) : [];
-	$pos_session->close(f('user_name') ?: Session::getInstance()->getUser()->name(), get_amount(f('amount')), (bool) f('recheck'), $payments);
+	$pos_session->close(
+		f('user_name') ?: Session::getInstance()->getUser()->name(),
+		get_amount(f('amount')),
+		(bool) f('recheck'),
+		$payments,
+		$plugin->getConfig('send_email_when_closing')
+	);
 	Utils::redirect(Utils::plugin_url(['file' => 'session.php', 'query' => 'id=' . $pos_session->id]));
 }
 
