@@ -40,10 +40,10 @@ $tpl->assign('sources', $velos->listSources());
 $tpl->assign('types', $velos->listTypes());
 $tpl->assign('genres', $velos->listGenres());
 $tpl->assign('roues', $velos->listTailles());
-$tpl->assign('raisons_sortie', $velos->listRaisonsSortie());
+$tpl->assign('raisons_sortie', [''] + $velos->listRaisonsSortie());
 
 $tpl->assign('libre', $velos->getEtiquetteLibre());
 
-$tpl->assign('now_ymd', date('Y-m-d'));
+$tpl->assign('now', new \DateTime);
 
 $tpl->display(PLUGIN_ROOT . '/templates/ajout.tpl');

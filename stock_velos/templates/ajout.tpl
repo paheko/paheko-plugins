@@ -13,72 +13,53 @@
         <dd>(Sera donné automatiquement à l'enregistrement du vélo.)</dd>
         <dt><label for="f_etiquette">Numéro étiquette</label> <b>(obligatoire)</b></dt>
         <dd>
-            <input type="number" name="etiquette" id="f_etiquette" value="{form_field name=etiquette}" required="required" />
+            {input type="number" name="etiquette" required=true}
             <input type="button" onclick="document.getElementById('f_etiquette').value='{$libre|escape}';" value="Utiliser la première étiquette libre (n°{$libre|escape})" />
         </dd>
-        <dt><label for="f_bicycode">Bicycode</label></dt>
-        <dd><input type="text" name="bicycode" id="f_bicycode" value="{form_field name=bicycode}" /></dd>
+        {input type="text" name="bicycode" label="Bicycode"}
         <dt><label for="f_prix">Prix du vélo</label></dt>
         <dd>
-            <input type="number" name="prix" id="f_prix" min="-1" value="{form_field name=prix}" /> €
+            {input type="number" name="prix" min="-1" step="1"} €
             <input type="button" onclick="document.getElementById('f_prix').value='-1';" value="Vélo à démonter" />
             <input type="button" onclick="document.getElementById('f_prix').value='0';" value="Pas en vente" />
         </dd>
-        <dt><label for="f_notes">Notes</label></dt>
-        <dd><textarea name="notes" id="f_notes" cols="70" rows="10">{form_field name=notes}</textarea></dd>
+        {input type="textarea" name="notes" label="Notes"}
     </dl>
 </fieldset>
 
 <fieldset>
     <legend>Provenance</legend>
     <dl>
-        <dt><label for="f_source">D'où provient le vélo ?</label> <b>(obligatoire)</b></dt>
-        <dd>{form_select name=source values=$sources default="Don"}</dd>
-        <dt><label for="f_source_details">Détails sur la provenance</label> (pour le don : numéro d'adhérent ou nom du donneur)</dt>
-        <dd><input type="text" name="source_details" id="f_source_details" value="{form_field name=source_details}" size="70" /></dd>
+        {input type="select" name="source" label="D'où provient le vélo ?" required=true options=$sources default="Don"}
+        {input type="text" name="source_details" label="Détails sur la provenance" help="pour le don : numéro d'adhérent ou nom du donneur" required=true}
     </dl>
 </fieldset>
 
 <fieldset>
     <legend>Description du vélo</legend>
     <dl>
-        <dt><label for="f_type">Type</label> <b>(obligatoire)</b></dt>
-        <dd>{form_select name=type values=$types}</dd>
-        <dt><label for="f_roues">Taille des roues</label></dt>
-        <dd>{form_select name=roues values=$roues}</dd>
-        <dt><label for="f_genre">Genre</label> <b>(obligatoire)</b></dt>
-        <dd>{form_select name=genre values=$genres}</dd>
-        <dt><label for="f_couleur">Couleur</label> <b>(obligatoire)</b></dt>
-        <dd><input type="text" name="couleur" id="f_couleur" value="{form_field name=couleur}" size="50" required="required" /></dd>
-        <dt><label for="f_modele">Marque et modèle</label> <b>(obligatoire)</b></dt>
-        <dd><input type="text" name="modele" id="f_modele" value="{form_field name=modele}" size="50" required="required" /></dd>
+        {input type="select" name="type" label="Type" required=true options=$types}
+        {input type="select" name="roues" label="Taille des roues" required=true options=$roues}
+        {input type="select" name="genre" label="Genre" required=true options=$genres}
+        {input type="text" name="couleur" label="Couleur" required=true}
+        {input type="text" name="modele" label="Marque et modèle" required=true}
     </dl>
 </fieldset>
 
 <fieldset>
     <legend>Entrée du vélo</legend>
     <dl>
-        <dt><label for="f_date_entree">Date d'entrée dans le stock</label> <b>(obligatoire)</b></dt>
-        <dd>
-            <input type="date" name="date_entree" id="f_date_entree" value="{form_field name=date_entree default=$now_ymd}" />
-        </dd>
-        <dt><label for="f_etat_entree">État à l'entrée dans le stock</label> <b>(obligatoire)</b></dt>
-        <dd><input type="text" name="etat_entree" id="f_etat_entree" value="{form_field name=etat_entree}" size="70" required="required" /></dd>
+        {input type="date" label="Date d'entrée dans le stock" name="date_entree" required=true default=$now}
+        {input type="text" label="État à l'entrée dans le stock" name="etat_entree" required=true}
     </dl>
 </fieldset>
 
 <fieldset>
     <legend>Sortie du vélo</legend>
     <dl>
-        <dt><label for="f_date_sortie">Date de sortie</label></dt>
-        <dd>
-            <input type="date" name="date_sortie" id="f_date_sortie" value="{form_field name=date_sortie}" />
-        </dd>
-        <dt><label for="f_raison_sortie">Raison de sortie</label></dt>
-        <dd>{form_select name=raison_sortie values=$raisons_sortie}</dd>
-        <dt><label for="f_details_sortie">Détails de sortie</label></dt>
-        <dd>Inscrire le numéro d'adhérent en cas de vente.</dd>
-        <dd><input type="text" name="details_sortie" id="f_details_sortie" value="{form_field name=details_sortie}" size="70" /></dd>
+        {input type="date" label="Date de sortie" name="date_sortie"}
+        {input type="select" label="Raison de sortie" name="raison_sortie" options=$raisons_sortie}
+        {input type="text" label="Détails de sortie" name="details_sortie" help="Inscrire le numéro d'adhérent en cas de vente"}
     </dl>
 </fieldset>
 

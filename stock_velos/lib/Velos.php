@@ -3,6 +3,7 @@
 namespace Garradin\Plugin\Stock_Velos;
 
 use Garradin\DB;
+use Garradin\Entity;
 use Garradin\Membres;
 use Garradin\UserException;
 use Garradin\Utils;
@@ -108,7 +109,7 @@ class Velos
 
     public function listGenres()
     {
-        return $this->genres;
+        return array_combine($this->genres, $this->genres);
     }
     /**
      * Sources de vélo
@@ -125,7 +126,7 @@ class Velos
 
     public function listTypes()
     {
-        return $this->types;
+        return array_combine($this->types, $this->types);
     }
 
     /**
@@ -134,7 +135,7 @@ class Velos
 
     public function listRaisonsSortie()
     {
-        return $this->raisons_sortie;
+        return array_combine($this->raisons_sortie, $this->raisons_sortie);
     }
 
     /**
@@ -143,7 +144,7 @@ class Velos
 
     public function listTailles()
     {
-        return $this->tailles;
+        return array_combine($this->tailles, $this->tailles);
     }
 
     /**
@@ -191,7 +192,7 @@ class Velos
 
     public function addVelo($data)
     {
-        if (empty($data['date_entree']) || !Utils::checkDate($data['date_entree']))
+        if (empty($data['date_entree']) || !($data['date_entree'] = Entity::filterUserDateValue($data['date_entree'])))
         {
             throw new UserException('Date d\'entrée vide ou invalide.');
         }
