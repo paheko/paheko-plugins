@@ -2,6 +2,8 @@
 
 namespace Garradin;
 
+use Garradin\Plugin\Stock_Velos\Velos;
+
 $db = DB::getInstance();
 
 // Renommage du plugin
@@ -52,4 +54,5 @@ $db->exec(<<<EOF
 EOF
 );
 
-$plugin->registerSignal('usertemplate.init', 'Garradin\Plugin\Stock_Velos\Velos::register');
+$plugin->registerSignal('usertemplate.init', [Velos::class, 'register']);
+$plugin->registerSignal('menu.item', [Velos::class, 'menuItem']);

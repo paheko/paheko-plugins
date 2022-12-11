@@ -2,4 +2,7 @@
 
 namespace Garradin;
 
-$plugin->registerSignal('usertemplate.init', 'Garradin\Plugin\Stock_Velos\Velos::register');
+use Garradin\Plugin\Stock_Velos\Velos;
+
+$plugin->registerSignal('usertemplate.init', [Velos::class, 'register']);
+$plugin->registerSignal('menu.item', [Velos::class, 'menuItem']);

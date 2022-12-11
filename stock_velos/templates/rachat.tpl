@@ -64,16 +64,15 @@
         <dl>
             <dt><label for="f_etiquette">Nouveau numéro étiquette</label> <b>(obligatoire)</b></dt>
             <dd>
-                <input type="number" name="etiquette" id="f_etiquette" value="{form_field name=etiquette}" required="required" />
+                {input type="number" name="etiquette" required=true}
                 <input type="button" onclick="document.getElementById('f_etiquette').value='{$libre|escape}';" value="Utiliser la première étiquette libre (n°{$libre|escape})" />
             </dd>
 
-            <dt><label for="f_prix">Prix de rachat</label></dt>
-            <dd><input type="text" id="f_prix" name="prix" size="5" maxlength="3" value="{$prix|escape}" /> €</dd>
-            <dt><label for="f_etat">État du vélo</label></dt>
-            <dd><textarea name="etat" id="f_etat" cols="70" rows="5"></textarea></dd>
+            {input type="number" label="Prix de rachat" required=true default=$prix name="prix"}
+            {input type="textarea" name="etat" label="État du vélo"}
+
             <dt><label for="f_adherent">Adhérent</label></dt>
-            <dd>N°{$velo.details_sortie|escape} — {$adherent.identite|escape}</dd>
+            <dd>N°{$velo.details_sortie|escape} — {$velo->membre_sortie()}</dd>
         </dl>
     </fieldset>
 

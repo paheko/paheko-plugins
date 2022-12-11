@@ -2,11 +2,13 @@
 
 namespace Garradin;
 
+use Garradin\Plugin\Stock_Velos\Velos;
+
 require_once __DIR__ . '/_inc.php';
 
 $id = qg('id');
 
-$velo = $velos->getVelo($id);
+$velo = Velos::get($id);
 
 if (!$velo)
     throw new UserException('Ce vélo n\'existe pas !');
@@ -14,46 +16,25 @@ if (!$velo)
 if (empty($velo->date_sortie) || ($velo->raison_sortie != 'Vendu' && $velo->raison_sortie != 'Vendu en bourse'))
     throw new UserException('Impossible de racheter un vélo qui n\'est pas vendu !');
 
-if (!$velos->checkRachatVelo($velo->id))
-{
+if ($velo->get_buyback()) {
     throw new UserException('Le vélo a déjà été racheté !');
 }
 
-if (f('buy') && $form->check('rachat_velo_'.$velo->id))
-{
-    $data = array(
-        'etiquette'     =>  (int) f('etiquette'),
-        'source'        =>  'Rachat',
-        'source_details'=>  $velo->id,
-        'type'          =>  $velo->type,
-        'genre'         =>  $velo->genre,
-        'roues'         =>  $velo->roues,
-        'couleur'       =>  $velo->couleur,
-        'modele'        =>  $velo->modele,
-        'date_entree'   =>  gmdate('Y-m-d'),
-        'etat_entree'   =>  f('etat'),
-        'notes'         =>  'Racheté à l\'adhérent pour '.floatval(f('prix')).' €',
-    );
+$csrf_key = 'rachat_velo_'.$velo->id;
 
-    try {
-        $velos->checkData($data);
-        $id = $velos->addVelo($data);
-        utils::redirect(utils::plugin_url([
-            'file' => 'rachat_ok.php',
-            'query' => 'id=' . $id .
-                '&prix=' . rawurlencode(floatval(f('prix')))
-            ]
-        ));
-    }
-    catch (UserException $e)
-    {
-        $form->addError($e->getMessage());
-    }
-}
+$form->runIf('buy', function () use ($velo) {
+    $new = $velo->buyback((int) f('etiquette'), f('etat'), (float) f('prix'));
+
+    utils::redirect(utils::plugin_url([
+        'file' => 'rachat_ok.php',
+        'query' => 'id=' . $new->id .
+            '&prix=' . rawurlencode(floatval(f('prix')))
+        ]
+    ));
+}, $csrf_key);
 
 $tpl->assign('velo', $velo);
 $tpl->assign('prix', round($velo->prix / 3));
 $tpl->assign('libre', $velos->getEtiquetteLibre());
-$tpl->assign('adherent', $velos->getMembre($velo->details_sortie));
 
 $tpl->display(PLUGIN_ROOT . '/templates/rachat.tpl');

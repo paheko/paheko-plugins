@@ -2,6 +2,8 @@
 
 namespace Garradin;
 
+use Garradin\Plugin\Stock_Velos\Velos;
+
 require_once __DIR__ . '/_inc.php';
 
 if (!qg('id'))
@@ -9,7 +11,7 @@ if (!qg('id'))
 
 $id = (int) qg('id');
 
-$velo = $velos->getVelo($id);
+$velo = Velos::get($id);
 
 if (!$velo)
     throw new UserException('Ce vélo n\'existe pas !');
@@ -17,26 +19,22 @@ if (!$velo)
 if (!empty($velo->date_sortie))
     throw new UserException('Impossible de vendre un vélo qui n\'est plus en stock !');
 
-if (f('sell') && $form->check('vente_velo_'.$velo->id))
-{
-    try {
-        $velos->sellVelo($velo->id, f('adherent'), f('prix'));
-        utils::redirect(utils::plugin_url([
-            'file' => 'vente_ok.php',
-            'query' => 'id=' . (int)$velo->id .
-                '&etat=' . rawurlencode(f('etat'))
-            ]
-        ));
-    }
-    catch (UserException $e)
-    {
-        $form->addError($e->getMessage());
-    }
-}
+$csrf_key = 'vente_velo_'.$velo->id;
+
+$form->runIf('sell', function () use ($velo) {
+    $velo->sell(f('adherent'), f('prix'));
+
+    utils::redirect(utils::plugin_url([
+        'file' => 'vente_ok.php',
+        'query' => 'id=' . (int)$velo->id .
+            '&etat=' . rawurlencode(f('etat'))
+        ]
+    ));
+}, $csrf_key);
 
 $tpl->assign('prix', $velo->prix ?: qg('prix'));
 $tpl->assign('etat', qg('etat') ?: 'En bon état de marche');
 
-$tpl->assign('velo', $velo);
+$tpl->assign(compact('velo', 'csrf_key'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/vente.tpl');

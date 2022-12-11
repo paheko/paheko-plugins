@@ -3,16 +3,16 @@
 {include file="%s_nav.tpl"|args:$plugin_tpl current=""}
 
 <section class="fiche">
-    <ul class="sub_actions">
-        <li class="modifier"><a href="{plugin_url file="modifier.php" query=1}id={$velo.id|escape}">Modifier la fiche de ce vélo</a></li>
+    <p>
+        {linkbutton shape="edit" href="modifier.php?id=%d"|args:$velo.id label="Modifier la fiche de ce vélo"}
         {if empty($velo.date_sortie) && $velo.prix > 0}
-            <li class="vente"><a href="{plugin_url file="vente.php" query=1}id={$velo.id|escape}">Vendre ce vélo</a></li>
+            {linkbutton shape="money" href="vente.php?id=%d"|args:$velo.id label="Vendre ce vélo"}
         {elseif empty($velo.date_sortie) && $velo.prix == 0}
-            <li class="vente"><a href="{plugin_url file="vente.php" query=1}id={$velo.id}&amp;prix=20&amp;etat=Pour%20pièces">Vendre pour pièces</a></li>
+            {linkbutton shape="money" href="vente.php?id=%d&prix=20&etat=Pour%%20pièces"|args:$velo.id label="Vendre pour pièces"}
         {elseif $velo.prix > 0}
-            <li class="vente"><a href="{plugin_url file="vente_ok.php" query=1}id={$velo.id|escape}">Ré-imprimer contrat de vente</a></li>
+            {linkbutton shape="print" href="vente_ok.php?id=%d"|args:$velo.id label="Ré-imprimer contrat de vente"}
             {if empty($rachat)}
-                <li class="rachat"><a href="{plugin_url file="rachat.php" query=1}id={$velo.id|escape}">Racheter ce vélo</a></li>
+                {linkbutton shape="money" href="rachat.php?id=%d"|args:$velo.id label="Racheter ce vélo"}
             {/if}
         {/if}
     </ul>
@@ -50,10 +50,18 @@
 
     <article class="velo_desc">
         {if !empty($velo.bicycode)}
+        <form method="post" action="https://apic-asso.com/wp-admin/admin-ajax.php" target="_blank" data-disable-progress="1">
+            <input type="hidden" name="action" value="ajax_get_bike_status" />
+            <input type="hidden" name="bike_id" value="{$velo.bicycode}" />
+            {button type="submit" label="Vérifier le numéro Bicycode"}
+        </form>
         <dl>
             <dt>Marquage Bicycode</dt>
-            <dd><a href="http://bicycode.org/verification_vol.php?numero={$velo.bicycode|escape}">{$velo.bicycode|escape}</a></dd>
+            <dd>
+                {$velo.bicycode}
+            </dd>
         </dl>
+        </form>
         {/if}
         <dl>
             <dt>Type</dt>
@@ -94,7 +102,7 @@
             <dt>Provenance</dt>
             <dd>{$velo.source|escape} &mdash;
                 {if $velo.source == 'Don' && is_numeric($velo.source_details)}
-                    <a href="{$admin_url}users/details.php?id={$velo.source_details|escape}">Membre n°{$velo.source_details|escape} — {$source_membre.identite|escape}</a>
+                    <a href="{$admin_url}users/details.php?number={$velo.source_details|escape}">Membre n°{$velo.source_details|escape} — {$velo->membre_source()}</a>
                 {elseif $velo.source == 'Rachat'}
                     Racheté (ancienne référence : <a href="fiche.php?id={$velo.source_details|escape}">{$velo.source_details|escape}</a>)
                 {else}
@@ -112,7 +120,7 @@
             <dd>Raison de sortie :
                 {$velo.raison_sortie|escape} &mdash;
                 {if $velo.raison_sortie == 'Vendu' && is_numeric($velo.details_sortie)}
-                    <a href="{$admin_url}users/details.php?id={$velo.details_sortie|escape}">Membre n°{$velo.details_sortie|escape} — {$sortie_membre.identite|escape}</a>
+                    <a href="{$admin_url}users/details.php?number={$velo.details_sortie|escape}">Membre n°{$velo.details_sortie|escape} — {$velo->membre_sortie()}</a>
                 {else}
                     {$velo.details_sortie|escape}
                 {/if}
@@ -121,11 +129,11 @@
     </article>
     {/if}
 
-    {if !empty($rachat)}
+    {if $rachat = $velo->get_buyback()}
     <article class="velo_sortie">
         <dl>
             <dt>Vélo racheté</dt>
-            <dd>Nouveau numéro : <a href="fiche.php?id={$rachat|escape}">{$rachat|escape}</a></dd>
+            <dd>Nouveau numéro : <a href="fiche.php?id={$rachat}">{$rachat}</a></dd>
         </dl>
     </article>
     {/if}

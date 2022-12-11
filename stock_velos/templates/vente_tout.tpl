@@ -30,25 +30,25 @@
 <section class="vente">
     <h1>Contrat de vente d'un vélo d'occasion</h1>
     <ul class="numbers">
-        <li><i>Numéro référence</i><b>{$velo.id|escape}</b></li>
-        <li><i>Numéro stock</i><b>{$velo.etiquette|escape}</b></li>
+        <li><i>Numéro référence</i><b>{$velo.id}</b></li>
+        <li><i>Numéro stock</i><b>{$velo.etiquette}</b></li>
         <li><i>Numéro bourse</i><b>...</b></li>
     </ul>
     <h4>Entre le vendeur :</h4>
     <ul>
-        <li>L'association loi 1901 « {$config.nom_asso|escape} » dont le siège est situé au {$config.adresse_asso|escape}.</li>
+        <li>L'association loi 1901 « {$config.org_name} » dont le siège est situé au {$config.org_address}.</li>
     </ul>
     <h4>Et l'acquéreur :</h4>
     <ul>
         <li>Nom et prénom : <span class="complete"></span></li>
     </ul>
-    <p>L'association « {$config.nom_asso|escape} » vend à l'acquéreur le vélo décrit ci-après :</p>
+    <p>L'association « {$config.org_name} » vend à l'acquéreur le vélo décrit ci-après :</p>
     <ul>
-        <li>Type : {$velo.type|escape}</li>
-        <li>Taille : {$velo.roues|escape}</li>
-        <li>Genre : {$velo.genre|escape}</li>
-        <li>Couleur : {$velo.couleur|escape}</li>
-        <li>Modèle : {$velo.modele|escape}</li>
+        <li>Type : {$velo.type}</li>
+        <li>Taille : {$velo.roues}</li>
+        <li>Genre : {$velo.genre}</li>
+        <li>Couleur : {$velo.couleur}</li>
+        <li>Modèle : {$velo.modele}</li>
     </ul>
     <h3>État : <span class="complete"></span></h3>
     <p>en contrepartie du paiement du montant de <strong class="complete"></strong> €

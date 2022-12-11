@@ -15,18 +15,10 @@ if (qg('id'))
     exit;
 }
 
-$order = 'etiquette';
-$desc = false;
+$list = $velos->listVelosStock();
+$list->loadFromQueryString();
 
-if (qg('o'))
-    $order = qg('o');
-
-if (qg('d') !== null)
-    $desc = true;
-
-$tpl->assign('order', $order);
-$tpl->assign('desc', $desc);
-$tpl->assign('liste', $velos->listVelosStock($order, $desc));
+$tpl->assign('list', $list);
 
 $tpl->assign('total', $velos->countVelosStock());
 
