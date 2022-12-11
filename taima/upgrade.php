@@ -55,5 +55,6 @@ if (version_compare($old_version, '0.5.1', '<')) {
 
 	$db->commitSchemaUpdate();
 
-	$plugin->registerSignal('home.button', [Tracking::class, 'homeButton']);
 }
+
+$plugin->registerSignal('menu.item', [Tracking::class, 'menuItem']);

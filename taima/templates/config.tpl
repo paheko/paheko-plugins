@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Configuration des tâches" plugin_css=['style.css']}
+{include file="_head.tpl" title="Configuration des tâches" plugin_css=['style.css'] current="plugin_taima"}
 
 {include file="%s/templates/_nav.tpl"|args:$plugin_root current="config"}
 

@@ -128,4 +128,4 @@ $form->runIf('save', function () use ($session) {
 $tpl->assign(compact('csrf_key', 'add', 'tasks', 'links'));
 
 $tpl->register_modifier('taima_minutes', [Tracking::class, 'formatMinutes']);
-$tpl->display(__DIR__ . '/../../templates/import.tpl');
+$tpl->display(__DIR__ . '/../templates/import.tpl');
