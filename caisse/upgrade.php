@@ -70,11 +70,11 @@ if (version_compare($old_version, '0.5.4', '<')) {
 }
 
 if (version_compare($old_version, '0.6.1', '<')) {
-	$plugin->registerSignal('menu.item', [POS::class, 'menuItem']);
-
 	$db->beginSchemaUpdate();
 	$identity = DynamicFields::getNameFieldsSQL();
 	$sql = str_replace('@__NAME', $identity, POS::sql(file_get_contents(__DIR__ . '/update_0.6.1.sql')));
 	$db->exec($sql);
 	$db->commitSchemaUpdate();
 }
+
+$plugin->registerSignal('menu.item', [POS::class, 'menuItem']);
