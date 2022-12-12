@@ -7,6 +7,7 @@ use Garradin\Membres;
 use Garradin\UserException;
 use Garradin\Utils;
 use Garradin\DynamicList;
+use Garradin\Users\Session;
 
 use KD2\DB\EntityManager;
 use KD2\Graphics\SVG\Bar;

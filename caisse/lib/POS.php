@@ -9,6 +9,7 @@ use Garradin\Entities\Accounting\Transaction;
 use Garradin\Entities\Accounting\Year;
 use Garradin\Files\Files;
 use Garradin\Accounting\Accounts;
+use Garradin\Users\Session;
 
 use KD2\Graphics\SVG\Bar;
 use KD2\Graphics\SVG\Bar_Data_Set;
@@ -29,7 +30,7 @@ class POS
 
 	static public function menuItem(array $params, array &$list): void
 	{
-		if (!Session::getInstance()->canAccess(Session::SECTION_WEB, Session::ACCESS_WRITE)) {
+		if (!Session::getInstance()->canAccess(Session::SECTION_USERS, Session::ACCESS_WRITE)) {
 			return;
 		}
 

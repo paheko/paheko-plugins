@@ -1,6 +1,6 @@
 <?php
 
-namespace Garradin;
+use Garradin\Plugin\Webstats\Stats;
 
 $db->import(__DIR__ . '/schema.sql');
 
