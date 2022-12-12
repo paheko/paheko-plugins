@@ -29,6 +29,10 @@ class POS
 
 	static public function menuItem(array $params, array &$list): void
 	{
+		if (!Session::getInstance()->canAccess(Session::SECTION_WEB, Session::ACCESS_WRITE)) {
+			return;
+		}
+
 		$list['plugin_caisse'] = sprintf('<a href="%sp/caisse/">Caisse</a>', \Garradin\ADMIN_URL);
 	}
 
