@@ -1,9 +1,9 @@
 <?php
 
-namespace Garradin;
+use Garradin\Plugin\Webstats\Stats;
 
-$db->import(__DIR__ . '/schema.sql');
+$plugin->unregisterSignal('http.request.skeleton.before');
+$plugin->unregisterSignal('http.request.skeleton.after');
 
 $plugin->registerSignal('usertemplate.appendscript', 'Garradin\Plugin\Webstats\Stats::appendScript');
-
 $plugin->registerSignal('home.button', [Stats::class, 'homeButton']);

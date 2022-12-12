@@ -4,6 +4,12 @@ namespace Garradin;
 
 use Garradin\Plugin\Webstats\Stats;
 
+if (isset($_GET['graph'])) {
+	header('Content-Type: image/svg+xml');
+	echo Stats::graph();
+	return;
+}
+
 $tpl->assign([
 	'stats' => Stats::getStats(),
 	'hits' => Stats::getHits(),

@@ -2,6 +2,10 @@
 
 <p class="help block">Note : les visites des robots et moteurs de recherche ne sont pas prises en compte.</p>
 
+<figure>
+	<img src="?graph" alt="Graphique des statistiques par mois" />
+</figure>
+
 <h2 class="ruler">Statistiques par mois</h2>
 
 <table class="list">
