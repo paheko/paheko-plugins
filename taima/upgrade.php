@@ -58,3 +58,4 @@ if (version_compare($old_version, '0.5.1', '<')) {
 }
 
 $plugin->registerSignal('menu.item', [Tracking::class, 'menuItem']);
+$plugin->registerSignal('home.button', [Tracking::class, 'homeButton']);

@@ -18,7 +18,7 @@ class Stats
 			return;
 		}
 
-		$buttons['taima'] = CommonFunctions::linkbutton([
+		$buttons['stats'] = CommonFunctions::linkbutton([
 			'label' => 'Statistiques web',
 			'icon' => 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTUgOS4yaDNWMTlINXpNMTAuNiA1aDIuOHYxNGgtMi44em01LjYgOEgxOXY2aC0yLjh6Ii8+PC9zdmc+',
 			'href' => Plugin::getURL('webstats'),

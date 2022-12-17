@@ -16,6 +16,8 @@ use Garradin\Plugin;
 use Garradin\Utils;
 use Garradin\UserException;
 use Garradin\Users\DynamicFields;
+use Garradin\Users\Session;
+use Garradin\UserTemplate\CommonFunctions;
 
 use KD2\DB\EntityManager as EM;
 
@@ -23,6 +25,28 @@ use DateTime;
 
 class Tracking
 {
+	static public function homeButton(array $params, array &$buttons): void
+	{
+		$running_timers = Tracking::listUserRunningTimers(Session::getUserId());
+
+		$icon = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">';
+
+		if ($running_timers) {
+			$icon .= '<style>svg { animation: spinner 3s linear infinite; } path { stroke: rgb(0, 180, 180); fill: rgb(0, 180, 180); } circle { stroke: rgb(0, 180, 180); } @keyframes spinner { to {transform: rotate(360deg);} }</style>';
+		}
+
+		$icon .= '<circle cx="11" cy="11" r="10" stroke-width="2" stroke="#000" /><path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z" stroke="#000" fill="#000" /></svg>';
+
+		$icon = base64_encode($icon);
+
+		$buttons['taima'] = CommonFunctions::linkbutton([
+			'label' => $running_timers ? 'Suivi : chrono en cours' : 'Suivi du temps',
+			'icon' => 'data:image/svg+xml;base64,' . $icon,
+			'href' => Plugin::getURL('taima'),
+		]);
+
+	}
+
 	static public function menuItem(array $params, array &$list): void
 	{
 		$list['plugin_taima'] = sprintf('<a href="%sp/taima/">Suivi du temps</a>', \Garradin\ADMIN_URL);
@@ -69,10 +93,19 @@ class Tracking
 		return DB::getInstance()->getAssoc(sprintf('SELECT id, label FROM %s ORDER BY label COLLATE U_NOCASE;', Task::TABLE));
 	}
 
-	static public function listUserRunningTimers(DateTime $except, int $user_id)
+	static public function listUserRunningTimers(int $user_id, ?DateTime $except = null)
 	{
-		return DB::getInstance()->get(sprintf('SELECT date FROM %s
-			WHERE date != ? AND user_id = ? AND timer_started IS NOT NULL;', Entry::TABLE), $except->format('Y-m-d'), $user_id);
+		$params = [$user_id];
+		$where = ['user_id = ?', 'timer_started IS NOT NULL'];
+
+		if ($except) {
+			$where[] = 'date != ?';
+			$params[] = $except->format('Y-m-d');
+		}
+
+		$sql = sprintf('SELECT date FROM %s WHERE %s;', Entry::TABLE, implode(' AND ', $where));
+
+		return DB::getInstance()->get($sql, ...$params);
 	}
 
 	static public function listUserWeekDays(int $year, int $week, int $user_id)
