@@ -6,7 +6,7 @@
 	<h2 class="ruler">{$user.identite}</h2>
 {/if}
 
-{pagination url=$list->paginationURL() page=$list.page bypage=$list.per_page total=$list->count()}
+{$list->getHTMLPagination()|raw}
 
 {include file="common/dynamic_list_head.tpl"}
 
@@ -33,6 +33,6 @@
 	</tbody>
 </table>
 
-{pagination url=$list->paginationURL() page=$list.page bypage=$list.per_page total=$list->count()}
+{$list->getHTMLPagination()|raw}
 
 {include file="_foot.tpl"}
