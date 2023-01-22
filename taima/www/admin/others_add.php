@@ -28,8 +28,17 @@ if ($user) {
 	$selected_user = [$user->id => $user->identite];
 }
 
-$form->runIf('save', function () {
+if (qg('from')) {
+	$entry = Tracking::get((int)qg('from'));
+	$entry = clone $entry;
+	$entry_duration = Tracking::formatMinutes($entry->duration);
+}
+else {
 	$entry = new Entry;
+	$entry_duration = null;
+}
+
+$form->runIf('save', function () use ($entry) {
 	$entry->setDateString(f('day'));
 	$entry->user_id = @key(f('user'));
 	$entry->importForm();
@@ -40,6 +49,6 @@ $form->runIf('save', function () {
 $tasks = ['' => '--'] + Tracking::listTasks();
 $now = new \DateTime;
 
-$tpl->assign(compact('tasks', 'csrf_key', 'now', 'selected_user'));
+$tpl->assign(compact('tasks', 'csrf_key', 'now', 'selected_user', 'entry', 'entry_duration'));
 
 $tpl->display(\Garradin\PLUGIN_ROOT . '/templates/others_add.tpl');

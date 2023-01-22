@@ -142,6 +142,7 @@ class Tracking
 				'label' => 'Nom',
 				'select' => 'm.' . $identity,
 			],
+			'user_id' => [],
 			'id' => ['select' => 'e.id'],
 		];
 
