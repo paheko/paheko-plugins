@@ -10,23 +10,23 @@ $plugin_file = preg_replace('/\.(?:tar(?:\.gz)?|phar)?$/', '', $plugin_file);
 
 $target = realpath($argv[1]);
 
-if (!file_exists($target . '/garradin_plugin.ini'))
+if (!file_exists($target . '/paheko_plugin.ini'))
 {
-	die("ERREUR : Le fichier $target/garradin_plugin.ini est introuvable.\n");
+	die("ERREUR : Le fichier $target/paheko_plugin.ini est introuvable.\n");
 }
 
-$infos = parse_ini_file($target . '/garradin_plugin.ini');
+$infos = parse_ini_file($target . '/paheko_plugin.ini');
 
 if (!empty($infos['config']))
 {
 	if (!file_exists($target . '/config.json'))
 	{
-		die("ERREUR : Le fichier config.json est obligatoire si config=1 dans garradin_plugin.ini.\n");
+		die("ERREUR : Le fichier config.json est obligatoire si config=1 dans paheko_plugin.ini.\n");
 	}
 
 	if (!file_exists($target . '/www/admin/config.php'))
 	{
-		die("ERREUR : Le fichier www/admin/config.php est obligatoire si config=1 dans garradin_plugin.ini.\n");
+		die("ERREUR : Le fichier www/admin/config.php est obligatoire si config=1 dans paheko_plugin.ini.\n");
 	}
 }
 
@@ -36,7 +36,7 @@ foreach ($required as $key)
 {
 	if (!array_key_exists($key, $infos))
 	{
-		die('ERREUR : Le fichier garradin_plugin.ini ne contient pas d\'entrée "'.$key.'".' . "\n");
+		die('ERREUR : Le fichier paheko_plugin.ini ne contient pas d\'entrée "'.$key.'".' . "\n");
 	}
 }
 
