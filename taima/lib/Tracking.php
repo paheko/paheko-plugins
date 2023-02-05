@@ -25,6 +25,17 @@ use DateTime;
 
 class Tracking
 {
+	const ANIMATED_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 22 22" id="img" fill="none" class="taima-icon">
+			<style>
+				svg.taima-icon { animation: spinner 3s linear infinite; }
+				path { stroke: rgb(0, 180, 180); fill: rgb(0, 180, 180); }
+				circle { stroke: rgb(0, 180, 180); }
+				@keyframes spinner { to {transform: rotate(360deg);} }
+			</style>
+			<circle cx="11" cy="11" r="10" stroke-width="2" stroke="#000" />
+			<path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z" stroke="#000" fill="#000" />
+		</svg>';
+
 	static public function homeButton(array $params, array &$buttons): void
 	{
 		$url = Plugin::getURL('taima');
@@ -36,7 +47,7 @@ class Tracking
 		];
 
 		if ($running_timers) {
-			$params['icon_html'] = file_get_contents(__DIR__ . '/../admin/icon_anim.svg');
+			$params['icon_html'] = self::ANIMATED_ICON;
 		}
 		else {
 			$params['icon'] = $url . 'icon.svg';
