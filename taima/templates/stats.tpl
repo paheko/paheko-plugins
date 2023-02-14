@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Suivi du temps" plugin_css=['style.css'] current="plugin_taima"}
+{include file="_head.tpl" title="Suivi du temps"}
 
-{include file="%s/templates/_nav.tpl"|args:$plugin_root current="stats"}
+{include file="./_nav.tpl" current="stats"}
 
 <nav class="tabs">
 	<ul class="sub">

@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Configuration" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Configuration"}
 
-{include file="%s/templates/_menu.tpl"|args:$plugin_root current="config"}
+{include file="./_menu.tpl" current="config"}
 
 {if $_GET.ok !== null}
 <p class="confirm block">

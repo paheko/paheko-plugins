@@ -64,7 +64,7 @@
 
 <h1>{if isset($cat.nom)}{$cat.nom}{else}{$config.nom_asso} — Réservation de créneau{/if}</h1>
 
-{include file="%s/_form.tpl"|args:$plugin_tpl ask_name=true}
+{include file="./_form.tpl" ask_name=true}
 
 <footer>
 	<a href="{if $config.site_asso}{$config.site_asso}{else}{$www_url}{/if}">Retourner sur notre site — {$config.nom_asso}</a>

@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Configuration — %s"|args:$plugin.nom current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Configuration — %s"|args:$plugin.label}
 
-{include file="%s/templates/admin/_menu.tpl"|args:$plugin_root current="config"}
+{include file="./_menu.tpl" current="config"}
 
 {form_errors}
 
@@ -39,7 +39,7 @@
 	</fieldset>
 
 	<p class="submit">
-		{csrf_field key="config_plugin_%s"|args:$plugin.id}
+		{csrf_field key="config_plugin_%s"|args:$plugin.name}
         {button type="submit" name="save" label="Enregistrer" shape="right" class="main"}
 	</p>
 
@@ -50,7 +50,7 @@
         <legend>Supprimer ce type de créneau</legend>
         <p class="alert block">Ceci effacera toutes les réservations liées.</p>
         <p class="submit">
-            {csrf_field key="config_plugin_%s"|args:$plugin.id}
+            {csrf_field key="config_plugin_%s"|args:$plugin.name}
             <input type="submit" name="delete" value="Supprimer &rarr;" />
         </p>
     </fieldset>

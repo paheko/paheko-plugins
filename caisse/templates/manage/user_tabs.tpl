@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Notes" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Notes"}
 
-{include file="%s/manage/_nav.tpl"|args:$pos_templates_root}
+{include file="./_nav.tpl"}
 
 {if $tabs === null}
 	<p class="alert block">Aucun membre trouvé.</p>

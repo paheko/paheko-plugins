@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="HelloAsso" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="HelloAsso"}
 
 {include file="%s/templates/_menu.tpl"|args:$plugin_root current="home"}
 

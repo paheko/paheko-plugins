@@ -9,7 +9,6 @@ $session->requireAccess($session::SECTION_USERS, $session::ACCESS_WRITE);
 $velos = new Velos;
 
 $tpl->assign('plugin_css', ['style.css']);
-$tpl->assign('plugin_tpl', PLUGIN_ROOT . '/templates/');
 
 function tpl_form_select(array $params)
 {

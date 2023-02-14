@@ -1,6 +1,8 @@
-{include file="_head.tpl" title="Configuration des tâches" plugin_css=['style.css'] current="plugin_taima"}
+{include file="_head.tpl" title="Configuration des tâches"}
 
-{include file="%s/templates/_nav.tpl"|args:$plugin_root current="config"}
+{if !$dialog}
+	{include file="./_nav.tpl" current="config"}
+{/if}
 
 <p class="actions">
 	{linkbutton href="import.php" shape="upload" label="Import Bénévalibre"}

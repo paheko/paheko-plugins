@@ -31,3 +31,4 @@ $tpl->register_modifier('taima_date', function ($date, string $format) {
 
 $tpl->register_modifier('taima_minutes', [Tracking::class, 'formatMinutes']);
 $tpl->register_modifier('taima_url', __NAMESPACE__ . '\taima_url');
+$tpl->assign('plugin_css', ['style.css']);

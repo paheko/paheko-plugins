@@ -1,8 +1,8 @@
-{include file="_head.tpl" title="Modifier le vélo n°%d"|args:$velo.id current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Modifier le vélo n°%d"|args:$velo.id}
 
-{include file="%s_nav.tpl"|args:$plugin_tpl current=""}
+{include file="./_nav.tpl" current=""}
 
-{include file="%s_form.tpl"|args:$plugin_tpl}
+{include file="./_form.tpl"}
 
 <script type="text/javascript">
 {literal}

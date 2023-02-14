@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Autres membres" plugin_css=['style.css'] current="plugin_taima"}
+{include file="_head.tpl" title="Autres membres"}
 
-{include file="%s/templates/_nav.tpl"|args:$plugin_root current="others"}
+{include file="./_nav.tpl" current="others"}
 
 {if $user}
 	<h2 class="ruler">{$user.identite}</h2>

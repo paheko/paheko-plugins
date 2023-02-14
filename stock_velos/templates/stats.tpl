@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Statistiques" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Statistiques"}
 
-{include file="%s_nav.tpl"|args:$plugin_tpl current="stats"}
+{include file="./_nav.tpl" current="stats"}
 
 <figure>
     <img src="?graph=years" alt="" />

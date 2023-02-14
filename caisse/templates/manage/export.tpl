@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Export compta" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Export compta"}
 
-{include file="%s/manage/_nav.tpl"|args:$pos_templates_root current='export'}
+{include file="./_nav.tpl" current='export'}
 
 <form method="post" action="{$self_url}">
 	<fieldset>

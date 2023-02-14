@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Configuration — %s"|args:$plugin.nom current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Configuration — %s"|args:$plugin.nom}
 
-{include file="%s/templates/admin/_menu.tpl"|args:$plugin_root current="config"}
+{include file="./_menu.tpl" current="config"}
 
 {form_errors}
 
@@ -45,7 +45,7 @@
 			<dd><input type="text" name="nom" id="f_nom" value="{form_field name="nom"}" required="required" /></dd>
 		</dl>
 		<p class="submit">
-			{csrf_field key="config_plugin_%s"|args:$plugin.id}
+			{csrf_field key="config_plugin_%s"|args:$plugin.name}
 			<input type="submit" name="add" value="Ajouter" />
 		</p>
 	</fieldset>
@@ -58,7 +58,7 @@
 	<h3>Aide</h3>
 	<p class="help">Les membres connectés peuvent réserver un créneau via l'onglet « Réservations » du menu de gauche.</p>
 	<p class="help">Les non-membres peuvent réserver un créneau via l'adresse suivante :<br />
-		<a href="{$www_url}p/{$plugin.id}/" target="_blank">{$www_url}p/{$plugin.id}/</a></p>
+		{link href=$plugin_public_url label=$plugin_public_url target="_blank"}</p>
 	<p class="help">Les administrateurs peuvent visionner les réservations et gérer les inscrit⋅e⋅s dans l'onglet « Réservations ».</p>
 </div>
 

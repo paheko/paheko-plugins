@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Supprimer la tâche" plugin_css=['style.css'] current="plugin_taima"}
+{include file="_head.tpl" title="Supprimer la tâche"}
 
 {include file="common/delete_form.tpl"
 	legend="Supprimer cette tâche ?"

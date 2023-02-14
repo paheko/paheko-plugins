@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Gestion catégorie" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Gestion catégorie"}
 
 {form_errors}
 

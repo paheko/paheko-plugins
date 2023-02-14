@@ -4,7 +4,7 @@ namespace Garradin;
 
 use Garradin\Plugin\Taima\Tracking;
 
-$old_version = $plugin->getInfos('version');
+$old_version = $plugin->oldVersion();
 $db = DB::getInstance();
 
 // Fix year for dates that are in the last week of previous year

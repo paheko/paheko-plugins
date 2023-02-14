@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Suppression moyen de paiement" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Suppression moyen de paiement"}
 
 {include file="common/delete_form.tpl"
 	legend="Supprimer ce moyen de paiement ?"

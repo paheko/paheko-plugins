@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Gestion catégorie" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Gestion catégorie"}
 
 {include file="common/delete_form.tpl"
 	legend="Supprimer cette catégorie ?"

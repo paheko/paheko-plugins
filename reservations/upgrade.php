@@ -4,7 +4,8 @@ namespace Garradin;
 
 use Garradin\Users\DynamicList;
 
-$old_version = $plugin->getInfos('version');
+$old_version = $plugin->oldVersion();
+
 $db = DB::getInstance();
 
 if (version_compare($old_version, '0.5', '<')) {

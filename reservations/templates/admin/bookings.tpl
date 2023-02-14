@@ -1,6 +1,6 @@
-{include file="_head.tpl" title=$plugin.nom current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title=$plugin.label}
 
-{include file="%s/templates/admin/_menu.tpl"|args:$plugin_root current="bookings"}
+{include file="./_menu.tpl" current="bookings"}
 
 {if !$cat}
 	<section class="booking_categories">
@@ -45,7 +45,7 @@
 	{/literal}
 	</script>
 
-	{include file="%s/templates/_form.tpl"|args:$plugin_root hide_description=true ask_name=true booking=null title="Réserver pour un adhérent"}
+	{include file="./_form.tpl" hide_description=true ask_name=true booking=null title="Réserver pour un adhérent"}
 {/if}
 
 

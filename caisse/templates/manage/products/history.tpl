@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Historique produit : %s"|args:$product.name current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Historique produit : %s"|args:$product.name}
 
-{include file="%s/manage/_nav.tpl"|args:$pos_templates_root current='products'}
+{include file="./_nav.tpl" current='products'}
 
 <p>
 {if $events_only}

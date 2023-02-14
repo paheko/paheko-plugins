@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Commande n°%s — %s"|args:$order.id,$order.person current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Commande n°%s — %s"|args:$order.id,$order.person}
 
-{include file="%s/templates/_menu.tpl"|args:$plugin_root current="home"}
+{include file="./_menu.tpl" current="home"}
 
 <h2 class="ruler">Informations de la commande</h2>
 

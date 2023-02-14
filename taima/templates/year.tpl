@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Mon résumé" plugin_css=['style.css'] current="plugin_taima"}
+{include file="_head.tpl" title="Mon résumé"}
 
-{include file="%s/templates/_nav.tpl"|args:$plugin_root current="year"}
+{include file="./_nav.tpl" current="year"}
 
 {if empty($weeks)}
 	<p class="help">Aucune activité pour le moment.</p>

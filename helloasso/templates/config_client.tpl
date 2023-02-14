@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Connexion à HelloAsso" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Connexion à HelloAsso"}
 
-{include file="%s/templates/_menu.tpl"|args:$plugin_root current="config_client"}
+{include file="./_menu.tpl" current="config_client"}
 
 {if isset($_GET['ok'])}
 <p class="confirm block">

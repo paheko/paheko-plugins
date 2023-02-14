@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Racheter un vélo" current="plugin_`$plugin.id`"}
+{include file="_head.tpl" title="Racheter un vélo"}
 
-{include file="%s_nav.tpl"|args:$plugin_tpl current=""}
+{include file="./_nav.tpl" current=""}
 
 <section class="fiche">
     <ul class="sub_actions">

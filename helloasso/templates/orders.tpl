@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="%s — %s"|args:$form.org_name,$form.name current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="%s — %s"|args:$form.org_name,$form.name}
 
-{include file="%s/templates/_menu.tpl"|args:$plugin_root current="home" current_sub="orders" show_export=true}
+{include file="./_menu.tpl" current="home" current_sub="orders" show_export=true}
 
 {include file="common/dynamic_list_head.tpl"}
 

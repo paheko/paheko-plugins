@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Sessions de caisse" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Sessions de caisse"}
 
 {if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
 <p>{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}</p>

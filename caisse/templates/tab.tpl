@@ -1,4 +1,4 @@
-{include file="_head.tpl" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl"}
 
 <nav class="tabs">
 	{if !$pos_session.closed}

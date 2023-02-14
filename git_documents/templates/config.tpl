@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Git Documents — Configuration" current="plugin_%s"|args:$plugin.id}
+{include file="admin/_head.tpl" title="Git Documents — Configuration"}
 
 {form_errors}
 

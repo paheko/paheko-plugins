@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Valorisation du temps bénévole" plugin_css=['style.css'] current="plugin_taima"}
+{include file="_head.tpl" title="Valorisation du temps bénévole"}
 
-{include file="%s/templates/_nav.tpl"|args:$plugin_root current="report"}
+{include file="./_nav.tpl" current="report"}
 
 {form_errors}
 

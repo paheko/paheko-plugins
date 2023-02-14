@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Clôturer la caisse" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Clôturer la caisse"}
 
 {if $open_notes}
 <p class="error block">

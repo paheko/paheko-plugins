@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Gestion produits" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Gestion produits"}
 
-{include file="%s/manage/_nav.tpl"|args:$pos_templates_root current='products'}
+{include file="./_nav.tpl" current='products'}
 
 <table class="list">
 	<thead>

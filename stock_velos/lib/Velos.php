@@ -104,16 +104,6 @@ class Velos
         }
     }
 
-    static public function menuItem(array $params, array &$list): void
-    {
-        if (!Session::getInstance()->canAccess(Session::SECTION_USERS, Session::ACCESS_WRITE)) {
-            return;
-        }
-
-        $list['plugin_stock_velos'] = sprintf('<a href="%sp/stock_velos/">Stock vélos</a>', \Garradin\ADMIN_URL);
-    }
-
-
     /**
      * Genres de vélos
      */

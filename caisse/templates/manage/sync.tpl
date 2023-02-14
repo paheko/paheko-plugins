@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Synchroniser avec la comptabilité" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Synchroniser avec la comptabilité"}
 
-{include file="%s/manage/_nav.tpl"|args:$pos_templates_root current='sync'}
+{include file="./_nav.tpl" current='sync'}
 
 {if isset($_GET['ok'])}
 <p class="block confirm">

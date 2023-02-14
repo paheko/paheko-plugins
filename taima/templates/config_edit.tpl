@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Suivi du temps" plugin_css=['style.css'] current="plugin_taima"}
+{include file="_head.tpl" title="Suivi du temps"}
 
 {form_errors}
 

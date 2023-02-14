@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Gestion moyens de paiement" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Gestion moyens de paiement"}
 
-{include file="%s/manage/_nav.tpl"|args:$pos_templates_root current='methods'}
+{include file="./_nav.tpl" current='methods'}
 
 <table class="list">
 	<thead>

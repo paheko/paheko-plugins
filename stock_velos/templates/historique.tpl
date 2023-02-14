@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="%s vélos sortis du stock"|args:$total current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="%s vélos sortis du stock"|args:$total}
 
-{include file="%s_nav.tpl"|args:$plugin_tpl current="historique"}
+{include file="./_nav.tpl" current="historique"}
 
 {include file="common/dynamic_list_head.tpl"}
 

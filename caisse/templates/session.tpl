@@ -1,4 +1,4 @@
-{include file="_head.tpl" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl"}
 
 <nav class="tabs">
 	{if !$pos_session.closed}
@@ -16,6 +16,6 @@
 	{/if}
 </nav>
 
-{include file="%s/templates/session_export.tpl"|args:$plugin_root}
+{include file="./session_export.tpl"}
 
 {include file="_foot.tpl"}

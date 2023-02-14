@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Ouverture de caisse" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Ouverture de caisse"}
 
 <form method="post" action="" data-focus="1">
 	<fieldset>

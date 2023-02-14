@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Gestion de la caisse" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Gestion de la caisse"}
 
-{include file="%s/manage/_nav.tpl"|args:$pos_templates_root current='stats'}
+{include file="./_nav.tpl" current='stats'}
 
 {if !$year}
 <p class="help">Sélectionner une année ci-dessous.</p>

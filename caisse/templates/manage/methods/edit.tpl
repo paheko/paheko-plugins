@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Gestion moyen de paiement" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Gestion moyen de paiement"}
 
 {form_errors}
 

@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Import Bénévalibre" plugin_css=['style.css'] current="plugin_taima"}
+{include file="_head.tpl" title="Import Bénévalibre"}
 
-{include file="%s/templates/_nav.tpl"|args:$plugin_root current="config"}
+{include file="./_nav.tpl" current="config"}
 {form_errors}
 
 {if isset($_GET['ok'])}

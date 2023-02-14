@@ -12,22 +12,9 @@ use KD2\Graphics\SVG\Plot_Data;
 
 class Stats
 {
-	static public function homeButton(array $params, array &$buttons): void
-	{
-		if (!Session::getInstance()->canAccess(Session::SECTION_WEB, Session::ACCESS_READ)) {
-			return;
-		}
-
-		$buttons['stats'] = CommonFunctions::linkbutton([
-			'label' => 'Statistiques web',
-			'icon' => Plugin::getURL('webstats', 'icon.svg'),
-			'href' => Plugin::getURL('webstats'),
-		]);
-	}
-
 	static public function appendScript(array $params, array &$scripts): void
 	{
-		$scripts[] = Plugin::getPublicURL('webstats', 'stats.js');
+		$scripts[] = Plugins::getPublicURL('webstats', 'stats.js');
 	}
 
 	static public function store(\stdClass $data): void

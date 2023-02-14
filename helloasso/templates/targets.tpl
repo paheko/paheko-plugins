@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Synchronisation — %s"|args:$plugin.nom current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Synchronisation — %s"|args:$plugin.nom}
 
 <nav class="tabs">
 	<ul>

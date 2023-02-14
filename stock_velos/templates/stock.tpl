@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="État du stock de vélos" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="État du stock de vélos"}
 
-{include file="%s_nav.tpl"|args:$plugin_tpl current="stock"}
+{include file="./_nav.tpl" current="stock"}
 
 <section class="stock">
     <p><strong>{$total|escape}</strong> vélos en stock, dont :</p>

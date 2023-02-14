@@ -1,6 +1,6 @@
-{include file="_head.tpl" title="Recherche SQL" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Recherche SQL"}
 
-{include file="%s_nav.tpl"|args:$plugin_tpl current="recherche"}
+{include file="./_nav.tpl" current="recherche"}
 
 <form method="get" action="" class="sql">
     <fieldset>

@@ -28,15 +28,6 @@ class POS
 		return self::TABLES_PREFIX . $table;
 	}
 
-	static public function menuItem(array $params, array &$list): void
-	{
-		if (!Session::getInstance()->canAccess(Session::SECTION_USERS, Session::ACCESS_WRITE)) {
-			return;
-		}
-
-		$list['plugin_caisse'] = sprintf('<a href="%sp/caisse/">Caisse</a>', \Garradin\ADMIN_URL);
-	}
-
 	static public function barGraph(?string $title, array $data): string
 	{
 		$bar = new Bar(1000, 400);

@@ -7,7 +7,7 @@ use Garradin\Users\DynamicFields;
 
 $db = DB::getInstance();
 
-$old_version = $plugin->getInfos('version');
+$old_version = $plugin->oldVersion();
 
 if (version_compare($old_version, '0.2.0', '<')) {
 	$db->toggleForeignKeys(false);
@@ -76,5 +76,3 @@ if (version_compare($old_version, '0.6.1', '<')) {
 	$db->exec($sql);
 	$db->commitSchemaUpdate();
 }
-
-$plugin->registerSignal('menu.item', [POS::class, 'menuItem']);
