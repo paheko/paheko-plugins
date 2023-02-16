@@ -12,7 +12,7 @@ use Garradin\Accounting\Accounts;
 
 use Garradin\DB;
 use Garradin\DynamicList;
-use Garradin\Plugin;
+use Garradin\Plugins;
 use Garradin\Utils;
 use Garradin\UserException;
 use Garradin\Users\DynamicFields;
@@ -52,7 +52,7 @@ class Tracking
 
 	static public function homeButton(array $params, array &$buttons): void
 	{
-		$url = Plugin::getURL('taima');
+		$url = Plugins::getPrivateURL('taima');
 		$running_timers = self::hasRunningTimers(Session::getUserId());
 
 		$params = [
