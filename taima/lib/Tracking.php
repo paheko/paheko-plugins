@@ -25,21 +25,35 @@ use DateTime;
 
 class Tracking
 {
-	const ANIMATED_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 22 22" id="img" fill="none" class="taima-icon">
+	const ANIMATED_ICON = '<svg width="%s" viewBox="0 0 22 22" class="taima-icon-%d" style="%s">
 			<style>
-				svg.taima-icon { animation: spinner 3s linear infinite; }
-				path { stroke: rgb(0, 180, 180); fill: rgb(0, 180, 180); }
-				circle { stroke: rgb(0, 180, 180); }
-				@keyframes spinner { to {transform: rotate(360deg);} }
+				svg.taima-icon-%2$d { animation: taima-spinner 5s linear infinite; fill: %s; stroke: %4$s; vertical-align: middle; }
+				@keyframes taima-spinner { to {transform: rotate(360deg);} }
 			</style>
-			<circle cx="11" cy="11" r="10" stroke-width="2" stroke="#000" />
-			<path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z" stroke="#000" fill="#000" />
+			<circle cx="11" cy="11" r="10" stroke-width="2" fill="none" />
+			<path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z" />
 		</svg>';
+
+	const FIXED_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="%s" viewBox="0 0 22 22" id="img" fill="none" stroke="currentColor" >
+		<circle cx="11" cy="11" r="10" stroke-width="2" />
+		<path id="hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z" fill="currentColor" />
+	</svg>';
+
+	static public function animatedIcon(string $size, string $color = '', string $style = ''): string
+	{
+		static $i = 1;
+		return sprintf(self::ANIMATED_ICON, $size, $i++, $style, $color ?: 'rgb(var(--gSecondColor))');
+	}
+
+	static public function fixedIcon(string $size): string
+	{
+		return sprintf(self::FIXED_ICON, $size);
+	}
 
 	static public function homeButton(array $params, array &$buttons): void
 	{
 		$url = Plugin::getURL('taima');
-		$running_timers = Tracking::listUserRunningTimers(Session::getUserId());
+		$running_timers = self::hasRunningTimers(Session::getUserId());
 
 		$params = [
 			'label' => $running_timers ? 'Suivi : chrono en cours' : 'Suivi du temps',
@@ -47,7 +61,7 @@ class Tracking
 		];
 
 		if ($running_timers) {
-			$params['icon_html'] = self::ANIMATED_ICON;
+			$params['icon_html'] = self::animatedIcon('100%', 'rgb(var(--gHoverLinkColor))');
 		}
 		else {
 			$params['icon'] = $url . 'icon.svg';
@@ -58,7 +72,13 @@ class Tracking
 
 	static public function menuItem(array $params, array &$list): void
 	{
-		$list['plugin_taima'] = sprintf('<a href="%sp/taima/">Suivi du temps</a>', \Garradin\ADMIN_URL);
+		$icon = '';
+
+		if (self::hasRunningTimers(Session::getUserId())) {
+			$icon = self::animatedIcon(16, '', 'float: right');
+		}
+
+		$list['plugin_taima'] = sprintf('<a href="%sp/taima/">Suivi du temps%s</a>', \Garradin\ADMIN_URL, $icon);
 	}
 
 	static public function get(int $id)
@@ -100,6 +120,11 @@ class Tracking
 	static public function listTasks()
 	{
 		return DB::getInstance()->getAssoc(sprintf('SELECT id, label FROM %s ORDER BY label COLLATE U_NOCASE;', Task::TABLE));
+	}
+
+	static public function hasRunningTimers(int $user_id): bool
+	{
+		return DB::getInstance()->test(Entry::TABLE, 'user_id = ? AND timer_started IS NOT NULL', $user_id);
 	}
 
 	static public function listUserRunningTimers(?int $user_id, ?DateTime $except = null): array

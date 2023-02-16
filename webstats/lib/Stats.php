@@ -4,7 +4,7 @@ namespace Garradin\Plugin\Webstats;
 
 use Garradin\UserTemplate\CommonFunctions;
 use Garradin\DB;
-use Garradin\Plugin;
+use Garradin\Plugins;
 use Garradin\Users\Session;
 
 use KD2\Graphics\SVG\Plot;

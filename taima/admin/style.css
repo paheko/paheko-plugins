@@ -1,11 +1,3 @@
-svg circle {
-	stroke: #999;
-}
-
-svg path {
-	fill: #999;
-}
-
 .taima-header {
 	margin: 1em;
 	display: flex;
@@ -157,7 +149,17 @@ a.start-timer, a.stop-timer {
 }
 
 .stop-timer svg path {
+	stroke: #000;
 	fill: #000;
+}
+
+.taima-weekdays svg circle {
+	stroke: var(--gBorderColor);
+}
+
+.taima-weekdays svg path {
+	stroke: var(--gBorderColor);
+	fill: var(--gBorderColor);
 }
 
 @keyframes spinner {

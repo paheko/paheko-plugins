@@ -13,7 +13,7 @@ class Test
 		$plugin = new Plugin('test');
 
 		// Désactiver l'affichage du bouton
-		if (!$plugin->getConfig('display_button')) {
+		if (empty($plugin->config->display_button)) {
 			return;
 		}
 

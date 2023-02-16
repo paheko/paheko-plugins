@@ -109,7 +109,9 @@ $tasks = ['' => '--'] + Tracking::listTasks();
 $is_today = $day->format('Ymd') == $today->format('Ymd');
 
 $running_timers = Tracking::listUserRunningTimers($user_id, $day);
+$animated_icon = Tracking::animatedIcon(32);
+$fixed_icon = Tracking::fixedIcon(24);
 
-$tpl->assign(compact('is_today', 'tasks', 'entries', 'week_total', 'weekdays', 'prev_url', 'next_url', 'today_url', 'day', 'year', 'week', 'csrf_key', 'running_timers'));
+$tpl->assign(compact('is_today', 'tasks', 'entries', 'week_total', 'weekdays', 'prev_url', 'next_url', 'today_url', 'day', 'year', 'week', 'csrf_key', 'running_timers', 'animated_icon', 'fixed_icon'));
 
 $tpl->display(__DIR__ . '/../templates/index.tpl');
