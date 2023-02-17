@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Extension — %s"|args:$plugin.nom}
+{include file="_head.tpl" title="Extension — %s"|args:$plugin.label}
 
 {include file="./_nav.tpl" current="index"}
 
