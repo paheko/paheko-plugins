@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="Gestion de la caisse"}
 
-{include file="./manage/_nav.tpl"}
+{include file="./_nav.tpl"}
 
 <form method="get" action="user_tabs.php">
 	<fieldset>

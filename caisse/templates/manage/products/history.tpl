@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="Historique produit : %s"|args:$product.name}
 
-{include file="./_nav.tpl" current='products'}
+{include file="../_nav.tpl" current='products'}
 
 <p>
 {if $events_only}

@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="Gestion produits"}
 
-{include file="./_nav.tpl" current='products'}
+{include file="../_nav.tpl" current='products'}
 
 <table class="list">
 	<thead>

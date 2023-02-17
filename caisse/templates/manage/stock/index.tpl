@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="Gestion stock"}
 
-{include file="./_nav.tpl" current='stock'}
+{include file="../_nav.tpl" current='stock'}
 
 <h2 class="ruler">Événements de stock</h2>
 

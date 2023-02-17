@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="Produits associés à '%s'"|args:$method.name}
 
-{include file="./_nav.tpl" current='methods'}
+{include file="../_nav.tpl" current='methods'}
 
 <form method="post" action="">
 

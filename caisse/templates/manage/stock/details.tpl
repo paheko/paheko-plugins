@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="Stock : %s"|args:$event.label}
 
-{include file="./_nav.tpl" current='stock'}
+{include file="../_nav.tpl" current='stock'}
 
 {if !$event.applied}
 <p class="help">

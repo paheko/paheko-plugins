@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="Gestion moyens de paiement"}
 
-{include file="./_nav.tpl" current='methods'}
+{include file="../_nav.tpl" current='methods'}
 
 <table class="list">
 	<thead>
