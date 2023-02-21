@@ -1,7 +1,7 @@
 <nav class="tabs">
 	{if $current == 'others'}
 	<aside>
-		{linkbutton target="_dialog" href="others_add.php?id_user=%d"|args:$user.id label="Ajouter une tâche" shape="plus"}
+		{linkbutton target="_dialog" href="others_edit.php?id_user=%d"|args:$user.id label="Ajouter une tâche" shape="plus"}
 	</aside>
 	{/if}
 
