@@ -18,7 +18,7 @@ if (null !== qg('id')) {
 	}
 }
 
-$current_pos_session = Sessions::get($tab ? $tab->session : Sessions::getCurrentId());
+$current_pos_session = Sessions::get($tab ? $tab->session : (int)qg('session'));
 
 if (!$current_pos_session) {
 	throw new UserException('Aucune session de caisse en cours et aucune note sélectionnée');
@@ -70,7 +70,7 @@ elseif (!empty($_POST['reopen'])) {
 }
 elseif (!empty($_POST['delete'])) {
 	$tab->delete();
-	Utils::redirect(Utils::plugin_url(['file' => 'tab.php']));
+	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'session=' . $current_pos_session->id()]));
 }
 
 $tabs = Tabs::listForSession($current_pos_session->id);
