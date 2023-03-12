@@ -14,7 +14,7 @@ $session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
 
 require_once __DIR__ . '/_inc.php';
 
-$csrf_key = 'add_task';
+$csrf_key = 'edit_task';
 $selected_user = null;
 $user = qg('id_user');
 
@@ -28,9 +28,23 @@ if ($user) {
 	$selected_user = [$user->id => $user->identite];
 }
 
-$form->runIf('save', function () {
+if (qg('from')) {
+	$entry = Tracking::get((int)qg('from'));
+	$entry = clone $entry;
+	$entry_duration = Tracking::formatMinutes($entry->duration);
+}
+elseif (qg('id')) {
+	$entry = Tracking::get((int)qg('id'));
+	$entry_duration = Tracking::formatMinutes($entry->duration);
+	$selected_user = [$user->id => $user->identite];
+}
+else {
 	$entry = new Entry;
-	$entry->setDateString(f('day'));
+	$entry_duration = null;
+}
+
+$form->runIf('save', function () use ($entry) {
+	$entry->setDateString(f('date'));
 	$entry->user_id = @key(f('user'));
 	$entry->importForm();
 	$entry->setDuration(f('duration'));
@@ -40,6 +54,6 @@ $form->runIf('save', function () {
 $tasks = ['' => '--'] + Tracking::listTasks();
 $now = new \DateTime;
 
-$tpl->assign(compact('tasks', 'csrf_key', 'now', 'selected_user'));
+$tpl->assign(compact('tasks', 'csrf_key', 'now', 'selected_user', 'entry', 'entry_duration'));
 
-$tpl->display(\Garradin\PLUGIN_ROOT . '/templates/others_add.tpl');
+$tpl->display(\Garradin\PLUGIN_ROOT . '/templates/others_edit.tpl');

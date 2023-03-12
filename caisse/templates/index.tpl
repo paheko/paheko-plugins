@@ -1,12 +1,11 @@
 {include file="_head.tpl" title="Sessions de caisse"}
 
-{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
-<p>{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}</p>
-{/if}
-
-{if !$current_pos_session}
-<p>{linkbutton href="session.php" shape="right" label="Ouvrir la caisse" class="main"}</p>
-{/if}
+<p>
+	{linkbutton href="session_open.php" shape="right" label="Ouvrir la caisse" class="main"}
+	{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
+		{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}
+	{/if}
+</p>
 
 {include file="common/dynamic_list_head.tpl"}
 		{foreach from=$list->iterate() item="pos_session"}
@@ -41,7 +40,7 @@
 			<td class="money">{$pos_session.total|raw|money_currency}</td>
 			<td class="actions">
 				{if !$pos_session.closed}
-				{linkbutton shape="right" label="Reprendre" href="tab.php"}
+				{linkbutton shape="right" label="Reprendre" href="tab.php?session=%d"|args:$pos_session.id}
 				{linkbutton shape="lock" label="Clôturer" href="session_close.php?id=%s"|args:$pos_session.id}
 				{/if}
 				{linkbutton shape="menu" label="Résumé" href="session.php?id=%s"|args:$pos_session.id}

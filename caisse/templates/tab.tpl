@@ -2,7 +2,7 @@
 
 <nav class="tabs">
 	{if !$pos_session.closed}
-		{linkbutton href="?new" label="Nouvelle note" shape="plus"}
+		{linkbutton href="?session=%d&new"|args:$pos_session.id label="Nouvelle note" shape="plus"}
 		{linkbutton href="session.php?id=%d"|args:$pos_session.id label="Résumé" shape="menu"}
 		{linkbutton href="session_close.php?id=%d"|args:$pos_session.id label="Clôturer la caisse" shape="delete"}
 	{/if}

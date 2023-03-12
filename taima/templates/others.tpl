@@ -26,6 +26,8 @@
 			<td>{$task.duration|taima_minutes}</td>
 			<td>{$task.user_name}</td>
 			<td>
+				{linkbutton href="others_edit.php?id_user=%d&from=%d"|args:$task.user_id:$task.id label="Dupliquer" shape="plus" target="_dialog"}
+				{linkbutton href="others_edit.php?id_user=%d&id=%d"|args:$task.user_id:$task.id label="Modifier" shape="edit" target="_dialog"}
 				{linkbutton href="others_delete.php?id=%d"|args:$task.id label="Supprimer" shape="delete" target="_dialog"}
 			</td>
 		</tr>
