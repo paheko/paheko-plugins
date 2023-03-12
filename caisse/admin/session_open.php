@@ -15,12 +15,13 @@ $form->runIf('open', function () use ($session) {
 		throw new UserException('Le solde de la caisse ne peut être laissé vide.');
 	}
 
-	$s = Sessions::open($session->getUser()->id, get_amount(f('amount')));
+	$s = Sessions::open(f('user_name') ?: $session->getUser()->name(), get_amount(f('amount')));
 	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'session=' . $s->id()]));
 }, $csrf_key);
 
 $tpl->assign(compact('csrf_key', 'pos_session'));
 
+$tpl->assign('user_name', $session->getUser()->name());
 $tpl->assign('current_pos_session', Sessions::getCurrentId());
 
 $tpl->display(PLUGIN_ROOT . '/templates/session_open.tpl');
