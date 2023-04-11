@@ -53,5 +53,3 @@ $db->exec(<<<EOF
     CREATE INDEX IF NOT EXISTS prv_date_sortie ON plugin_stock_velos (date_sortie);
 EOF
 );
-
-$plugin->registerSignal('usertemplate.init', [Velos::class, 'register']);

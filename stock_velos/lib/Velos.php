@@ -81,29 +81,6 @@ class Velos
         'Jeté',
     );
 
-    static public function register(array $params)
-    {
-        $ut =& $params['template'];
-
-        $ut->registerSection('velos', [self::class, 'section']);
-    }
-
-    static public function section(array $params)
-    {
-        if (isset($params['count'])) {
-            $sql = 'SELECT COUNT(*) AS count FROM plugin_stock_velos WHERE prix > 0 AND date_sortie IS NULL;';
-        }
-        else {
-            $sql = 'SELECT prix, modele, roues, type, genre, etiquette FROM plugin_stock_velos
-                WHERE date_sortie IS NULL AND prix > 0 ORDER BY date_entree ASC;';
-        }
-
-        $db = DB::getInstance();
-        foreach ($db->iterate($sql) as $row) {
-            yield (array) $row;
-        }
-    }
-
     /**
      * Genres de vélos
      */
