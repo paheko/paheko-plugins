@@ -12,9 +12,11 @@ use KD2\Graphics\SVG\Plot_Data;
 
 class Stats
 {
-	static public function appendScript(array $params, array &$scripts): void
+	static public function webRequest(array $params, string &$content): void
 	{
-		$scripts[] = Plugins::getPublicURL('webstats', 'stats.js');
+		$url = Plugins::getPublicURL('webstats', 'stats.js');
+		$script = sprintf('<script type="text/javascript" defer src="%s"></script>', $url);
+		$content = str_ireplace('</body', $script . '</body', $content);
 	}
 
 	static public function store(\stdClass $data): void
