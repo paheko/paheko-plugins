@@ -22,6 +22,8 @@
 	</tbody>
 </table>
 
+{* Not yet supported
 {pagination url=$list->paginationURL() page=$list.page bypage=$list.per_page total=$list->count()}
+*}
 
 {include file="_foot.tpl"}

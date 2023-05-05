@@ -11,7 +11,7 @@ if ($plugin->needUpgrade()) {
 }
 
 if (!$ha->getLastSync()) {
-	Utils::redirect(PLUGIN_URL . 'sync.php');
+	Utils::redirect(PLUGIN_ADMIN_URL . 'sync.php');
 }
 
 $tpl->assign('list', Forms::list());

@@ -91,12 +91,6 @@ class Order extends Entity
 			$transaction->addLine($line);
 		}
 
-			$sum = $transaction->sum();
-
-			$line = new Line;
-			$line->label = '';
-		}
-
 		$transaction->save();
 		$this->set('id_transaction', $transaction->id());
 		$this->save();

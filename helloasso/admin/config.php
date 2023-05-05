@@ -4,14 +4,16 @@ namespace Garradin;
 
 use Garradin\Plugin\HelloAsso\HelloAsso;
 
-// FIXME
-Utils::redirect(PLUGIN_URL . 'config_client.php');
+use Garradin\Users\DynamicFields;
 
 $session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
 
-$csrf_key = sprintf('config_plugin_%s', $plugin->id);
-
 $ha = HelloAsso::getInstance();
+
+if ((array_key_exists('tab', $_GET) && $_GET['tab'] === 'client') || !$ha->isConfigured())
+	Utils::redirect(PLUGIN_ADMIN_URL . 'config_client.php');
+
+$csrf_key = sprintf('config_plugin_%s', $plugin->id);
 
 $form->runIf('save', function () use ($ha) {
 	$ha->saveConfig(f('map'), f('merge_names'), f('match_email_field'));
@@ -24,20 +26,21 @@ $match_options = [
 
 $merge_names_options = $ha::MERGE_NAMES_OPTIONS;
 
-$fields_names = $ha::PAYER_FIELDS;
+//$fields_names = $ha::PAYER_FIELDS;
+$fields_names = [];
 
-$champs = Config::getInstance()->get('champs_membres')->getAll();
+$champs = DynamicFields::getInstance()->all();
 
 $target_fields = [
 	null => '-- Ne pas importer',
 ];
 
 foreach ($champs as $key => $config) {
-	if (!isset($config->title)) {
+	if (!isset($config->label)) {
 		continue;
 	}
 
-	$target_fields[$key] = $config->title;
+	$target_fields[$key] = $config->label;
 }
 
 $plugin_config = $ha->getConfig();

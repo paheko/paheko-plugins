@@ -4,7 +4,8 @@ namespace Garradin\Plugin\HelloAsso;
 
 use Garradin\Config;
 use Garradin\DB;
-use Garradin\Plugin;
+use Garradin\Entities\Plugin;
+use KD2\DB\EntityManager;
 
 use Garradin\Plugin\HelloAsso\Entities\Form;
 
@@ -12,6 +13,7 @@ use function Garradin\garradin_contributor_license;
 
 class HelloAsso
 {
+	const NAME = 'helloasso';
 	const PER_PAGE = 100;
 
 	const MERGE_NAMES_FIRST_LAST = 0;
@@ -39,8 +41,13 @@ class HelloAsso
 
 	protected function __construct()
 	{
-		$this->plugin = new Plugin('helloasso');
+		$this->plugin = EntityManager::getInstance(Plugin::class)->one('SELECT * FROM @TABLE WHERE name = ? LIMIT 1;', self::NAME);
+
 		$this->config = $this->plugin->getConfig();
+		if (null === $this->config) {
+			$this->config = new \stdClass();
+			$this->config->client_id = null;
+		}
 	}
 
 	public function plugin(): Plugin
@@ -59,7 +66,7 @@ class HelloAsso
 		return $date;
 	}
 
-	public function sync(): void
+	public function sync(): bool
 	{
 		Forms::sync();
 		$organizations = array_keys(Forms::listOrganizations());
@@ -70,7 +77,8 @@ class HelloAsso
 			Items::sync($org_slug);
 		}
 
-		$this->plugin->setConfig('last_sync', (new \DateTime)->format(\DATE_ISO8601));
+		$this->plugin->setConfigProperty('last_sync', (new \DateTime)->format(\DATE_ISO8601));
+		return $this->plugin->save();
 	}
 
 	public function getClientId(): ?string
@@ -97,16 +105,21 @@ class HelloAsso
 		DB::getInstance()->exec($sql);
 	}
 
-	public function saveConfig(array $map, $merge_names, $match_email_field): void
+	public function saveConfig(array $map, $merge_names, $match_email_field): bool
 	{
-		$this->plugin->setConfig('merge_names', (int) $merge_names);
-		$this->plugin->setConfig('match_email_field', (bool) $match_email_field);
-		$this->plugin->setConfig('map_user_fields', $map);
+		$this->plugin->setConfigProperty('merge_names', (int) $merge_names);
+		$this->plugin->setConfigProperty('match_email_field', (bool) $match_email_field);
+		$this->plugin->setConfigProperty('map_user_fields', $map);
+		return $this->plugin->save();
 	}
 
 	public function isConfigured(): bool
 	{
 		return empty($this->config->oauth) ? false : true;
+	}
+
+	public function getConfig(): ?\stdClass {
+		return $this->config;
 	}
 
 /*

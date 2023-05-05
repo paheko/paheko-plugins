@@ -91,7 +91,7 @@ class API
 		}
 		elseif ($this->oauth->expiry - 10 <= time()) {
 			$this->oauth = $this->refreshToken($this->oauth->refresh_token);
-			$this->ha->plugin()->setConfig('oauth', $this->oauth);
+			$this->ha->plugin()->setConfigProperty('oauth', $this->oauth);
 		}
 
 		return $this->oauth->access_token;
@@ -102,9 +102,9 @@ class API
 		$this->client_id = trim($client_id);
 		$this->oauth = $this->createToken(trim($secret));
 
-		$this->ha->plugin()->setConfig('client_id', $this->client_id);
-		$this->ha->plugin()->setConfig('oauth', $this->oauth);
-		return true;
+		$this->ha->plugin()->setConfigProperty('client_id', $this->client_id);
+		$this->ha->plugin()->setConfigProperty('oauth', $this->oauth);
+		return $this->ha->plugin()->save();
 	}
 
 	public function createToken(string $secret): \stdClass
