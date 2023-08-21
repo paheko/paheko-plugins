@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Git Documents — Configuration"}
+{include file="_head.tpl" title="Git Documents — Configuration"}
 
 {form_errors}
 
@@ -18,4 +18,4 @@
 	</p>
 </form>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}
