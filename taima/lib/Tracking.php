@@ -23,6 +23,7 @@ use Paheko\UserTemplate\CommonFunctions;
 use KD2\DB\EntityManager as EM;
 
 use DateTime;
+use DateTimeInterface;
 
 class Tracking
 {
@@ -241,8 +242,11 @@ class Tracking
 		return $list;
 	}
 
-	static public function listPerInterval(string $grouping = 'week', bool $per_user = false)
+	static public function listPerInterval(string $grouping = 'week', bool $per_user = false, ?DateTimeInterface $start = null, ?DateTimeInterface $end = null)
 	{
+		$where = '1';
+		$params = [];
+
 		if ($grouping == 'week') {
 			$group = 'e.year, e.week';
 			$order = 'e.year DESC, e.week DESC';
@@ -266,21 +270,32 @@ class Tracking
 			$group .= ', e.task_id';
 		}
 
+		if ($start) {
+			$where .= ' AND e.date >= ?';
+			$params[] = $start;
+		}
+
+		if ($end) {
+			$where .= ' AND e.date <= ?';
+			$params[] = $end;
+		}
+
 		$id_field = DynamicFields::getNameFieldsSQL('u');
 		$sql = 'SELECT e.*, t.label AS task_label, %s AS user_name, SUM(duration) AS duration, %s AS criteria
 			FROM plugin_taima_entries e
 			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
 			LEFT JOIN users u ON u.id = e.user_id
+			WHERE %s
 			GROUP BY %s
 			ORDER BY %s, SUM(duration) DESC;';
 
-		$sql = sprintf($sql, $id_field, $criteria, $group, $order);
+		$sql = sprintf($sql, $id_field, $criteria, $where, $group, $order);
 
 		$db = DB::getInstance();
 
 		$item = $criteria = null;
 
-		foreach ($db->iterate($sql) as $row) {
+		foreach ($db->iterate($sql, ...$params) as $row) {
 			if ($criteria != $row->criteria) {
 				if ($item !== null) {
 					$total = 0;
