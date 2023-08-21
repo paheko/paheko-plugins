@@ -246,6 +246,8 @@ class Tracking
 	{
 		$where = '1';
 		$params = [];
+		$select = '';
+		$join = '';
 
 		if ($grouping == 'week') {
 			$group = 'e.year, e.week';
@@ -261,6 +263,13 @@ class Tracking
 			$group = 'e.year, strftime(\'%m\', e.date)';
 			$order = 'e.year DESC, strftime(\'%m\', e.date) DESC';
 			$criteria = 'strftime(\'%Y%m\', e.date)';
+		}
+		elseif ($grouping == 'accounting') {
+			$group = 'y.id';
+			$order = 'y.start_date DESC';
+			$criteria = 'y.id';
+			$select = ', y.label AS year_label';
+			$join = 'INNER JOIN acc_years AS y ON e.date >= y.start_date AND e.date <= y.end_date';
 		}
 
 		if ($per_user) {
@@ -281,15 +290,16 @@ class Tracking
 		}
 
 		$id_field = DynamicFields::getNameFieldsSQL('u');
-		$sql = 'SELECT e.*, t.label AS task_label, %s AS user_name, SUM(duration) AS duration, %s AS criteria
+		$sql = 'SELECT e.*, t.label AS task_label, %s AS user_name, SUM(duration) AS duration, %s AS criteria %s
 			FROM plugin_taima_entries e
+			%s
 			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
 			LEFT JOIN users u ON u.id = e.user_id
 			WHERE %s
 			GROUP BY %s
 			ORDER BY %s, SUM(duration) DESC;';
 
-		$sql = sprintf($sql, $id_field, $criteria, $where, $group, $order);
+		$sql = sprintf($sql, $id_field, $criteria, $select, $join, $where, $group, $order);
 
 		$db = DB::getInstance();
 

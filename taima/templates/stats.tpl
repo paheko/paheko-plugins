@@ -13,6 +13,7 @@
 		<li{if $grouping == 'week'} class="current"{/if}><a href="?g=week{if $per_user}&amp;per_user=1{/if}{$filter_dates}">Par semaine</a></li>
 		<li{if $grouping == 'month'} class="current"{/if}><a href="?g=month{if $per_user}&amp;per_user=1{/if}{$filter_dates}">Par mois</a></li>
 		<li{if $grouping == 'year'} class="current"{/if}><a href="?g=year{if $per_user}&amp;per_user=1{/if}{$filter_dates}">Par année</a></li>
+		<li{if $grouping == 'accounting'} class="current"{/if}><a href="?g=accounting{if $per_user}&amp;per_user=1{/if}{$filter_dates}">Par exercice</a></li>
 	</ul>
 	<ul class="sub">
 		<li{if !$per_user} class="current"{/if}><a href="?g={$grouping}{$filter_dates}">Par tâche</a></li>
@@ -44,6 +45,7 @@
 				<h2 class="ruler">
 				{if $grouping == 'week'}{$week.year} — S{$week.week}
 				{elseif $grouping == 'month'}{$week.date|strftime:'%B %Y'}
+				{elseif $grouping == 'accounting'}{$week.year_label}
 				{else}{$week.year}{/if}
 				</h2>
 			</th>
