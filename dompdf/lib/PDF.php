@@ -5,6 +5,8 @@ namespace Paheko\Plugin\Dompdf;
 use Dompdf\Dompdf;
 use const Paheko\CACHE_ROOT;
 
+use Paheko\Entities\Signal;
+
 class PDF
 {
 	const DIRECTORY = CACHE_ROOT . '/dompdf';
@@ -25,11 +27,11 @@ class PDF
 		return $dompdf;
 	}
 
-	static public function create(array $params): bool
+	static public function create(Signal $signal): void
 	{
 		$dompdf = self::DomPDF();
 
-		$dompdf->loadHtmlFile($params['source']);
+		$dompdf->loadHtmlFile($signal->getIn('source'));
 
 		// (Optional) Setup the paper size and orientation
 		$dompdf->setPaper('A4', 'landscape');
@@ -37,16 +39,16 @@ class PDF
 		// Render the HTML as PDF
 		$dompdf->render();
 
-		file_put_contents($params['target'], $dompdf->output());
+		file_put_contents($signal->getIn('target'), $dompdf->output());
+		$signal->stop();
 
-		return true;
 	}
 
-	static public function stream(array $params): bool
+	static public function stream(Signal $signal): void
 	{
 		$dompdf = self::DomPDF();
 
-		$dompdf->loadHtml($params['string']);
+		$dompdf->loadHtml($signal->getIn('string'));
 
 		// (Optional) Setup the paper size and orientation
 		$dompdf->setPaper('A4', 'landscape');
@@ -56,6 +58,6 @@ class PDF
 
 		echo $dompdf->output();
 
-		return true;
+		$signal->stop();
 	}
 }

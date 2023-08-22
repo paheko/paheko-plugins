@@ -6,17 +6,21 @@ use Paheko\UserTemplate\CommonFunctions;
 use Paheko\DB;
 use Paheko\Plugins;
 use Paheko\Users\Session;
+use Paheko\Entities\Signal;
 
 use KD2\Graphics\SVG\Plot;
 use KD2\Graphics\SVG\Plot_Data;
 
 class Stats
 {
-	static public function webRequest(array $params, string &$content): void
+	static public function webRequest(Signal $signal, Plugin $plugin): void
 	{
-		$url = Plugins::getPublicURL('webstats', 'stats.js');
+		$url = $plugin->url('stats.js');
 		$script = sprintf('<script type="text/javascript" defer src="%s"></script>', $url);
+
+		$content = $signal->getOut('content');
 		$content = str_ireplace('</body', $script . '</body', $content);
+		$signal->setOut('content', $content);
 	}
 
 	static public function store(\stdClass $data): void

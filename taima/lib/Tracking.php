@@ -5,6 +5,7 @@ namespace Paheko\Plugin\Taima;
 use Paheko\Plugin\Taima\Entities\Entry;
 use Paheko\Plugin\Taima\Entities\Task;
 
+use Paheko\Entities\Signal;
 use Paheko\Entities\Accounting\Transaction;
 use Paheko\Entities\Accounting\Line;
 use Paheko\Entities\Accounting\Year;
@@ -52,7 +53,7 @@ class Tracking
 		return sprintf(self::FIXED_ICON, $size);
 	}
 
-	static public function homeButton(array $params, array &$buttons): void
+	static public function homeButton(Signal $signal): void
 	{
 		$url = Plugins::getPrivateURL('taima');
 		$running_timers = self::hasRunningTimers(Session::getUserId());
@@ -69,10 +70,10 @@ class Tracking
 			$params['icon'] = $url . 'icon.svg';
 		}
 
-		$buttons['taima'] = CommonFunctions::linkbutton($params);
+		$signal->setOut('taima', CommonFunctions::linkbutton($params));
 	}
 
-	static public function menuItem(array $params, array &$list): void
+	static public function menuItem(Signal $signal): void
 	{
 		$icon = '';
 
@@ -80,7 +81,7 @@ class Tracking
 			$icon = self::animatedIcon(16, '', 'float: right');
 		}
 
-		$list['plugin_taima'] = sprintf('<a href="%sp/taima/">Suivi du temps%s</a>', \Paheko\ADMIN_URL, $icon);
+		$signal->setOut('plugin_taima', sprintf('<a href="%sp/taima/">Suivi du temps%s</a>', \Paheko\ADMIN_URL, $icon));
 	}
 
 	static public function get(int $id)

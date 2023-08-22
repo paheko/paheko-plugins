@@ -6,8 +6,9 @@ use Paheko\Template;
 
 class Signaux
 {
-	static public function banner(array $params, &$return)
+	static public function banner(Signnal $signal)
 	{
-		$return = Template::getInstance()->fetch($params['plugin_root'] . '/templates/banner.tpl');
+		$html = Template::getInstance()->fetch(__DIR__ . '/../templates/banner.tpl');
+		$signal->setOut('welcome', $html);
 	}
 }
