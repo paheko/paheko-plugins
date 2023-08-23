@@ -2,7 +2,8 @@
 
 namespace Paheko\Plugin\Test;
 
-use Paheko\Plugins;
+use Paheko\Entities\Plugin;
+use Paheko\Entities\Signal;
 use Paheko\Users\Session;
 use Paheko\UserTemplate\CommonFunctions;
 
