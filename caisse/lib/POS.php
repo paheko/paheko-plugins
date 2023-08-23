@@ -13,6 +13,8 @@ use Paheko\Users\Session;
 
 use KD2\Graphics\SVG\Bar;
 use KD2\Graphics\SVG\Bar_Data_Set;
+use KD2\Graphics\SVG\Plot;
+use KD2\Graphics\SVG\Plot_Data;
 
 class POS
 {
@@ -35,22 +37,48 @@ class POS
 		$current_group = null;
 		$set = null;
 		$sum = 0;
+		$i = -50;
 
-		$color = function (string $str): string {
-			return sprintf('#%s', substr(md5($str), 0, 6));
+		$color = function () use (&$i) {
+			$i += 50;
+			return sprintf('hsl(%d, 70%%, 60%%)', $i);
 		};
 
 		foreach ($data as $group_label => $group) {
 			$set = new Bar_Data_Set($group_label);
 
 			foreach ($group as $label => $value) {
-				$set->add($value, $label, $color($label));
+				$set->add($value, $label, $color());
 			}
 
 			$bar->add($set);
 		}
 
 		return $bar->output();
+	}
+
+	static public function plotGraph(?string $title, array $data): string
+	{
+		$plot = new Plot(1000, 400);
+		$plot->setTitle($title);
+		$current_group = null;
+		$sum = 0;
+
+		$i = -50;
+
+		$color = function () use (&$i) {
+			$i += 50;
+			return sprintf('hsl(%d, 60%%, %d%%)', $i, $i % 100 ? 80 : 60);
+		};
+
+		foreach ($data as $label => $values) {
+			$set = new Plot_Data($values, $label, $color());
+			$plot->add($set);
+		}
+
+		$plot->setLabels([1 => 'jan', 'fév', 'mar', 'avr', 'mai', 'juin', 'juil', 'août', 'sep', 'oct', 'nov', 'déc']);
+
+		return $plot->output();
 	}
 
 	static public function syncAccounting(int $id_creator, Year $year, bool $attach = true): int

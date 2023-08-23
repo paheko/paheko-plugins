@@ -28,6 +28,7 @@ if ($year) {
 	}
 
 	$tpl->assign('methods_per_month', Methods::getStatsPerMonth($year));
+	$tpl->assign('methods_out_per_month', Methods::getStatsPerMonth($year, true));
 	$tpl->assign('categories_per_month', Products::getStatsPerMonth($year));
 }
 else {
