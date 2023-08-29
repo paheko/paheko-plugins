@@ -40,7 +40,7 @@ foreach ($options as $k => &$option) {
 
 $remainder_after = $remainder - $eligible;
 
-$file = Files::get(File::CONTEXT_SKELETON . '/caisse_invoice.html');
+$file = Files::get(File::CONTEXT_MODULES . '/web/caisse_invoice.html');
 
 $tpl = new UserTemplate($file);
 
