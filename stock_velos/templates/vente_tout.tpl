@@ -59,7 +59,7 @@
         non connu du vendeur.</p>
     <p>Le vendeur déclare que le vélo n'est pas d'origine frauduleuse et qu'il est conforme à
         l'état indiqué ci-dessus.</p>
-    <p>Fait en deux exemplaires, à Dijon, le <span class="complete"></span>.</p>
+    <p>Fait en deux exemplaires, le <span class="complete"></span>.</p>
 
     <p class="signature">(Signature du vendeur)</p>
     <p class="signature">(Signature de l'acquéreur, ou d'un parent pour les mineurs)</p>
