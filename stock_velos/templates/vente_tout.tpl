@@ -64,6 +64,8 @@
     <p class="signature">(Signature du vendeur)</p>
     <p class="signature">(Signature de l'acquéreur, ou d'un parent pour les mineurs)</p>
 </section>
+{foreachelse}
+<h2>Aucun vélo à vendre</h2>
 {/foreach}
 
 </body>
