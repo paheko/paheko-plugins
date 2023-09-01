@@ -5,6 +5,7 @@ namespace Paheko\Plugin\Git_Documents;
 use Paheko\Users\Session;
 
 use Paheko\Plugin;
+use Paheko\Utils;
 
 class GitDocuments
 {
@@ -24,7 +25,7 @@ class GitDocuments
 		}
 
 		$cmd = '{ cd %s && git reset --merge 2>&1 && git add -A 2>&1 && git commit -a -m %s %s 2>&1; } > /dev/null &';
-		$cmd = sprintf($cmd, escapeshellarg(\Paheko\FILE_STORAGE_CONFIG), escapeshellarg(self::MESSAGE), $user_arg);
+		$cmd = sprintf($cmd, Utils::escapeshellarg(\Paheko\FILE_STORAGE_CONFIG), Utils::escapeshellarg(self::MESSAGE), $user_arg);
 
 		putenv('LANG=fr_FR.UTF-8');
 		exec($cmd, $out, $code);
