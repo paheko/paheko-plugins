@@ -15,7 +15,7 @@
                 {linkbutton shape="money" href="rachat.php?id=%d"|args:$velo.id label="Racheter ce vélo"}
             {/if}
         {/if}
-    </ul>
+    </p>
 
     <article class="velo">
         <dl class="num">
@@ -137,6 +137,12 @@
         </dl>
     </article>
     {/if}
+
+
+    <article class="velo_desc attachments noprint">
+        {include file="common/files/_context_list.tpl" edit=true path="%s/public/%d"|args:$plugin->storage_root():$velo.id button_label="Ajouter une photo du vélo"}
+    </article>
+
 </section>
 
 {include file="_foot.tpl"}

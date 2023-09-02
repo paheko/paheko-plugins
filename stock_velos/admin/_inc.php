@@ -4,8 +4,6 @@ namespace Paheko;
 
 use Paheko\Plugin\Stock_Velos\Velos;
 
-$session->requireAccess($session::SECTION_USERS, $session::ACCESS_WRITE);
-
 $velos = new Velos;
 
 $tpl->assign('plugin_css', ['style.css']);
