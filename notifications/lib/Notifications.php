@@ -144,21 +144,7 @@ class Notifications
 			return;
 		}
 
-		$msg = new Mail_Message;
-		$msg->setHeader('From', Emails::getFromHeader());
-		$msg->setHeader('Subject', '[Notif.] ' . $this->getSubject($signal));
-		$msg->setBody($this->getBody($signal));
-
-		/*
-		if ($html = $this->getHtmlBody($signal)) {
-			$msg->addPart('text/html', $html);
-		}
-		*/
-
-		foreach ($emails as $email) {
-			$msg->setHeader('To', $email);
-			Emails::sendMessage(Emails::CONTEXT_PRIVATE, $msg);
-		}
+		Emails::queue(Emails::CONTEXT_NOTIFICATION, $emails, null, '[Notif.] ' . $this->getSubject($signal), $this->getBody($signal));
 	}
 
 	public function getSubject(Signal $signal): string

@@ -38,11 +38,11 @@
 	<fieldset>
 		<legend>Ajouter une notification</legend>
 		<dl>
-			{input type="select" name="signal" label="Événement" options=$signals required=true}
+			{input type="select" name="signal" label="Événement" options=$signals required=true onchange="g.toggle('.file-options', this.value.match(/^file\./));"}
 			{input type="select" name="action" label="Action" options=$actions required=true}
 			{input type="email" name="config[email]" label="Adresse e-mail destinataire" required=true}
 		</dl>
-		<dl class="file-options">
+		<dl class="file-options hidden">
 			{input type="select" name="config[file_context]" label="Limiter aux fichiers de ce type" options=$file_contexts required=true}
 		</dl>
 	</fieldset>
