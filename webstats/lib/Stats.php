@@ -6,6 +6,7 @@ use Paheko\UserTemplate\CommonFunctions;
 use Paheko\DB;
 use Paheko\Plugins;
 use Paheko\Users\Session;
+use Paheko\Entities\Plugin;
 use Paheko\Entities\Signal;
 
 use KD2\Graphics\SVG\Plot;
