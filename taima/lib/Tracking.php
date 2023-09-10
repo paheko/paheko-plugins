@@ -23,8 +23,7 @@ use Paheko\UserTemplate\CommonFunctions;
 
 use KD2\DB\EntityManager as EM;
 
-use DateTime;
-use DateTimeInterface;
+use KD2\DB\Date;
 
 class Tracking
 {
@@ -89,7 +88,7 @@ class Tracking
 		return EM::findOneById(Entry::class, $id);
 	}
 
-	static public function listUserEntries(DateTime $day, int $user_id)
+	static public function listUserEntries(Date $day, int $user_id)
 	{
 		$sql = sprintf('SELECT e.*, t.label AS task_label,
 			CASE WHEN e.timer_started IS NOT NULL
@@ -130,7 +129,7 @@ class Tracking
 		return DB::getInstance()->test(Entry::TABLE, 'user_id = ? AND timer_started IS NOT NULL', $user_id);
 	}
 
-	static public function listUserRunningTimers(?int $user_id, ?DateTime $except = null): array
+	static public function listUserRunningTimers(?int $user_id, ?Date $except = null): array
 	{
 		if (!$user_id) {
 			return [];
@@ -153,7 +152,7 @@ class Tracking
 	{
 		$weekdays = [];
 
-		$weekday = new DateTime;
+		$weekday = new Date;
 		$weekday->setISODate($year, $week);
 
 		$db = DB::getInstance();
@@ -243,7 +242,7 @@ class Tracking
 		return $list;
 	}
 
-	static public function listPerInterval(string $grouping = 'week', bool $per_user = false, ?DateTimeInterface $start = null, ?DateTimeInterface $end = null)
+	static public function listPerInterval(string $grouping = 'week', bool $per_user = false, ?Date $start = null, ?Date $end = null)
 	{
 		$where = '1';
 		$params = [];
@@ -337,7 +336,7 @@ class Tracking
 		}
 	}
 
-	static public function getFinancialReport(Year $year, DateTime $start, DateTime $end)
+	static public function getFinancialReport(Year $year, Date $start, Date $end)
 	{
 		$sql = 'SELECT
 				t.label, SUM(e.duration) / 60 AS hours, SUM(e.duration) / 60 * t.value AS total, t.value AS value,
@@ -351,9 +350,9 @@ class Tracking
 		return DB::getInstance()->get($sql, $year->id_chart, $start, $end);
 	}
 
-	static public function createReport(Year $year, DateTime $start, DateTime $end, int $id_creator): Transaction
+	static public function createReport(Year $year, Date $start, Date $end, int $id_creator): Transaction
 	{
-		$date = new \DateTime;
+		$date = new Date;
 
 		if ($date > $year->end_date) {
 			$date = clone $year->end_date;

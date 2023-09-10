@@ -4,33 +4,21 @@ namespace Paheko\Plugin\Taima\Entities;
 
 use Paheko\Entity;
 
-use DateTime;
+use KD2\DB\Date;
 
 class Entry extends Entity
 {
 	const TABLE = 'plugin_taima_entries';
 
-	protected $id;
-	protected $user_id;
-	protected $task_id;
-	protected $date;
-	protected $notes;
-	protected $duration;
-	protected $timer_started;
-	protected $year;
-	protected $week;
-
-	protected $_types = [
-		'id'            => 'int',
-		'user_id'       => '?int',
-		'task_id'       => '?int',
-		'date'          => 'date',
-		'notes'         => '?string',
-		'duration'      => '?int',
-		'timer_started' => '?int',
-		'year'          => 'int',
-		'week'          => 'int',
-	];
+	protected int $id;
+	protected ?int $user_id;
+	protected ?int $task_id;
+	protected Date $date;
+	protected ?string $notes;
+	protected ?int $duration;
+	protected ?int $timer_started;
+	protected int $year;
+	protected int $week;
 
 	public function selfCheck(): void
 	{
@@ -43,7 +31,7 @@ class Entry extends Entity
 		$this->assert(!(is_null($this->duration) && is_null($this->timer_started)), 'Duration cannot be NULL if timer is not running');
 	}
 
-	public function setDate(DateTime $date)
+	public function setDate(Date $date)
 	{
 		$this->set('year', (int) $date->format('o'));
 		$this->set('week', (int) $date->format('W'));

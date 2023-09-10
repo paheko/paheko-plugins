@@ -11,6 +11,8 @@ use Paheko\UserException;
 
 use function Paheko\{f, qg};
 
+use KD2\DB\Date;
+
 $session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
 
 require_once __DIR__ . '/_inc.php';
@@ -53,7 +55,7 @@ $form->runIf('save', function () use ($entry) {
 }, $csrf_key, Utils::getSelfURI(['ok' => 1]));
 
 $tasks = ['' => '--'] + Tracking::listTasks();
-$now = new \DateTime;
+$now = new Date;
 
 $tpl->assign(compact('tasks', 'csrf_key', 'now', 'selected_user', 'entry', 'entry_duration'));
 

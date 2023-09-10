@@ -14,8 +14,6 @@ use KD2\DB\EntityManager as EM;
 
 use function Paheko\{f, qg};
 
-use DateTime;
-
 $session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
 
 $csrf_key = 'plugin_taima_import';

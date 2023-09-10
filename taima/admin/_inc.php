@@ -5,7 +5,7 @@ namespace Paheko\Plugin\Taima;
 use Paheko\Plugin\Taima\Tracking;
 use Paheko\Utils;
 
-use DateTime;
+use KD2\DB\Date;
 
 use function Paheko\{f, qg};
 
@@ -17,11 +17,11 @@ function taima_url($day = null)
 	return Utils::plugin_url($day ? ['query' => 'day=' . (Utils::get_datetime($day))->format('Y-m-d')] : []);
 }
 
-$day = $today = new DateTime;
+$day = $today = new Date;
 $day->setTime(0, 0, 0);
 
 if (qg('day')) {
-	$day = DateTime::createFromFormat('!Y-m-d', qg('day'));
+	$day = Date::createFromFormat('!Y-m-d', qg('day'));
 }
 
 $tpl->register_modifier('taima_date', function ($date, string $format) {

@@ -9,7 +9,7 @@ use Paheko\Utils;
 
 use function Paheko\{f, qg};
 
-use DateTime;
+use KD2\DB\Date;
 
 require_once __DIR__ . '/_inc.php';
 
