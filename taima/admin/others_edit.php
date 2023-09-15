@@ -22,7 +22,7 @@ $selected_user = null;
 $user = qg('id_user');
 
 if ($user) {
-	$user = User::get((int)$user);
+	$user = Users::get((int)$user);
 
 	if (!$user) {
 		throw new UserException('Membre inconnu');
