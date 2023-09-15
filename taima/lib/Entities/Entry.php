@@ -16,7 +16,7 @@ class Entry extends Entity
 	protected Date $date;
 	protected ?string $notes;
 	protected ?int $duration;
-	protected ?int $timer_started;
+	protected ?int $timer_started = null;
 	protected int $year;
 	protected int $week;
 
