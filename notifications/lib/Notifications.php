@@ -206,6 +206,8 @@ class Notifications
 				$a = $user->asDetailsArray();
 				$b = $signal->getIn('modified_properties');
 
+				$b = array_map(fn($v) => is_object($v) && $v instanceof \DateTimeInterface ? $v->format('d/m/Y') : $v, $b);
+
 				foreach ($b as $key => $value) {
 					if (!array_key_exists($key, $a)) {
 						continue;
