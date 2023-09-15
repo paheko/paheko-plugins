@@ -8,6 +8,8 @@ use Paheko\Utils;
 use Paheko\UserException;
 use Paheko\Users\Session;
 
+use KD2\DB\Date;
+
 use function Paheko\{f, qg};
 
 require_once __DIR__ . '/_inc.php';
@@ -35,6 +37,11 @@ elseif (count($years) == 1) {
 if ($year) {
 	$start = f('start') ? Utils::get_datetime(f('start')) : ($year->start_date ?? null);
 	$end = f('end') ? Utils::get_datetime(f('end')) : ($year->end_date ?? null);
+
+	if ($start) {
+		$start = Date::createFromInterface($start);
+		$end = Date::createFromInterface($end);
+	}
 
 	$form->runIf('save', function () use ($year, $start, $end) {
 		$id_user = Session::getInstance()->getUser()->id;
