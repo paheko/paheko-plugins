@@ -5,7 +5,7 @@ namespace Paheko\Plugin\Taima;
 use Paheko\Plugin\Taima\Tracking;
 use Paheko\Plugin\Taima\Entities\Entry;
 use Paheko\Form;
-use Paheko\Users;
+use Paheko\Users\Users;
 use Paheko\Utils;
 use Paheko\UserException;
 
