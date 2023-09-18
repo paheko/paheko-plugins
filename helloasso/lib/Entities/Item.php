@@ -104,6 +104,11 @@ class Item extends Entity implements ChargeableInterface
 		return $this->custom_fields;
 	}
 
+	public function getReference(): string
+	{
+		return (string)$this->id;
+	}
+
 	public function setUserId(?int $id): void
 	{
 		$this->set('id_user', $id);

@@ -227,7 +227,8 @@ class HelloAsso
 
 		$payment->setExtraData('checkout', $checkout);
 		$payment->set('reference', $checkout->id);
-		$payment->setExtraData('organization', $organization);
+		$payment->setExtraData('id_checkout', $checkout->id); // For history purpose. Note that it will not exist if the payment is imported.
+		$payment->setExtraData('org_slug', $organization);
 		$payment->setExtraData('id_credit_account', $accounts ? $accounts[0] : null);
 		$payment->setExtraData('id_debit_account', $accounts ? $accounts[1] : null);
 		$payment->addLog(sprintf(self::CHECKOUT_CREATION_LOG_LABEL, (int)$checkout->id));
@@ -259,7 +260,7 @@ class HelloAsso
 			throw new \LogicException('This payment does not have a reference.');
 		}
 
-		$checkout = API::getInstance()->getCheckout($payment->organization, (int)$payment->reference);
+		$checkout = API::getInstance()->getCheckout($payment->org_slug, (int)$payment->reference);
 
 		file_put_contents(self::LOG_FILE, sprintf("\n\n==== %s - Fetch: %s ====\n\n%s\n", date('d/m/Y H:i:s'), $payment->reference, json_encode($checkout, JSON_PRETTY_PRINT)), FILE_APPEND);
 
@@ -279,11 +280,17 @@ class HelloAsso
 
 		Users::initSync();
 
+		// In case of a checkout first update (initial callback) we don't know the payment reference yet
+		$payment_data = isset($payment->id_order) ? Payments::getDataFromPool($checkout->order->payments, (int)$payment->reference) : $checkout->order->payments[0];
+		if (!$payment_data) {
+			throw new \LogicException(sprintf('No data for payment #%d (ref. "%s"). Checkout ID: %d, order ID: %d.', $payment->reference, $payment->id, $checkout->id, $checkout->order->id));
+		}
+
 		// First update
 		if (!isset($payment->id_order)) {
 			Orders::syncOrder(clone $checkout->order);
-			$payment->set('reference', (string)$checkout->order->payments[0]->id); // Change reference from checkout ID to payment ID
-			$payment->setExtraData('id', (int)$checkout->order->payments[0]->id);
+			$payment->set('reference', (string)$payment_data->id); // Change reference from checkout ID to payment ID
+			$payment->setExtraData('id', (int)$payment_data->id);
 			$payment->setExtraData('id_order', (int)$checkout->order->id);
 			$payment->setExtraData('raw_data', $checkout);
 			$payment->addLog(sprintf(Payments::ORDER_SYNCED_LOG_LABEL, (int)$payment->id_order));
@@ -319,12 +326,12 @@ class HelloAsso
 			$chargeable->save();
 		}
 
-		if (!isset($checkout->order->payments[0]->state, $checkout->order->payments[0]->amount)) {
+		if (!isset($payment_data->state, $payment_data->amount)) {
 			throw new \LogicException('Payment is missing details: ' . json_encode($checkout, JSON_PRETTY_PRINT));
 		}
 
-		if ($checkout->order->payments[0]->state === Payments::AUTHORIZED_STATUS && $payment->status !== Payment::VALIDATED_STATUS) {
-			if (!$payment->validate((int)$checkout->order->payments[0]->amount, $checkout->order->payments[0]->paymentReceiptUrl ?? null)) {
+		if ($payment_data->state === Payments::AUTHORIZED_STATUS && $payment->status !== Payment::VALIDATED_STATUS) {
+			if (!$payment->validate((int)$payment_data->amount, $payment_data->paymentReceiptUrl ?? null)) {
 				return false;
 			}
 			if (!$payment->id_payer) {
@@ -335,8 +342,8 @@ class HelloAsso
 
 			return true;
 		}
-		elseif (array_key_exists($checkout->order->payments[0]->state, Payments::STATUSES) && Payments::STATUSES[$checkout->order->payments[0]->state] !== $payment->status) {
-			$new_status = Payments::STATUSES[$checkout->order->payments[0]->state];
+		elseif (array_key_exists($payment_data->state, Payments::STATUSES) && Payments::STATUSES[$payment_data->state] !== $payment->status) {
+			$new_status = Payments::STATUSES[$payment_data->state];
 			return $payment->updateStatus($new_status, sprintf(Payments::STATUS_UPDATE_LOG_LABEL, Payment::STATUSES[$new_status]));
 		}
 

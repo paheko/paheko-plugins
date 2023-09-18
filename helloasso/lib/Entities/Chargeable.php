@@ -62,7 +62,7 @@ class Chargeable extends Entity
 	];
 	const TRANSACTION_NOTE = null;
 	const TRANSACTION_LOG_LABEL = 'Écriture comptable n°%d créée.';
-	const MEMBER_LOG_LABEL = 'Membre n°%d associé·e.';
+	const MEMBER_LOG_LABEL = 'Membre n°%d associé·e à l\'écriture n°%d.';
 
 	protected int		$id;
 	protected int		$id_form;
@@ -152,14 +152,18 @@ class Chargeable extends Entity
 		return Service_User::createFromForm([ $id_user => HA::PROVIDER_LABEL . ' synchronization' ], $id_user, false, $source); // Second parameter should be HelloAsso user ID (to understand the plugin auto-registered the member)
 	}
 
-	public function account(ChargeableInterface $entity, Payment $payment, int $payment_ref, \DateTime $date, string $label): bool
+	public function account(ChargeableInterface $entity, Payment $payment, \DateTime $date, string $label, ?int $amount = null, bool $multi_payments = false): bool
 	{
-		$transaction = $this->createTransaction($entity, $payment, $payment_ref, $date, $label);
-		$entity->id_transaction = (int)$transaction->id;
+		$transaction = $this->createTransaction($amount ?? $entity->getAmount(), $entity, $payment, (int)$payment->reference, $date, $label);
+
+		if (!$multi_payments) {
+			$entity->id_transaction = (int)$transaction->id;
+		} // id_transaction stays NULL when multiple payments' done
+
 		return $entity->save();
 	}
 
-	protected function createTransaction(ChargeableInterface $entity, Payment $payment, int $payment_ref, \DateTime $date, string $label): Transaction
+	protected function createTransaction(int $amount, ChargeableInterface $entity, Payment $payment, int $payment_ref, \DateTime $date, string $label): Transaction
 	{
 		if (!$id_year = Years::getOpenYearIdMatchingDate($date)) {
 			throw new \RuntimeException(sprintf('No opened accounting year matching the item date "%s"!', $date->format('Y-m-d')));
@@ -171,13 +175,13 @@ class Chargeable extends Entity
 			'status' => Transaction::STATUS_PAID,
 			'label' => sprintf($label, HA::PROVIDER_LABEL, $entity->getLabel()),
 			'notes' => self::TRANSACTION_NOTE,
-			'reference' => (string)$payment->id,
+			'reference' => $entity->getReference(),
 			'payment_reference' => $payment_ref,
 			'date' => \KD2\DB\Date::createFromInterface($date),
 			'id_year' => (int)$id_year,
 			'id_payment' => (int)$payment->id,
 			'id_creator' => (int)HA::getInstance()->getConfig()->provider_user_id,
-			'amount' => $entity->getAmount() / 100,
+			'amount' => $amount / 100,
 			'simple' => [
 				Transaction::TYPE_REVENUE => [
 					'credit' => [ (int)$this->id_credit_account => null ],
@@ -193,8 +197,8 @@ class Chargeable extends Entity
 
 		if ($id_user = $entity->getUserId()) {
 			$transaction->linkToUser((int)$id_user);
-			$payment->bindToUsers([ $id_user ], [ sprintf(Payments::USER_NOTE, $entity->label) ]);
-			$payment->addLog(sprintf(self::MEMBER_LOG_LABEL, $id_user));
+			$payment->bindToUsers([ $id_user ], [ sprintf(Payments::USER_NOTE, $entity->getLabel()) ]);
+			$payment->addLog(sprintf(self::MEMBER_LOG_LABEL, $id_user, $transaction->id));
 		}
 
 		$payment->save();

@@ -18,10 +18,10 @@
 	<dt>Type</dt>
 	<dd class="num">
 		{$payment_types[$payment->type]}
-		{if isset($payment->parent_id)} — lié au paiement {link href="payment.php?id=%d"|args:$payment->parent_id label=$payment->parent_id}{/if}
+		{if isset($payment->parent_id)} — lié au paiement {link href="payment.php?id=%d"|args:$payment->parent_id label="#%d"|args:$payment->parent_id}{/if}
 		{if isset($payment->children)} — Paiements suivants :
 			{foreach from=$payment->children item='id_payment'}
-				{link href="payment.php?id=%d"|args:$id_payment label=$id_payment}
+				{link href="payment.php?id=%d"|args:$id_payment label="#%d"|args:$id_payment}
 			{/foreach}
 		{/if}
 	</dd>
@@ -48,7 +48,7 @@
 		<dd><a href="{$plugin_admin_url}order.php?id={$order->id}">{if $payer}{$payer->nom}{else}{$payment->payer_name}{/if} - {$order->date|date}</a></dd>
 	{/if}
 	<dt>Écritures comptables</dt>
-	<dd>
+	<dd class="num">
 		{if !$plugin->config->accounting}
 			Aucune
 			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}

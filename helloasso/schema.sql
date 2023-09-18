@@ -139,7 +139,8 @@ CREATE INDEX IF NOT EXISTS plugin_helloasso_orders_form_date ON plugin_helloasso
 CREATE INDEX IF NOT EXISTS plugin_helloasso_orders_form_amount ON plugin_helloasso_orders (id_form, amount);
 CREATE INDEX IF NOT EXISTS plugin_helloasso_orders_form_payer ON plugin_helloasso_orders (id_form, payer_name);
 CREATE INDEX IF NOT EXISTS plugin_helloasso_orders_form_status ON plugin_helloasso_orders (id_form, status);
-CREATE INDEX IF NOT EXISTS plugin_helloasso_orders_form_payment ON plugin_helloasso_orders (id_form, json_extract(raw_data, '$.payments[0].id'));
+CREATE INDEX IF NOT EXISTS plugin_helloasso_orders_form_payment ON plugin_helloasso_orders (id_form, json_extract(raw_data, '$.payments[0].id')); -- To get a working index, the real query uses a GROUP_CONCAT() while the ORDER BY uses $.payments[0].id
+
 -- Listing orders for a specific payer
 CREATE INDEX IF NOT EXISTS plugin_helloasso_orders_user_date ON plugin_helloasso_orders (id_payer, date); -- Default
 CREATE INDEX IF NOT EXISTS plugin_helloasso_orders_payer_email ON plugin_helloasso_orders (json_extract(raw_data, '$.payer.email'));

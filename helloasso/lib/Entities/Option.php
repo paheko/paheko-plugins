@@ -62,6 +62,11 @@ class Option extends Entity implements ChargeableInterface
 		return $this->custom_fields;
 	}
 
+	public function getReference(): string
+	{
+		return $this->id_item . '/' . $this->id;
+	}
+
 	public function setUserId(?int $id): void
 	{
 		$this->set('id_user', $id);

@@ -25,7 +25,13 @@
 				{/if}
 			</td>
 			<td>{$row.status}</td>
-			<td class="num"><a href="{$plugin_admin_url}payment.php?ref={$row.id_payment}">{$row.id_payment}</a></td>
+			<td class="num">
+				{if $row.payments}
+					{foreach from=$row.payments item="reference"}
+						{link href="payment.php?ref=%d"|args:$reference label="%d"|args:$reference}
+					{/foreach}
+				{/if}
+			</td>
 			<td class="actions">
 				{linkbutton href="order.php?id=%s"|args:$row.id shape="help" label="Détails"}
 			</td>

@@ -7,6 +7,7 @@ use Paheko\Plugin\HelloAsso\Entities\Order;
 use Paheko\Plugin\HelloAsso\Entities\Chargeable;
 use Paheko\Plugin\HelloAsso\Entities\Item;
 use Paheko\Plugin\HelloAsso\Entities\Option;
+use Paheko\Plugin\HelloAsso\Entities\Payment;
 use Paheko\Plugin\HelloAsso\API;
 use Paheko\Plugin\HelloAsso\HelloAsso as HA;
 
@@ -57,9 +58,10 @@ class Orders
 			'status' => [
 				'label' => 'Statut',
 			],
-			'payment_ids' => [
-				'label' => 'Paiement',
-				'select' => 'json_extract(o.raw_data, \'$.payments[0].id\', \'$.payments[1].id\', \'$.payments[2].id\')'
+			'payments' => [
+				'label' => 'Paiements',
+				'select' => sprintf('(SELECT GROUP_CONCAT(p.reference, \';\') FROM %s p WHERE json_extract(p.extra_data, \'$.id_order\') = o.id)', Payment::TABLE),
+				'order' => 'json_extract(raw_data, \'$.payments[0].id\')' // Hack because index on GROUP_CONCAT is impossible
 			]
 		];
 
@@ -125,10 +127,15 @@ class Orders
 			$row->id = $row->{'o.id'}; // See column comment below
 			$row->status = Order::STATUSES[$row->status];
 			$row->label = (($associate instanceof Form) ? $associate->label : $row->form_name) . ' - ' . $row->payer_name;
+
 			if (!(($associate instanceof User) || ($associate instanceof \stdClass)) && $row->id_payer) {
 				$row->payer = EM::findOneById(User::class, (int)$row->id_payer);
 			}
-			$row->payment_ids = json_decode($row->payment_ids);
+
+			if (isset($row->payments)) {
+				$row->payments = explode(';', $row->payments);
+				sort($row->payments); // GROUP_CONCAT() order is arbitrary (see SQLite documentation)
+			}
 		});
 
 		$list->setExportCallback(function (&$row) {
@@ -156,7 +163,7 @@ class Orders
 			$result = API::getInstance()->listOrganizationOrders($org_slug, $params);
 			$page_count = $result->pagination->totalPages;
 
-			//$result->data = MockItems::tif(true);
+			//$result->data = array_merge(MockItems::tif(true), MockItems::tif2Third(true), MockItems::tifDone(true));
 
 			foreach ($result->data as $order) {
 				self::syncOrder($order);
@@ -189,6 +196,9 @@ class Orders
 		$order->set('date', $data->date);
 
 		$order->save();
+
+		// Here is the Only API endpoint able to retrieve not (yet) validated payments
+		Payments::syncNotValidated($data, $order);
 
 		return $order;
 	}

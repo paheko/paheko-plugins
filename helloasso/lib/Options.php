@@ -10,6 +10,7 @@ use Paheko\DynamicList;
 use Paheko\Entities\Users\User;
 use Paheko\Entities\Services\Fee;
 use Paheko\Entities\Services\Service;
+use Paheko\Entities\Accounting\Transaction;
 
 class Options
 {
@@ -23,9 +24,9 @@ class Options
 				'label' => 'Référence',
 				'select' => 'c.id'
 			],
-			'id_transaction' => [
-				'label' => 'Écriture',
-				'select' => 'o.id_transaction'
+			'transactions' => [
+				'label' => 'Écritures',
+				'select' => sprintf('(SELECT GROUP_CONCAT(id, \';\') FROM %s t WHERE t.reference = (o.id_item || \'/\' || o.id))', Transaction::TABLE)
 			],
 			'price_type' => [
 				'select' => 'o.price_type'
@@ -75,6 +76,10 @@ class Options
 		$list->setModifier(function ($row) {
 			if (isset($row->custom_fields)) {
 				$row->custom_fields = json_decode($row->custom_fields, true);
+			}
+
+			if (isset($row->transactions)) {
+				$row->transactions = explode(';', $row->transactions);
 			}
 		});
 

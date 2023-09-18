@@ -180,8 +180,7 @@ class Chargeables
 			if ($row->target_type === Chargeable::OPTION_TARGET_TYPE) {
 				$row->type_label .= ' - ' . Chargeable::TARGET_TYPES[$row->target_type];
 			}
-			
-			$row->label = $row->label . ' - ' . $row->person;
+
 			$row->category = $row->category ?? ($row->need_config === 1 ? null : '-');
 			$row->service = $row->service ?? '-';
 		});

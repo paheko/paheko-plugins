@@ -15,6 +15,7 @@ use Paheko\DynamicList;
 use Paheko\Utils;
 use Paheko\ValidationException;
 use Paheko\Entities\Payments\Payment;
+use Paheko\Entities\Accounting\Transaction;
 use Paheko\Entities\Users\User;
 use Paheko\Plugin\HelloAsso\Payments;
 use Paheko\Entities\Services\Fee;
@@ -26,8 +27,8 @@ use KD2\DB\EntityManager as EM;
 
 class Items
 {
-	const TRANSACTION_LABEL = 'Article %s: %s';
-	const CHECKOUT_TRANSACTION_LABEL = '%s: %s';
+	const TRANSACTION_LABEL = 'Article %s : %s';
+	const CHECKOUT_TRANSACTION_LABEL = '%s : %s';
 	const DONATION_LABEL = 'Don';
 	const CHECKOUT_LABEL = 'Commande #%d (%s)';
 
@@ -48,8 +49,9 @@ class Items
 				'label' => 'Référence',
 				'select' => 'c.id'
 			],
-			'id_transaction' => [
-				'label' => 'Écriture'
+			'transactions' => [
+				'label' => 'Écritures',
+				'select' => sprintf('(SELECT GROUP_CONCAT(id, \';\') FROM %s t WHERE t.reference = i.id)', Transaction::TABLE, Item::TABLE)
 			],
 			'amount' => [
 				'label' => 'Montant',
@@ -109,6 +111,10 @@ class Items
 			$row->state = Item::STATES[$row->state] ?? 'Inconnu';
 			$row->type = Item::TYPES[$row->type] ?? 'Inconnu';
 
+			if (isset($row->transactions)) {
+				$row->transactions = explode(';', $row->transactions);
+			}
+
 			if (isset($row->custom_fields)) {
 				$row->custom_fields = json_decode($row->custom_fields, true);
 			}
@@ -152,7 +158,7 @@ class Items
 
 			//$result->data = MockItems::donationAndOptions();
 			//$result->data = MockItems::multipleSubscriptions();
-			//$result->data = MockItems::tif();
+			//$result->data = array_merge(MockItems::tif(), MockItems::tif2Third(), MockItems::tifDone());
 
 			foreach ($result->data as $order) {
 				try {
@@ -179,7 +185,7 @@ class Items
 		$item->save();
 
 		// Different try/catch blocks because we want to do all steps even if an exception occured
-		if ($data->payments[0]->state === Payments::AUTHORIZED_STATUS) {
+		if (Payments::hasOneAuthorized($data)) {
 			try {
 				Users::syncRegistration($data, (int)$item->id_form, $item, Chargeables::getType($item, $data->order->formType), $payment);
 			}
@@ -188,12 +194,10 @@ class Items
 
 		$option_entities = self::syncOptions($data, $item, $accounting);
 
-		if ($data->payments[0]->state === Payments::AUTHORIZED_STATUS) {
-			try {
-				self::handleAccounting($item, $data, $option_entities, $accounting);
-			}
-			catch (SyncException $e) { self::catchSyncException($e); }
+		try {
+			self::handleAccounting($item, $data, $option_entities, $accounting);
 		}
+		catch (SyncException $e) { self::catchSyncException($e); }
 
 		return $item;
 	}
@@ -252,7 +256,6 @@ class Items
 		$option = EM::findOne(Option::class, 'SELECT * FROM @TABLE WHERE id_item = :id_item AND label = :name AND amount = :amount', $id_item, $data->name, $data->amount) ?? new Option;
 		$option->set('raw_data', json_encode($data));
 		$data = self::transformOption($data);
-		$data->payment_ref = $full_data->payments[0]->id;
 
 		if (!$option->exists()) {
 			$option->set('id_item', (int)$full_data->id);
@@ -270,7 +273,7 @@ class Items
 		}
 		$option->save();
 
-		if ($full_data->payments[0]->state === Payments::AUTHORIZED_STATUS) {
+		if (Payments::hasOneAuthorized($full_data)) {
 			Users::syncRegistration($full_data, $id_form, $option, Chargeables::getType($option, $full_data->order->formType));
 		}
 
@@ -279,30 +282,44 @@ class Items
 
 	static protected function handleAccounting(Item $item, \stdClass $data, array $option_entities, int $accounting): void
 	{
-		// Creating a transaction only if payment is unique and already done (not pending) and accounts sets
-		if ($accounting && !$item->id_transaction && (count($data->payments) === 1 && $data->payments[0]->state === Payments::AUTHORIZED_STATUS))
+		$multi_payments = (bool)(count($data->payments) - 1);
+
+		// Creating a transaction only if payment is already done (not pending) and accounts sets
+		if ($accounting && ($multi_payments || (!$multi_payments && !$item->id_transaction)))
 		{
-			if ($item->amount && $item->price_type !== Item::FREE_PRICE_TYPE) {
-				if (!$payment = Payments::get((int)$data->payments[0]->id)) {
-					throw new \RuntimeException(sprintf('Payment #%d matching item #%d not found.', $data->payments[0]->id, $item->id));
-				}
-				self::accountChargeable((int)$item->id_form, $item, Chargeables::getType($item, $data->order->formType), $payment, (int)$data->payments[0]->id, new \DateTime($data->payments[0]->date));
-			}
-			if (isset($data->options)) {
-				foreach ($option_entities as $option) {
-					if ($option->amount && $option->price_type !== Item::FREE_PRICE_TYPE) {
-						self::accountChargeable((int)$item->id_form, $option, Chargeable::SIMPLE_TYPE, $payment, (int)$data->payments[0]->id, new \DateTime($data->payments[0]->date));
+			foreach ($data->payments as $payment_data) {
+
+				if ($payment_data->state === Payments::AUTHORIZED_STATUS)
+				{
+					if ($item->amount && $item->price_type !== Item::FREE_PRICE_TYPE) {
+						if (!$payment = Payments::get((int)$payment_data->id)) {
+							throw new \RuntimeException(sprintf('Payment #%d matching item #%d not found.', $payment_data->id, $item->id));
+						}
+
+						if (!$payment->hasAccounted($item->getReference())) {
+							self::accountChargeable((int)$item->id_form, $item, Chargeables::getType($item, $data->order->formType), $payment, new \DateTime($payment_data->date), $multi_payments);
+						}
+					}
+					if (isset($data->options)) {
+						foreach ($option_entities as $option) {
+							if ($option->amount && $option->price_type !== Item::FREE_PRICE_TYPE && !$payment->hasAccounted($option->getReference())) {
+								self::accountChargeable((int)$item->id_form, $option, Chargeable::SIMPLE_TYPE, $payment, new \DateTime($payment_data->date), $multi_payments);
+							}
+						}
 					}
 				}
+
 			}
 		}
 	}
 
-	static protected function accountChargeable(int $id_form, ChargeableInterface $entity, int $type, Payment $payment, int $payment_ref, \DateTime $date): bool
+	static protected function accountChargeable(int $id_form, ChargeableInterface $entity, int $type, Payment $payment, \DateTime $date, bool $multi_payments = false): bool
 	{
 		$chargeable = Chargeables::getFromEntity($id_form, $entity, $type);
 		if ($entity->getAmount() && $chargeable->id_credit_account && $chargeable->id_debit_account) {
-			$chargeable->account($entity, $payment, $payment_ref, $date, self::TRANSACTION_LABEL);
+			// ToDo: make dynamic the hard-coded TIF ratio (0.3) in order to handle any multi_payment ratio
+			$amount = $multi_payments ? ($entity->getAmount() / 3) : null;
+			$chargeable->account($entity, $payment, $date, self::TRANSACTION_LABEL, $amount, $multi_payments);
 			return true;
 		}
 		return false;
@@ -314,7 +331,6 @@ class Items
 		$data->order_id = (int) $data->order->id;
 		$data->payer_name = isset($data->payer) ? Payers::getPersonName($data->payer) : null;
 		$data->payer_infos = isset($data->payer) ? Payers::formatPersonInfos($data->payer) : null;
-		$data->payment_ref = $data->payments[0]->id;
 		$data->amount = (int) $data->amount;
 		$data->form_slug = $data->order->formSlug;
 		$data->org_slug = $data->order->organizationSlug;

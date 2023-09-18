@@ -90,6 +90,11 @@ class Form extends Entity implements ChargeableInterface
 		return null;
 	}
 
+	public function getReference(): string
+	{
+		return $this->org_slug;
+	}
+
 	public function setUserId(?int $id): void {}
 	public function getUserId(): ?int { return null; }
 

@@ -12,6 +12,7 @@ interface ChargeableInterface
 	public function getAmount(): ?int;
 	public function getPriceType(): ?int;
 	public function getCustomFields(): ?\stdClass;
+	public function getReference(): string;
 	public function setUserId(?int $id): void;
 	public function getUserId(): ?int;
 }

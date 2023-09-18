@@ -12,7 +12,7 @@ class Payment extends PA_Payment implements ChargeableInterface
 {
 	const TABLE = parent::TABLE;
 
-	// For checkoutIntent scenarii: is the Checkout ID before payment has been made. Once the payment has been made, it become the Payment ID.
+	// For checkoutIntent scenarii: $reference is the Checkout ID before payment has been made. Once the payment has been made, it become the Payment ID.
 	protected ?string		$reference = null;
 
 	public function getChargeableId(): ?int
@@ -56,6 +56,11 @@ class Payment extends PA_Payment implements ChargeableInterface
 	public function getCustomFields(): ?\stdClass
 	{
 		return null;
+	}
+
+	public function getReference(): string
+	{
+		return $this->reference ?? 'N/A';
 	}
 
 	public function setUserId(?int $id): void

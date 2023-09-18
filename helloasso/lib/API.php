@@ -307,6 +307,9 @@ class API
 			$this->assert(isset($r->id));
 			$this->assert(isset($r->paymentReceiptUrl));
 			$this->assert(isset($r->amount) && ctype_digit((string)$r->amount));
+			$this->assert(isset($r->meta));
+			$this->assert(isset($r->meta->createdAt));
+			$this->assert(isset($r->meta->updatedAt));
 		}
 	}
 
