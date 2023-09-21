@@ -55,7 +55,8 @@ class Tracking
 	static public function homeButton(Signal $signal): void
 	{
 		$url = Plugins::getPrivateURL('taima');
-		$running_timers = self::hasRunningTimers(Session::getUserId());
+		$user_id = Session::getUserId();
+		$running_timers = $user_id ? self::hasRunningTimers($user_id) : false;
 
 		$params = [
 			'label' => $running_timers ? 'Suivi : chrono en cours' : 'Suivi du temps',
@@ -75,8 +76,10 @@ class Tracking
 	static public function menuItem(Signal $signal): void
 	{
 		$icon = '';
+		$user_id = Session::getUserId();
+		$running_timers = $user_id ? self::hasRunningTimers($user_id) : false;
 
-		if (self::hasRunningTimers(Session::getUserId())) {
+		if ($user_id && self::hasRunningTimers($user_id)) {
 			$icon = self::animatedIcon(16, '', 'float: right');
 		}
 
