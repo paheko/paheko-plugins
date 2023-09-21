@@ -6,6 +6,7 @@ use Paheko\Plugin\Taima\Tracking;
 use Paheko\Plugin\Taima\Entities\Entry;
 
 use Paheko\Utils;
+use Paheko\Users\Session;
 
 use function Paheko\{f, qg};
 
@@ -15,6 +16,11 @@ require_once __DIR__ . '/_inc.php';
 
 if ($plugin->needUpgrade()) {
 	$plugin->upgrade();
+}
+
+// If there is no user id
+if (!Session::getUserId()) {
+	Utils::redirect('./others.php');
 }
 
 Tracking::autoStopRunningTimers();

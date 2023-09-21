@@ -3,8 +3,15 @@
 namespace Paheko\Plugin\Taima;
 
 use Paheko\Plugin\Taima\Tracking;
+use Paheko\Users\Session;
+use Paheko\Utils;
 
 require_once __DIR__ . '/_inc.php';
+
+// If there is no user id
+if (!Session::getUserId()) {
+	Utils::redirect('./others.php');
+}
 
 $user_id = $session->getUser()->id;
 $weeks = Tracking::listUserWeeks($user_id);
