@@ -27,7 +27,7 @@ class Task extends Entity
 			$source['value'] = Utils::moneyToInteger($source['value']) ?: null;
 		}
 
-		if (isset($source['account'])) {
+		if (isset($source['account']) && is_array($source['account'])) {
 			$source['account'] = Form::getSelectorValue($source['account']);
 		}
 
