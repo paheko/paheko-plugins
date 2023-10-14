@@ -9,10 +9,30 @@ use Paheko\Entities\Signal;
 
 class PDF
 {
+	const URL = 'https://github.com/dompdf/dompdf/releases/download/v2.0.3/dompdf_2-0-3.zip';
 	const DIRECTORY = CACHE_ROOT . '/dompdf';
+
+	static public function install(): void
+	{
+		$file = CACHE_ROOT . '/dompdf.zip';
+
+		copy(self::URL, $file);
+
+		$zip = new \PharData($file);
+		$zip->extractTo(self::DIRECTORY, null, true);
+		unset($zip);
+
+		unlink($file);
+	}
 
 	static protected function DomPDF(): Dompdf
 	{
+		$file = self::DIRECTORY . '/dompdf/autoload.inc.php';
+
+		if (!file_exists($file)) {
+			self::install();
+		}
+
 		require_once self::DIRECTORY . '/dompdf/autoload.inc.php';
 
 		// instantiate and use the dompdf class
