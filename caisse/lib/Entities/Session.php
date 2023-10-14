@@ -1,18 +1,23 @@
 <?php
 
-namespace Garradin\Plugin\Caisse\Entities;
+namespace Paheko\Plugin\Caisse\Entities;
 
-use Garradin\DB;
-use Garradin\Config;
-use Garradin\Template;
-use Garradin\UserException;
-use Garradin\Utils;
-use const Garradin\PLUGIN_ROOT;
+use Paheko\Email\Emails;
+use Paheko\DB;
+use Paheko\Config;
+use Paheko\Template;
+use Paheko\UserException;
+use Paheko\Utils;
+use Paheko\Users\DynamicFields;
 
-use Garradin\Plugin\Caisse\POS;
-use Garradin\Plugin\Caisse\Tabs;
-use Garradin\Entity;
-use Garradin\ValidationException;
+use const Paheko\PLUGIN_ROOT;
+
+use Paheko\Plugin\Caisse\POS;
+use Paheko\Plugin\Caisse\Tabs;
+use Paheko\Entity;
+use Paheko\ValidationException;
+
+use KD2\Mail_Message;
 
 class Session extends Entity
 {
@@ -21,27 +26,17 @@ class Session extends Entity
 	protected ?int $id;
 	protected \DateTime $opened;
 	protected ?\DateTime $closed;
-	protected int $open_user;
+	protected string $open_user;
 	protected int $open_amount;
 	protected ?int $close_amount;
-	protected ?int $close_user;
+	protected ?string $close_user;
 	protected ?int $error_amount;
-
-	public function usernames()
-	{
-		$db = DB::getInstance();
-		$name_field = Config::getInstance()->get('champ_identite');
-		$sql = sprintf('SELECT x.a AS open_user_name, y.b AS close_user_name FROM
-			(SELECT %s AS a FROM membres WHERE id = ?) AS x,
-			(SELECT %1$s AS b FROM membres WHERE id = ?) AS y;', $db->quoteIdentifier($name_field));
-		return $db->first(POS::sql($sql), $this->open_user, $this->close_user);
-	}
 
 	public function hasOpenNotes() {
 		return DB::getInstance()->test(POS::tbl('tabs'), 'session = ? AND closed IS NULL', $this->id);
 	}
 
-	public function close(int $user_id, int $amount, ?bool $confirm_error, array $payments)
+	public function close(string $user_name, int $amount, ?bool $confirm_error, array $payments, ?string $send_email)
 	{
 		$db = DB::getInstance();
 
@@ -75,7 +70,7 @@ class Session extends Entity
 			close_amount = ?,
 			close_user = ?,
 			error_amount = ?
-			WHERE id = ?'), [$amount, $user_id, $error_amount, $this->id]);
+			WHERE id = ?'), [$amount, $user_name, $error_amount, $this->id]);
 
 		// Update stock
 		$db->preparedQuery(POS::sql('INSERT INTO @PREFIX_products_stock_history (product, change, date, item, event)
@@ -93,7 +88,17 @@ class Session extends Entity
 			AND t.session = %d', $this->id);
 		$db->preparedQuery(POS::sql(sprintf('UPDATE @PREFIX_products SET stock = -(SELECT SUM(ti.qty) %s) + stock WHERE stock IS NOT NULL AND id IN (SELECT DISTINCT ti.product %1$s);', $select)));
 
-		return $db->commit();
+		$db->commit();
+
+		if ($send_email) {
+			$msg = new Mail_Message;
+			$msg->setHeader('Subject', sprintf('Clôture de caisse n°%d du %s', $this->id, date('d/m/Y à H:i')));
+			$msg->setHeader('To', $send_email);
+			$msg->setHeader('From', Emails::getFromHeader());
+			$msg->addPart('text/html', $this->export(true, 1), sprintf('session-%d.html', $this->id));
+			$msg->setBody('Voir les détails dans le contenu HTML ci-joint.');
+			Emails::sendMessage(Emails::CONTEXT_SYSTEM, $msg);
+		}
 	}
 
 	public function getTotal()
@@ -194,13 +199,13 @@ class Session extends Entity
 		$tpl->assign('tabs', $this->listTabsWithItems());
 		$tpl->assign('totals_categories', $this->listTotalsByCategory());
 		$tpl->assign('total', $this->getTotal());
-		$tpl->assign('names', $this->usernames());
 		$tpl->assign('missing_users_tabs', $this->listMissingUsers());
 
 		$tpl->assign('title', sprintf('Session de caisse n°%d du %s', $this->id, Utils::date_fr($this->opened)));
 
 		$tpl->assign('print', (bool) $print);
 		$tpl->assign('details', $details);
+		$tpl->assign('id_field', DynamicFields::getFirstNameField());
 
 		if ($print == 2) {
 			$tpl->PDF(PLUGIN_ROOT . '/templates/session_export.tpl', sprintf('Session de caisse numéro %d du %s', $this->id, Utils::date_fr($this->opened, 'd-m-Y')));

@@ -1,6 +1,8 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
+
+use Paheko\Plugin\Stock_Velos\Velos;
 
 $db = DB::getInstance();
 
@@ -51,5 +53,3 @@ $db->exec(<<<EOF
     CREATE INDEX IF NOT EXISTS prv_date_sortie ON plugin_stock_velos (date_sortie);
 EOF
 );
-
-$plugin->registerSignal('usertemplate.init', 'Garradin\Plugin\Stock_Velos\Velos::register');

@@ -1,12 +1,13 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
-use Garradin\Plugin\Caisse\POS;
+use Paheko\Plugin\Caisse\POS;
+use Paheko\Users\DynamicFields;
 
 $db = DB::getInstance();
 
-$old_version = $plugin->getInfos('version');
+$old_version = $plugin->oldVersion();
 
 if (version_compare($old_version, '0.2.0', '<')) {
 	$db->toggleForeignKeys(false);
@@ -66,4 +67,12 @@ if (version_compare($old_version, '0.5.4', '<')) {
 	$db->toggleForeignKeys(false);
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.5.4.sql')));
 	$db->toggleForeignKeys(true);
+}
+
+if (version_compare($old_version, '0.6.3', '<')) {
+	$db->beginSchemaUpdate();
+	$identity = DynamicFields::getNameFieldsSQL();
+	$sql = str_replace('@__NAME', $identity, POS::sql(file_get_contents(__DIR__ . '/update_0.6.3.sql')));
+	$db->exec($sql);
+	$db->commitSchemaUpdate();
 }

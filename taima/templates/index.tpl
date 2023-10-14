@@ -1,10 +1,6 @@
-{include file="admin/_head.tpl" title="Suivi du temps" plugin_css=['style.css'] current="plugin_taima"}
+{include file="_head.tpl" title="Suivi du temps"}
 
-<?php
-$timer_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke-width="2" /><path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z" /></svg>';
-?>
-
-{include file="%s/templates/_nav.tpl"|args:$plugin_root current="index"}
+{include file="./_nav.tpl" current="index"}
 
 {form_errors}
 
@@ -22,7 +18,7 @@ $timer_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" vi
 <section class="taima-header">
 	<p class="btns">
 		<a href="{$prev_url}" class="icn-btn" title="Semaine précédente">{icon shape="left"}</a>
-		<button type="button" id="datepicker" class="icn" data-date="<?=$day->format('Y-m-d');?>">{icon shape="calendar"}</button>
+		{button id="datepicker" shape="calendar" data-date=$day|date_format:'%Y-%m-%d'}
 		<a href="{$next_url}" class="icn-btn" title="Semaine suivante">{icon shape="right"}</a>
 	</p>
 	<h2>{$day|taima_date:'EEEE d MMMM yyyy'}</h2>
@@ -38,7 +34,7 @@ $timer_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" vi
 			<a href="{$weekday.url}">
 				<h3>
 					{$weekday.day|taima_date:'EEEEE'}
-					{if $weekday.timers}{$timer_icon|raw}{/if}
+					{if $weekday.timers}{$fixed_icon|raw}{/if}
 				</h3>
 				<strong{if !$weekday.duration} class="empty"{/if}>{$weekday.minutes_formatted}</strong>
 			</a>
@@ -67,9 +63,9 @@ $timer_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" vi
 				</td>
 				<td>
 					{if $entry.timer_started}
-						<a class="icn-btn stop-timer" href="{$entry.date|taima_url}&amp;stop={$entry.id}">{$timer_icon|raw} Arrêter</a>
+						<a class="icn-btn stop-timer" href="{$entry.date|taima_url}&amp;stop={$entry.id}">{$animated_icon|raw} Arrêter</a>
 					{elseif $is_today}
-						<a class="icn-btn start-timer" href="?start={$entry.id}">{$timer_icon|raw} Démarrer</a>
+						<a class="icn-btn start-timer" href="?start={$entry.id}">{$fixed_icon|raw} Démarrer</a>
 					{/if}
 				</td>
 				<td>
@@ -121,7 +117,7 @@ $timer_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" vi
 </template>
 
 <script type="text/javascript">
-const timer_icon = '{$timer_icon|raw}';
+let icon = {$animated_icon|escape:'json'};
 {literal}
 document.querySelectorAll('button[data-action="add-entry"]').forEach((e) => {
 	e.onclick = () => {
@@ -184,20 +180,12 @@ window.setInterval(function () {
 	times.forEach(updateTimer);
 }, 60*1000);
 
-document.head.querySelector('link[rel="icon"]').remove();
-let icon = timer_icon;
-
 if (times.length) {
-	icon = icon.replace(/(<svg.*?>)/, '$1<style>svg { animation: spinner 3s linear infinite; } path { stroke: rgb(0, 180, 180); stroke-width: 2px; fill: rgb(0, 180, 180); } circle { stroke: rgb(0, 180, 180); } @keyframes spinner { to {transform: rotate(360deg);} }</style>');
-
+	document.head.querySelector('link[rel="icon"]').remove();
 	updateTimer(times[0]);
+	icon = "data:image/svg+xml;utf8," + encodeURI(icon).replace('#', '%23');
+	document.head.innerHTML += `<link sizes="any" rel="icon" type="image/svg+xml" href="${icon}" />`;
 }
-else {
-	icon = icon.replace(/(<svg.*?>)/, '$1<style>path { stroke: gray; stroke-width: 2px; fill: gray; } circle { stroke: gray; }</style>');
-}
-
-icon = "data:image/svg+xml;utf8," + encodeURI(icon).replace('#', '%23');
-document.head.innerHTML += `<link sizes="any" rel="icon" type="image/svg+xml" href="${icon}" />`;
 
 g.script('scripts/lib/datepicker2.min.js', () => {
 	var dp = $('#datepicker');
@@ -209,4 +197,4 @@ g.script('scripts/lib/datepicker2.min.js', () => {
 </script>
 {/literal}
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

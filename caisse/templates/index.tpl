@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Sessions de caisse" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Sessions de caisse"}
 
 <p>
 	{linkbutton href="session_open.php" shape="right" label="Ouvrir la caisse" class="main"}
@@ -15,7 +15,7 @@
 			</td>
 			<th>
 				{$pos_session.opened|date}
-				<small>({$pos_session.open_user_name})</small>
+				<small>({$pos_session.open_user})</small>
 			</th>
 			<td class="money">{$pos_session.open_amount|raw|money_currency}</td>
 			<td>
@@ -28,7 +28,7 @@
 						{$pos_session.closed|date}
 					{/if}
 
-					{if $pos_session.close_user_name != $pos_session.open_user_name}<small>({$pos_session.close_user_name})</small>{/if}
+					{if $pos_session.close_user != $pos_session.open_user}<small>({$pos_session.close_user})</small>{/if}
 				{/if}
 			</td>
 			<td class="money">{$pos_session.close_amount|raw|money_currency}</td>
@@ -50,6 +50,6 @@
 	</tbody>
 </table>
 
-{pagination url=$list->paginationURL() page=$list.page bypage=$list.per_page total=$list->count()}
+{$list->getHTMLPagination()|raw}
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

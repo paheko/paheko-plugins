@@ -61,36 +61,36 @@
     <h1>Contrat de vente d'un vélo d'occasion</h1>
     <h4>Entre le vendeur :</h4>
     <ul>
-        <li>L'association loi 1901 « {$config.nom_asso|escape} » dont le siège est situé au {$config.adresse_asso|escape}.</li>
+        <li>L'association loi 1901 « {$config.org_name} » dont le siège est situé au {$config.org_address}.</li>
     </ul>
     <h4>Et l'acquéreur :</h4>
     <ul>
-        <li>Numéro d'adhérent : {$velo.details_sortie|escape}</li>
-        <li>Nom et prénom : {if $adherent.identite}<strong>{$adherent.identite|escape}</strong>{else}………………………………{/if}</li>
+        <li>Numéro d'adhérent : {$velo.details_sortie}</li>
+        <li>Nom et prénom : {if $velo.details_sortie}<strong>{$velo->membre_sortie()}</strong>{else}………………………………{/if}</li>
     </ul>
-    <p>L'association « {$config.nom_asso|escape} » vend à l'acquéreur le vélo décrit ci-après :</p>
+    <p>L'association « {$config.org_name} » vend à l'acquéreur le vélo décrit ci-après :</p>
     <ul>
-        <li>Type : {$velo.type|escape}</li>
-        <li>Taille : {$velo.roues|escape}</li>
-        <li>Genre : {$velo.genre|escape}</li>
-        <li>Couleur : {$velo.couleur|escape}</li>
-        <li>Modèle : {$velo.modele|escape}</li>
+        <li>Type : {$velo.type}</li>
+        <li>Taille : {$velo.roues}</li>
+        <li>Genre : {$velo.genre}</li>
+        <li>Couleur : {$velo.couleur}</li>
+        <li>Modèle : {$velo.modele}</li>
     </ul>
-    <h3>État : <strong>{$etat|escape}</strong></h3>
-    <p>(Numéro référence : {$velo.id|escape})</p>
-    <p>en contrepartie du paiement du montant de <strong>{$velo.prix|escape} €</strong>, réglé à l'établissement du présent contrat.</p>
+    <h3>État : <strong>{$etat}</strong></h3>
+    <p>(Numéro référence : {$velo.id})</p>
+    <p>en contrepartie du paiement du montant de <strong>{$velo.prix} €</strong>, réglé à l'établissement du présent contrat.</p>
     <p>L'acquéreur déclare avoir examiné en détail le vélo, l'avoir essayé et avoir constaté
         qu'il est conforme à l'état indiqué ci-dessus. L'acquéreur déclare renoncer à toute
         action à l'encontre du vendeur quelle qu'en soit la nature, même fondée sur un vice caché
         non connu du vendeur.</p>
     <p>Le vendeur déclare que le vélo n'est pas d'origine frauduleuse et qu'il est conforme à
         l'état indiqué ci-dessus.</p>
-    <p>Fait en deux exemplaires, à Dijon, le {$velo.date_sortie|date_short}.</p>
+    <p>Fait en deux exemplaires, le {$velo.date_sortie|date_short}.</p>
 
     <p class="signature">(Signature du vendeur)</p>
     <p class="signature">(Signature de l'acquéreur, ou d'un parent pour les mineurs)</p>
     <p class="completion">
-        Cadre réservé à {$config.nom_asso} : Note de caisse N° ……………………………………………………
+        Cadre réservé à {$config.org_name} : Note de caisse N° ……………………………………………………
     </p>
 </section>
 

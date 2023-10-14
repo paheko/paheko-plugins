@@ -1,6 +1,6 @@
-{include file="admin/_head.tpl" title="%s vélos sortis du stock"|args:$total current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="%s vélos sortis du stock"|args:$total}
 
-{include file="%s_nav.tpl"|args:$plugin_tpl current="historique"}
+{include file="./_nav.tpl" current="historique"}
 
 {include file="common/dynamic_list_head.tpl"}
 
@@ -20,6 +20,6 @@
     </tbody>
 </table>
 
-{pagination url=$list->paginationURL() page=$list.page bypage=$list.per_page total=$list->count()}
+{$list->getHTMLPagination()|raw}
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

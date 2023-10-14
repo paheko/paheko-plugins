@@ -1,8 +1,8 @@
 <?php
 
-namespace Garradin\Plugin\Caisse;
+namespace Paheko\Plugin\Caisse;
 
-use Garradin\DB;
+use Paheko\DB;
 use KD2\DB\EntityManager as EM;
 
 class Products
@@ -55,7 +55,7 @@ class Products
 	{
 		$sql = 'SELECT strftime(\'%m\', i.added) AS month, i.added AS date, i.category_name, SUM(i.qty * i.price) AS sum, SUM(i.qty) AS count
 			FROM @PREFIX_tabs_items i
-			WHERE strftime(\'%Y\', i.added) = ?
+			WHERE strftime(\'%Y\', i.added) = ? AND i.price > 0
 			GROUP BY strftime(\'%m\', i.added), i.category_name
 			ORDER BY month, i.category_name;';
 		$sql = POS::sql($sql);
@@ -65,27 +65,54 @@ class Products
 
 	static public function graphStatsPerMonth(int $year): string
 	{
-		$sql = 'SELECT strftime(\'%m\', i.added) AS month, i.category_name, SUM(i.qty * i.price) / 100
+		$sql = 'SELECT * FROM (
+			SELECT i.category_name AS name, CAST(strftime(\'%m\', i.added) AS INT) AS month, SUM(i.qty * i.price) / 100
 			FROM @PREFIX_tabs_items i
-			WHERE strftime(\'%Y\', i.added) = ?
+			WHERE strftime(\'%Y\', i.added) = ? AND i.price > 0
 			GROUP BY strftime(\'%m\', i.added), i.category_name
-			ORDER BY month, i.category_name;';
+			UNION ALL
+			SELECT \'Total\' AS name, CAST(strftime(\'%m\', i.added) AS INT) AS month, SUM(i.qty * i.price) / 100
+			FROM @PREFIX_tabs_items i
+			WHERE strftime(\'%Y\', i.added) = ? AND i.price > 0
+			GROUP BY strftime(\'%m\', i.added)
+			)
+			ORDER BY name = \'Total\' DESC, name, month;';
 		$sql = POS::sql($sql);
 
-		$data = DB::getInstance()->getAssocMulti($sql, (string) $year);
-		return POS::barGraph(null, $data);
+		$data = DB::getInstance()->getAssocMulti($sql, (string) $year, (string)$year);
+		$empty = array_fill(1, 12, 0);
+
+		foreach ($data as $key => &$value) {
+			$value = array_replace($empty, $value);
+		}
+
+		unset($value);
+
+		return POS::plotGraph(null, $data);
 	}
 
 	static public function graphStatsQtyPerMonth(int $year): string
 	{
-		$sql = 'SELECT strftime(\'%m\', i.added) AS month, i.category_name, SUM(i.qty)
+		$sql = 'SELECT * FROM (
+			SELECT i.category_name AS name, CAST(strftime(\'%m\', i.added) AS INT) AS month,  SUM(i.qty)
 			FROM @PREFIX_tabs_items i
 			WHERE strftime(\'%Y\', i.added) = ?
 			GROUP BY strftime(\'%m\', i.added), i.category_name
-			ORDER BY month, i.category_name;';
+			UNION ALL
+			SELECT \'\' AS name, 1 AS month, 0
+			)
+			ORDER BY name = \'\' DESC, name, month;';
 		$sql = POS::sql($sql);
 
 		$data = DB::getInstance()->getAssocMulti($sql, (string) $year);
-		return POS::barGraph(null, $data);
+		$empty = array_fill(1, 12, 0);
+
+		foreach ($data as $key => &$value) {
+			$value = array_replace($empty, $value);
+		}
+
+		unset($value);
+
+		return POS::plotGraph(null, $data);
 	}
 }

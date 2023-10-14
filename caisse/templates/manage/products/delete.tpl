@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" title="Gestion produit" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Gestion produit"}
 
 {include file="common/delete_form.tpl"
 	legend="Supprimer ce produit ?"
@@ -8,4 +8,4 @@
 	info="Les notes en cours et clôturées ne seront pas modifiées, elles garderont une trace du produit au moment de son ajout dans la note."}
 
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

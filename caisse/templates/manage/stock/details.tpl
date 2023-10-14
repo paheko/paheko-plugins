@@ -1,6 +1,6 @@
-{include file="admin/_head.tpl" title="Stock : %s"|args:$event.label current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Stock : %s"|args:$event.label}
 
-{include file="%s/manage/_nav.tpl"|args:$pos_templates_root current='stock'}
+{include file="../_nav.tpl" current='stock'}
 
 {if !$event.applied}
 <p class="help">
@@ -122,4 +122,4 @@ $('#apply-changes').onsubmit = (e) => {
 {/literal}
 </script>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

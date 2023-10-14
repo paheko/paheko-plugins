@@ -1,6 +1,6 @@
-{include file="admin/_head.tpl" title="Gestion stock" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Gestion stock"}
 
-{include file="%s/manage/_nav.tpl"|args:$pos_templates_root current='stock'}
+{include file="../_nav.tpl" current='stock'}
 
 <h2 class="ruler">Événements de stock</h2>
 
@@ -53,4 +53,4 @@
 	</tbody>
 </table>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

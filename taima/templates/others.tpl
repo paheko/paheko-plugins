@@ -1,12 +1,12 @@
-{include file="admin/_head.tpl" title="Autres membres" plugin_css=['style.css'] current="plugin_taima"}
+{include file="_head.tpl" title="Autres membres"}
 
-{include file="%s/templates/_nav.tpl"|args:$plugin_root current="others"}
+{include file="./_nav.tpl" current="others"}
 
 {if $user}
 	<h2 class="ruler">{$user.identite}</h2>
 {/if}
 
-{pagination url=$list->paginationURL() page=$list.page bypage=$list.per_page total=$list->count()}
+{$list->getHTMLPagination()|raw}
 
 {include file="common/dynamic_list_head.tpl"}
 
@@ -35,6 +35,6 @@
 	</tbody>
 </table>
 
-{pagination url=$list->paginationURL() page=$list.page bypage=$list.per_page total=$list->count()}
+{$list->getHTMLPagination()|raw}
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

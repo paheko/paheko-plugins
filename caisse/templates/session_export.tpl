@@ -9,6 +9,7 @@
 	body {
 		font-family: sans-serif;
 		font-size: 11pt;
+		background: #fff;
 	}
 
 	.error {
@@ -73,14 +74,14 @@
 
 <p class="details">
 	Ouverture&nbsp;: {$pos_session.opened|date}
-	— par {$names.open_user_name}
+	— par {$pos_session.open_user}
 	— Caisse = {$pos_session.open_amount|raw|money_currency}
 </p>
 <p class="details">
 	Fermeture&nbsp;:
 	{if !$pos_session.closed}<strong>En cours</strong>
 	{else}{$pos_session.closed|date}
-		— par {$names.close_user_name}
+		— par {$pos_session.close_user}
 		— Caisse = {$pos_session.close_amount|raw|money_currency}
 		{if !$pos_session.error_amount}
 			— pas d'erreur
@@ -108,8 +109,8 @@
 					{$tab.name}
 				</td>
 				<td class="actions">
-					<form method="post" action="{$admin_url}membres/ajouter.php">
-						<input type="hidden" name="{$config.champ_identite}" value="{$tab.name}" />
+					<form method="post" action="{$admin_url}users/new.php">
+						<input type="hidden" name="{$id_field}" value="{$tab.name}" />
 						<input type="submit" value="Inscrire ce membre" />
 					</form>
 				</td>

@@ -1,90 +1,8 @@
-{include file="admin/_head.tpl" title="Modifier le vélo n°%d"|args:$velo.id current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Modifier le vélo n°%d"|args:$velo.id}
 
-{include file="%s_nav.tpl"|args:$plugin_tpl current=""}
+{include file="./_nav.tpl" current=""}
 
-<section class="form">
-    <form method="post" action="">
-    {form_errors}
-
-    <fieldset>
-        <legend>Général</legend>
-        <dl>
-            <dt>Numéro unique du vélo</dt>
-            <dd>{$velo.id|escape}</dd>
-            <dt><label for="f_etiquette">Numéro étiquette</label> <b>(obligatoire)</b></dt>
-            <dd><input type="number" name="etiquette" id="f_etiquette" value="{form_field name=etiquette data=$velo}" required="required" /></dd>
-            <dt><label for="f_bicycode">Bicycode</label></dt>
-            <dd><input type="number" name="bicycode" id="f_bicycode" value="{form_field name=bicycode data=$velo}" /></dd>
-            <dt><label for="f_prix">Prix du vélo</label></dt>
-            <dd>
-                <input type="number" name="prix" id="f_prix" min="-1" value="{form_field name=prix data=$velo}" /> €
-                <input type="button" onclick="document.getElementById('f_prix').value='-1';" value="Vélo à démonter" />
-                <input type="button" onclick="document.getElementById('f_prix').value='0';" value="Pas en vente" />
-            </dd>
-            <dt><label for="f_notes">Notes</label></dt>
-            <dd><textarea name="notes" id="f_notes" cols="70" rows="10">{form_field name=notes data=$velo}</textarea></dd>
-        </dl>
-    </fieldset>
-
-    <fieldset>
-        <legend>Provenance</legend>
-        <dl>
-            <dt><label for="f_source">D'où provient le vélo ?</label> <b>(obligatoire)</b></dt>
-            <dd>{form_select name=source values=$sources data=$velo}</dd>
-            <dt><label for="f_source_details">Détails sur la provenance</label> (pour le don : numéro d'adhérent ou nom du donneur)</dt>
-            <dd><input type="text" name="source_details" id="f_source_details" value="{form_field name=source_details data=$velo}" size="70" /></dd>
-        </dl>
-    </fieldset>
-
-    <fieldset>
-        <legend>Description du vélo</legend>
-        <dl>
-            <dt><label for="f_type">Type</label> <b>(obligatoire)</b></dt>
-            <dd>{form_select name=type values=$types data=$velo}</dd>
-            <dt><label for="f_roues">Taille des roues</label></dt>
-            <dd>{form_select name=roues values=$roues data=$velo}</dd>
-            <dt><label for="f_genre">Genre</label> <b>(obligatoire)</b></dt>
-            <dd>{form_select name=genre values=$genres data=$velo}</dd>
-            <dt><label for="f_couleur">Couleur</label> <b>(obligatoire)</b></dt>
-            <dd><input type="text" name="couleur" id="f_couleur" value="{form_field name=couleur data=$velo}" size="50" required="required" /></dd>
-            <dt><label for="f_modele">Marque et modèle</label> <b>(obligatoire)</b></dt>
-            <dd><input type="text" name="modele" id="f_modele" value="{form_field name=modele data=$velo}" size="50" required="required" /></dd>
-        </dl>
-    </fieldset>
-
-    <fieldset>
-        <legend>Entrée du vélo</legend>
-        <dl>
-            <dt><label for="f_date_entree">Date d'entrée dans le stock</label> (jj/mm/aaaa) <b>(obligatoire)</b></dt>
-            <dd>
-                <input type="date" name="date_entree" id="f_date_entree" value="{form_field name="date_entree" data=$velo}" />
-            </dd>
-            <dt><label for="f_etat_entree">État à l'entrée dans le stock</label> <b>(obligatoire)</b></dt>
-            <dd><input type="text" name="etat_entree" id="f_etat_entree" value="{form_field name=etat_entree data=$velo}" size="70" required="required" /></dd>
-        </dl>
-    </fieldset>
-
-    <fieldset>
-        <legend>Sortie du vélo</legend>
-        <dl>
-            <dt><label for="f_date_sortie">Date de sortie</label> (jj/mm/aaaa)</dt>
-            <dd>
-                <input type="date" name="date_sortie" id="f_date_sortie" value="{form_field name="date_sortie" data=$velo}" />
-            </dd>
-            <dt><label for="f_raison_sortie">Raison de sortie</label></dt>
-            <dd>{form_select name=raison_sortie values=$raisons_sortie data=$velo}</dd>
-            <dt><label for="f_details_sortie">Détails de sortie</label></dt>
-            <dd>Inscrire le numéro d'adhérent en cas de vente.</dd>
-            <dd><input type="text" name="details_sortie" id="f_details_sortie" value="{form_field name=details_sortie data=$velo}" size="70" /></dd>
-        </dl>
-    </fieldset>
-
-    <p class="submit">
-        {csrf_field key="modif_velo"}
-        <input type="submit" name="save" value="Enregistrer &rarr;" />
-    </p>
-    </form>
-</section>
+{include file="./_form.tpl"}
 
 <script type="text/javascript">
 {literal}
@@ -98,4 +16,4 @@ function fillSortieToday()
 {/literal}
 </script>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

@@ -1,11 +1,12 @@
 <?php
 
-namespace Garradin\Plugin\Caisse;
+namespace Paheko\Plugin\Caisse;
 
-use Garradin\Config;
-use Garradin\DB;
+use Paheko\Config;
+use Paheko\DB;
+use Paheko\Users\DynamicFields;
 
-use Garradin\Plugin\Caisse\Entities\Tab;
+use Paheko\Plugin\Caisse\Entities\Tab;
 use KD2\DB\EntityManager as EM;
 
 class Tabs
@@ -33,21 +34,24 @@ class Tabs
 	}
 
 	static public function searchMember($q) {
+		$db = DB::getInstance();
 		$operator = 'LIKE';
-		$identite = Config::getInstance()->get('champ_identite');
+		$id_field = DynamicFields::getNameFieldsSQL('u');
+		$number_field = 'u.' . $db->quoteIdentifier(DynamicFields::getLoginField());
+		$email_field = 'u.' . $db->quoteIdentifier(DynamicFields::getFirstEmailField());
 
 		if (is_numeric(trim($q)))
 		{
-			$column = 'numero';
+			$column = $number_field;
 			$operator = '=';
 		}
 		elseif (strpos($q, '@') !== false)
 		{
-			$column = 'email';
+			$column = $email_field;
 		}
 		else
 		{
-			$column = $identite;
+			$column = $id_field;
 		}
 
 		if ($operator == 'LIKE') {
@@ -60,15 +64,15 @@ class Tabs
 			$sql = sprintf('%s %s ?', $column, $operator);
 		}
 
-		$sql = sprintf('SELECT m.id, m.numero, m.email, m.%s AS identite,
+		$sql = sprintf('SELECT u.id, %s AS numero, %s AS email, %s AS identite,
 			MAX(su.expiry_date) AS expiry_date,
 			CASE WHEN su.expiry_date IS NULL THEN 0 WHEN su.expiry_date < date() THEN -1 WHEN su.expiry_date >= date() THEN 1 ELSE 0 END AS status
-			FROM membres m
-			LEFT JOIN services_users su ON su.id_user = m.id
-			WHERE m.%s
-			GROUP BY m.id
-			ORDER BY m.%1$s COLLATE U_NOCASE LIMIT 0, 7;', $identite, $sql);
+			FROM users u
+			LEFT JOIN services_users su ON su.id_user = u.id
+			WHERE %s
+			GROUP BY u.id
+			ORDER BY identite COLLATE U_NOCASE LIMIT 0, 7;', $number_field, $email_field, $id_field, $sql);
 
-		return DB::getInstance()->get($sql, $q);
+		return $db->get($sql, $q);
 	}
 }

@@ -1,13 +1,17 @@
 <?php
 
-namespace Garradin\Plugin\Welcome;
+namespace Paheko\Plugin\Welcome;
 
-use Garradin\{Template, Membres\Session, Membres};
+use Paheko\Entities\Plugins;
+use Paheko\Entities\Signal;
+
+use Paheko\Template;
 
 class Signaux
 {
-	static public function banner(array $params, &$return)
+	static public function banner(Signal $signal)
 	{
-		$return = Template::getInstance()->fetch($params['plugin_root'] . '/templates/banner.tpl');
+		$html = Template::getInstance()->fetch(__DIR__ . '/../templates/banner.tpl');
+		$signal->setOut('welcome', $html);
 	}
 }

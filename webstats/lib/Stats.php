@@ -1,69 +1,31 @@
 <?php
 
-namespace Garradin\Plugin\Webstats;
+namespace Paheko\Plugin\Webstats;
 
-use Garradin\DB;
+use Paheko\UserTemplate\CommonFunctions;
+use Paheko\DB;
+use Paheko\Plugins;
+use Paheko\Users\Session;
+use Paheko\Entities\Plugin;
+use Paheko\Entities\Signal;
+
+use KD2\Graphics\SVG\Plot;
+use KD2\Graphics\SVG\Plot_Data;
 
 class Stats
 {
-	const UA_BOT = 1;
-	const UA_MOBILE = 2;
-	const UA_DESKTOP = 3;
-
-	const UA_BOTS_MATCH = '/Googlebot|Bingbot|Slurp|DuckDuckBot|Baiduspider|YandexBot|Exabot|facebookexternalhit|facebot|curl|ia_archiver|GoogleImageProxy|MJ12bot|MegaIndex|https?:\/\/|wget/i';
-	const UA_MOBILE_MATCH = '/Mobile|iPhone|Android|Opera Mobi|Opera Mini|UCBrowser|SamsungBrowser/i';
-
-	const IGNORE_URIS = '/apple-touch-icon|favicon\.ico|robots\.txt|sitemap\.xml|atom\.xml/';
-
-	static protected $new_visitor = false;
-	static protected $ua_type = null;
-
-	static public function getUserAgentType(): int
+	static public function webRequest(Signal $signal, Plugin $plugin): void
 	{
-		$ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
+		$url = $plugin->url('stats.js');
+		$script = sprintf('<script type="text/javascript" defer src="%s"></script>', $url);
 
-		if (!$ua || preg_match(self::UA_BOTS_MATCH, $ua)) {
-			return self::UA_BOT;
-		}
-		elseif (preg_match(self::UA_MOBILE_MATCH, $ua)) {
-			return self::UA_MOBILE;
-		}
-		else {
-			return self::UA_DESKTOP;
-		}
+		$content = $signal->getOut('content');
+		$content = str_ireplace('</body', $script . '</body', $content);
+		$signal->setOut('content', $content);
 	}
 
-	static public function signalBefore(array $params, ?array $return): void
+	static public function store(\stdClass $data): void
 	{
-		self::$ua_type = self::getUserAgentType();
-
-		// Ignore bots
-		if (self::$ua_type == self::UA_BOT) {
-			return;
-		}
-
-		if (!headers_sent() && empty($_COOKIE['__visitor'])) {
-			setcookie('__visitor', '1', time() + (3600 * 6), '/');
-			self::$new_visitor = true;
-		}
-	}
-
-	static public function signalAfter(array $params, ?array $return): void
-	{
-		// Ignore bots
-		if (self::$ua_type == self::UA_BOT) {
-			return;
-		}
-
-		if (preg_match(self::IGNORE_URIS, $params['uri'] ?? '')) {
-			return;
-		}
-
-		// Ignore unknown pages
-		if (http_response_code() != 200) {
-			return;
-		}
-
 		$db = DB::getInstance();
 
 		$sql = sprintf('BEGIN; INSERT INTO plugin_webstats_stats (year, month, day, mobile_visits) VALUES (%d, %d, %d, %d)
@@ -71,15 +33,15 @@ class Stats
 			(int) date('Y'),
 			(int) date('m'),
 			(int) date('d'),
-			self::$ua_type == self::UA_MOBILE ? 1 : 0
+			!empty($data->is_mobile) ? 1 : 0
 		);
 
-		if (self::$new_visitor) {
-			$sql .= 'visits = visits + 1, ';
+		if (!empty($data->is_new_visitor) && !empty($data->is_mobile)) {
+			$sql .= 'mobile_visits = mobile_visits + 1, ';
 		}
 
-		if (self::$ua_type == self::UA_MOBILE) {
-			$sql .= 'mobile_visits = mobile_visits + 1, ';
+		if (!empty($data->is_new_visitor)) {
+			$sql .= 'visits = visits + 1, ';
 		}
 
 		$sql = rtrim($sql, ', ');
@@ -87,6 +49,7 @@ class Stats
 
 		$uri = $params['uri'] ?? '';
 		$uri = strtok($uri, '?');
+		$uri = trim($uri, '/');
 
 		$sql .= sprintf('INSERT INTO plugin_webstats_hits (uri) VALUES (%s) ON CONFLICT (uri) DO UPDATE SET hits = hits + 1; END',
 			$db->quote($uri));
@@ -115,5 +78,52 @@ class Stats
 			hits
 			FROM plugin_webstats_hits
 			ORDER BY hits DESC LIMIT 50;');
+	}
+
+	static public function graph(): ?string
+	{
+		$plot = new Plot(900, 300);
+
+		$data = [];
+		$stats = self::getStats();
+		$stats = array_reverse($stats);
+
+		foreach ($stats as $month) {
+			foreach ((array)$month as $key => $value) {
+				if (!isset($data[$key])) {
+					$data[$key] = [];
+				}
+
+				$data[$key][] = $value;
+			}
+		}
+
+		if (!isset($data['date'])) {
+			return null;
+		}
+
+		$graph = new Plot_Data($data['hits'] ?? []);
+		$graph->title = 'Pages vues';
+		$graph->color = 'Crimson';
+		$graph->width = 3;
+		$plot->add($graph);
+
+		$graph = new Plot_Data($data['visits'] ?? []);
+		$graph->title = 'Visites';
+		$graph->color = 'CadetBlue';
+		$graph->width = 3;
+		$plot->add($graph);
+
+		$graph = new Plot_Data($data['mobile_visits'] ?? []);
+		$graph->title = 'Mobiles';
+		$graph->color = 'Salmon';
+		$graph->width = 3;
+		$plot->add($graph);
+
+		$data['date'] = array_map(fn($a) => substr($a, 5, 2) . '/' . substr($a, 2, 2), $data['date']);
+		$plot->setLabels($data['date']);
+
+		return $plot->output();
+
 	}
 }

@@ -1,6 +1,6 @@
-{include file="admin/_head.tpl" title="Historique produit : %s"|args:$product.name current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl" title="Historique produit : %s"|args:$product.name}
 
-{include file="%s/manage/_nav.tpl"|args:$pos_templates_root current='products'}
+{include file="../_nav.tpl" current='products'}
 
 <p>
 {if $events_only}
@@ -41,9 +41,9 @@
 				</td>
 				<td class="actions">
 					{if $row.tab}
-						{linkbutton href="%stab.php?id=%d"|args:$plugin_url,$row.tab label="Note de caisse" shape="menu"}
+						{linkbutton href="%stab.php?id=%d"|args:$plugin_admin_url,$row.tab label="Note de caisse" shape="menu"}
 					{elseif $row.event}
-						{linkbutton href="%smanage/stock/details.php?id=%d"|args:$plugin_url,$row.event label="Événement de stock" shape="table"}
+						{linkbutton href="%smanage/stock/details.php?id=%d"|args:$plugin_admin_url,$row.event label="Événement de stock" shape="table"}
 					{/if}
 				</td>
 			</tr>
@@ -51,4 +51,4 @@
 	</tbody>
 </table>
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

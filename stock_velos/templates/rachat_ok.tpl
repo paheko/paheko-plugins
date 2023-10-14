@@ -42,24 +42,24 @@
         <h1>Contrat de rachat d'un vélo d'occasion</h1>
         <h4>Entre le vendeur :</h4>
         <ul>
-            <li>Numéro d'adhérent : {$adherent.id|escape}</li>
-            <li>Nom et prénom : <strong>{$adherent.identite|escape}</strong></li>
+            <li>Numéro d'adhérent : {$velo.source_details}</li>
+            <li>Nom et prénom : <strong>{$velo->membre_rachat()}</strong></li>
         </ul>
         <h4>Et l'acquéreur :</h4>
         <ul>
-            <li>L'association loi 1901 « {$config.nom_asso|escape} » dont le siège est situé au {$config.adresse_asso|escape}.</li>
+            <li>L'association loi 1901 « {$config.org_name} » dont le siège est situé au {$config.org_address}.</li>
         </ul>
-        <p>L'association « {$config.nom_asso|escape} » rachète à l'adhérent le vélo décrit ci-après qu'il avait lui-même précédemment acheté auprès de l'association :</p>
+        <p>L'association « {$config.org_name} » rachète à l'adhérent le vélo décrit ci-après qu'il avait lui-même précédemment acheté auprès de l'association :</p>
         <ul>
-            <li>Type : {$velo.type|escape}</li>
-            <li>Taille : {$velo.roues|escape}</li>
-            <li>Genre : {$velo.genre|escape}</li>
-            <li>Couleur : {$velo.couleur|escape}</li>
-            <li>Modèle : {$velo.modele|escape}</li>
+            <li>Type : {$velo.type}</li>
+            <li>Taille : {$velo.roues}</li>
+            <li>Genre : {$velo.genre}</li>
+            <li>Couleur : {$velo.couleur}</li>
+            <li>Modèle : {$velo.modele}</li>
         </ul>
-        <h3>État : <strong>{$velo.etat_entree|escape}</strong></h3>
-        <p>(Ancien numéro référence : {$velo.source_details|escape}, nouveau numéro référence : {$velo.id|escape})</p>
-        <p>en contrepartie du paiement du montant de <strong>{$prix|escape} €</strong>
+        <h3>État : <strong>{$velo.etat_entree}</strong></h3>
+        <p>(Ancien numéro référence : {$velo.source_details}, nouveau numéro référence : {$velo.id})</p>
+        <p>en contrepartie du paiement du montant de <strong>{$prix} €</strong>
             réglé en <b>espèces</b> <b>chèque</b> <em>(barrer la mention inutile)</em> à l'établissement du présent contrat.</p>
         <p>Le vendeur déclare que le vélo n'est pas d'origine frauduleuse et qu'il est conforme à
             l'état indiqué ci-dessus.</p>

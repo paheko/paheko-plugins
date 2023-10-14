@@ -1,8 +1,0 @@
-{
-	"open": [
-		{"day": "monday", "open": "16:00", "close": "20:00"}
-	],
-	"closed": [
-		["december 25", "january 01"]
-	]
-}

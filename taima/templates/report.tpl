@@ -1,6 +1,6 @@
-{include file="admin/_head.tpl" title="Valorisation du temps bénévole" plugin_css=['style.css']}
+{include file="_head.tpl" title="Valorisation du temps bénévole"}
 
-{include file="%s/templates/_nav.tpl"|args:$plugin_root current="report"}
+{include file="./_nav.tpl" current="report"}
 
 {form_errors}
 
@@ -76,4 +76,4 @@
 </form>
 
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

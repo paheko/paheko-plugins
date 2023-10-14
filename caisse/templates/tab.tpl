@@ -1,4 +1,4 @@
-{include file="admin/_head.tpl" current="plugin_%s"|args:$plugin.id}
+{include file="_head.tpl"}
 
 <nav class="tabs">
 	{if !$pos_session.closed}
@@ -41,7 +41,7 @@
 			<div>
 				<form method="post">
 				{if $current_tab.user_id}
-					{linkbutton href="!membres/fiche.php?id=%d"|args:$current_tab.user_id label="" shape="user" target="_blank" title="Ouvrir la fiche membre"}
+					{linkbutton href="!users/details.php?id=%d"|args:$current_tab.user_id label="" shape="user" target="_blank" title="Ouvrir la fiche membre"}
 				{/if}
 				{if !$remainder && !$current_tab.closed}
 					<input type="submit" name="close" value="Clore la note" />
@@ -117,7 +117,7 @@
 					<th>{$payment.method_name}</th>
 					<td>{$payment.amount|escape|money_currency}</td>
 					<td><em>{$payment.reference}</em></td>
-					<td class="actions">{if !$current_tab.closed}<a class="icn" href="?id={$current_tab.id}&amp;delete_payment={$payment.id}" title="Supprimer">✘</a>{/if}</td>
+					<td class="actions">{if !$current_tab.closed}{linkbutton shape="delete" href="?id=%d&delete_payment=%d"|args:$current_tab.id,$payment.id title="Supprimer" label=""}{/if}</td>
 				</tr>
 				{/foreach}
 				</tbody>
@@ -198,7 +198,7 @@
 	</ul>
 </div>
 
-<script type="text/javascript" src="{$plugin_url}tab.js" async="async"></script>
+<script type="text/javascript" src="{$plugin_admin_url}tab.js" async="async"></script>
 {/if}
 
-{include file="admin/_foot.tpl"}
+{include file="_foot.tpl"}

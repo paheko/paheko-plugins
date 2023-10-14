@@ -1,5 +1,7 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
-$plugin->registerSignal('usertemplate.init', 'Garradin\Plugin\Stock_Velos\Velos::register');
+use Paheko\Plugin\Stock_Velos\Velos;
+
+$plugin->unregisterSignal('usertemplate.init');

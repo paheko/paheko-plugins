@@ -1,33 +1,97 @@
 <?php
 
-namespace Garradin\Plugin\Taima;
+namespace Paheko\Plugin\Taima;
 
-use Garradin\Plugin\Taima\Entities\Entry;
-use Garradin\Plugin\Taima\Entities\Task;
+use Paheko\Plugin\Taima\Entities\Entry;
+use Paheko\Plugin\Taima\Entities\Task;
 
-use Garradin\Entities\Accounting\Transaction;
-use Garradin\Entities\Accounting\Line;
-use Garradin\Entities\Accounting\Year;
-use Garradin\Accounting\Accounts;
-use Garradin\Accounting\Transactions;
+use Paheko\Entities\Signal;
+use Paheko\Entities\Accounting\Transaction;
+use Paheko\Entities\Accounting\Line;
+use Paheko\Entities\Accounting\Year;
+use Paheko\Accounting\Accounts;
+use Paheko\Accounting\Transactions;
 
-use Garradin\Config;
-use Garradin\DB;
-use Garradin\DynamicList;
-use Garradin\Utils;
-use Garradin\UserException;
+use Paheko\DB;
+use Paheko\DynamicList;
+use Paheko\Plugins;
+use Paheko\Utils;
+use Paheko\UserException;
+use Paheko\Users\DynamicFields;
+use Paheko\Users\Session;
+use Paheko\UserTemplate\CommonFunctions;
+
 use KD2\DB\EntityManager as EM;
 
-use DateTime;
+use KD2\DB\Date;
 
 class Tracking
 {
+	const ANIMATED_ICON = '<svg width="%s" viewBox="0 0 22 22" class="taima-icon-%d" style="%s">
+			<style>
+				svg.taima-icon-%2$d { animation: taima-spinner 5s linear infinite; fill: %s; stroke: %4$s; vertical-align: middle; }
+				@keyframes taima-spinner { to {transform: rotate(360deg);} }
+			</style>
+			<circle cx="11" cy="11" r="10" stroke-width="2" fill="none" />
+			<path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z" />
+		</svg>';
+
+	const FIXED_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="%s" viewBox="0 0 22 22" id="img" fill="none" stroke="currentColor" >
+		<circle cx="11" cy="11" r="10" stroke-width="2" />
+		<path id="hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z" fill="currentColor" />
+	</svg>';
+
+	static public function animatedIcon(string $size, string $color = '', string $style = ''): string
+	{
+		static $i = 1;
+		return sprintf(self::ANIMATED_ICON, $size, $i++, $style, $color ?: 'rgb(var(--gSecondColor))');
+	}
+
+	static public function fixedIcon(string $size): string
+	{
+		return sprintf(self::FIXED_ICON, $size);
+	}
+
+	static public function homeButton(Signal $signal): void
+	{
+		$url = Plugins::getPrivateURL('taima');
+		$user_id = Session::getUserId();
+		$running_timers = $user_id ? self::hasRunningTimers($user_id) : false;
+
+		$params = [
+			'label' => $running_timers ? 'Suivi : chrono en cours' : 'Suivi du temps',
+			'href' => $url,
+		];
+
+		if ($running_timers) {
+			$params['icon_html'] = self::animatedIcon('100%', 'rgb(var(--gHoverLinkColor))');
+		}
+		else {
+			$params['icon'] = $url . 'icon.svg';
+		}
+
+		$signal->setOut('taima', CommonFunctions::linkbutton($params));
+	}
+
+	static public function menuItem(Signal $signal): void
+	{
+		$icon = '';
+		$user_id = Session::getUserId();
+		$running_timers = $user_id ? self::hasRunningTimers($user_id) : false;
+
+		if ($user_id && self::hasRunningTimers($user_id)) {
+			$icon = self::animatedIcon(16, '', 'float: right');
+		}
+
+		$signal->setOut('plugin_taima', sprintf('<a href="%sp/taima/">Suivi du temps%s</a>', \Paheko\ADMIN_URL, $icon));
+	}
+
 	static public function get(int $id)
 	{
 		return EM::findOneById(Entry::class, $id);
 	}
 
-	static public function listUserEntries(DateTime $day, int $user_id)
+	static public function listUserEntries(Date $day, int $user_id)
 	{
 		$sql = sprintf('SELECT e.*, t.label AS task_label,
 			CASE WHEN e.timer_started IS NOT NULL
@@ -63,17 +127,35 @@ class Tracking
 		return DB::getInstance()->getAssoc(sprintf('SELECT id, label FROM %s ORDER BY label COLLATE U_NOCASE;', Task::TABLE));
 	}
 
-	static public function listUserRunningTimers(DateTime $except, int $user_id)
+	static public function hasRunningTimers(int $user_id): bool
 	{
-		return DB::getInstance()->get(sprintf('SELECT date FROM %s
-			WHERE date != ? AND user_id = ? AND timer_started IS NOT NULL;', Entry::TABLE), $except->format('Y-m-d'), $user_id);
+		return DB::getInstance()->test(Entry::TABLE, 'user_id = ? AND timer_started IS NOT NULL', $user_id);
+	}
+
+	static public function listUserRunningTimers(?int $user_id, ?Date $except = null): array
+	{
+		if (!$user_id) {
+			return [];
+		}
+
+		$params = [$user_id];
+		$where = ['user_id = ?', 'timer_started IS NOT NULL'];
+
+		if ($except) {
+			$where[] = 'date != ?';
+			$params[] = $except->format('Y-m-d');
+		}
+
+		$sql = sprintf('SELECT date FROM %s WHERE %s;', Entry::TABLE, implode(' AND ', $where));
+
+		return DB::getInstance()->get($sql, ...$params);
 	}
 
 	static public function listUserWeekDays(int $year, int $week, int $user_id)
 	{
 		$weekdays = [];
 
-		$weekday = new DateTime;
+		$weekday = new Date;
 		$weekday->setISODate($year, $week);
 
 		$db = DB::getInstance();
@@ -110,7 +192,6 @@ class Tracking
 
 	static public function getList(?int $id_user = null, ?int $except = null): DynamicList
 	{
-		$identity = Config::getInstance()->get('champ_identite');
 		$columns = [
 			'task' => [
 				'label' => 'Tâche',
@@ -140,7 +221,7 @@ class Tracking
 			],
 			'user_name' => [
 				'label' => 'Nom',
-				'select' => 'm.' . $identity,
+				'select' => DynamicFields::getNameFieldsSQL('u'),
 			],
 			'user_id' => [],
 			'id' => ['select' => 'e.id'],
@@ -148,7 +229,7 @@ class Tracking
 
 		$tables = 'plugin_taima_entries e
 			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
-			LEFT JOIN membres m ON m.id = e.user_id';
+			LEFT JOIN users u ON u.id = e.user_id';
 
 		$conditions = '1';
 
@@ -164,8 +245,13 @@ class Tracking
 		return $list;
 	}
 
-	static public function listPerInterval(string $grouping = 'week', bool $per_user = false)
+	static public function listPerInterval(string $grouping = 'week', bool $per_user = false, ?Date $start = null, ?Date $end = null)
 	{
+		$where = '1';
+		$params = [];
+		$select = '';
+		$join = '';
+
 		if ($grouping == 'week') {
 			$group = 'e.year, e.week';
 			$order = 'e.year DESC, e.week DESC';
@@ -181,6 +267,13 @@ class Tracking
 			$order = 'e.year DESC, strftime(\'%m\', e.date) DESC';
 			$criteria = 'strftime(\'%Y%m\', e.date)';
 		}
+		elseif ($grouping == 'accounting') {
+			$group = 'y.id';
+			$order = 'y.start_date DESC';
+			$criteria = 'y.id';
+			$select = ', y.label AS year_label';
+			$join = 'INNER JOIN acc_years AS y ON e.date >= y.start_date AND e.date <= y.end_date';
+		}
 
 		if ($per_user) {
 			$group .= ', e.user_id';
@@ -189,21 +282,33 @@ class Tracking
 			$group .= ', e.task_id';
 		}
 
-		$identity = Config::getInstance()->get('champ_identite');
-		$sql = 'SELECT e.*, t.label AS task_label, m.%s AS user_name, SUM(duration) AS duration, %s AS criteria
+		if ($start) {
+			$where .= ' AND e.date >= ?';
+			$params[] = $start;
+		}
+
+		if ($end) {
+			$where .= ' AND e.date <= ?';
+			$params[] = $end;
+		}
+
+		$id_field = DynamicFields::getNameFieldsSQL('u');
+		$sql = 'SELECT e.*, t.label AS task_label, %s AS user_name, SUM(duration) AS duration, %s AS criteria %s
 			FROM plugin_taima_entries e
+			%s
 			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
-			LEFT JOIN membres m ON m.id = e.user_id
+			LEFT JOIN users u ON u.id = e.user_id
+			WHERE %s
 			GROUP BY %s
 			ORDER BY %s, SUM(duration) DESC;';
 
-		$sql = sprintf($sql, $identity, $criteria, $group, $order);
+		$sql = sprintf($sql, $id_field, $criteria, $select, $join, $where, $group, $order);
 
 		$db = DB::getInstance();
 
 		$item = $criteria = null;
 
-		foreach ($db->iterate($sql) as $row) {
+		foreach ($db->iterate($sql, ...$params) as $row) {
 			if ($criteria != $row->criteria) {
 				if ($item !== null) {
 					$total = 0;
@@ -234,7 +339,7 @@ class Tracking
 		}
 	}
 
-	static public function getFinancialReport(Year $year, DateTime $start, DateTime $end)
+	static public function getFinancialReport(Year $year, Date $start, Date $end)
 	{
 		$sql = 'SELECT
 				t.label, SUM(e.duration) / 60 AS hours, SUM(e.duration) / 60 * t.value AS total, t.value AS value,
@@ -248,9 +353,9 @@ class Tracking
 		return DB::getInstance()->get($sql, $year->id_chart, $start, $end);
 	}
 
-	static public function createReport(Year $year, DateTime $start, DateTime $end, int $id_creator): Transaction
+	static public function createReport(Year $year, Date $start, Date $end, int $id_creator): Transaction
 	{
-		$date = new \DateTime;
+		$date = new Date;
 
 		if ($date > $year->end_date) {
 			$date = clone $year->end_date;

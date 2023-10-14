@@ -1,13 +1,13 @@
 <?php
 
-namespace Garradin\Plugin\Caisse;
+namespace Paheko\Plugin\Caisse;
 
-use Garradin\Config;
-use Garradin\DB;
-use Garradin\DynamicList;
+use Paheko\DB;
+use Paheko\DynamicList;
+use Paheko\Users\DynamicFields;
 use KD2\DB\EntityManager as EM;
 
-use Garradin\Plugin\Caisse\Entities\Session;
+use Paheko\Plugin\Caisse\Entities\Session;
 
 class Sessions
 {
@@ -17,10 +17,10 @@ class Sessions
 			FROM @PREFIX_sessions GROUP BY strftime(\'%Y\', opened);'));
 	}
 
-	static public function open(int $user_id, int $amount): Session
+	static public function open(string $user_name, int $amount): Session
 	{
 		$session = new Session;
-		$session->set('open_user', $user_id);
+		$session->set('open_user', $user_name);
 		$session->set('open_amount', $amount);
 		$session->set('opened', new \DateTime);
 		$session->save();
@@ -46,7 +46,6 @@ class Sessions
 	static public function list(): DynamicList
 	{
 		$db = DB::getInstance();
-		$name_field = Config::getInstance()->get('champ_identite');
 
 		$columns = [
 			'id' => [
@@ -57,8 +56,8 @@ class Sessions
 				'label' => 'Ouverture',
 				'select' => 's.opened',
 			],
-			'open_user_name' => [
-				'select' => 'm.' . $db->quoteIdentifier($name_field),
+			'open_user' => [
+				'select' => 's.open_user',
 			],
 			'open_amount' => [
 				'label' => 'Montant',
@@ -71,8 +70,8 @@ class Sessions
 			'closed_same_day' => [
 				'select' => 'date(s.closed) = date(s.opened)',
 			],
-			'close_user_name' => [
-				'select' => 'm2.' . $db->quoteIdentifier($name_field),
+			'close_user' => [
+				'select' => 's.close_user',
 			],
 			'close_amount' => [
 				'label' => 'Montant clôture',
@@ -90,9 +89,7 @@ class Sessions
 
 		$tables = '@PREFIX_sessions s
 			LEFT JOIN @PREFIX_tabs t ON t.session = s.id
-			LEFT JOIN @PREFIX_tabs_items ti ON ti.tab = t.id
-			LEFT JOIN membres m ON s.open_user = m.id
-			LEFT JOIN membres m2 ON s.close_user = m2.id';
+			LEFT JOIN @PREFIX_tabs_items ti ON ti.tab = t.id';
 
 		$tables = POS::sql($tables);
 
