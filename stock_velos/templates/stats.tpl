@@ -14,6 +14,8 @@
     <img src="?graph=entry" alt="" />
 </figure>
 
+<h2 class="ruler">Par année, source et raison de sortie</h2>
+
 <table class="list">
     <tbody>
         {foreach from=$stats_years item="row"}
@@ -26,6 +28,8 @@
         {/foreach}
     </tbody>
 </table>
+
+<h2 class="ruler">Par mois</h2>
 
 <table class="list">
     <tbody>

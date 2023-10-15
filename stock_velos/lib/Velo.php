@@ -14,7 +14,7 @@ class Velo extends Entity
 	const TABLE = 'plugin_stock_velos';
 
 	protected ?int $id = null;
-	protected int $etiquette;
+	protected ?int $etiquette = null;
 	protected ?string $bicycode = null;
 
 	protected string $source;

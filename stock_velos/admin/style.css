@@ -69,11 +69,15 @@ ul.sub_actions a {
     width: 100%;
 }
 
+.fiche .velo {
+    display: flex;
+}
+
 .fiche .velo dl {
-    float: left;
-    margin: 0.2em;
-    border: 1px solid rgba(255, 128, 0, 0.5);
-    background: rgba(255, 255, 255, 0.5);
+    margin: 0.5em;
+    background: #ddd;
+    color: #000;
+    border-radius: .5em;
     text-align: center;
     padding: 0.3em;
     width: 8em;
@@ -90,30 +94,30 @@ ul.sub_actions a {
 }
 
 .fiche .velo dl.etiq {
-    width: 98px;
-    height: 40px;
     color: #fff;
-    background: no-repeat center center url("data:image/png;base64,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");
+    padding: 5px;
+    background: no-repeat center center url("etiquette.svg");
+    background-size: contain;
     border: none;
-    padding: 5px 10px;
-    margin-top: .5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-shadow: 0px 0px 5px #000;
+    border-radius: 0;
 }
 
 .fiche .velo .etiq dt {
-    height: 10px;
-    line-height: 10px;
+    line-height: .9em;
     font-size: 8pt;
     display: block;
     width: 100%;
 }
 
 .fiche .velo .etiq dd {
-    font-size: 20pt;
+    font-size: 24pt;
     font-weight: bold;
-    display: inline-block;
-    width: 100%;
-    height: 32px;
-    line-height: 32px;
+    line-height: .9em;
 }
 
 .fiche .velo .etat dt {
@@ -155,16 +159,19 @@ ul.sub_actions a {
 .fiche .etat.sortie {
     color: #666;
     background: #eee;
+    border: 3px solid #666;
 }
 
 .fiche .etat.stock {
     color: #060;
     background: #efe;
+    border: 3px solid #060;
 }
 
 .fiche .etat.demonter {
     color: #600;
     background: #fee;
+    border: 3px solid #600;
 }
 
 form.sql pre.help {
@@ -173,4 +180,18 @@ form.sql pre.help {
     overflow: auto;
     font-size: .7em;
     border: .1em solid #ccc;
+}
+
+section.stock {
+    text-align: center;
+    max-width: 60em;
+}
+
+section.stock article {
+    margin-bottom: 2em;
+}
+
+section.stock article h3 {
+    font-weight: normal;
+    margin-bottom: 1em;
 }

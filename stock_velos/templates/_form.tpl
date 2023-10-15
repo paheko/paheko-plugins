@@ -28,7 +28,7 @@
 <fieldset>
 	<legend>Provenance</legend>
 	<dl>
-		{input type="select" name="source" label="D'où provient le vélo ?" required=true options=$sources default="Don" source=$velo}
+		{input type="select" name="source" label="D'où provient le vélo ?" required=true options=$defaults.sources default="Don" source=$velo}
 		{input type="text" name="source_details" label="Détails sur la provenance" help="pour le don : numéro d'adhérent ou nom du donneur" required=true source=$velo}
 	</dl>
 </fieldset>
@@ -36,9 +36,9 @@
 <fieldset>
 	<legend>Description du vélo</legend>
 	<dl>
-		{input type="select" name="type" label="Type" required=true options=$types source=$velo}
-		{input type="select" name="roues" label="Taille des roues" required=true options=$roues source=$velo}
-		{input type="select" name="genre" label="Genre" required=true options=$genres source=$velo}
+		{input type="select" name="type" label="Type" required=true options=$defaults.types source=$velo}
+		{input type="select" name="roues" label="Taille" required=true options=$defaults.tailles source=$velo}
+		{input type="select" name="genre" label="Genre de cadre" required=true options=$defaults.genres source=$velo}
 		{input type="text" name="couleur" label="Couleur" required=true source=$velo}
 		{input type="text" name="modele" label="Marque et modèle" required=true source=$velo}
 	</dl>
@@ -56,7 +56,7 @@
 	<legend>Sortie du vélo</legend>
 	<dl>
 		{input type="date" label="Date de sortie" name="date_sortie" source=$velo}
-		{input type="select" label="Raison de sortie" name="raison_sortie" options=$raisons_sortie source=$velo}
+		{input type="select" label="Raison de sortie" name="raison_sortie" options=$defaults.raisons_sortie source=$velo}
 		{input type="text" label="Détails de sortie" name="details_sortie" help="Inscrire le numéro d'adhérent en cas de vente" source=$velo}
 	</dl>
 </fieldset>

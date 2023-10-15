@@ -8,6 +8,7 @@ use Paheko\UserException;
 use Paheko\Utils;
 use Paheko\DynamicList;
 use Paheko\Users\Session;
+use Paheko\Entities\Plugin;
 
 use KD2\DB\EntityManager;
 use KD2\Graphics\SVG\Bar;
@@ -36,93 +37,62 @@ class Velos
         'statut',
     );
 
-    protected $types = array(
-        'Course',
-        'Mi-course',
-        'Mini',
-        'Pliant',
-        'Ville',
-        'VTC',
-        'VTT',
-        'BMX',
-        'Autre',
-    );
+    const DEFAULTS = [
+        'types' => [
+            'Course',
+            'Mi-course',
+            'Randonneuse',
+            'Mini',
+            'Pliant',
+            'Ville',
+            'VTC',
+            'VTT',
+            'BMX',
+            'Autre',
+        ],
+        'genres' => [
+            'Diamant',
+            'Mixte',
+            'Enfant/Diamant',
+            'Enfant/Mixte',
+        ],
+        'tailles' => [
+            '700C',
+            '650B',
+            '26"',
+            '24"',
+            '20"',
+            '16"',
+            'Autre',
+        ],
+        'sources' => [
+            'Achat',
+            'Don',
+            'Rachat',
+            'Récupération',
+            'Partenariat',
+        ],
+        'raisons_sortie' => [
+            'Démonté',
+            'Vendu',
+            'Vendu en bourse',
+            'Jeté',
+        ],
+    ];
 
-    protected $genres = array(
-        'Homme',
-        'Femme',
-        'Mixte',
-        'Enfant/Homme',
-        'Enfant/Femme',
-        'Enfant/Mixte',
-    );
-
-    protected $tailles = array(
-        '700C',
-        '650B',
-        '26"',
-        '24"',
-        '20"',
-        'Autre',
-    );
-
-    protected $sources = array(
-        'Achat',
-        'Don',
-        'Rachat',
-        'Récupération',
-        'Partenariat',
-    );
-
-    protected $raisons_sortie = array(
-        'Démonté',
-        'Vendu',
-        'Vendu en bourse',
-        'Jeté',
-    );
-
-    /**
-     * Genres de vélos
-     */
-
-    public function listGenres()
+    public function getDefaults(Plugin $plugin): array
     {
-        return array_combine($this->genres, $this->genres);
-    }
-    /**
-     * Sources de vélo
-     */
+        $defaults = self::DEFAULTS;
 
-    public function listSources()
-    {
-        return array_combine($this->sources, $this->sources);
-    }
+        foreach ($defaults as $name => $values) {
+            if ($values = $plugin->getConfig($name)) {
+                $defaults[$name] = $values;
+            }
 
-    /**
-     * Types de vélos
-     */
+            $defaults[$name] = array_combine($defaults[$name], $defaults[$name]);
+        }
 
-    public function listTypes()
-    {
-        return array_combine($this->types, $this->types);
-    }
-
-    /**
-     * Raisons de sortie
-     */
-
-    public function listRaisonsSortie()
-    {
-        return array_combine($this->raisons_sortie, $this->raisons_sortie);
-    }
-
-    /**
-     * Tailles des vélos
-     */
-
-    public function listTailles()
-    {
-        return array_combine($this->tailles, $this->tailles);
+        return $defaults;
     }
 
     public function addVelosDemontes(int $nb, string $source, string $source_details)
@@ -164,7 +134,7 @@ class Velos
                 'label' => 'Type',
             ],
             'roues' => [
-                'label' => 'Roues'
+                'label' => 'Taille'
             ],
             'genre' => [
                 'label' => 'Genre'
@@ -203,7 +173,7 @@ class Velos
                 'label' => 'Type',
             ],
             'roues' => [
-                'label' => 'Roues'
+                'label' => 'Taille'
             ],
             'genre' => [
                 'label' => 'Genre'
