@@ -18,13 +18,13 @@ class Velo extends Entity
 	protected ?string $bicycode = null;
 
 	protected string $source;
-	protected string $source_details;
+	protected ?string $source_details;
 
-	protected string $type;
-	protected string $roues;
-	protected string $genre;
-	protected string $couleur;
-	protected string $modele;
+	protected ?string $type;
+	protected ?string $roues;
+	protected ?string $genre;
+	protected ?string $couleur;
+	protected ?string $modele;
 	protected ?float $prix = null;
 
 	protected Date $date_entree;
