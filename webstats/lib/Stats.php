@@ -28,7 +28,7 @@ class Stats
 	{
 		$db = DB::getInstance();
 
-		$sql = sprintf('BEGIN; INSERT INTO plugin_webstats_stats (year, month, day, mobile_visits) VALUES (%d, %d, %d, %d)
+		$sql = sprintf('BEGIN; INSERT INTO plugin_webstats_stats (year, month, day, hits, visits, mobile_visits) VALUES (%d, %d, %d, 1, 1, %d)
 			ON CONFLICT (year, month, day) DO UPDATE SET hits = hits + 1, ',
 			(int) date('Y'),
 			(int) date('m'),
@@ -36,12 +36,12 @@ class Stats
 			!empty($data->is_mobile) ? 1 : 0
 		);
 
-		if (!empty($data->is_new_visitor) && !empty($data->is_mobile)) {
-			$sql .= 'mobile_visits = mobile_visits + 1, ';
-		}
-
 		if (!empty($data->is_new_visitor)) {
 			$sql .= 'visits = visits + 1, ';
+
+			if (!empty($data->is_mobile)) {
+				$sql .= 'mobile_visits = mobile_visits + 1, ';
+			}
 		}
 
 		$sql = rtrim($sql, ', ');
