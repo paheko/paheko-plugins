@@ -116,7 +116,7 @@ class Tab extends Entity
 	public function pay(int $method_id, int $amount, ?string $reference)
 	{
 		if ($this->closed) {
-			throw new \LogicException('Cannot modify a closed tab');
+			throw new UserException('Il n\'est pas possible de modifier une note clôturée.');
 		}
 
 		if ('' === trim($reference)) {
