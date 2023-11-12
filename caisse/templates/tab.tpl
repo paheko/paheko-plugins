@@ -15,7 +15,7 @@
 	{foreach from=$tabs item="tab"}
 		<li class="tab {if $tab.id == $tab_id}current{/if} {if $tab.closed}closed{/if}">
 			<a href="{$self_url_no_qs}?id={$tab.id}">
-				{$tab.id}. {$tab.opened|date_format:"%H:%M"}
+				{$tab.id}. {$tab.opened|date_hour}
 				{if $tab.total} — {$tab.total|escape|money_currency}{/if}
 				{if $tab.name} — {$tab.name}{/if}
 			</a>
@@ -31,9 +31,9 @@
 			<div>
 				<h2>
 				{$current_tab.id}.
-				{$current_tab.opened|date_format:"%H:%M"}
+				{$current_tab.opened|date_hour}
 				{if $current_tab.closed}
-				&rarr; {$current_tab.closed|date_format:"%H:%M"}
+				&rarr; {$current_tab.closed|date_hour}
 				{/if}
 				</h2>
 				<h3>{$current_tab.name}</h3>

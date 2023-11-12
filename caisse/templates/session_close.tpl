@@ -14,7 +14,7 @@
 	<legend>Contenu de la caisse</legend>
 	<dl>
 		<dt>Ouverture</dt>
-		<dd>Caisse ouverte le {$pos_session.opened|date_format:"%d/%m/%Y à %H:%M"}</dd>
+		<dd>Caisse ouverte le {$pos_session.opened|date_long:true}</dd>
 		<dt>Solde à l'ouverture</dt>
 		<dd>{$pos_session.open_amount|raw|money_currency}</dd>
 		<dt>Solde théorique à la fermeture</dt>
@@ -67,7 +67,7 @@
 				</td>
 				<td>{$payment.tab}</td>
 				<td>
-					{$payment.date|date_format:"%H:%M"}
+					{$payment.date|date_hour}
 				</td>
 				<td>{$payment.method_name}</td>
 				<th>
