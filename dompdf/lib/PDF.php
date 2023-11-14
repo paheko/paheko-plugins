@@ -53,9 +53,6 @@ class PDF
 
 		$dompdf->loadHtmlFile($signal->getIn('source'));
 
-		// (Optional) Setup the paper size and orientation
-		$dompdf->setPaper('A4', 'landscape');
-
 		// Render the HTML as PDF
 		$dompdf->render();
 
@@ -69,9 +66,6 @@ class PDF
 		$dompdf = self::DomPDF();
 
 		$dompdf->loadHtml($signal->getIn('string'));
-
-		// (Optional) Setup the paper size and orientation
-		$dompdf->setPaper('A4', 'landscape');
 
 		// Render the HTML as PDF
 		$dompdf->render();
