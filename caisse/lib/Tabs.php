@@ -22,15 +22,19 @@ class Tabs
 
 	static public function listForUser(string $q): ?array
 	{
+		$db = DB::getInstance();
+		$condition = 'name LIKE ? ESCAPE \'!\'';
+		$params = ['%' . $db->escapeLike($q, '!') . '%'];
 		$user = current(self::searchMember($q));
 
-		if (!$user) {
-			return null;
+		if ($user) {
+			$condition .= ' OR user_id = ?';
+			$params[] = (int) $user->id;
 		}
 
-		$id = $user->id;
+		$sql = sprintf(POS::sql('SELECT * FROM @PREFIX_tabs WHERE %s GROUP BY id ORDER BY opened DESC;'), $condition);
 
-		return DB::getInstance()->get(POS::sql('SELECT * FROM @PREFIX_tabs WHERE user_id = ? ORDER BY opened DESC;'), $id);
+		return $db->get($sql, ...$params);
 	}
 
 	static public function searchMember($q) {
