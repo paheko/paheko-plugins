@@ -112,30 +112,52 @@ input[name="q"] {
 	text-align: center;
 }
 
-#user_rename li {
+#user_rename_list {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: stretch;
+	margin: .5rem auto;
 	max-width: 40rem;
+}
+
+#user_rename_list button {
 	background: #ddd;
 	padding: .5rem;
 	border: .1rem solid #ccc;
-	margin: .5rem auto;
 	border-radius: .5rem;
 	text-align: left;
+	box-shadow: none;
+	margin: .2rem;
 }
 
-#user_rename li:hover {
-	background: #ccf;
-	padding: .5rem;
-	border: .1rem solid #99f;
+#user_rename_list button:hover, #user_rename_list button:focus {
+	background-color: #ffd;
+	border-color: darkorange;
 	cursor: pointer;
 }
 
-#user_rename li:hover h3 {
+#user_rename_list button:focus {
+	box-shadow: 0px 0px 5px 5px orange;
+}
+
+#user_rename_list button:hover h3 {
 	color: darkred;
 	text-decoration: underline;
 }
 
 
-#user_rename li h5 {
+#user_rename_list button h4 {
+	font-weight: normal;
+	color: #666;
+	font-size: .9em;
+}
+
+#user_rename_list button p {
+	margin-top: .3rem;
+}
+
+#user_rename_list button h5 {
 	float: right;
 	border: .1rem solid #999;
 	padding: .5rem;

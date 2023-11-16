@@ -1,20 +1,25 @@
-{foreach from=$list item="m"}
-	<li onclick="selectUserRename({$m.id}, &quot;{$m.identite}&quot;);">
-		<h5>{$m.numero}</h5>
-		<h3>{$m.identite}</h3>
-		<h4>{$m.email}</h4>
-		<p>
-			Cotisation
-			{if $m.status == -1}
-				<span class="error"><b>En retard</b> depuis le {$m.expiry_date|date_short}</span>
-			{elseif $m.status == 0}
-				<span class="error"><b>Pas de cotisation&nbsp;!</b></span>
-			{else}
-				<b class="confirm">&#10003; À jour</b>
-				{if $m.expiry_date}
-					(expire le {$m.expiry_date|date_short})
+{foreach from=$list item="u"}
+	<button type="button" data-name="{$u.name}" data-id="{$u.id}">
+		<h5>{$u.number}</h5>
+		<h3>{$u.name}</h3>
+		<h4>{$u.email}</h4>
+		{foreach from=$u.services item="s"}
+			<p>
+				{$s.label}
+				{if $s.status == -1}
+					<span class="error"><b>En retard</b> depuis le {$s.expiry_date|date_short}</span>
+				{else}
+					<b class="confirm">&#10003; À jour</b>
+					{if $s.expiry_date}
+						(expire le {$s.expiry_date|date_short})
+					{/if}
 				{/if}
-			{/if}
-		</p>
-	</li>
+			</p>
+		{foreachelse}
+			<p><span class="error"><b>Aucune inscription&nbsp;!</b></span></p>
+		{/foreach}
+	</button>
 {/foreach}
+{if empty($u)}
+	<p class="alert block">Aucun résultat.</p>
+{/if}

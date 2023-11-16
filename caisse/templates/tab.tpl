@@ -194,8 +194,8 @@
 		<input type="hidden" name="rename_id" value="" />
 		<input type="text" name="rename_name" placeholder="Chercher un membre…" value="{$current_tab.name}" />
 	</form>
-	<ul>
-	</ul>
+	<div id="user_rename_list">
+	</div>
 </div>
 
 <script type="text/javascript" src="{$plugin_admin_url}tab.js" async="async"></script>
