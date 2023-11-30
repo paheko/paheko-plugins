@@ -230,4 +230,18 @@ class Session extends Entity
 		$tab->save();
 		return $tab;
 	}
+
+	public function isSynced(): bool
+	{
+		return DB::getInstance()->test('acc_transactions', 'reference = ?', 'POS-SESSION-' . $this->id());
+	}
+
+	public function delete(): bool
+	{
+		if ($this->isSynced()) {
+			throw new UserException('Il n\'est pas possible de supprimer une session de caisse synchronisée avec la comptabilité.');
+		}
+
+		return parent::delete();
+	}
 }

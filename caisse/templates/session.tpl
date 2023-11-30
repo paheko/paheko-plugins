@@ -7,7 +7,7 @@
 	{else}
 		{linkbutton href="./" label="Retour" shape="left"}
 		{linkbutton href="%s&pdf=1"|args:$self_url label="Télécharger en PDF" shape="print"}
-		{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
+		{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN) && !$pos_session->isSynced()}
 			{linkbutton href="session_delete.php?id=%d"|args:$pos_session.id label="Supprimer cette session de caisse" shape="delete"}
 		{/if}
 	{/if}
