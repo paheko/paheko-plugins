@@ -90,7 +90,7 @@ function completeUserName(list) {
 		});
 }
 
-ur_input.onkeypress = (e) => {
+ur_input.onkeyup = (e) => {
 	window.clearTimeout(ur_timeout);
 	ur_timeout = window.setTimeout(completeUserName, 300);
 	return true;
