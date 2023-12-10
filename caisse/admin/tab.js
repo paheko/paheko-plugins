@@ -49,7 +49,7 @@ function navigateUserRename(e) {
 	var first = ur_list.querySelector('button');
 
 	if (!first) {
-		return;
+		return true;
 	}
 
 	var last = ur_list.querySelector('button:last-child');
