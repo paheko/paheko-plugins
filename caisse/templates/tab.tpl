@@ -40,7 +40,7 @@
 			</div>
 			<div>
 				<form method="post">
-					{linkbutton title="Reçu" label=null accesskey="P" shape="print" target="_dialog" href="./receipt.php?tab=%d"|args:$current_tab.id}
+					{linkbutton title="Reçu" label=null shape="print" target="_dialog" href="./receipt.php?tab=%d"|args:$current_tab.id}
 				{if $current_tab.user_id}
 					{linkbutton href="!users/details.php?id=%d"|args:$current_tab.user_id label="" shape="user" target="_blank" title="Ouvrir la fiche membre"}
 				{/if}
