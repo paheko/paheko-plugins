@@ -40,22 +40,20 @@
 			</div>
 			<div>
 				<form method="post">
+					{linkbutton title="Reçu" label=null accesskey="P" shape="print" target="_dialog" href="./receipt.php?tab=%d"|args:$current_tab.id}
 				{if $current_tab.user_id}
 					{linkbutton href="!users/details.php?id=%d"|args:$current_tab.user_id label="" shape="user" target="_blank" title="Ouvrir la fiche membre"}
 				{/if}
 				{if !$remainder && !$current_tab.closed}
-					<input type="submit" name="close" value="Clore la note" />
+					{button type="submit" name="close" label="Clore la note" accesskey="C" shape="lock"}
 				{elseif !count($existing_payments) && !count($items)}
-					<input type="submit" name="delete" value="Supprimer la note" />
+					{button type="submit" name="delete" label="Supprimer la note" accesskey="D" shape="delete"}
 				{elseif $current_tab.closed && !$pos_session.closed}
-					<input type="submit" name="reopen" value="Ré-ouvrir la note" />
+					{button type="submit" name="reopen" label="Ré-ouvrir la note" accesskey="C" shape="unlock"}
 				{elseif !$current_tab.closed}
-					<input type="button" name="reopen" value="Clore la note" disabled="disabled" title="La note ne peut être close, elle n'est pas soldée." />
+					{button type="submit" name="close" label="Clore la note" accesskey="C" shape="lock" disabled="disabled" title="La note ne peut être close, elle n'est pas soldée."}
 				{/if}
-				<input type="button" name="rename" value="Renommer" />
-				</form>
-				<form method="post" action="./pdf.php?id={$current_tab.id}" id="f_pdf">
-					<input type="submit" data-name="{if $current_tab.name}1{else}0{/if}" name="receipt" value="Reçu PDF" />
+					{button type="button" name="rename" label="Renommer" accesskey="R" shape="edit"}
 				</form>
 			</div>
 		</header>
@@ -149,7 +147,7 @@
 						{input type="text" label="Référence du paiement (numéro de chèque…)" name="reference"}
 					</dl>
 					<p class="submit">
-						{button type="submit" name="pay" label="Enregistrer le paiement" shape="right" class="main"}
+						{button type="submit" name="pay" label="Enregistrer le paiement" shape="right" class="main" accesskey="P"}
 					</p>
 				</fieldset>
 			</form>

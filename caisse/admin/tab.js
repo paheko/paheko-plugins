@@ -1,4 +1,4 @@
-var fr = document.querySelector('input[name="rename"]');
+var fr = document.querySelector('button[name="rename"]');
 
 
 var ur = $('#user_rename');
@@ -42,6 +42,11 @@ function selectUserRename (id, name) {
 }
 
 function navigateUserRename(e) {
+	if (e.key === 'Escape') {
+		closeUserRename();
+		return false;
+	}
+
 	if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') {
 		return true;
 	}
@@ -165,11 +170,3 @@ if (q) {
 
 	q.focus();
 }
-
-var pdf = document.getElementById('f_pdf');
-pdf.onsubmit = (e) => {
-	if (pdf.querySelector('input').getAttribute('data-name') == 0) {
-		alert("Merci de donner un nom à la note d'abord.");
-		return false;
-	}
-};
