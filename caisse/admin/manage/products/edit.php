@@ -1,6 +1,7 @@
 <?php
 
 namespace Paheko;
+use Paheko\Plugin\Caisse\Categories;
 use Paheko\Plugin\Caisse\Products;
 
 require __DIR__ . '/../_inc.php';
@@ -35,7 +36,7 @@ else {
 	}, $csrf_key, './');
 
 	$methods = $product->listPaymentMethods();
-	$categories = Products::listCategoriesAssoc();
+	$categories = Categories::listAssoc();
 
 	$tpl->assign(compact('methods', 'categories'));
 

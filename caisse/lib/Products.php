@@ -45,12 +45,6 @@ class Products
 		return new Entities\Product;
 	}
 
-	static public function listCategoriesAssoc(): array
-	{
-		$db = DB::getInstance();
-		return $db->getAssoc(POS::sql('SELECT id, name FROM @PREFIX_categories ORDER BY name;'));
-	}
-
 	static public function getStatsPerMonth(int $year): array
 	{
 		$sql = 'SELECT strftime(\'%m\', i.added) AS month, i.added AS date, i.category_name, SUM(i.qty * i.price) AS sum, SUM(i.qty) AS count

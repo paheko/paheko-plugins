@@ -23,4 +23,11 @@ class Categories
 	{
 		return EM::getInstance(Category::class)->all('SELECT * FROM @TABLE ORDER BY name;');
 	}
+
+	static public function listAssoc(): array
+	{
+		$db = DB::getInstance();
+		return $db->getAssoc(POS::sql('SELECT id, name FROM @PREFIX_categories ORDER BY name;'));
+	}
+
 }
