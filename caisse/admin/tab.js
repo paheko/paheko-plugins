@@ -132,7 +132,7 @@ document.querySelectorAll('button[data-ask-weight]').forEach((elm) => {
 	elm.onclick = (e) => {
 		var label = 'Saisir le poids (en kilogrammes) :';
 		var v = prompt(label, elm.value);
-		if (v === null) return false;
+		if (!v) return false;
 		elm.value = v;
 	};
 });
