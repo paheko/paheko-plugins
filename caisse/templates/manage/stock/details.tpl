@@ -4,10 +4,10 @@
 
 {if !$event.applied}
 <p class="help">
-	Sélectionner des produits à droite, puis indiquer {if $event.type == $event::TYPE_INVENTORY}leur stock actuel{else}le changement de stock à effectuer{/if} dans la colonne de gauche.
+	Sélectionner des produits à droite, puis indiquer {if $event.type == $event::TYPE_INVENTORY}leur stock actuel{else}le changement de stock à effectuer{/if} dans la colonne de gauche.<br />
 
-	Terminer en appliquant les changements. Une fois les changements appliqués, il n'est plus possible de modifier les quantités.<br />
-	Note : seuls les produits dont le stock n'est pas illimité sont affichés.
+	Terminer en appliquant les changements. Une fois les changements appliqués, il n'est plus possible de modifier les quantités.<br /><br />
+	Note : seuls sont affichés les produits dont le champ &quot;stock&quot; n'est pas vide.
 </p>
 {/if}
 
@@ -24,7 +24,7 @@
 						<th>Produit</th>
 						<td>Stock enregistré</td>
 						<td>{if $event.type == $event::TYPE_INVENTORY}Stock inventorié{else}Changement de stock{/if}</td>
-						<td>En valeur</td>
+						<td>Valeur d'achat</td>
 						<td></td>
 					</tr>
 				</thead>
@@ -75,7 +75,7 @@
 
 	{if !$event.applied}
 	<section class="products">
-		<input type="text" name="q" placeholder="Recherche rapide" />
+		<input type="text" name="q" placeholder="Recherche rapide" autofocus />
 		<form method="post" action="">
 		{foreach from=$products_categories key="category" item="products"}
 			<section>

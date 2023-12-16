@@ -68,6 +68,10 @@ input[name="q"] {
 	line-height: 1rem;
 }
 
+.pos .list thead td {
+	text-align: center;
+}
+
 .list small.cat {
 	font-size: 7pt;
 	font-weight: normal;
