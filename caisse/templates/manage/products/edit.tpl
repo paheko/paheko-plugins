@@ -38,7 +38,7 @@
 			{input type="textarea" name="description" label="Description" source=$product}
 			{input type="money" name="price" label="Prix unitaire" source=$product required=true help="Indiquer un montant négatif pour une sortie de la caisse (par exemple un remboursement)."}
 			{input type="number" name="qty" label="Quantité" help="Quantité par défaut quand le produit est ajouté à une note" source=$product required=true}
-			{input type="text" name="code" label="Numéro de code barre" required=false source=$product}
+			{input type="text" name="code" label="Numéro de code barre" required=false source=$product help="Si ce champ est rempli avec le code barre à 13 chiffres du produit, il sera possible d'utiliser ce code barre pour retrouver un produit lors de l'encaissement. Cela permet également d'utiliser une douchette."}
 			<?=$product->getSVGBarcode();?>
 			{input type="number" name="stock" label="Stock" help="Nombre de produits dans le stock à cet instant. Celui-ci sera décrémenté à chaque clôture de caisse. Ne modifier que si vous faites un inventaire. Laisser vide pour les produits non-stockables (adhésions, services, etc.)." source=$product}
 			{input type="money" name="purchase_price" label="Prix d'achat unitaire" source=$product required=false help="Indiquer ici le prix d'achat, si le produit a été acheté. Ce prix est utilisé pour calculer la valeur du stock lors de l'inventaire."}

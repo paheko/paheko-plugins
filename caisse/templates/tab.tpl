@@ -189,7 +189,7 @@
 
 				<div>
 				{foreach from=$products item="product"}
-					<button name="add_item[{$product.id}]" {if $product.weight < 0}data-ask-weight="true"{/if} value="">
+					<button name="add_item[{$product.id}]" {if $product.weight < 0}data-ask-weight="true"{/if} data-code="{$product.code}" value="">
 						<h3>{$product.name}</h3>
 						<h4>{$product.price|escape|money_currency}</h4>
 						{if $product.image}

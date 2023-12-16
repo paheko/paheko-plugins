@@ -97,7 +97,7 @@ function completeUserName(list) {
 
 ur_input.onkeyup = (e) => {
 	window.clearTimeout(ur_timeout);
-	ur_timeout = window.setTimeout(completeUserName, 300);
+	ur_timeout = window.setTimeout(completeUserName, 200);
 	return true;
 };
 
@@ -162,20 +162,50 @@ function normalizeString(str) {
 }
 
 if (q) {
+	var q_timeout;
+
 	q.onkeyup = (e) => {
+		window.clearTimeout(q_timeout);
+		q_timeout = window.setTimeout(searchProduct, 150);
+		return true;
+	};
+
+	function searchProduct() {
 		var search = new RegExp(RegExp.escape(normalizeString(q.value)), 'i');
+		var code = q.value.replace(/\s/, '');
 
-		document.querySelectorAll('.products button h3').forEach((elm) => {
-			if (normalizeString(elm.innerText).match(search)) {
-				elm.parentNode.hidden = false;
-			}
-			else {
-				elm.parentNode.hidden = true;
-			}
+		// Try to match barcodes
+		if (code.match(/^\d+$/)) {
+			search = new RegExp(RegExp.escape(q.value));
 
-			// Apparently hidden does not work with <button>
-			elm.parentNode.style.display = elm.parentNode.hidden ? 'none' : null;
-		});
+			document.querySelectorAll('.products button').forEach((elm) => {
+				if (elm.hasAttribute('data-code') && elm.dataset.code.match(search)) {
+					if (code.length === 13) {
+						elm.click();
+					}
+					elm.hidden = false;
+				}
+				else {
+					elm.hidden = true;
+				}
+
+				// Apparently hidden does not work with <button>
+				elm.style.display = elm.hidden ? 'none' : null;
+			});
+		}
+		else {
+			document.querySelectorAll('.products button h3').forEach((elm) => {
+				if (normalizeString(elm.innerText).match(search)) {
+					elm.parentNode.hidden = false;
+				}
+				else {
+					elm.parentNode.hidden = true;
+				}
+
+				// Apparently hidden does not work with <button>
+				elm.parentNode.style.display = elm.parentNode.hidden ? 'none' : null;
+			});
+		}
 
 		// Also hide complete sections if nothing matches
 		document.querySelectorAll('.products section').forEach((s) => {
@@ -186,7 +216,7 @@ if (q) {
 				s.style.display = null;
 			}
 		});
-	};
+	}
 
 	q.focus();
 }
