@@ -182,13 +182,23 @@
 	{if !$current_tab.closed}
 	<section class="products">
 		<input type="text" name="q" placeholder="Recherche rapide" />
+		<ul>
+			<li {if !$selected_cat} class="current"{/if}><a href="?id={$tab.id}" data-cat=""><strong>Tout afficher</strong></a></li>
+			<?php $h = -45; ?>
+			{foreach from=$products_categories item="cat"}
+				<?php $h += 30; if ($h > 360) $h = 0; ?>
+				<li {if $selected_cat == $cat.id} class="current"{/if} style="--cat-hue: {$h};"><a href="?id={$tab.id}" data-cat="{$cat.id}">{$cat.name}</a></li>
+			{/foreach}
+		</ul>
 		<form method="post" action="">
-		{foreach from=$products_categories key="category" item="products"}
-			<section>
-				<h2 class="ruler">{$category}</h2>
+		<?php $h = -45; ?>
+		{foreach from=$products_categories item="cat"}
+			<?php $h += 30; if ($h > 360) $h = 0; ?>
+			<section data-cat="{$cat.id}" {if $selected_cat && $selected_cat != $cat.id} class="hidden"{/if} style="--cat-hue: {$h};">
+				<h2 class="ruler">{$cat.name}</h2>
 
 				<div>
-				{foreach from=$products item="product"}
+				{foreach from=$cat.products item="product"}
 					<button name="add_item[{$product.id}]" {if $product.weight < 0}data-ask-weight="true"{/if} data-code="{$product.code}" value="">
 						<h3>{$product.name}</h3>
 						<h4>{$product.price|escape|money_currency}</h4>

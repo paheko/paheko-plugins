@@ -151,6 +151,7 @@ if (pm) {
 	toggleMethod();
 }
 
+// Quick search field
 var q = document.querySelector('input[name="q"]');
 
 RegExp.escape = function(string) {
@@ -220,3 +221,23 @@ if (q) {
 
 	q.focus();
 }
+
+
+$('.products ul li a').forEach((elm) => {
+	elm.onclick = () => {
+		elm.parentNode.parentNode.querySelector('.current').classList.remove('current');
+		elm.parentNode.classList.add('current');
+		q.focus();
+
+		if (!elm.dataset.cat) {
+			g.toggle('.products section', true);
+			history.replaceState( {} , 'foo', window.location.href.replace(/&cat=\d+|$/, ''));
+		}
+		else {
+			g.toggle('.products section', false);
+			g.toggle('.products section[data-cat="' + elm.dataset.cat + '"]', true);
+			history.replaceState( {} , 'foo', window.location.href.replace(/&cat=\d+|$/, '&cat=' + elm.dataset.cat));
+		}
+		return false;
+	};
+});

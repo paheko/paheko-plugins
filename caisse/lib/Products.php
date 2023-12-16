@@ -7,6 +7,35 @@ use KD2\DB\EntityManager as EM;
 
 class Products
 {
+	static public function listBuyableByCategory(): array
+	{
+		$db = DB::getInstance();
+		$sql = POS::sql('SELECT p.*, c.name AS category_name, c.id AS category_id
+			FROM @PREFIX_products p
+			INNER JOIN @PREFIX_products_methods pm ON pm.product = p.id INNER JOIN @PREFIX_methods m ON m.id = pm.method AND m.enabled = 1
+			INNER JOIN @PREFIX_categories c ON c.id = p.category
+			GROUP BY p.id ORDER BY category_name COLLATE U_NOCASE, name COLLATE U_NOCASE;');
+
+		$list = [];
+
+		foreach ($db->iterate($sql) as $product) {
+			$cat = $product->category_id;
+
+			if (!array_key_exists($cat, $list)) {
+				$list[$cat] = [
+					'id'       => $product->category_id,
+					'name'     => $product->category_name,
+					'products' => [],
+				];
+			}
+
+			$list[$cat]['products'][] = $product;
+		}
+
+		return $list;
+	}
+
+
 	static public function listByCategory(bool $only_with_payment = true, bool $only_stockable = false): array
 	{
 		$db = DB::getInstance();

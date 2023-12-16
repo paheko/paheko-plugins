@@ -82,7 +82,7 @@ $tabs = Tabs::listForSession($current_pos_session->id);
 $tpl->assign('pos_session', $current_pos_session);
 $tpl->assign('tab_id', $tab ? $tab->id : null);
 
-$tpl->assign('products_categories', Products::listByCategory());
+$tpl->assign('products_categories', Products::listBuyableByCategory());
 $tpl->assign('has_weight', Products::checkUserWeightIsRequired());
 $tpl->assign('tabs', $tabs);
 
@@ -93,6 +93,8 @@ if ($tab) {
 	$tpl->assign('remainder', $tab->getRemainder());
 	$tpl->assign('payment_options', $tab->listPaymentOptions());
 }
+
+$tpl->assign('selected_cat', qg('cat'));
 
 $tpl->assign('title', 'Caisse ouverte le ' . Utils::date_fr($current_pos_session->opened));
 $tpl->display(PLUGIN_ROOT . '/templates/tab.tpl');
