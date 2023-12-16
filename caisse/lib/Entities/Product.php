@@ -6,6 +6,7 @@ use Paheko\Plugin\Caisse\POS;
 use Paheko\Entity;
 use Paheko\Utils;
 use KD2\DB\EntityManager as EM;
+use KD2\Graphics\BarCode;
 
 class Product extends Entity
 {
@@ -16,15 +17,20 @@ class Product extends Entity
 	protected string $name = '';
 	protected ?string $description = null;
 	protected int $price = 0;
+	protected ?int $purchase_price = null;
 	protected int $qty = 1;
 	protected ?int $stock = null;
+	protected ?int $weight = null;
 	protected ?string $image = null;
+	protected ?string $code = null;
 
 	public function selfCheck(): void
 	{
 		$this->assert(trim($this->name) !== '', 'Le nom ne peut rester vide.');
 		$this->assert($this->price != 0, 'Le prix doit ne peut être égal à zéro.');
 		$this->assert($this->qty >= 0, 'La quantité doit être supérieure ou égale à zéro.');
+		$this->assert($this->weight === null || $this->weight === -1 || $this->weight > 0, 'Le poids doit être vide ou supérieur à zéro.');
+		$this->assert($this->purchase_price === null || $this->purchase_price > 0, 'Le prix d\'achat doit être vide ou supérieur à zéro.');
 
 		$this->assert((bool) EM::findOneById(Category::class, $this->category), 'Catégorie invalide');
 	}
@@ -48,7 +54,38 @@ class Product extends Entity
 			$source['price'] = Utils::moneyToInteger($source['price']);
 		}
 
+		if (isset($source['purchase_price'])) {
+			$source['purchase_price'] = Utils::moneyToInteger($source['purchase_price']) ?: null;
+		}
+
+		if (!empty($source['weight_required'])) {
+			$source['weight'] = -1;
+		}
+		elseif (isset($source['weight'])) {
+			$source['weight'] = Utils::weightToInteger($source['weight']);
+		}
+
+		if (!empty($source['code'])) {
+			$code = new BarCode($source['code']);
+
+			if (!$code->verify()) {
+				throw new ValidationException('Code barre invalide. Vérifiez s\'il ne manque pas un chiffre. Le code barre doit comporter 13 chiffres.');
+			}
+
+			$source['code'] = $code->get();
+		}
+
 		parent::importForm($source);
+	}
+
+	public function getSVGBarcode(): string
+	{
+		if (!$this->code) {
+			return '';
+		}
+
+		$code = new BarCode($this->code);
+		return $code->toSVG();
 	}
 
 	public function setMethods(array $methods)
@@ -79,5 +116,10 @@ class Product extends Entity
 			WHERE h.product = ? %s
 			ORDER BY h.date DESC;'), $events);
 		return $db->get($sql, $this->id());
+	}
+
+	public function getImagesPath(): string
+	{
+		return sprintf('p/public/%s/%d', 'caisse', $this->id());
 	}
 }

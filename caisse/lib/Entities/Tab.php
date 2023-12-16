@@ -7,6 +7,7 @@ use Paheko\UserException;
 
 use Paheko\Plugin\Caisse\POS;
 use Paheko\Entity;
+use Paheko\Utils;
 use Paheko\ValidationException;
 
 class Tab extends Entity
@@ -42,7 +43,7 @@ class Tab extends Entity
 			- COALESCE((SELECT SUM(amount) FROM @PREFIX_tabs_payments WHERE tab = ?), 0);'), $this->id, $this->id);
 	}
 
-	public function addItem(int $id)
+	public function addItem(int $id, string $user_weight = null)
 	{
 		if ($this->closed) {
 			throw new \LogicException('Cannot modify a closed tab');
@@ -54,11 +55,18 @@ class Tab extends Entity
 			INNER JOIN @PREFIX_categories c ON c.id = p.category
 			WHERE p.id = ?'), $id);
 
+		$weight = $product->weight;
+
+		if ($weight < 0) {
+			$weight = Utils::weightToInteger($user_weight);
+		}
+
 		return $db->insert(POS::tbl('tabs_items'), [
 			'tab'           => $this->id,
 			'product'       => (int)$product->id,
 			'qty'           => (int)$product->qty,
 			'price'         => (int)$product->price,
+			'weight'        => $weight,
 			'name'          => $product->name,
 			'category_name' => $product->category_name,
 			'description'   => $product->description,
@@ -87,11 +95,27 @@ class Tab extends Entity
 			sprintf('id = %d AND tab = %d', $id, $this->id));
 	}
 
+	public function updateItemWeight(int $id, string $weight)
+	{
+		if ($this->closed) {
+			throw new \LogicException('Cannot modify a closed tab');
+		}
+
+		$weight = Utils::weightToInteger($weight);
+
+		$db = DB::getInstance();
+		return $db->update(POS::tbl('tabs_items'),
+			['weight' => $weight],
+			sprintf('id = %d AND tab = %d', $id, $this->id));
+	}
+
 	public function updateItemPrice(int $id, int $price)
 	{
 		if ($this->closed) {
 			throw new \LogicException('Cannot modify a closed tab');
 		}
+
+		$price = Utils::moneyToInteger($price);
 
 		$db = DB::getInstance();
 		return $db->update(POS::tbl('tabs_items'),

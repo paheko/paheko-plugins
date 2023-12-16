@@ -13,10 +13,16 @@ CREATE TABLE IF NOT EXISTS @PREFIX_products (
 	name TEXT NOT NULL,
 	description TEXT NULL,
 	price INTEGER NOT NULL,
+	purchase_price INTEGER NULL,
 	qty INTEGER NOT NULL DEFAULT 1, -- Default quantity when adding to cart
 	stock INTEGER NULL, -- NULL if it's not subject to stock change (like a membership)
-	image BLOB NULL
+	weight INTEGER NULL,
+	image TEXT NULL,
+	code TEXT NULL
 );
+
+CREATE INDEX IF NOT EXISTS @PREFIX_products_category ON @PREFIX_products (category);
+CREATE INDEX IF NOT EXISTS @PREFIX_products_code ON @PREFIX_products (code);
 
 CREATE TABLE IF NOT EXISTS @PREFIX_products_stock_history (
 	-- History of stock changes for a product
@@ -25,7 +31,22 @@ CREATE TABLE IF NOT EXISTS @PREFIX_products_stock_history (
 	change INTEGER NOT NULL, -- Number of items removed or added to stock: can be negative or positive
 	date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Date of change
 	item INTEGER NULL REFERENCES @PREFIX_tabs_items (id) ON DELETE CASCADE, -- Link to item in a customer tab
-	event INTEGER NULL REFERENCES @PREFIX_stock_events (id) ON DELETE CASCADE -- Link to stock event
+	event INTEGER NULL REFERENCES @PREFIX_stock_events (id) ON DELETE CASCADE, -- Link to stock event
+	CHECK(item IS NOT NULL OR event IS NOT NULL)
+);
+
+CREATE TABLE IF NOT EXISTS plugin_pos_weight_changes_types (
+	id INTEGER NOT NULL PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS @PREFIX_categories_weight_history (
+	-- History of weight changes in a category
+	id INTEGER NOT NULL PRIMARY KEY,
+	category INTEGER NOT NULL REFERENCES @PREFIX_categories (id) ON DELETE CASCADE,
+	change INTEGER NULL,
+	date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Date of change
+	item INTEGER NULL REFERENCES @PREFIX_tabs_items (id) ON DELETE CASCADE, -- Link to item in a customer tab
+	type INTEGER NULL REFERENCES @PREFIX_weight_changes_types (id) ON DELETE CASCADE -- NULL = sale
 );
 
 CREATE TABLE IF NOT EXISTS @PREFIX_stock_events (
@@ -77,6 +98,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs (
 	closed TEXT NULL -- If NULL it is still open
 );
 
+CREATE INDEX IF NOT EXISTS @PREFIX_tabs_session ON @PREFIX_tabs (session);
+
 CREATE TABLE IF NOT EXISTS @PREFIX_tabs_items (
 	-- Items in a customer tab
 	id INTEGER NOT NULL PRIMARY KEY,
@@ -85,11 +108,14 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_items (
 	product INTEGER NULL REFERENCES @PREFIX_products (id) ON DELETE SET NULL,
 	qty INTEGER NOT NULL,
 	price INTEGER NOT NULL,
+	weight INTEGER NULL,
 	name TEXT NOT NULL,
 	category_name TEXT NOT NULL,
 	description TEXT NULL,
 	account TEXT NULL
 );
+
+CREATE INDEX IF NOT EXISTS @PREFIX_tabs_items_tab ON @PREFIX_tabs_items (tab);
 
 CREATE TABLE IF NOT EXISTS @PREFIX_tabs_payments (
 	-- Payments for a tab
@@ -101,6 +127,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_payments (
 	reference TEXT NULL,
 	account TEXT NULL
 );
+
+CREATE INDEX IF NOT EXISTS @PREFIX_tabs_payments_tab ON @PREFIX_tabs_payments (tab);
 
 CREATE TRIGGER IF NOT EXISTS @PREFIX_tabs_account1 AFTER UPDATE ON @PREFIX_methods WHEN OLD.account != NEW.account
 BEGIN

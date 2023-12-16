@@ -82,6 +82,16 @@ class Session extends Entity
 				WHERE s.closed IS NOT NULL AND ti.product IS NOT NULL AND s.id = ? AND p.stock IS NOT NULL
 				GROUP BY ti.id, ti.product;'), $this->id);
 
+		// Update weight
+		$db->preparedQuery(POS::sql('INSERT INTO @PREFIX_categories_weight_history (category, change, date, item, type)
+			SELECT p.category, -SUM(ti.qty * ti.weight), ti.added, ti.id, NULL
+				FROM @PREFIX_tabs_items ti
+				INNER JOIN @PREFIX_products p ON p.id = ti.product
+				INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
+				INNER JOIN @PREFIX_sessions s ON s.id = t.session
+				WHERE s.closed IS NOT NULL AND ti.product IS NOT NULL AND s.id = ? AND ti.weight IS NOT NULL
+				GROUP BY ti.id, ti.product;'), $this->id);
+
 		$select = sprintf('FROM @PREFIX_tabs_items ti
 			INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
 			WHERE ti.product = @PREFIX_products.id

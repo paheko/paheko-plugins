@@ -101,9 +101,20 @@ ur_input.onkeyup = (e) => {
 	return true;
 };
 
-document.querySelectorAll('input[name*="change_qty"], button[name*="change_price"]').forEach((elm) => {
+document.querySelectorAll('input[name*="change_qty"], button[name*="change_price"], button[name*="change_weight"]').forEach((elm) => {
+	var label;
+	if (elm.name.match('change_qty')) {
+		label = 'Saisir la quantité :';
+	}
+	else if (elm.name.match('change_weight')) {
+		label = 'Saisir le poids (en kilogrammes) :';
+	}
+	else {
+		label = 'Saisir le prix :'
+	}
+
 	elm.onclick = (e) => {
-		var v = prompt('?', elm.value);
+		var v = prompt(label, elm.value);
 		if (v === null) return false;
 		elm.value = v;
 	};
@@ -112,6 +123,15 @@ document.querySelectorAll('input[name*="change_qty"], button[name*="change_price
 document.querySelectorAll('button[name*="rename_item"]').forEach((elm) => {
 	elm.onclick = (e) => {
 		var v = prompt('Renommer ce produit :', elm.value);
+		if (v === null) return false;
+		elm.value = v;
+	};
+});
+
+document.querySelectorAll('button[data-ask-weight]').forEach((elm) => {
+	elm.onclick = (e) => {
+		var label = 'Saisir le poids (en kilogrammes) :';
+		var v = prompt(label, elm.value);
 		if (v === null) return false;
 		elm.value = v;
 	};

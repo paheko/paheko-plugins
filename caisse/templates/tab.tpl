@@ -65,6 +65,9 @@
 					<th></th>
 					<td>Qté</td>
 					<td>Prix</td>
+					{if $has_weight}
+					<td>Poids</td>
+					{/if}
 					<td class="money">Total</td>
 					<td></td>
 				</thead>
@@ -75,7 +78,18 @@
 						{if !$current_tab.closed}<button title="Cliquer pour renommer" type="submit" value="{$item.name}" name="rename_item[{$item.id}]">{icon shape="edit"}</button>{/if}
 					</th>
 					<td>{if !$current_tab.closed}<input type="submit" name="change_qty[{$item.id}]" value="{$item.qty}" title="Cliquer pour changer la quantité" />{else}{$item.qty}{/if}</td>
-					<td>{if !$current_tab.closed}<button type="submit" title="Cliquer pour changer le prix unitaire" name="change_price[{$item.id}]">{$item.price|escape|money_currency:false}</button>{else}{$item.price|raw|money_currency:false}{/if}</td>
+					<td class="money">{if !$current_tab.closed}<button type="submit" title="Cliquer pour changer le prix unitaire" name="change_price[{$item.id}]">{$item.price|escape|money_currency:false}</button>{else}{$item.price|raw|money_currency:false}{/if}</td>
+					{if $has_weight}
+						<td class="money">
+							{if !$current_tab.closed && $item.weight}
+								<button type="submit" title="Cliquer pour changer le poids" name="change_weight[{$item.id}]">
+									{$item.weight|format_weight:true:true}
+								</button>
+							{else}
+								{$item.weight|format_weight:false:true}
+							{/if}
+						</td>
+					{/if}
 					<td class="money">{$item.total|escape|money_currency:false}</td>
 					<td class="actions">
 						{if !$current_tab.closed}
@@ -90,6 +104,9 @@
 						<th>Total</th>
 						<td></td>
 						<td></td>
+						{if $has_weight}
+							<td></td>
+						{/if}
 						<td class="money">{$current_tab->total()|escape|money_currency:false}</td>
 						<td></td>
 					</tr>
@@ -97,6 +114,9 @@
 						<th>{if $remainder < 0}<span class="error">Reste à rembourser</span>{else}Reste à payer{/if}</th>
 						<td></td>
 						<td></td>
+						{if $has_weight}
+							<td></td>
+						{/if}
 						<td class="money">{$remainder|raw|money_currency:false}</td>
 						<td></td>
 					</tr>
@@ -169,11 +189,11 @@
 
 				<div>
 				{foreach from=$products item="product"}
-					<button name="add_item[{$product.id}]">
+					<button name="add_item[{$product.id}]" {if $product.weight < 0}data-ask-weight="true"{/if} value="">
 						<h3>{$product.name}</h3>
 						<h4>{$product.price|escape|money_currency}</h4>
 						{if $product.image}
-							<figure><img src="{$product.image|image_base64}" alt="" /></figure>
+							<figure>{*TODO*}</figure>
 						{/if}
 					</button>
 				{/foreach}
