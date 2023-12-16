@@ -11,7 +11,7 @@ class Products
 	{
 		$db = DB::getInstance();
 
-		$join = $only_with_payment ? 'INNER JOIN @PREFIX_products_methods m ON m.product = p.id' : '';
+		$join = $only_with_payment ? 'INNER JOIN @PREFIX_products_methods pm ON pm.product = p.id INNER JOIN @PREFIX_methods m ON m.id = pm.method AND m.enabled = 1' : '';
 		$where = $only_stockable ? 'AND p.stock IS NOT NULL' : '';
 
 		// Don't select products that don't have any payment method linked: you wouldn't be able to pay for them
@@ -24,6 +24,7 @@ class Products
 
 		foreach ($products as $product) {
 			$cat = $product->category_name;
+			$product->images_path = sprintf('p/public/%s/%d', 'caisse', $product->id);
 
 			if (!array_key_exists($cat, $list)) {
 				$list[$cat] = [];
@@ -108,5 +109,10 @@ class Products
 		unset($value);
 
 		return POS::plotGraph(null, $data);
+	}
+
+	static public function checkUserWeightIsRequired(): bool
+	{
+		return DB::getInstance()->test(POS::tbl('products'), 'weight < 0');
 	}
 }
