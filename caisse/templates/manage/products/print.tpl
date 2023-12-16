@@ -21,7 +21,7 @@
 	body {
 		font-family: Arial, Helvetica, sans-serif;
 		color: #000;
-		font-size: 10pt;
+		font-size: 9pt;
 		columns: 3;
 	}
 	h2 {
@@ -41,8 +41,10 @@
 	}
 
 	table th, table td {
-		padding: .2rem .3rem;
+		padding: .1rem .2rem;
 		text-align: left;
+		font-weight: normal;
+		break-inside: avoid;
 	}
 	table td {
 		border-left: 1px dotted #999;
