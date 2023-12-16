@@ -28,7 +28,7 @@
 					<td class="actions">
 						{linkbutton href="history.php?id=%d"|args:$product.id label="Historique" shape="calendar"}
 						{*linkbutton shape="image" href="!common/files/upload.php?p=%s"|args:$product.images_path target="_dialog" label="Photo"*}
-						{linkbutton href="edit.php?id=%d"|args:$product.id label="Modifier" shape="edit" target="_dialog"}
+						{linkbutton href="edit.php?id=%d"|args:$product.id label="Modifier" shape="edit"}
 						{linkbutton href="edit.php?id=%d&delete"|args:$product.id label="Supprimer" shape="delete" target="_dialog"}
 					</td>
 				</tr>
