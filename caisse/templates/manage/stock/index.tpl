@@ -39,7 +39,7 @@
 		<tr>
 			<th>Catégorie</th>
 			<td>Produits en stock</td>
-			<td class="money">Valeur des produits</td>
+			<td class="money">Valeur du stock</td>
 		</tr>
 	</thead>
 	<tbody>

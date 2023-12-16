@@ -27,7 +27,7 @@ class Stock
 	static public function listValue(): array
 	{
 		$db = EM::getInstance(StockEvent::class)->DB();
-		$list = $db->get(POS::sql('SELECT c.name AS label, COUNT(p.id) AS count, SUM(p.stock * p.price) AS value
+		$list = $db->get(POS::sql('SELECT c.name AS label, COUNT(p.id) AS count, SUM(p.stock * p.purchase_price) AS value
 			FROM @PREFIX_products p
 			INNER JOIN @PREFIX_categories c ON c.id = p.category
 			WHERE p.stock IS NOT NULL
