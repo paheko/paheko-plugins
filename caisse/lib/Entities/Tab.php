@@ -109,7 +109,7 @@ class Tab extends Entity
 			sprintf('id = %d AND tab = %d', $id, $this->id));
 	}
 
-	public function updateItemPrice(int $id, int $price)
+	public function updateItemPrice(int $id, string $price)
 	{
 		if ($this->closed) {
 			throw new \LogicException('Cannot modify a closed tab');
