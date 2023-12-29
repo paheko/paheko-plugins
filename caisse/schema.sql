@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS @PREFIX_products_stock_history (
 	CHECK(item IS NOT NULL OR event IS NOT NULL)
 );
 
-CREATE TABLE IF NOT EXISTS plugin_pos_weight_changes_types (
+CREATE TABLE IF NOT EXISTS @PREFIX_weight_changes_types (
 	id INTEGER NOT NULL PRIMARY KEY
 );
 
