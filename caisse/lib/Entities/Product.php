@@ -5,6 +5,7 @@ namespace Paheko\Plugin\Caisse\Entities;
 use Paheko\Plugin\Caisse\POS;
 use Paheko\Entity;
 use Paheko\Utils;
+use Paheko\ValidationException;
 use KD2\DB\EntityManager as EM;
 use KD2\Graphics\BarCode;
 
