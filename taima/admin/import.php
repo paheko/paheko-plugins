@@ -43,12 +43,13 @@ $form->runIf('load', function () use (&$session) {
 		throw new UserException('Fichier JSON invalide');
 	}
 
-	$required = ['Heures, en décimal', 'Catégorie', 'Bénévole', 'Date', 'Niveau', 'Projet', 'Titre', 'Description'];
-	$required = array_flip($required);
+	$required = ['Heures, en décimal', 'Catégorie', 'Date', 'Niveau', 'Projet', 'Titre', 'Description'];
 
 	foreach ($json as $l => $row) {
-		if (count(array_intersect_key($required, $row)) != count($required)) {
-			throw new UserException(sprintf('Ligne %d: un des champs est manquant.', $l+1));
+		foreach ($required as $name) {
+			if (!array_key_exists($name, $row)) {
+				throw new UserException(sprintf('Ligne %d: le champ "%s" est manquant.', $l+1, $name));
+			}
 		}
 	}
 
@@ -87,8 +88,10 @@ $form->runIf(f('preview') && $json && count($links), function () use ($json, &$a
 		$e->setDateString($row['Date']);
 		$e->duration = intval($row['Heures, en décimal'] * 60);
 
-		if ($id = $db->firstColumn(sprintf('SELECT id FROM users WHERE %s = ?;', $id_field), $row['Bénévole'])) {
-			$e->user_id = $id;
+		if (isset($row['Nom'], $row['Prénom'])) {
+			$a = $row['Nom'] . ' ' . $row['Prénom'];
+			$b = $row['Prénom'] . ' ' . $row['Nom'];
+			$e->user_id = $db->firstColumn(sprintf('SELECT id FROM users WHERE %s = ? OR %1$s = ?;', $id_field), $a, $b) ?: null;
 		}
 
 		if ($row['Projet'] && isset($links[$row['Projet']])) {
@@ -102,6 +105,11 @@ $form->runIf(f('preview') && $json && count($links), function () use ($json, &$a
 		}
 
 		$e->notes = ($row['Titre'] ?? '') . "\n" . ($row['Description'] ?? '');
+
+		if (!$e->user_id && isset($row['Nom'], $row['Prénom'])) {
+			$e->notes = sprintf("%s %s (%s)", $row['Nom'], $row['Prénom'], $row['Pseudo'] ?? '') . "\n" . $e->notes;
+		}
+
 		$e->notes = trim($e->notes);
 
 		if (empty($e->notes)) {

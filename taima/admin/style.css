@@ -170,12 +170,6 @@ a.start-timer, a.stop-timer {
 	animation: spinner 3s linear infinite;
 }
 
-#taimaEntryForm {
-	padding: 1em;
-	background: #fff;
-	border-radius: .5em;
-}
-
 @media screen and (max-width: 800px) {
 	.taima-weekdays {
 		display: block;

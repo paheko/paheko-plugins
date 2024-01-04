@@ -39,7 +39,8 @@
 					<input type="hidden" name="entries[duration][]" value="{$row.entry.duration}" />
 				</td>
 				<td>
-					{if $row.entry.user_id}{$row['Bénévole']}{else}Non trouvé<br /><small>({$row['Bénévole']})</small>{/if}
+					{if !$row.entry.user_id}<span class="error">Non trouvé :</span>{/if}
+					<?=htmlspecialchars(($row['Nom'] ?? '') . ' ' . ($row['Prénom'] ?? ''))?>
 					<input type="hidden" name="entries[user_id][]" value="{$row.entry.user_id}" />
 				</td>
 				<td>
