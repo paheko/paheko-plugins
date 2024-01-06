@@ -32,7 +32,7 @@
 				</th>
 				<td>
 					{$row.entry.date|date_short}
-					<input type="hidden" name="entries[date][]" value="{$row.entry.date|date_format:"%Y-%m-%d"}" />
+					<input type="hidden" name="entries[date][]" value="{$row.entry.date|date_short}" />
 				</td>
 				<td>
 					{$row.entry.duration|taima_minutes}
