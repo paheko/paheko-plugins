@@ -3,6 +3,7 @@
 namespace Paheko\Plugin\Caisse;
 
 use Paheko\DB;
+use Paheko\DynamicList;
 use KD2\DB\EntityManager as EM;
 
 class Products
@@ -75,69 +76,59 @@ class Products
 		return new Entities\Product;
 	}
 
-	static public function getStatsPerMonth(int $year): array
+	static public function listSalesPerMonth(int $year): DynamicList
 	{
-		$sql = 'SELECT strftime(\'%m\', i.added) AS month, i.added AS date, i.category_name, SUM(i.qty * i.price) AS sum, SUM(i.qty) AS count
-			FROM @PREFIX_tabs_items i
-			WHERE strftime(\'%Y\', i.added) = ? AND i.price > 0
-			GROUP BY strftime(\'%m\', i.added), i.category_name
-			ORDER BY month, i.category_name;';
-		$sql = POS::sql($sql);
+		$columns = [
+			'month' => [
+				'label' => 'Mois',
+				'select' => 'strftime(\'%Y-%m-01\', i.added)',
+				'order' => 'i.added %s, i.name %1$s',
+			],
+			'name' => [
+				'label' => 'Produit',
+				'select' => 'i.name',
+			],
+			'count' => [
+				'label' => 'Nombres de ventes',
+				'select' => 'SUM(i.qty)',
+			],
+			'sum' => [
+				'label' => 'Montant total',
+				'select' => 'SUM(i.qty * i.price)',
+			],
+		];
 
-		return DB::getInstance()->get($sql, (string) $year);
+		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price > 0');
+		$list->groupBy('strftime(\'%Y-%m\', i.added), i.product');
+		$list->orderBy('count', true);
+		$list->setParameter('year', (string)$year);
+		$list->setTitle(sprintf('Ventes %d, par mois et par produit', $year));
+		return $list;
 	}
 
-	static public function graphStatsPerMonth(int $year): string
+	static public function listSales(int $year): DynamicList
 	{
-		$sql = 'SELECT * FROM (
-			SELECT i.category_name AS name, CAST(strftime(\'%m\', i.added) AS INT) AS month, SUM(i.qty * i.price) / 100
-			FROM @PREFIX_tabs_items i
-			WHERE strftime(\'%Y\', i.added) = ? AND i.price > 0
-			GROUP BY strftime(\'%m\', i.added), i.category_name
-			UNION ALL
-			SELECT \'Total\' AS name, CAST(strftime(\'%m\', i.added) AS INT) AS month, SUM(i.qty * i.price) / 100
-			FROM @PREFIX_tabs_items i
-			WHERE strftime(\'%Y\', i.added) = ? AND i.price > 0
-			GROUP BY strftime(\'%m\', i.added)
-			)
-			ORDER BY name = \'Total\' DESC, name, month;';
-		$sql = POS::sql($sql);
+		$columns = [
+			'name' => [
+				'label' => 'Produit',
+				'select' => 'i.name',
+			],
+			'count' => [
+				'label' => 'Nombres de ventes',
+				'select' => 'SUM(i.qty)',
+			],
+			'sum' => [
+				'label' => 'Montant total',
+				'select' => 'SUM(i.qty * i.price)',
+			],
+		];
 
-		$data = DB::getInstance()->getAssocMulti($sql, (string) $year, (string)$year);
-		$empty = array_fill(1, 12, 0);
-
-		foreach ($data as $key => &$value) {
-			$value = array_replace($empty, $value);
-		}
-
-		unset($value);
-
-		return POS::plotGraph(null, $data);
-	}
-
-	static public function graphStatsQtyPerMonth(int $year): string
-	{
-		$sql = 'SELECT * FROM (
-			SELECT i.category_name AS name, CAST(strftime(\'%m\', i.added) AS INT) AS month,  SUM(i.qty)
-			FROM @PREFIX_tabs_items i
-			WHERE strftime(\'%Y\', i.added) = ?
-			GROUP BY strftime(\'%m\', i.added), i.category_name
-			UNION ALL
-			SELECT \'\' AS name, 1 AS month, 0
-			)
-			ORDER BY name = \'\' DESC, name, month;';
-		$sql = POS::sql($sql);
-
-		$data = DB::getInstance()->getAssocMulti($sql, (string) $year);
-		$empty = array_fill(1, 12, 0);
-
-		foreach ($data as $key => &$value) {
-			$value = array_replace($empty, $value);
-		}
-
-		unset($value);
-
-		return POS::plotGraph(null, $data);
+		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price > 0');
+		$list->groupBy('i.product');
+		$list->orderBy('count', true);
+		$list->setParameter('year', (string)$year);
+		$list->setTitle(sprintf('Ventes %d, par produit', $year));
+		return $list;
 	}
 
 	static public function checkUserWeightIsRequired(): bool

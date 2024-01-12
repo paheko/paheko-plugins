@@ -1,9 +1,10 @@
 <?php
 
 namespace Paheko;
+use Paheko\Plugin\Caisse\Categories;
 use Paheko\Plugin\Caisse\Methods;
-use Paheko\Plugin\Caisse\Sessions;
 use Paheko\Plugin\Caisse\Products;
+use Paheko\Plugin\Caisse\Sessions;
 
 require __DIR__ . '/_inc.php';
 
@@ -18,18 +19,39 @@ if ($year) {
 	}
 	elseif ($graph == 'categories') {
 		header('Content-Type: image/svg+xml');
-		echo Products::graphStatsPerMonth($year);
+		echo Categories::graphStatsPerMonth($year);
 		exit;
 	}
 	elseif ($graph == 'categories_qty') {
 		header('Content-Type: image/svg+xml');
-		echo Products::graphStatsQtyPerMonth($year);
+		echo Categories::graphStatsQtyPerMonth($year);
 		exit;
 	}
 
-	$tpl->assign('methods_per_month', Methods::getStatsPerMonth($year));
-	$tpl->assign('methods_out_per_month', Methods::getStatsPerMonth($year, true));
-	$tpl->assign('categories_per_month', Products::getStatsPerMonth($year));
+	$page = qg('page');
+	$list = null;
+
+	if ($page === 'methods_in') {
+		$list = Methods::listSalesPerMonth($year);
+	}
+	elseif ($page === 'methods_out') {
+		$list = Methods::listExitsPerMonth($year);
+	}
+	elseif ($page === 'sales_categories') {
+		$list = Categories::listSalesPerMonth($year);
+	}
+	elseif ($page === 'sales_products_month') {
+		$list = Products::listSalesPerMonth($year);
+	}
+	elseif ($page === 'sales_products_year') {
+		$list = Products::listSales($year);
+	}
+
+	if ($list) {
+		$list->loadFromQueryString();
+	}
+
+	$tpl->assign(compact('page', 'list'));
 }
 else {
 	$tpl->assign('years', Sessions::listYears());

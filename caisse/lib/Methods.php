@@ -2,9 +2,10 @@
 
 namespace Paheko\Plugin\Caisse;
 
-use Paheko\DB;
-use Paheko\Utils;
 use Paheko\Config;
+use Paheko\DB;
+use Paheko\DynamicList;
+use Paheko\Utils;
 use KD2\DB\EntityManager as EM;
 
 use Paheko\Plugin\Caisse\Entities\Method;
@@ -28,24 +29,44 @@ class Methods
 		return EM::getInstance(Method::class)->all('SELECT * FROM @TABLE ORDER BY name;');
 	}
 
-	static public function getStatsPerMonth(?int $year = null, bool $cash_out = false): array
+	static public function listSalesPerMonth(int $year): DynamicList
 	{
-		$sql = 'SELECT strftime(\'%%Y-%%m\', p.date) AS month, date, m.name AS method, COUNT(p.id) AS count, SUM(amount) AS sum
-			FROM @PREFIX_tabs_payments p
-			INNER JOIN @PREFIX_methods m ON m.id = p.method
-			WHERE 1 %s %s
-			GROUP BY strftime(\'%%Y-%%m\', p.date), m.id
-			ORDER BY month, m.name;';
-		$sql = sprintf($sql, $year ? 'AND strftime(\'%Y\', p.date) = ?' : '', $cash_out ? 'AND amount < 0' : 'AND amount > 0');
-		$sql = POS::sql($sql);
+		$columns = [
+			'month' => [
+				'label' => 'Mois',
+				'select' => 'strftime(\'%Y-%m-01\', p.date)',
+				'order' => 'p.date %s, m.name %1$s',
+			],
+			'method' => [
+				'label' => 'Méthode',
+				'select' => 'm.name',
+			],
+			'count' => [
+				'label' => 'Nombres de paiements',
+				'select' => 'COUNT(p.id)',
+			],
+			'sum' => [
+				'label' => 'Montant total',
+				'select' => 'SUM(amount)',
+			],
+		];
 
-		$args = [];
+		$tables = '@PREFIX_tabs_payments p INNER JOIN @PREFIX_methods m ON m.id = p.method';
 
-		if ($year) {
-			$args[] = (string)$year;
-		}
+		$list = POS::DynamicList($columns, $tables, 'strftime(\'%Y\', p.date) = :year AND amount > 0');
+		$list->groupBy('strftime(\'%Y-%m\', p.date), m.id');
+		$list->orderBy('month', false);
+		$list->setParameter('year', (string)$year);
+		$list->setTitle(sprintf('Paiements encaissés %d, par mois et par moyen de paiement', $year));
+		return $list;
+	}
 
-		return DB::getInstance()->get($sql, $args);
+	static public function listExitsPerMonth(int $year): DynamicList
+	{
+		$list = self::listSalesPerMonth($year);
+		$list->setConditions('strftime(\'%Y\', p.date) = :year AND amount < 0');
+		$list->setTitle(sprintf('Paiements décaissés %d, par mois et par moyen de paiement', $year));
+		return $list;
 	}
 
 	static public function graphStatsPerMonth(int $year): string
