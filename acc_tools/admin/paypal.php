@@ -2,6 +2,8 @@
 
 namespace Paheko;
 
+$csrf_key = 'paypal_csv';
+
 /*
 	Colonnes :
 	Date
@@ -128,6 +130,7 @@ $form->runIf('load', function() {
 
 	fclose($fp);
 	exit;
-});
+}, $csrf_key);
 
+$tpl->assign(compact('csrf_key'));
 $tpl->display(PLUGIN_ROOT . '/templates/paypal.tpl');
