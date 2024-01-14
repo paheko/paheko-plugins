@@ -97,8 +97,13 @@ if ($header) {
 	unset($header['date'], $header['amount'], $header['label'], $header['debit'], $header['credit'], $header['debit_account'], $header['credit_account']);
 }
 
-$hide_empty = (bool)qg('hide');
+$show_options = [
+	'all'       => 'Afficher toutes les lignes',
+	'empty'     => 'Seulement les lignes sans affectation',
+	'not_empty' => 'Seulement les lignes affectées',
+];
+$show = qg('show') ?: 'all';
 
-$tpl->assign(compact('csv', 'lines', 'csrf_key', 'header', 'hide_empty'));
+$tpl->assign(compact('csv', 'lines', 'csrf_key', 'header', 'show', 'show_options'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/affectation.tpl');

@@ -24,14 +24,12 @@
 		Une fois que vous êtes satisfait du résultat, exportez le fichier en CSV pour pouvoir l'importer en tant qu'import simple dans la comptabilité.
 	</p>
 
-	<p class="actions-spaced">
-		{if $hide_empty}
-			{linkbutton shape="eye" label="Afficher les colonnes sans affectation" href="?"}
-		{else}
-			{linkbutton shape="eye-off" label="Cacher les colonnes sans affectation" href="?hide=1"}
-		{/if}
-		{exportmenu table=true}
-	</p>
+	<form method="get" action="">
+		<p class="actions-spaced">
+			{input type="select" name="show" options=$show_options default=$show required=true onchange="this.form.submit();"}
+			{exportmenu table=true}
+		</p>
+	</form>
 	<table class="list">
 		<thead>
 			<tr>
@@ -48,7 +46,7 @@
 		<tbody>
 			{foreach from=$lines item="row"}
 			<?php $empty = empty($row->debit_account) && empty($row->credit_account); ?>
-			{if $hide_empty && $empty}
+			{if ($show === 'empty' && !$empty) || ($show == 'not_empty' && $empty)}
 				{continue}
 			{/if}
 			<tr{if $empty} class="disabled"{/if}>
