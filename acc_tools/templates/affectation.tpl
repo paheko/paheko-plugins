@@ -27,7 +27,7 @@
 	<form method="get" action="">
 		<p class="actions-spaced">
 			{input type="select" name="show" options=$show_options default=$show required=true onchange="this.form.submit();"}
-			{exportmenu table=true}
+			{exportmenu table=true right=true}
 		</p>
 	</form>
 	<table class="list">
