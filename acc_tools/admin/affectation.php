@@ -73,7 +73,7 @@ $form->runIf($csv->ready(), function () use ($csv, $plugin, &$lines) {
 			elseif ($rule->only_if === 'negative' && $row->amount >= 0) {
 				continue;
 			}
-			elseif (!preg_match($rule->regexp, $row->label)) {
+			elseif (!preg_match($rule->regexp, $row->label . ' ' . ($row->notes ?? ''))) {
 				continue;
 			}
 
