@@ -71,6 +71,7 @@ $form->runIf('load', function() {
 		'object'      => 'Objet',
 		'from'        => 'De l\'adresse email',
 		'to'          => 'À l\'adresse email',
+		'currency'    => 'Devise',
 	];
 
 	// Création du CSV de sortie
@@ -83,6 +84,12 @@ $form->runIf('load', function() {
 
 	foreach (CSV::import($_FILES['csv']['tmp_name'], $columns, array_keys($columns)) as $row) {
 		$row = (object)$row;
+
+		// Ignore non-euro
+		if ($row->currency !== 'EUR') {
+			continue;
+		}
+
 		$label = [];
 
 		foreach ($label_keys as $k) {
