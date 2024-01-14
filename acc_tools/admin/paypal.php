@@ -90,6 +90,11 @@ $form->runIf('load', function() {
 			continue;
 		}
 
+		// Not sure what is this about
+		if (preg_match('/Suspension de compte pour autorisation en cours|Annulation de suspension de compte standard/i', $row->type)) {
+			continue;
+		}
+
 		$label = [];
 
 		foreach ($label_keys as $k) {
