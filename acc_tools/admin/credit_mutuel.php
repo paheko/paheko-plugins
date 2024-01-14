@@ -141,7 +141,7 @@ $form->runIf('load', function () use ($tabula_path) {
 	}
 
 	// Création du CSV de sortie
-	$fp = fopen('php://temp', 'w');
+	$fp = fopen('php://temp', 'w+');
 
 	fputcsv($fp, ['Numéro d\'écriture', 'Date', 'Libellé', 'Compte de débit', 'Compte de crédit', 'Montant', 'Numéro pièce comptable', 'Référence paiement', 'Notes']);
 

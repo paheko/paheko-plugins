@@ -14,6 +14,9 @@
 			<dt><a href="paypal.php">Conversion CSV PayPal</a></dt>
 			<dd>Permet de créer un fichier d'import simple pour Paheko avec un export CSV de PayPal.</dd>
 			<dd>Cet outil rajoute aussi automatiquement des écritures pour les commissions PayPal.</dd>
+			<dt><a href="mollie.php">Conversion tableau Mollie</a></dt>
+			<dd>Permet de créer un fichier d'import simple pour Paheko avec un copier-coller du tableau des règlements de Mollie.</dd>
+			<dd>Ajoute aussi les écritures de frais et de virement vers le compte bancaire.</dd>
 			{if $has_java}
 				<dt><a href="credit_mutuel.php">Conversion PDF &rarr; CSV Crédit Mutuel Grand Est</a></dt>
 				<dd>Permet de créer un fichier d'import simple pour Paheko avec un relevé de compte PDF du Crédit Mutuel Grand Est.</dd>

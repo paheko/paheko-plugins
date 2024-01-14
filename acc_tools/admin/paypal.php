@@ -75,7 +75,7 @@ $form->runIf('load', function() {
 	];
 
 	// Création du CSV de sortie
-	$fp = fopen('php://temp', 'w');
+	$fp = fopen('php://temp', 'w+');
 	$fees_sum = 0;
 	$notes_keys = ['object', 'invoice_ref', 'client_ref', 'notes', 'name', 'from', 'to'];
 	$label_keys = ['label', 'name', 'type'];
