@@ -47,8 +47,10 @@ $form->runIf('load', function () use ($columns) {
 		foreach (CSV::import($tmpfile, $columns, array_keys($columns)) as $row) {
 			$row = (object) $row;
 			$gross = preg_replace('/[^\d,]/', '', $row->gross);
-			$fees = preg_replace('/[^\d,]/', '', $row->fees);
 			$net = preg_replace('/[^\d,]/', '', $row->total);
+			$fees = Utils::moneyToInteger($row->fees) + Utils::moneyToInteger($row->deduced);
+			$fees = Utils::money_format($fees, ',', '');
+
 			$date = strtr($row->date, $months);
 			$date = \DateTime::createFromFormat('d F Y', $date);
 
