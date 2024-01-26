@@ -129,7 +129,7 @@ $form->runIf('load', function () use ($tabula_path) {
 
 			unset($cell);
 
-			if (empty($row[0])) {
+			if (empty($row[0]) && isset($out[$i - 1][2])) {
 				$out[$i - 1][2] .= PHP_EOL . $row[2];
 				continue;
 			}
