@@ -15,7 +15,7 @@ $csrf_key = 'print';
 
 $form->runIf('print', function () use ($tpl) {
 	$products = Products::listByCategory();
-	$selected = f('selected');
+	$selected = (array)f('selected');
 
 	foreach ($products as $cat => $list) {
 		if (!in_array($cat, $selected)) {
