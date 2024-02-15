@@ -89,8 +89,8 @@ $form->runIf(f('preview') && $json && count($links), function () use ($json, &$a
 		$e->duration = intval($row['Heures, en décimal'] * 60);
 
 		if (isset($row['Nom'], $row['Prénom'])) {
-			$a = $row['Nom'] . ' ' . $row['Prénom'];
-			$b = $row['Prénom'] . ' ' . $row['Nom'];
+			$a = trim($row['Nom'] . ' ' . $row['Prénom']);
+			$b = trim($row['Prénom'] . ' ' . $row['Nom']);
 			$e->user_id = $db->firstColumn(sprintf('SELECT id FROM users WHERE %s = ? OR %1$s = ?;', $id_field), $a, $b) ?: null;
 		}
 
@@ -107,7 +107,13 @@ $form->runIf(f('preview') && $json && count($links), function () use ($json, &$a
 		$e->notes = ($row['Titre'] ?? '') . "\n" . ($row['Description'] ?? '');
 
 		if (!$e->user_id && isset($row['Nom'], $row['Prénom'])) {
-			$e->notes = sprintf("%s %s (%s)", $row['Nom'], $row['Prénom'], $row['Pseudo'] ?? '') . "\n" . $e->notes;
+			$prefix = sprintf("%s %s", $row['Nom'], $row['Prénom']);
+
+			if (isset($row['Pseudo'])) {
+				$prefix .= sprintf('(%s)', $row['Pseudo']);
+			}
+
+			$e->notes = $prefix . "\n" . $e->notes;
 		}
 
 		$e->notes = trim($e->notes);
