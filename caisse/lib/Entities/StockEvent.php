@@ -84,7 +84,7 @@ class StockEvent extends Entity
 		$sql = POS::sql('SELECT
 			c.name AS category_name, p.name AS product_name, p.stock AS current_stock,
 			h.change AS change, p.id AS product_id,
-			SUM(p.price * h.change) AS value
+			SUM(p.purchase_price * h.change) AS value
 			FROM @PREFIX_products_stock_history h
 			LEFT JOIN @PREFIX_products p ON p.id = h.product
 			LEFT JOIN @PREFIX_categories c ON c.id = p.category

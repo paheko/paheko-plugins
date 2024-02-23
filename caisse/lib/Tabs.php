@@ -22,22 +22,27 @@ class Tabs
 
 	static public function listForUser(string $q): ?array
 	{
-		$user = current(self::searchMember($q));
+		$db = DB::getInstance();
+		$condition = 'name LIKE ? ESCAPE \'!\'';
+		$params = ['%' . $db->escapeLike($q, '!') . '%'];
 
-		if (!$user) {
-			return null;
+		foreach (self::searchUser($q) as $user) {
+			$condition .= ' OR user_id = ?';
+			$params[] = (int) $user->id;
+			break;
 		}
 
-		$id = $user->id;
+		$sql = sprintf(POS::sql('SELECT * FROM @PREFIX_tabs WHERE %s GROUP BY id ORDER BY opened DESC;'), $condition);
 
-		return DB::getInstance()->get(POS::sql('SELECT * FROM @PREFIX_tabs WHERE user_id = ? ORDER BY opened DESC;'), $id);
+		return $db->get($sql, ...$params);
 	}
 
-	static public function searchMember($q) {
+	static public function searchUser(string $q): \Generator
+	{
 		$db = DB::getInstance();
 		$operator = 'LIKE';
 		$id_field = DynamicFields::getNameFieldsSQL('u');
-		$number_field = 'u.' . $db->quoteIdentifier(DynamicFields::getLoginField());
+		$number_field = 'u.' . $db->quoteIdentifier(DynamicFields::getNumberField());
 		$email_field = 'u.' . $db->quoteIdentifier(DynamicFields::getFirstEmailField());
 
 		if (is_numeric(trim($q)))
@@ -64,15 +69,32 @@ class Tabs
 			$sql = sprintf('%s %s ?', $column, $operator);
 		}
 
-		$sql = sprintf('SELECT u.id, %s AS numero, %s AS email, %s AS identite,
-			MAX(su.expiry_date) AS expiry_date,
-			CASE WHEN su.expiry_date IS NULL THEN 0 WHEN su.expiry_date < date() THEN -1 WHEN su.expiry_date >= date() THEN 1 ELSE 0 END AS status
+		$sql = sprintf('SELECT u.id, %s AS number, %s AS email, %s AS name
 			FROM users u
-			LEFT JOIN services_users su ON su.id_user = u.id
 			WHERE %s
-			GROUP BY u.id
-			ORDER BY identite COLLATE U_NOCASE LIMIT 0, 7;', $number_field, $email_field, $id_field, $sql);
+			ORDER BY name COLLATE U_NOCASE LIMIT 0, 5;', $number_field, $email_field, $id_field, $sql);
 
-		return $db->get($sql, $q);
+		return $db->iterate($sql, $q);
+	}
+
+	static public function searchUserWithServices(string $q): \Generator
+	{
+		$db = DB::getInstance();
+		foreach (self::searchUser($q) as $u) {
+			$u->services = $db->get('SELECT
+					s.label,
+					su.expiry_date,
+					CASE
+						WHEN su.expiry_date IS NULL THEN 1
+						WHEN su.expiry_date < date() THEN -1
+						WHEN su.expiry_date >= date() THEN 1
+						ELSE 0
+					END AS status
+				FROM (SELECT *, MAX(expiry_date) AS expiry_date FROM services_users WHERE id_user = ? GROUP BY id_service) AS su
+				INNER JOIN services s ON su.id_service = s.id
+				WHERE s.end_date IS NULL OR s.end_date >= date()
+				ORDER BY status DESC, s.label COLLATE U_NOCASE;', (int) $u->id);
+			yield $u;
+		}
 	}
 }

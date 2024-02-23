@@ -14,17 +14,17 @@ class Velo extends Entity
 	const TABLE = 'plugin_stock_velos';
 
 	protected ?int $id = null;
-	protected int $etiquette;
+	protected ?int $etiquette = null;
 	protected ?string $bicycode = null;
 
 	protected string $source;
-	protected string $source_details;
+	protected ?string $source_details;
 
-	protected string $type;
-	protected string $roues;
-	protected string $genre;
-	protected string $couleur;
-	protected string $modele;
+	protected ?string $type;
+	protected ?string $roues;
+	protected ?string $genre;
+	protected ?string $couleur;
+	protected ?string $modele;
 	protected ?float $prix = null;
 
 	protected Date $date_entree;
@@ -131,7 +131,7 @@ class Velo extends Entity
     		return null;
     	}
 
-    	return Users::getNameFromNumber($this->source_details);
+    	return Users::getNameFromNumber((int)$this->source_details);
     }
 
     public function membre_sortie(): ?string
@@ -140,7 +140,7 @@ class Velo extends Entity
     		return null;
     	}
 
-    	return Users::getNameFromNumber($this->details_sortie);
+    	return Users::getNameFromNumber((int)$this->details_sortie);
     }
 
     public function membre_rachat(): ?string
@@ -150,7 +150,7 @@ class Velo extends Entity
     	}
 
     	$n = DB::getInstance()->firstColumn('SELECT details_sortie FROM plugin_stock_velos WHERE id = ?;', $this->source_details);
-    	return Users::getNameFromNumber($n);
+    	return Users::getNameFromNumber((int)$n);
     }
 
     public function get_buyback(): ?int

@@ -3,15 +3,45 @@
 namespace Paheko\Plugin\Caisse;
 
 use Paheko\DB;
+use Paheko\DynamicList;
 use KD2\DB\EntityManager as EM;
 
 class Products
 {
+	static public function listBuyableByCategory(): array
+	{
+		$db = DB::getInstance();
+		$sql = POS::sql('SELECT p.*, c.name AS category_name, c.id AS category_id
+			FROM @PREFIX_products p
+			INNER JOIN @PREFIX_products_methods pm ON pm.product = p.id INNER JOIN @PREFIX_methods m ON m.id = pm.method AND m.enabled = 1
+			INNER JOIN @PREFIX_categories c ON c.id = p.category
+			GROUP BY p.id ORDER BY category_name COLLATE U_NOCASE, name COLLATE U_NOCASE;');
+
+		$list = [];
+
+		foreach ($db->iterate($sql) as $product) {
+			$cat = $product->category_id;
+
+			if (!array_key_exists($cat, $list)) {
+				$list[$cat] = [
+					'id'       => $product->category_id,
+					'name'     => $product->category_name,
+					'products' => [],
+				];
+			}
+
+			$list[$cat]['products'][] = $product;
+		}
+
+		return $list;
+	}
+
+
 	static public function listByCategory(bool $only_with_payment = true, bool $only_stockable = false): array
 	{
 		$db = DB::getInstance();
 
-		$join = $only_with_payment ? 'INNER JOIN @PREFIX_products_methods m ON m.product = p.id' : '';
+		$join = $only_with_payment ? 'INNER JOIN @PREFIX_products_methods pm ON pm.product = p.id INNER JOIN @PREFIX_methods m ON m.id = pm.method AND m.enabled = 1' : '';
 		$where = $only_stockable ? 'AND p.stock IS NOT NULL' : '';
 
 		// Don't select products that don't have any payment method linked: you wouldn't be able to pay for them
@@ -24,6 +54,7 @@ class Products
 
 		foreach ($products as $product) {
 			$cat = $product->category_name;
+			$product->images_path = sprintf('p/public/%s/%d', 'caisse', $product->id);
 
 			if (!array_key_exists($cat, $list)) {
 				$list[$cat] = [];
@@ -45,74 +76,63 @@ class Products
 		return new Entities\Product;
 	}
 
-	static public function listCategoriesAssoc(): array
+	static public function listSalesPerMonth(int $year): DynamicList
 	{
-		$db = DB::getInstance();
-		return $db->getAssoc(POS::sql('SELECT id, name FROM @PREFIX_categories ORDER BY name;'));
+		$columns = [
+			'month' => [
+				'label' => 'Mois',
+				'select' => 'strftime(\'%Y-%m-01\', i.added)',
+				'order' => 'i.added %s, i.name %1$s',
+			],
+			'name' => [
+				'label' => 'Produit',
+				'select' => 'i.name',
+			],
+			'count' => [
+				'label' => 'Nombres de ventes',
+				'select' => 'SUM(i.qty)',
+			],
+			'sum' => [
+				'label' => 'Montant total',
+				'select' => 'SUM(i.qty * i.price)',
+			],
+		];
+
+		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price > 0');
+		$list->groupBy('strftime(\'%Y-%m\', i.added), i.product');
+		$list->orderBy('count', true);
+		$list->setParameter('year', (string)$year);
+		$list->setTitle(sprintf('Ventes %d, par mois et par produit', $year));
+		return $list;
 	}
 
-	static public function getStatsPerMonth(int $year): array
+	static public function listSales(int $year): DynamicList
 	{
-		$sql = 'SELECT strftime(\'%m\', i.added) AS month, i.added AS date, i.category_name, SUM(i.qty * i.price) AS sum, SUM(i.qty) AS count
-			FROM @PREFIX_tabs_items i
-			WHERE strftime(\'%Y\', i.added) = ? AND i.price > 0
-			GROUP BY strftime(\'%m\', i.added), i.category_name
-			ORDER BY month, i.category_name;';
-		$sql = POS::sql($sql);
+		$columns = [
+			'name' => [
+				'label' => 'Produit',
+				'select' => 'i.name',
+			],
+			'count' => [
+				'label' => 'Nombres de ventes',
+				'select' => 'SUM(i.qty)',
+			],
+			'sum' => [
+				'label' => 'Montant total',
+				'select' => 'SUM(i.qty * i.price)',
+			],
+		];
 
-		return DB::getInstance()->get($sql, (string) $year);
+		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price > 0');
+		$list->groupBy('i.product');
+		$list->orderBy('count', true);
+		$list->setParameter('year', (string)$year);
+		$list->setTitle(sprintf('Ventes %d, par produit', $year));
+		return $list;
 	}
 
-	static public function graphStatsPerMonth(int $year): string
+	static public function checkUserWeightIsRequired(): bool
 	{
-		$sql = 'SELECT * FROM (
-			SELECT i.category_name AS name, CAST(strftime(\'%m\', i.added) AS INT) AS month, SUM(i.qty * i.price) / 100
-			FROM @PREFIX_tabs_items i
-			WHERE strftime(\'%Y\', i.added) = ? AND i.price > 0
-			GROUP BY strftime(\'%m\', i.added), i.category_name
-			UNION ALL
-			SELECT \'Total\' AS name, CAST(strftime(\'%m\', i.added) AS INT) AS month, SUM(i.qty * i.price) / 100
-			FROM @PREFIX_tabs_items i
-			WHERE strftime(\'%Y\', i.added) = ? AND i.price > 0
-			GROUP BY strftime(\'%m\', i.added)
-			)
-			ORDER BY name = \'Total\' DESC, name, month;';
-		$sql = POS::sql($sql);
-
-		$data = DB::getInstance()->getAssocMulti($sql, (string) $year, (string)$year);
-		$empty = array_fill(1, 12, 0);
-
-		foreach ($data as $key => &$value) {
-			$value = array_replace($empty, $value);
-		}
-
-		unset($value);
-
-		return POS::plotGraph(null, $data);
-	}
-
-	static public function graphStatsQtyPerMonth(int $year): string
-	{
-		$sql = 'SELECT * FROM (
-			SELECT i.category_name AS name, CAST(strftime(\'%m\', i.added) AS INT) AS month,  SUM(i.qty)
-			FROM @PREFIX_tabs_items i
-			WHERE strftime(\'%Y\', i.added) = ?
-			GROUP BY strftime(\'%m\', i.added), i.category_name
-			UNION ALL
-			SELECT \'\' AS name, 1 AS month, 0
-			)
-			ORDER BY name = \'\' DESC, name, month;';
-		$sql = POS::sql($sql);
-
-		$data = DB::getInstance()->getAssocMulti($sql, (string) $year);
-		$empty = array_fill(1, 12, 0);
-
-		foreach ($data as $key => &$value) {
-			$value = array_replace($empty, $value);
-		}
-
-		unset($value);
-
-		return POS::plotGraph(null, $data);
+		return DB::getInstance()->test(POS::tbl('products'), 'weight < 0');
 	}
 }

@@ -76,3 +76,9 @@ if (version_compare($old_version, '0.6.3', '<')) {
 	$db->exec($sql);
 	$db->commitSchemaUpdate();
 }
+
+if (version_compare($old_version, '0.7.0', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.7.0.sql')));
+	$db->commitSchemaUpdate();
+}

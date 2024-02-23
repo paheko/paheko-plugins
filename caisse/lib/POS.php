@@ -3,7 +3,9 @@
 namespace Paheko\Plugin\Caisse;
 
 use Paheko\DB;
+use Paheko\DynamicList;
 use Paheko\UserException;
+use Paheko\Utils;
 use Paheko\Entities\Accounting\Line;
 use Paheko\Entities\Accounting\Transaction;
 use Paheko\Entities\Accounting\Year;
@@ -28,6 +30,16 @@ class POS
 	static public function tbl(string $table): string
 	{
 		return self::TABLES_PREFIX . $table;
+	}
+
+	static public function DynamicList(array $columns, string $tables, string $conditions = '1'): DynamicList
+	{
+		$list = new DynamicList($columns, self::sql($tables), $conditions);
+		$list->setExportCallback(function (&$row) {
+			$row->sum = Utils::money_format($row->sum, '.', '');
+		});
+		$list->setPagesize(null);
+		return $list;
 	}
 
 	static public function barGraph(?string $title, array $data): string

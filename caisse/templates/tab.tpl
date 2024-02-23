@@ -15,7 +15,7 @@
 	{foreach from=$tabs item="tab"}
 		<li class="tab {if $tab.id == $tab_id}current{/if} {if $tab.closed}closed{/if}">
 			<a href="{$self_url_no_qs}?id={$tab.id}">
-				{$tab.id}. {$tab.opened|date_format:"%H:%M"}
+				{$tab.id}. {$tab.opened|date_hour}
 				{if $tab.total} — {$tab.total|escape|money_currency}{/if}
 				{if $tab.name} — {$tab.name}{/if}
 			</a>
@@ -31,31 +31,29 @@
 			<div>
 				<h2>
 				{$current_tab.id}.
-				{$current_tab.opened|date_format:"%H:%M"}
+				{$current_tab.opened|date_hour}
 				{if $current_tab.closed}
-				&rarr; {$current_tab.closed|date_format:"%H:%M"}
+				&rarr; {$current_tab.closed|date_hour}
 				{/if}
 				</h2>
 				<h3>{$current_tab.name}</h3>
 			</div>
 			<div>
 				<form method="post">
+					{linkbutton title="Reçu" label=null shape="print" target="_dialog" href="./receipt.php?tab=%d"|args:$current_tab.id}
 				{if $current_tab.user_id}
 					{linkbutton href="!users/details.php?id=%d"|args:$current_tab.user_id label="" shape="user" target="_blank" title="Ouvrir la fiche membre"}
 				{/if}
 				{if !$remainder && !$current_tab.closed}
-					<input type="submit" name="close" value="Clore la note" />
+					{button type="submit" name="close" label="Clore la note" accesskey="C" shape="lock"}
 				{elseif !count($existing_payments) && !count($items)}
-					<input type="submit" name="delete" value="Supprimer la note" />
+					{button type="submit" name="delete" label="Supprimer la note" accesskey="D" shape="delete"}
 				{elseif $current_tab.closed && !$pos_session.closed}
-					<input type="submit" name="reopen" value="Ré-ouvrir la note" />
+					{button type="submit" name="reopen" label="Ré-ouvrir la note" accesskey="C" shape="unlock"}
 				{elseif !$current_tab.closed}
-					<input type="button" name="reopen" value="Clore la note" disabled="disabled" title="La note ne peut être close, elle n'est pas soldée." />
+					{button type="submit" name="close" label="Clore la note" accesskey="C" shape="lock" disabled="disabled" title="La note ne peut être close, elle n'est pas soldée."}
 				{/if}
-				<input type="button" name="rename" value="Renommer" />
-				</form>
-				<form method="post" action="./pdf.php?id={$current_tab.id}" id="f_pdf">
-					<input type="submit" data-name="{if $current_tab.name}1{else}0{/if}" name="receipt" value="Reçu PDF" />
+					{button type="button" name="rename" label="Renommer" accesskey="R" shape="edit"}
 				</form>
 			</div>
 		</header>
@@ -67,6 +65,9 @@
 					<th></th>
 					<td>Qté</td>
 					<td>Prix</td>
+					{if $has_weight}
+					<td>Poids</td>
+					{/if}
 					<td class="money">Total</td>
 					<td></td>
 				</thead>
@@ -77,7 +78,18 @@
 						{if !$current_tab.closed}<button title="Cliquer pour renommer" type="submit" value="{$item.name}" name="rename_item[{$item.id}]">{icon shape="edit"}</button>{/if}
 					</th>
 					<td>{if !$current_tab.closed}<input type="submit" name="change_qty[{$item.id}]" value="{$item.qty}" title="Cliquer pour changer la quantité" />{else}{$item.qty}{/if}</td>
-					<td>{if !$current_tab.closed}<button type="submit" title="Cliquer pour changer le prix unitaire" name="change_price[{$item.id}]">{$item.price|escape|money_currency:false}</button>{else}{$item.price|raw|money_currency:false}{/if}</td>
+					<td class="money">{if !$current_tab.closed}<button type="submit" title="Cliquer pour changer le prix unitaire" name="change_price[{$item.id}]">{$item.price|escape|money_currency:false}</button>{else}{$item.price|raw|money_currency:false}{/if}</td>
+					{if $has_weight}
+						<td class="money">
+							{if !$current_tab.closed && $item.weight}
+								<button type="submit" title="Cliquer pour changer le poids" name="change_weight[{$item.id}]">
+									{$item.weight|format_weight:true:true}
+								</button>
+							{else}
+								{$item.weight|format_weight:false:true}
+							{/if}
+						</td>
+					{/if}
 					<td class="money">{$item.total|escape|money_currency:false}</td>
 					<td class="actions">
 						{if !$current_tab.closed}
@@ -92,6 +104,9 @@
 						<th>Total</th>
 						<td></td>
 						<td></td>
+						{if $has_weight}
+							<td></td>
+						{/if}
 						<td class="money">{$current_tab->total()|escape|money_currency:false}</td>
 						<td></td>
 					</tr>
@@ -99,6 +114,9 @@
 						<th>{if $remainder < 0}<span class="error">Reste à rembourser</span>{else}Reste à payer{/if}</th>
 						<td></td>
 						<td></td>
+						{if $has_weight}
+							<td></td>
+						{/if}
 						<td class="money">{$remainder|raw|money_currency:false}</td>
 						<td></td>
 					</tr>
@@ -139,7 +157,7 @@
 						<dd>
 							<select name="method_id" id="f_method_id">
 								{foreach from=$payment_options item="method"}
-								<option value="{$method.id}" data-amount="{$method.amount|pos_amount}" data-iscash="{$method.is_cash}">{$method.name} (jusqu'à {$method.amount|escape|money_currency:false})</option>
+								<option value="{$method.id}" data-amount="{$method.amount|money_raw}" data-iscash="{$method.is_cash}">{$method.name} (jusqu'à {$method.amount|escape|money_currency:false})</option>
 								{/foreach}
 							</select>
 						</dd>
@@ -149,7 +167,7 @@
 						{input type="text" label="Référence du paiement (numéro de chèque…)" name="reference"}
 					</dl>
 					<p class="submit">
-						{button type="submit" name="pay" label="Enregistrer le paiement" shape="right" class="main"}
+						{button type="submit" name="pay" label="Enregistrer le paiement" shape="right" class="main" accesskey="P"}
 					</p>
 				</fieldset>
 			</form>
@@ -164,18 +182,28 @@
 	{if !$current_tab.closed}
 	<section class="products">
 		<input type="text" name="q" placeholder="Recherche rapide" />
+		<ul>
+			<li {if !$selected_cat} class="current"{/if}><a href="?id={$tab.id}" data-cat=""><strong>Tout afficher</strong></a></li>
+			<?php $h = -45; ?>
+			{foreach from=$products_categories item="cat"}
+				<?php $h += 30; if ($h > 360) $h = 0; ?>
+				<li {if $selected_cat == $cat.id} class="current"{/if} style="--cat-hue: {$h};"><a href="?id={$tab.id}" data-cat="{$cat.id}">{$cat.name}</a></li>
+			{/foreach}
+		</ul>
 		<form method="post" action="">
-		{foreach from=$products_categories key="category" item="products"}
-			<section>
-				<h2 class="ruler">{$category}</h2>
+		<?php $h = -45; ?>
+		{foreach from=$products_categories item="cat"}
+			<?php $h += 30; if ($h > 360) $h = 0; ?>
+			<section data-cat="{$cat.id}" {if $selected_cat && $selected_cat != $cat.id} class="hidden"{/if} style="--cat-hue: {$h};">
+				<h2 class="ruler">{$cat.name}</h2>
 
 				<div>
-				{foreach from=$products item="product"}
-					<button name="add_item[{$product.id}]">
+				{foreach from=$cat.products item="product"}
+					<button name="add_item[{$product.id}]" {if $product.weight < 0}data-ask-weight="true"{/if} data-code="{$product.code}" value="">
 						<h3>{$product.name}</h3>
 						<h4>{$product.price|escape|money_currency}</h4>
 						{if $product.image}
-							<figure><img src="{$product.image|image_base64}" alt="" /></figure>
+							<figure>{*TODO*}</figure>
 						{/if}
 					</button>
 				{/foreach}
@@ -194,8 +222,8 @@
 		<input type="hidden" name="rename_id" value="" />
 		<input type="text" name="rename_name" placeholder="Chercher un membre…" value="{$current_tab.name}" />
 	</form>
-	<ul>
-	</ul>
+	<div id="user_rename_list">
+	</div>
 </div>
 
 <script type="text/javascript" src="{$plugin_admin_url}tab.js" async="async"></script>

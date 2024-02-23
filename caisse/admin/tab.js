@@ -1,18 +1,22 @@
-var fr = document.querySelector('input[name="rename"]');
+var fr = document.querySelector('button[name="rename"]');
 
 
 var ur = $('#user_rename');
-var ur_input = $(' #user_rename input[type=text]')[0];
+var ur_input = $('#user_rename input[type=text]')[0];
 var ur_id = $('[name="rename_id"]')[0];
-var ur_list = $(' #user_rename ul')[0];
+var ur_list = $('#user_rename_list');
 var ur_list_template = '';
 var ur_timeout = null;
+var ur_current = null;
+var ur_keydown = null;
 
 if (fr) {
 	fr.onclick = function(e) {
 		g.toggle(' #user_rename', true);
 		ur_input.focus();
 		ur_input.select();
+
+		var ur_keydown = window.addEventListener('keydown', navigateUserRename);
 		return false;
 	}
 }
@@ -22,9 +26,10 @@ ur.onclick = (e) => {
 };
 
 function closeUserRename () {
+	window.removeEventListener('keydown', ur_keydown);
 	g.toggle(' #user_rename', false);
 	ur_input.value = '';
-	$(' #user_rename ul')[0].innerHTML = '';
+	$('#user_rename_list').innerHTML = '';
 	return false;
 }
 
@@ -36,25 +41,80 @@ function selectUserRename (id, name) {
 	return false;
 }
 
+function navigateUserRename(e) {
+	if (e.key === 'Escape') {
+		closeUserRename();
+		return false;
+	}
+
+	if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') {
+		return true;
+	}
+
+	var first = ur_list.querySelector('button');
+
+	if (!first) {
+		return true;
+	}
+
+	var last = ur_list.querySelector('button:last-child');
+
+	if (e.key === 'ArrowDown') {
+		ur_current = ur_current ? ur_current.nextElementSibling : first;
+	}
+	else {
+		ur_current = ur_current ? ur_current.previousElementSibling : last;
+	}
+
+	if (ur_current) {
+		ur_current.focus();
+	}
+	else {
+		ur_input.focus();
+		ur_input.select();
+	}
+
+	e.preventDefault();
+	return false;
+}
+
 function completeUserName(list) {
 	var v = ur_input.value.replace(/^\s+|\s+$/g, '');
 
-	if (!v.match(/^\d+$/) && v.length < 3) return false;
+	if (!v.match(/^\d+$/) && v.length < 3) {
+		return false;
+	}
 
 	fetch(g.admin_url + 'p/caisse/_member_search.php?q=' + encodeURIComponent(v))
 		.then(response => response.text())
-		.then(list => ur_list.innerHTML = list );
+		.then(list => {
+			ur_list.innerHTML = list;
+			ur_list.querySelectorAll('button').forEach(btn => btn.onclick = (e) => {
+				selectUserRename(btn.dataset.id, btn.dataset.name);
+			});
+		});
 }
 
 ur_input.onkeyup = (e) => {
 	window.clearTimeout(ur_timeout);
-	ur_timeout = window.setTimeout(completeUserName, 300);
-	return false;
+	ur_timeout = window.setTimeout(completeUserName, 200);
+	return true;
 };
 
-document.querySelectorAll('input[name*="change_qty"], button[name*="change_price"]').forEach((elm) => {
+document.querySelectorAll('input[name*="change_qty"], button[name*="change_price"], button[name*="change_weight"]').forEach((elm) => {
+	var label;
+	if (elm.name.match('change_qty')) {
+		label = 'Saisir la quantité :';
+	}
+	else if (elm.name.match('change_weight')) {
+		label = 'Saisir le poids (en kilogrammes) :';
+	}
+	else {
+		label = 'Saisir le prix :'
+	}
+
 	elm.onclick = (e) => {
-		var v = prompt('?', elm.value);
+		var v = prompt(label, elm.value);
 		if (v === null) return false;
 		elm.value = v;
 	};
@@ -64,6 +124,15 @@ document.querySelectorAll('button[name*="rename_item"]').forEach((elm) => {
 	elm.onclick = (e) => {
 		var v = prompt('Renommer ce produit :', elm.value);
 		if (v === null) return false;
+		elm.value = v;
+	};
+});
+
+document.querySelectorAll('button[data-ask-weight]').forEach((elm) => {
+	elm.onclick = (e) => {
+		var label = 'Saisir le poids (en kilogrammes) :';
+		var v = prompt(label, elm.value);
+		if (!v) return false;
 		elm.value = v;
 	};
 });
@@ -82,6 +151,7 @@ if (pm) {
 	toggleMethod();
 }
 
+// Quick search field
 var q = document.querySelector('input[name="q"]');
 
 RegExp.escape = function(string) {
@@ -93,20 +163,50 @@ function normalizeString(str) {
 }
 
 if (q) {
+	var q_timeout;
+
 	q.onkeyup = (e) => {
+		window.clearTimeout(q_timeout);
+		q_timeout = window.setTimeout(searchProduct, 150);
+		return true;
+	};
+
+	function searchProduct() {
 		var search = new RegExp(RegExp.escape(normalizeString(q.value)), 'i');
+		var code = q.value.replace(/\s/, '');
 
-		document.querySelectorAll('.products button h3').forEach((elm) => {
-			if (normalizeString(elm.innerText).match(search)) {
-				elm.parentNode.hidden = false;
-			}
-			else {
-				elm.parentNode.hidden = true;
-			}
+		// Try to match barcodes
+		if (code.match(/^\d+$/)) {
+			search = new RegExp(RegExp.escape(q.value));
 
-			// Apparently hidden does not work with <button>
-			elm.parentNode.style.display = elm.parentNode.hidden ? 'none' : null;
-		});
+			document.querySelectorAll('.products button').forEach((elm) => {
+				if (elm.hasAttribute('data-code') && elm.dataset.code.match(search)) {
+					if (code.length === 13) {
+						elm.click();
+					}
+					elm.hidden = false;
+				}
+				else {
+					elm.hidden = true;
+				}
+
+				// Apparently hidden does not work with <button>
+				elm.style.display = elm.hidden ? 'none' : null;
+			});
+		}
+		else {
+			document.querySelectorAll('.products button h3').forEach((elm) => {
+				if (normalizeString(elm.innerText).match(search)) {
+					elm.parentNode.hidden = false;
+				}
+				else {
+					elm.parentNode.hidden = true;
+				}
+
+				// Apparently hidden does not work with <button>
+				elm.parentNode.style.display = elm.parentNode.hidden ? 'none' : null;
+			});
+		}
 
 		// Also hide complete sections if nothing matches
 		document.querySelectorAll('.products section').forEach((s) => {
@@ -117,15 +217,27 @@ if (q) {
 				s.style.display = null;
 			}
 		});
-	};
+	}
 
 	q.focus();
 }
 
-var pdf = document.getElementById('f_pdf');
-pdf.onsubmit = (e) => {
-	if (pdf.querySelector('input').getAttribute('data-name') == 0) {
-		alert("Merci de donner un nom à la note d'abord.");
+
+$('.products ul li a').forEach((elm) => {
+	elm.onclick = () => {
+		elm.parentNode.parentNode.querySelector('.current').classList.remove('current');
+		elm.parentNode.classList.add('current');
+		q.focus();
+
+		if (!elm.dataset.cat) {
+			g.toggle('.products section', true);
+			history.replaceState( {} , 'foo', window.location.href.replace(/&cat=\d+|$/, ''));
+		}
+		else {
+			g.toggle('.products section', false);
+			g.toggle('.products section[data-cat="' + elm.dataset.cat + '"]', true);
+			history.replaceState( {} , 'foo', window.location.href.replace(/&cat=\d+|$/, '&cat=' + elm.dataset.cat));
+		}
 		return false;
-	}
-};
+	};
+});

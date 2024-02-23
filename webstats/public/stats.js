@@ -8,7 +8,7 @@
 	}
 
 	const is_new_visitor = !/__visitor/.test(document.cookie);
-	const is_mobile = /Mobile|iPhone|Android|Opera Mobi|Opera Mini|UCBrowser|SamsungBrowser/.test(ua)
+	const is_mobile = /Mobile|iPhone|iPad|Android|Opera Mobi|Opera Mini|UCBrowser|SamsungBrowser/i.test(ua)
 	const uri = window.location.pathname;
 
 	if (is_new_visitor) {

@@ -14,14 +14,12 @@
 	<legend>Contenu de la caisse</legend>
 	<dl>
 		<dt>Ouverture</dt>
-		<dd>Caisse ouverte le {$pos_session.opened|date_format:"%d/%m/%Y à %H:%M"}</dd>
+		<dd>Caisse ouverte le {$pos_session.opened|date_long:true}</dd>
 		<dt>Solde à l'ouverture</dt>
 		<dd>{$pos_session.open_amount|raw|money_currency}</dd>
 		<dt>Solde théorique à la fermeture</dt>
 		<dd><strong>{$close_total|raw|money_currency}</strong> ({$cash_total|raw|money:false:true} par rapport à l'ouverture)</dd>
-		<dt>Solde constaté à la fermeture</dt>
-		<dd class="help">Merci de compter le contenu de la caisse lors de la fermeture.</dd>
-		<dd><input type="text" pattern="\d+([,.]\d+)?" name="amount" id="f_amount" data-expected="{$close_total}" required="required" size="8" />&nbsp;€</dd>
+		{input type="money" name="amount" data-expected=$close_total required=true label="Solde constaté à la fermeture" help="Merci de compter le contenu de la caisse lors de la fermeture."}
 	</dl>
 </fieldset>
 
@@ -67,7 +65,7 @@
 				</td>
 				<td>{$payment.tab}</td>
 				<td>
-					{$payment.date|date_format:"%H:%M"}
+					{$payment.date|date_hour}
 				</td>
 				<td>{$payment.method_name}</td>
 				<th>

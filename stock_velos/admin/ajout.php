@@ -17,11 +17,8 @@ $form->runIf('save', function () {
 }, $csrf_key);
 
 $tpl->assign('velo', null);
-$tpl->assign('sources', $velos->listSources());
-$tpl->assign('types', $velos->listTypes());
-$tpl->assign('genres', $velos->listGenres());
-$tpl->assign('roues', $velos->listTailles());
-$tpl->assign('raisons_sortie', [''] + $velos->listRaisonsSortie());
+
+$tpl->assign('defaults', $velos->getDefaults($plugin));
 
 $tpl->assign('libre', $velos->getEtiquetteLibre());
 

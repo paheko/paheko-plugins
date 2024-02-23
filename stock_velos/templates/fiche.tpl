@@ -68,11 +68,11 @@
             <dd>{$velo.type|escape}</dd>
         </dl>
         <dl>
-            <dt>Roues</dt>
+            <dt>Taille</dt>
             <dd>{$velo.roues|escape}</dd>
         </dl>
         <dl>
-            <dt>Genre</dt>
+            <dt>Genre de cadre</dt>
             <dd>{$velo.genre|escape}</dd>
         </dl>
         <dl>

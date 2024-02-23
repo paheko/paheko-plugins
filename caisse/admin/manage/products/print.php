@@ -6,17 +6,35 @@ use Paheko\Files\Files;
 use Paheko\Entities\Files\File;
 use Paheko\UserTemplate\UserTemplate;
 
+use Paheko\Plugin\Caisse\Categories;
 use Paheko\Plugin\Caisse\Products;
 
 require __DIR__ . '/../_inc.php';
 
-$products = Products::listByCategory();
+$csrf_key = 'print';
 
-$tpl->assign('products_categories', $products);
+$form->runIf('print', function () use ($tpl) {
+	$products = Products::listByCategory();
+	$selected = (array)f('selected');
 
-$out = $tpl->fetch(PLUGIN_ROOT . '/templates/manage/products/print.tpl');
-$filename = 'Produits.pdf';
+	foreach ($products as $cat => $list) {
+		if (!in_array($cat, $selected)) {
+			unset($products[$cat]);
+		}
+	}
 
-header('Content-type: application/pdf');
-header(sprintf('Content-Disposition: attachment; filename="%s"', Utils::safeFileName($filename)));
-Utils::streamPDF($out);
+	$tpl->assign('products_categories', $products);
+
+	$out = $tpl->fetch(PLUGIN_ROOT . '/templates/manage/products/print.tpl');
+	$filename = 'Produits.pdf';
+
+	header('Content-type: application/pdf');
+	header(sprintf('Content-Disposition: attachment; filename="%s"', Utils::safeFileName($filename)));
+	Utils::streamPDF($out);
+	exit;
+}, $csrf_key);
+
+$tpl->assign('categories', Categories::listAssoc());
+$tpl->assign(compact('csrf_key'));
+
+$tpl->display(PLUGIN_ROOT . '/templates/manage/products/print_select.tpl');

@@ -26,11 +26,7 @@ $form->runIf('save', function () use ($velo) {
     utils::redirect(utils::plugin_url(['query' => 'id=' . $velo->id]));
 }, $csrf_key);
 
-$tpl->assign('sources', $velos->listSources());
-$tpl->assign('types', $velos->listTypes());
-$tpl->assign('genres', $velos->listGenres());
-$tpl->assign('roues', $velos->listTailles());
-$tpl->assign('raisons_sortie', [''] + $velos->listRaisonsSortie());
+$tpl->assign('defaults', $velos->getDefaults($plugin));
 
 $tpl->assign('now', new \DateTime);
 $tpl->assign('velo', $velo);

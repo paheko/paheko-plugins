@@ -8,7 +8,7 @@ use Paheko\Entities\Plugin;
 use Paheko\Entities\Signal;
 
 use Paheko\Users\Session;
-use Paheko\Email\Emails;
+use Paheko\Email\Addresses;
 
 use Paheko\Utils;
 use Paheko\ValidationException;
@@ -69,7 +69,7 @@ class Notifications
 			throw new ValidationException('Invalid email address');
 		}
 
-		Email::validateAddress($config->email);
+		Addresses::validate($config->email);
 
 		if (0 === strpos($signal, 'file.')) {
 			if (empty($config->file_context) || !array_key_exists($config->file_context, self::FILE_CONTEXTS)) {

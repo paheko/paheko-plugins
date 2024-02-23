@@ -191,7 +191,7 @@
 		<tr>
 			<td>{$payment.tab}{if $payment.tab_name} — {$payment.tab_name}{/if}</td>
 			<th>
-				{$payment.date|date_format:"%H:%M"}
+				{$payment.date|date_hour}
 			</th>
 			<td>{$payment.method_name}</td>
 			<td>
@@ -224,9 +224,9 @@
 		<tr>
 			<td>{$tab.id}{if $tab.name} — {$tab.name}{/if}</td>
 			<th>
-				{$tab.opened|date_format:"%H:%M"}
+				{$tab.opened|date_hour}
 				{if $tab.closed}
-				&rarr; {$tab.closed|date_format:"%H:%M"}
+				&rarr; {$tab.closed|date_hour}
 				{/if}
 			</th>
 			<td>
@@ -251,9 +251,9 @@
 {foreach from=$tabs item="tab"}
 
 	<h2 class="ruler">Note n°{$tab.id}&nbsp;:
-		{$tab.opened|date_format:"%H:%M"}
+		{$tab.opened|date_hour}
 		{if $tab.closed}
-		&rarr; {$tab.closed|date_format:"%H:%M"}
+		&rarr; {$tab.closed|date_hour}
 		{/if}
 		— {$tab.name}
 	</h2>

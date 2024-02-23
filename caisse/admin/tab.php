@@ -25,7 +25,7 @@ if (!$current_pos_session) {
 }
 
 if (!empty($_POST['add_item'])) {
-	$tab->addItem((int)key($_POST['add_item']));
+	$tab->addItem((int)key($_POST['add_item']), current($_POST['add_item']));
 	reload();
 }
 elseif (qg('delete_item')) {
@@ -36,8 +36,12 @@ elseif (!empty($_POST['change_qty'])) {
 	$tab->updateItemQty((int)key($_POST['change_qty']), (int)current($_POST['change_qty']));
 	reload();
 }
+elseif (!empty($_POST['change_weight'])) {
+	$tab->updateItemWeight((int)key($_POST['change_weight']), current($_POST['change_weight']));
+	reload();
+}
 elseif (!empty($_POST['change_price'])) {
-	$tab->updateItemPrice((int)key($_POST['change_price']), (int)get_amount(current($_POST['change_price'])));
+	$tab->updateItemPrice((int)key($_POST['change_price']), current($_POST['change_price']));
 	reload();
 }
 elseif (!empty($_POST['pay'])) {
@@ -78,7 +82,8 @@ $tabs = Tabs::listForSession($current_pos_session->id);
 $tpl->assign('pos_session', $current_pos_session);
 $tpl->assign('tab_id', $tab ? $tab->id : null);
 
-$tpl->assign('products_categories', Products::listByCategory());
+$tpl->assign('products_categories', Products::listBuyableByCategory());
+$tpl->assign('has_weight', Products::checkUserWeightIsRequired());
 $tpl->assign('tabs', $tabs);
 
 if ($tab) {
@@ -88,6 +93,8 @@ if ($tab) {
 	$tpl->assign('remainder', $tab->getRemainder());
 	$tpl->assign('payment_options', $tab->listPaymentOptions());
 }
+
+$tpl->assign('selected_cat', qg('cat'));
 
 $tpl->assign('title', 'Caisse ouverte le ' . Utils::date_fr($current_pos_session->opened));
 $tpl->display(PLUGIN_ROOT . '/templates/tab.tpl');

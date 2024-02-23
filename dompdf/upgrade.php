@@ -4,8 +4,5 @@ namespace Paheko;
 
 use Paheko\Plugin\Dompdf\PDF;
 
-// Delete DOMPDF library
-Utils::deleteRecursive(PDF::DIRECTORY, true);
-
-// Re-install
+// Re-install, this will trigger upgrade if required
 require __DIR__ . '/install.php';

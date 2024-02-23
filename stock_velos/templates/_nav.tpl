@@ -1,5 +1,8 @@
 <nav class="tabs">
 	<aside>
+		{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
+			{linkbutton shape="settings" href="config.php" label="Configuration"}
+		{/if}
 		{linkbutton shape="plus" href="ajout.php" label="Enregistrer un vélo"}
 	</aside>
 	<ul>
