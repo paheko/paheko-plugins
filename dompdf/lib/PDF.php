@@ -79,7 +79,9 @@ class PDF
 		$options->setAllowedProtocols(['http://', 'https://']);
 
 		// see https://github.com/dompdf/dompdf/pull/3377
-		$options->setAllowedRemoteHosts([$host1, $host2]);
+		if (method_exists($options, 'setAllowedRemoteHosts')) {
+			$options->setAllowedRemoteHosts([$host1, $host2]);
+		}
 
 		// Allow remote requests
 		$options->set('isRemoteEnabled', true);
