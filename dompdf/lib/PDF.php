@@ -73,7 +73,7 @@ class PDF
 		$options = $dompdf->getOptions();
 
 		// Set chroot for file:// protocol, just in case
-		$options->setChroot(self::DIRECTORY);
+		$options->setChroot(CACHE_ROOT);
 
 		// Only alow http/https protocols
 		$options->setAllowedProtocols(['http://', 'https://']);
@@ -96,7 +96,7 @@ class PDF
 	{
 		$dompdf = self::DomPDF();
 
-		$dompdf->loadHtmlFile($signal->getIn('source'));
+		$dompdf->loadHtml(file_get_contents($signal->getIn('source')));
 
 		// Render the HTML as PDF
 		$dompdf->render();
