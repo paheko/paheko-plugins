@@ -55,6 +55,10 @@ class Tab extends Entity
 			INNER JOIN @PREFIX_categories c ON c.id = p.category
 			WHERE p.id = ?'), $id);
 
+		if (!$product) {
+			throw new UserException('This product does not exist: ' . $id);
+		}
+
 		$weight = $product->weight;
 
 		if ($weight < 0) {
