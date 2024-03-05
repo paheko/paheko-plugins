@@ -6,6 +6,7 @@
 	{if !$filter_dates}
 		<aside>
 			{linkbutton shape="search" href="#" id="filterFormButton" label="Filtrer par dates" onclick="var a = $('#filterForm'); a.disabled = false; g.toggle(a, true); this.remove(); var a = $('#compareFormButton'); a ? a.remove() : null; return false;"}
+			{exportmenu table=true right=true}
 		</aside>
 	{/if}
 
