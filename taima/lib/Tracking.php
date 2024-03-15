@@ -127,6 +127,11 @@ class Tracking
 		return DB::getInstance()->getAssoc(sprintf('SELECT id, label FROM %s ORDER BY label COLLATE U_NOCASE;', Task::TABLE));
 	}
 
+	static public function getTaskLabel(int $id): ?string
+	{
+		return DB::getInstance()->firstColumn(sprintf('SELECT label FROM %s WHERE id = ?;', Task::TABLE), $id) ?: null;
+	}
+
 	static public function hasRunningTimers(int $user_id): bool
 	{
 		return DB::getInstance()->test(Entry::TABLE, 'user_id = ? AND timer_started IS NOT NULL', $user_id);
@@ -190,9 +195,18 @@ class Tracking
 		return $weekdays;
 	}
 
-	static public function getList(?int $id_user = null, ?int $except = null): DynamicList
+	static public function getList(array $filters = []): DynamicList
 	{
 		$columns = [
+			'user_number' => [
+				'label' => 'Numéro de membre',
+				'select' => DynamicFields::getNumberFieldSQL('u'),
+				'export' => true,
+			],
+			'user_name' => [
+				'label' => 'Nom',
+				'select' => DynamicFields::getNameFieldsSQL('u'),
+			],
 			'task' => [
 				'label' => 'Tâche',
 				'select' => 't.label',
@@ -200,6 +214,8 @@ class Tracking
 			],
 			'notes' => [
 				'select' => 'e.notes',
+				'label' => 'Notes',
+				'export' => true,
 			],
 			'year' => [
 				'label' => 'Année',
@@ -219,9 +235,10 @@ class Tracking
 				'label' => 'Durée',
 				'select' => 'e.duration',
 			],
-			'user_name' => [
-				'label' => 'Nom',
-				'select' => DynamicFields::getNameFieldsSQL('u'),
+			'value' => [
+				'label' => 'Valorisation',
+				'select' => '(e.duration * t.value) / 100',
+				'export' => true,
 			],
 			'user_id' => [],
 			'id' => ['select' => 'e.id'],
@@ -233,41 +250,51 @@ class Tracking
 
 		$conditions = '1';
 
-		if ($except) {
-			$conditions = 'e.user_id IS NULL OR e.user_id != ' . $except;
+		if (!empty($filters['except'])) {
+			$conditions = 'e.user_id IS NULL OR e.user_id != ' . (int)$filters['except'];
 		}
-		elseif ($id_user) {
-			$conditions = 'e.user_id = ' . $id_user;
+		elseif (!empty($filters['user_id'])) {
+			$conditions = 'e.user_id = ' . (int)$filters['user_id'];
+		}
+		elseif (!empty($filters['task_id'])) {
+			$conditions = 'e.task_id = ' . (int)$filters['task_id'];
+			$columns['task']['export'] = true;
+			unset($columns['notes']['export']);
 		}
 
 		$list = new DynamicList($columns, $tables, $conditions);
 		$list->orderBy('date', true);
+
+		$list->setExportCallback(function (&$row) {
+			$row->date = \DateTime::createFromFormat('!Y-m-d', $row->date);
+		});
+
 		return $list;
 	}
 
-	static public function listPerInterval(string $grouping = 'week', bool $per_user = false, ?Date $start = null, ?Date $end = null)
+	static public function listPerInterval(string $period = 'week', string $grouping = 'task', ?Date $start = null, ?Date $end = null)
 	{
 		$where = '1';
 		$params = [];
 		$select = '';
 		$join = '';
 
-		if ($grouping == 'week') {
+		if ($period == 'week') {
 			$group = 'e.year, e.week';
 			$order = 'e.year DESC, e.week DESC';
 			$criteria = '(e.year || e.week)';
 		}
-		elseif ($grouping == 'year') {
+		elseif ($period == 'year') {
 			$group = 'e.year';
 			$order = 'e.year DESC';
 			$criteria = 'e.year';
 		}
-		elseif ($grouping == 'month') {
+		elseif ($period == 'month') {
 			$group = 'e.year, strftime(\'%m\', e.date)';
 			$order = 'e.year DESC, strftime(\'%m\', e.date) DESC';
 			$criteria = 'strftime(\'%Y%m\', e.date)';
 		}
-		elseif ($grouping == 'accounting') {
+		elseif ($period == 'accounting') {
 			$group = 'y.id';
 			$order = 'y.start_date DESC';
 			$criteria = 'y.id';
@@ -275,7 +302,7 @@ class Tracking
 			$join = 'INNER JOIN acc_years AS y ON e.date >= y.start_date AND e.date <= y.end_date';
 		}
 
-		if ($per_user) {
+		if ($grouping === 'user') {
 			$group .= ', e.user_id';
 		}
 		else {
@@ -339,18 +366,63 @@ class Tracking
 		}
 	}
 
-	static public function getFinancialReport(Year $year, Date $start, Date $end)
+	static public function getFinancialReport(Year $year, Date $start, Date $end): DynamicList
 	{
-		$sql = 'SELECT
-				t.label, SUM(e.duration) / 60 AS hours, SUM(e.duration) / 60 * t.value AS total, t.value AS value,
-				t.account AS account_code, a.label AS account_label, a.id AS id_account
-			FROM plugin_taima_entries e
+		$columns = [
+			'label' => [
+				'label' => 'Tâche',
+				'select' => 't.label',
+				'order' => 't.label COLLATE U_NOCASE %s',
+			],
+			'hours' => [
+				'label' => 'Nombre d\'heures',
+				'select' => 'SUM(e.duration) / 60',
+			],
+			'people' => [
+				'label' => 'Nombre de membres',
+				'select' => 'COUNT(DISTINCT e.user_id)',
+			],
+			'value' => [
+				'label' => 'Valorisation horaire',
+				'select' => 't.value',
+			],
+			'total' => [
+				'label' => 'Valorisation totale',
+				'select' => 'SUM(e.duration) / 60 * t.value',
+			],
+			'account_label' => [
+				'label' => 'Compte',
+				'select' => 'a.label',
+			],
+			'id_account' => [
+				'select' => 'a.id',
+			],
+			'account_code' => [
+				'select' => 'a.code',
+			],
+			'id_task' => [
+				'select' => 't.id',
+			],
+		];
+
+		$tables = 'plugin_taima_entries e
 			INNER JOIN plugin_taima_tasks t ON t.id = e.task_id
-			LEFT JOIN acc_accounts a ON a.id_chart = ? AND a.code = t.account
-			WHERE t.value IS NOT NULL AND t.account IS NOT NULL
-			AND e.date >= ? AND e.date <= ?
-			GROUP BY t.id;';
-		return DB::getInstance()->get($sql, $year->id_chart, $start, $end);
+			LEFT JOIN acc_accounts a ON a.code = t.account';
+
+		$conditions = 'a.id_chart = :id_chart
+			AND t.value IS NOT NULL
+			AND t.account IS NOT NULL
+			AND e.date >= :start
+			AND e.date <= :end';
+
+		$list = new DynamicList($columns, $tables, $conditions);
+		$list->setParameter('id_chart', $year->id_chart);
+		$list->setParameters(compact('start', 'end'));
+		$list->groupBy('t.id');
+		$list->setPageSize(null);
+		$list->orderBy('label', false);
+
+		return $list;
 	}
 
 	static public function createReport(Year $year, Date $start, Date $end, int $id_creator): Transaction
@@ -383,7 +455,7 @@ class Tracking
 
 		$report = self::getFinancialReport($year, $start, $end);
 
-		foreach ($report as $row) {
+		foreach ($report->iterate() as $row) {
 			if (!$row->id_account) {
 				continue;
 			}
@@ -391,7 +463,7 @@ class Tracking
 			$line = new Line;
 			$line->debit = $row->total;
 			$line->id_account = $row->id_account;
-			$line->label = sprintf('%s (%d heures à %s / h)', $row->label, $row->hours, Utils::money_format($row->value));
+			$line->label = sprintf('%s (%d heures à %s / h)', $row->label, $row->hours, Utils::money_format($row->total));
 
 			$t->addLine($line);
 		}

@@ -54,9 +54,9 @@ $form->runIf('save', function () use ($entry) {
 	$entry->save();
 }, $csrf_key, Utils::getSelfURI(['ok' => 1]));
 
-$tasks = ['' => '--'] + Tracking::listTasks();
+$tasks = Tracking::listTasks();
 $now = new Date;
 
 $tpl->assign(compact('tasks', 'csrf_key', 'now', 'selected_user', 'entry', 'entry_duration'));
 
-$tpl->display(\Paheko\PLUGIN_ROOT . '/templates/others_edit.tpl');
+$tpl->display(\Paheko\PLUGIN_ROOT . '/templates/edit.tpl');

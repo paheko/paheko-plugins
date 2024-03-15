@@ -27,4 +27,4 @@ $form->runIf('delete', function ()  use ($entry) {
 
 $tpl->assign(compact('csrf_key'));
 
-$tpl->display(\Paheko\PLUGIN_ROOT . '/templates/others_delete.tpl');
+$tpl->display(\Paheko\PLUGIN_ROOT . '/templates/delete.tpl');

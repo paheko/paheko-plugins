@@ -20,7 +20,7 @@ if ($plugin->needUpgrade()) {
 
 // If there is no user id
 if (!Session::getUserId()) {
-	Utils::redirect('./others.php');
+	Utils::redirect('./all.php');
 }
 
 Tracking::autoStopRunningTimers();

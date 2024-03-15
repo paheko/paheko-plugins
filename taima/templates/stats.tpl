@@ -11,18 +11,18 @@
 	{/if}
 
 	<ul class="sub">
-		<li{if $grouping == 'week'} class="current"{/if}><a href="?g=week{if $per_user}&amp;per_user=1{/if}{$filter_dates}">Par semaine</a></li>
-		<li{if $grouping == 'month'} class="current"{/if}><a href="?g=month{if $per_user}&amp;per_user=1{/if}{$filter_dates}">Par mois</a></li>
-		<li{if $grouping == 'year'} class="current"{/if}><a href="?g=year{if $per_user}&amp;per_user=1{/if}{$filter_dates}">Par année</a></li>
-		<li{if $grouping == 'accounting'} class="current"{/if}><a href="?g=accounting{if $per_user}&amp;per_user=1{/if}{$filter_dates}">Par exercice</a></li>
+		<li{if $period == 'week'} class="current"{/if}><a href="?g=week{if $per_user}&amp;per_user=1{/if}{$filter_dates}">Par semaine</a></li>
+		<li{if $period == 'month'} class="current"{/if}><a href="?g=month{if $per_user}&amp;per_user=1{/if}{$filter_dates}">Par mois</a></li>
+		<li{if $period == 'year'} class="current"{/if}><a href="?g=year{if $per_user}&amp;per_user=1{/if}{$filter_dates}">Par année</a></li>
+		<li{if $period == 'accounting'} class="current"{/if}><a href="?g=accounting{if $per_user}&amp;per_user=1{/if}{$filter_dates}">Par exercice</a></li>
 	</ul>
 	<ul class="sub">
-		<li{if !$per_user} class="current"{/if}><a href="?g={$grouping}{$filter_dates}">Par tâche</a></li>
-		<li{if $per_user} class="current"{/if}><a href="?g={$grouping}&amp;per_user=1{$filter_dates}">Par personne</a></li>
+		<li{if !$per_user} class="current"{/if}><a href="?g={$period}{$filter_dates}">Par tâche</a></li>
+		<li{if $per_user} class="current"{/if}><a href="?g={$period}&amp;per_user=1{$filter_dates}">Par personne</a></li>
 	</ul>
 
 	<form method="get" action="" class="{if !$filter_dates}hidden {/if}noprint" id="filterForm">
-		<input type="hidden" name="g" value="{$grouping}" />
+		<input type="hidden" name="g" value="{$period}" />
 		<input type="hidden" name="per_user" value="{$per_user}" />
 		<fieldset>
 			<legend>Filtrer par date</legend>
@@ -42,18 +42,24 @@
 	{foreach from=$per_week item="week"}
 	<tbody>
 		<tr>
-			<th colspan="3">
+			<th colspan="2">
 				<h2 class="ruler">
-				{if $grouping == 'week'}{$week.year} — S{$week.week}
-				{elseif $grouping == 'month'}{$week.date|strftime:'%B %Y'}
-				{elseif $grouping == 'accounting'}{$week.year_label}
+				{if $period == 'week'}{$week.year} — S{$week.week}
+				{elseif $period == 'month'}{$week.date|strftime:'%B %Y'}
+				{elseif $period == 'accounting'}{$week.year_label}
 				{else}{$week.year}{/if}
 				</h2>
 			</th>
 		</tr>
 		{foreach from=$week.entries item="entry"}
 		<tr>
-			<th>{if $per_user && $entry.user_name}<a href="others.php?id_user={$entry.user_id}">{$entry.user_name}</a>{else}{$entry.task_label}{/if}</th>
+			<th>
+				{if $per_user && $entry.user_name}
+					{link href="all.php?id_user=%d"|args:$entry.user_id label=$entry.user_name}
+				{else}
+					{link href="all.php?id_task=%d"|args:$entry.task_id label=$entry.task_label}
+				{/if}
+			</th>
 			<td class="num">{$entry.duration|taima_minutes}</td>
 		</tr>
 		{/foreach}

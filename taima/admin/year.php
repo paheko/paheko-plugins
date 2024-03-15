@@ -10,7 +10,7 @@ require_once __DIR__ . '/_inc.php';
 
 // If there is no user id
 if (!Session::getUserId()) {
-	Utils::redirect('./others.php');
+	Utils::redirect('./all.php');
 }
 
 $user_id = $session->getUser()->id;

@@ -35,8 +35,8 @@ elseif (count($years) == 1) {
 }
 
 if ($year) {
-	$start = f('start') ? Utils::get_datetime(f('start')) : ($year->start_date ?? null);
-	$end = f('end') ? Utils::get_datetime(f('end')) : ($year->end_date ?? null);
+	$start = qg('start') ? Utils::get_datetime(qg('start')) : ($year->start_date ?? null);
+	$end = qg('end') ? Utils::get_datetime(qg('end')) : ($year->end_date ?? null);
 
 	if ($start) {
 		$start = Date::createFromInterface($start);
@@ -50,9 +50,10 @@ if ($year) {
 		Utils::redirect(Utils::getSelfURI(['ok' => $t->id()]));
 	}, $csrf_key);
 
-	$report = Tracking::getFinancialReport($year, $start, $end);
+	$list = Tracking::getFinancialReport($year, $start, $end);
+	$list->loadFromQueryString();
 
-	$tpl->assign(compact('report', 'year', 'csrf_key'));
+	$tpl->assign(compact('year', 'csrf_key', 'start', 'end', 'list'));
 }
 else {
 	$tpl->assign(compact('years', 'csrf_key'));
