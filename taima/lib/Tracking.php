@@ -52,6 +52,20 @@ class Tracking
 		return sprintf(self::FIXED_ICON, $size);
 	}
 
+	static public function getWorkingHours(int $hours = 35, int $working_weeks = 46): array
+	{
+		// 1607 hours = numbers of hours worked in a year for a 35 hour week,
+		// counting holidays
+		// 35*52 = what you would do as simple math
+		$legal_work_ratio = 1607/(35*52.1429);
+
+		$week = $hours * $legal_work_ratio;
+		$year = $week * 52.1429;
+		$month = $year / 12;
+
+		return compact('hours', 'week', 'year', 'month');
+	}
+
 	static public function homeButton(Signal $signal): void
 	{
 		$url = Plugins::getPrivateURL('taima');
@@ -295,98 +309,137 @@ class Tracking
 		return $list;
 	}
 
-	static public function listPerInterval(string $period = 'week', string $grouping = 'task', ?Date $start = null, ?Date $end = null)
+	static public function listPerInterval(string $period = 'week', string $grouping = 'task', array $filters = []): DynamicList
 	{
-		$where = '1';
+		$columns = [];
+		$conditions = '1';
+		$order = 'period';
+		$desc = true;
 		$params = [];
 		$select = '';
-		$join = '';
+		$tables = 'plugin_taima_entries e
+			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
+			LEFT JOIN users u ON u.id = e.user_id';
 
-		if ($period == 'week') {
+		if ($period === 'week') {
+			$columns['period'] = [
+				'label' => 'Semaine',
+				'select' => 'e.year || e.week',
+				'order' => 'e.year %s, e.week %1$s',
+			];
+			$columns['week'] = ['select' => 'e.week'];
+			$columns['year'] = ['select' => 'e.year'];
+
 			$group = 'e.year, e.week';
-			$order = 'e.year DESC, e.week DESC';
-			$criteria = '(e.year || e.week)';
 		}
-		elseif ($period == 'year') {
+		elseif ($period === 'year') {
+			$columns['period'] = [
+				'label' => 'Année',
+				'order' => 'e.year %s',
+				'select' => 'e.year',
+			];
+
 			$group = 'e.year';
-			$order = 'e.year DESC';
-			$criteria = 'e.year';
 		}
-		elseif ($period == 'month') {
+		elseif ($period === 'month') {
+			$columns['period'] = [
+				'label' => 'Mois',
+				'order' => 'e.date %s',
+				'select' => 'strftime(\'%Y%m\', e.date)',
+			];
+			$columns['date'] = ['select' => 'e.date'];
+
 			$group = 'e.year, strftime(\'%m\', e.date)';
-			$order = 'e.year DESC, strftime(\'%m\', e.date) DESC';
-			$criteria = 'strftime(\'%Y%m\', e.date)';
 		}
-		elseif ($period == 'accounting') {
+		elseif ($period === 'accounting') {
+			$columns['period'] = [
+				'label' => 'Exercice',
+				'order' => 'y.start_date %s',
+				'select' => 'y.label',
+			];
+
 			$group = 'y.id';
-			$order = 'y.start_date DESC';
-			$criteria = 'y.id';
-			$select = ', y.label AS year_label';
-			$join = 'INNER JOIN acc_years AS y ON e.date >= y.start_date AND e.date <= y.end_date';
+			$tables .= ' INNER JOIN acc_years AS y ON e.date >= y.start_date AND e.date <= y.end_date';
 		}
 
 		if ($grouping === 'user') {
+			$columns['group'] = [
+				'label' => 'Membre',
+				'select' => DynamicFields::getNameFieldsSQL('u'),
+				'order' => '"period" %s, "group" COLLATE U_NOCASE %1$s',
+			];
+			$columns['user_id'] = ['select' => 'e.user_id'];
+
 			$group .= ', e.user_id';
 		}
 		else {
+			$columns['group'] = [
+				'label' => 'Tâche',
+				'select' => 't.label',
+				'order' => '"period" %s, "group" COLLATE U_NOCASE %1$s',
+			];
+			$columns['task_id'] = ['select' => 'e.task_id'];
+
 			$group .= ', e.task_id';
 		}
 
-		if ($start) {
-			$where .= ' AND e.date >= ?';
-			$params[] = $start;
+		$columns['duration'] = [
+			'label' => 'Temps cumulé',
+			'select' => 'SUM(e.duration)',
+			'order' => '"period" %s, SUM(e.duration) %1$s',
+		];
+
+		$hours = self::getWorkingHours();
+
+		$columns['etp'] = [
+			'label' => sprintf('Équivalent temps plein %dh', $hours['hours']),
+			'select' => sprintf('ROUND(SUM(e.duration) / %d.0, 2)', ($hours[$period] ?? $hours['year']) * 60),
+			'order' => null,
+		];
+
+		if (!empty($filters['start']) && ($start = Entity::filterUserDateValue($filters['start']))) {
+			$conditions .= ' AND e.date >= :start';
+			$params['start'] = $start;
 		}
 
-		if ($end) {
-			$where .= ' AND e.date <= ?';
-			$params[] = $end;
+		if (!empty($filters['end']) && ($end = Entity::filterUserDateValue($filters['end']))) {
+			$where .= ' AND e.date <= :end';
+			$params['end'] = $end;
 		}
 
-		$id_field = DynamicFields::getNameFieldsSQL('u');
-		$sql = 'SELECT e.*, t.label AS task_label, %s AS user_name, SUM(duration) AS duration, %s AS criteria %s
-			FROM plugin_taima_entries e
-			%s
-			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
-			LEFT JOIN users u ON u.id = e.user_id
-			WHERE %s
-			GROUP BY %s
-			ORDER BY %s, SUM(duration) DESC;';
+		$list = new DynamicList($columns, $tables, $conditions);
+		$list->groupBy($group);
+		$list->orderBy($order, $desc);
+		$list->setParameters($params);
+		$list->setPageSize(null);
 
-		$sql = sprintf($sql, $id_field, $criteria, $select, $join, $where, $group, $order);
+		$current = null;
+		$total = 0;
+		$total_etp = 0;
 
-		$db = DB::getInstance();
-
-		$item = $criteria = null;
-
-		foreach ($db->iterate($sql, ...$params) as $row) {
-			if ($criteria != $row->criteria) {
-				if ($item !== null) {
-					$total = 0;
-					foreach ($item['entries'] as $entry) {
-						$total += $entry->duration;
-					}
-
-					$item['entries'][] = (object) ['task_label' => 'Total', 'duration' => $total];
-					yield $item;
+		$list->setModifier(function (&$row) use (&$current, &$total, &$total_etp) {
+			if ($row->period !== $current) {
+				if ($current !== null) {
+					yield ['group' => 'total', 'duration' => $total, 'etp' => $total_etp];
 				}
 
-				$criteria = $row->criteria;
-				$item = (array)$row;
-				$item['entries'] = [];
+				$current = $row->period;
+				$total = 0;
+				$total_etp = 0;
+				$row->header = true;
 			}
 
-			$item['entries'][] = $row;
-		}
+			$total += $row->duration;
+			$total_etp += $row->etp;
+		});
 
-		if ($item !== null) {
-			$total = 0;
-			foreach ($item['entries'] as $entry) {
-				$total += $entry->duration;
+		$list->setFinalGenerator(function () use (&$total, &$total_etp) {
+			if ($total) {
+				yield ['group' => 'total', 'duration' => $total, 'etp' => $total_etp];
 			}
+		});
 
-			$item['entries'][] = (object) ['task_label' => 'Total', 'duration' => $total];
-			yield $item;
-		}
+		return $list;
 	}
 
 	static public function getFinancialReport(Year $year, Date $start, Date $end): DynamicList
