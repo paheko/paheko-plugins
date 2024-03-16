@@ -3,6 +3,7 @@
 namespace Paheko\Plugin\Taima\Entities;
 
 use Paheko\Entity;
+use Paheko\Form;
 
 use KD2\DB\Date;
 
@@ -29,6 +30,27 @@ class Entry extends Entity
 		}
 
 		$this->assert(!(is_null($this->duration) && is_null($this->timer_started)), 'Duration cannot be NULL if timer is not running');
+	}
+
+	public function importForm(?array $source = null)
+	{
+		$source ??= $_POST;
+
+		if (isset($source['user'])) {
+			$source['user_id'] = Form::getSelectorValue($source['user']);
+		}
+
+		if (isset($source['date'])) {
+			$this->setDateString($source['date']);
+			unset($source['date']);
+		}
+
+		if (isset($source['duration'])) {
+			$this->setDuration($source['duration']);
+			unset($source['duration']);
+		}
+
+		return parent::importForm($source);
 	}
 
 	public function setDate(Date $date)

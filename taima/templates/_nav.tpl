@@ -1,9 +1,13 @@
 <nav class="tabs">
 	{if $current === 'all'}
-	<aside>
-		{exportmenu}
-		{linkbutton target="_dialog" href="edit.php?id_user=%d"|args:$filters.user_id label="Ajouter une tâche" shape="plus"}
-	</aside>
+		<aside>
+			{exportmenu}
+			{linkbutton target="_dialog" href="edit.php?id_user=%d"|args:$filters.user_id label="Ajouter une tâche" shape="plus"}
+		</aside>
+	{elseif $current === 'index'}
+		<aside>
+			{linkbutton shape="plus" label="Nouvelle tâche" href="edit.php?date=%s"|args:$day_date target="_dialog"}
+		</aside>
 	{/if}
 
 	<ul>

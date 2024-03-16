@@ -14,7 +14,7 @@
 		<thead>
 			<tr>
 				<td class="num">Ligne</td>
-				<th>Tâche</th>
+				<th>Catégorie</th>
 				<td>Date</td>
 				<td>Durée</td>
 				<td>Membre</td>
@@ -65,7 +65,7 @@
 <form method="post" action="">
 
 	<fieldset>
-		<legend>Associer les tâches aux catégories, projets et niveaux</legend>
+		<legend>Associer les catégories, projets et niveaux</legend>
 		<table class="list auto">
 			{foreach from=$links key="item" item="task"}
 			<tr>
@@ -84,7 +84,7 @@
 </form>
 {else}
 <p class="help">
-	L'import tentera de faire le rapprochement entre la catégorie, le niveau ou le projet indiqué dans Bénévalibre et les tâches de Tāima. De même pour les membres. Si aucun membre n'existe avec le nom fourni dans l'export Bénévalibre, l'entrée n'aura pas de membre associé.
+	L'import tentera de faire le rapprochement entre la catégorie, le niveau ou le projet indiqué dans Bénévalibre et les catégories de Tāima. De même pour les membres. Si aucun membre n'existe avec le nom fourni dans l'export Bénévalibre, l'entrée n'aura pas de membre associé.
 </p>
 
 <form method="post" action="" enctype="multipart/form-data">

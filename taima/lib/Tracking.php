@@ -208,7 +208,7 @@ class Tracking
 				'select' => DynamicFields::getNameFieldsSQL('u'),
 			],
 			'task' => [
-				'label' => 'Tâche',
+				'label' => 'Catégorie',
 				'select' => 't.label',
 				'order' => 't.label COLLATE U_NOCASE %s',
 			],
@@ -370,7 +370,7 @@ class Tracking
 	{
 		$columns = [
 			'label' => [
-				'label' => 'Tâche',
+				'label' => 'Catégorie',
 				'select' => 't.label',
 				'order' => 't.label COLLATE U_NOCASE %s',
 			],

@@ -17,7 +17,7 @@
 		<li{if $period == 'accounting'} class="current"{/if}><a href="?g=accounting{if $per_user}&amp;per_user=1{/if}{$filter_dates}">Par exercice</a></li>
 	</ul>
 	<ul class="sub">
-		<li{if !$per_user} class="current"{/if}><a href="?g={$period}{$filter_dates}">Par tâche</a></li>
+		<li{if !$per_user} class="current"{/if}><a href="?g={$period}{$filter_dates}">Par catégorie</a></li>
 		<li{if $per_user} class="current"{/if}><a href="?g={$period}&amp;per_user=1{$filter_dates}">Par personne</a></li>
 	</ul>
 

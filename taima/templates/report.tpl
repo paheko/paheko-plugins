@@ -42,7 +42,7 @@
 
 	<form method="post" action="">
 	{if !$list->count()}
-		<p class="alert block">Il n'y a aucune tâche à valoriser sur cette période.<br />Vérifiez qu'il y a bien une valorisation horaire indiquée dans la configuration des tâches, ou que la période choisie correspond bien à un suivi existant.</p>
+		<p class="alert block">Il n'y a aucune catégorie à valoriser sur cette période.<br />Vérifiez qu'il y a bien une valorisation horaire indiquée dans la configuration, ou qu'il y a bien des tâches enregistrées sur la période choisie.</p>
 	{else}
 		<p class="actions">
 			{exportmenu right=true}

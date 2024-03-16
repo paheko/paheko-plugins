@@ -28,7 +28,7 @@ elseif (($_GET['except_me'] ?? null) !== null) {
 }
 elseif ($id = (int)($_GET['id_task'] ?? 0)) {
 	$filters['task_id'] = $id;
-	$subtitle = sprintf('Tâche : %s', Tracking::getTaskLabel($id));
+	$subtitle = sprintf('Catégorie : %s', Tracking::getTaskLabel($id));
 }
 
 $list = Tracking::getList($filters);

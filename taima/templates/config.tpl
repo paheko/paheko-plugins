@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Configuration des tâches"}
+{include file="_head.tpl" title="Configuration"}
 
 {if !$dialog}
 	{include file="./_nav.tpl" current="config"}
@@ -26,6 +26,7 @@
 			<td class="num">{$task.account}</td>
 			<td class="money">{if $task.value}{$task.value|raw|money_currency:true} / h{/if}</td>
 			<td class="actions">
+				{linkbutton label="Liste des tâches" href="all.php?id_task=%d"|args:$task.id shape="menu"}
 				{linkbutton label="Éditer" href="?edit=%d"|args:$task.id shape="edit" target="_dialog"}
 				{linkbutton label="Supprimer" href="?delete=%d"|args:$task.id shape="delete" target="_dialog"}
 			</td>
@@ -36,7 +37,7 @@
 
 <form method="post" action="">
 	<fieldset>
-		<legend>Ajouter une tâche</legend>
+		<legend>Ajouter une catégorie</legend>
 		<dl>
 			{input type="text" name="label" required=true label="Libellé"}
 			{input type="list" target="!acc/charts/accounts/selector.php?targets=%s&key=code"|args:$account_targets name="account" label="Code du compte d'emploi" required=false help="Compte qui sera utilisé pour reporter l'utilisation du temps bénévole dans le bilan comptable. Généralement c'est le compte 864." default=864}
@@ -46,7 +47,7 @@
 	</fieldset>
 	<p class="submit">
 		{csrf_field key=$csrf_key}
-		{button type="submit" name="add" label="Ajouter cette tâche à la liste" shape="plus" class="main"}
+		{button type="submit" name="add" label="Ajouter cette catégorie" shape="plus" class="main"}
 	</p>
 </form>
 

@@ -19,9 +19,7 @@ class Task extends Entity
 
 	public function importForm(?array $source = null)
 	{
-		if (null === $source) {
-			$source = $_POST;
-		}
+		$source ??= $_POST;
 
 		if (isset($source['value'])) {
 			$source['value'] = Utils::moneyToInteger($source['value']) ?: null;

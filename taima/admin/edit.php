@@ -44,19 +44,23 @@ elseif (qg('id')) {
 else {
 	$entry = new Entry;
 	$entry_duration = null;
+
+	if (isset($_GET['date'])) {
+		$entry->importForm(['date' => $_GET['date'], 'user_id' => $session::getUserId()]);
+	}
 }
 
 $form->runIf('save', function () use ($entry) {
-	$entry->setDateString(f('date'));
-	$entry->user_id = Form::getSelectorValue(f('user'));
 	$entry->importForm();
-	$entry->setDuration(f('duration'));
 	$entry->save();
 }, $csrf_key, Utils::getSelfURI(['ok' => 1]));
 
 $tasks = Tracking::listTasks();
 $now = new Date;
+$date = isset($_GET['date']);
+$is_today = $date && $_GET['date'] === date('Y-m-d');
+$submit_label = $is_today && !$entry->duration ? 'Démarrer le chrono' : 'Enregistrer';
 
-$tpl->assign(compact('tasks', 'csrf_key', 'now', 'selected_user', 'entry', 'entry_duration'));
+$tpl->assign(compact('tasks', 'csrf_key', 'now', 'selected_user', 'entry', 'entry_duration', 'date', 'is_today', 'submit_label'));
 
 $tpl->display(\Paheko\PLUGIN_ROOT . '/templates/edit.tpl');

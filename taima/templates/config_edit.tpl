@@ -4,7 +4,7 @@
 
 <form method="post" action="" data-focus="1">
 	<fieldset>
-		<legend>Modifier une tâche</legend>
+		<legend>Modifier une catégorie</legend>
 		<dl>
 			{input type="text" name="label" required=true label="Libellé" source=$task}
 			{input type="text" name="account" label="Code du compte d'emploi" required=false help="Compte qui sera utilisé pour reporter l'utilisation du temps bénévole dans le bilan comptable. Généralement c'est le compte 864." source=$task}

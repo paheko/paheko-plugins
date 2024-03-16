@@ -20,8 +20,7 @@
 				<th><a href="./?day={$week.first|date:'Y-m-d'}">{$week.year} — S{$week.week}</a></th>
 				<td>{$week.first|taima_date:'d MMMM YYYY'} — {$week.last|taima_date:'d MMMM YYYY'}</td>
 				<td>
-					<progress value="{$week.duration}" max="1260"></progress>
-					{$week.duration|taima_minutes}
+					{size_meter total=780 value=$week.duration text=$week.duration|taima_minutes}
 				</td>
 				<td>{$week.entries}</td>
 			</tr>
