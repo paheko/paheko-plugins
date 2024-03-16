@@ -128,7 +128,7 @@ class Tracking
 		$sql = sprintf('SELECT year, SUM(duration) AS duration, COUNT(id) AS entries, date
 			FROM %s
 			WHERE user_id = ? AND year = ?
-			GROUP BY strftime(date, \'%%Y-%%m\')
+			GROUP BY strftime(\'%%Y%%m\', date)
 			ORDER BY date DESC;', Entry::TABLE);
 		return DB::getInstance()->get($sql, $user_id, $year);
 	}
