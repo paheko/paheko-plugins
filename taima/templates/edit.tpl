@@ -11,7 +11,7 @@
 
 {form_errors}
 
-<form method="post" action="" data-focus="{if $date}#f_duration{else}1{/if}">
+<form method="post" action="">
 	<fieldset>
 		<legend>{$title}</legend>
 		<dl>
@@ -34,18 +34,21 @@
 	</p>
 </form>
 
-{if $is_today}
 <script type="text/javascript">
-{literal}
 let d = $('#f_duration');
+let focusDuration = () => {ldelim} d.focus(); d.select(); {rdelim};
+let s = $('#f_task_id');
+s.onchange = focusDuration;
 
-d.onkeyup = function () {
-	$('button.main')[0].innerText = (d.value == '') ? 'Démarrer le chrono' : 'Enregistrer';
-};
-
-$('#f_task_id').onchange = () => d.focus();
-{/literal}
-</script>
+{if $entry->exists()}
+	focusDuration();
+{else}
+	s.focus();
 {/if}
+
+{if $is_today}
+	d.onkeyup = () => $('button.main')[0].innerText = (d.value == '') ? 'Démarrer le chrono' : 'Enregistrer';
+{/if}
+</script>
 
 {include file="_foot.tpl"}
