@@ -67,7 +67,7 @@
 							</p>
 						{/if}
 					</header>
-					<h2 class="clock">{$entry.timer_running|taima_minutes}</h2>
+					<div class="clock"><h2>{$entry.timer_running|taima_minutes}</h2></div>
 					<div class="actions">
 						{if $entry.timer_started}
 							<?php $has_timers = true; ?>

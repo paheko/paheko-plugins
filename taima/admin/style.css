@@ -103,9 +103,6 @@
 
 .taima .entries article {
 	clear: both;
-	border-radius: .5em;
-	border: 1px solid var(--gLightBorderColor);
-	margin: 1em 0;
 	padding: .8em;
 	display: flex;
 }
@@ -115,14 +112,6 @@
 	margin: 0;
 }
 
-.taima .entries .running {
-	background: rgba(var(--gSecondColor), 0.2);
-	border: 1px solid rgba(var(--gSecondColor), 0.5);
-}
-
-.taima .entries header {
-	margin-right: auto;
-}
 .taima .entries .notes {
 	font-style: italic;
 	margin-top: .5em;
@@ -131,17 +120,6 @@
 .taima a.start-timer, .taima a.stop-timer {
 	font-size: 1.3em;
 	text-decoration: none;
-}
-
-.taima .entries .clock {
-	text-align: right;
-	padding-top: .3em;
-	margin-right: 1em;
-}
-
-.taima .entries .actions {
-	width: 25%;
-	text-align: center;
 }
 
 .taima .entries .actions > span {
@@ -187,69 +165,98 @@
 	animation: spinner 3s linear infinite;
 }
 
-@media screen and (max-width: 800px) {
-	.taima .weekdays {
-		display: block;
+@media screen and (min-width: 800px) {
+	.taima .entries .clock {
+		text-align: right;
+		padding-top: .3em;
+		margin-right: 1em;
+	}
+
+	.taima .entries .actions {
+		width: 12em;
 		text-align: center;
 	}
 
-	.taima .weekdays li {
-		margin: .2em;
-		display: inline-block;
+	.taima .entries header {
+		margin-right: auto;
 	}
 
-	.taima .weekdays li a, .taima .weekdays li span, .taima .weekdays li.week {
-		border: none;
-	}
-
-	.taima .weekdays li.week {
-		display: block;
-	}
-
-	.taima .weekdays li.week * {
-		display: inline;
-		margin: 0 .5em;
-	}
-
-	.taima .weekdays li a, .weekdays span {
+	.taima .entries article {
 		border-radius: .5em;
-	}
-
-	.taima .entries {
-		display: flex;
-		border: none;
-		width: auto;
-		flex-direction: column;
+		border: 1px solid var(--gLightBorderColor);
 		margin: 1em 0;
 	}
 
-	.taima .entries tr {
-		display: flex;
-		flex-direction: column;
-		border: none;
+	.taima .entries .running {
+		background: rgba(var(--gSecondColor), 0.2);
+		border: 1px solid rgba(var(--gSecondColor), 0.5);
+	}
+}
+
+@media screen and (max-width: 800px) {
+	.taima .weekdays {
+		flex-wrap: wrap;
 		align-items: center;
-		border: 1px solid var(--gLightBorderColor);
-		border-radius: .5em;
-		margin-bottom: .5em;
-		text-align: center;
-	}
-
-	.taima .entries tr.notes {
-		border-radius: 0;
 		border: none;
-		padding: .5em;
 	}
 
-	.taima .entries tr td {
-		padding: .2em;
+	.taima .weekdays li.day a, .taima .weekdays li.week {
+		display: block;
+		border: none;
+		margin: .2em;
+		border-radius: .5em;
 	}
 
 	.taima .header {
-		display: block;
-		text-align: center;
+		flex-wrap: wrap;
 	}
 
-	.taima .header .btns, .taima .header h2 {
-		margin: .3em 0;
+	.taima {
+		margin: 1em 0;
+	}
+
+	.taima .entries {
+		border-bottom: 1px solid var(--gLightBorderColor);
+	}
+
+	.taima .entries article {
+		margin: 0;
+		padding: .5em;
+		border-left: 10px solid var(--gLightBorderColor);
+		border-top: 1px solid var(--gLightBorderColor);
+		padding-left: 1em;
+		border-radius: 0;
+		display: grid;
+		align-items: stretch;
+		justify-content: space-between;
+		grid-template-areas:
+			"b c"
+			"a c";
+	}
+
+	.taima .entries article .clock {
+		grid-area: b;
+		margin-bottom: .5em;
+	}
+
+	.taima .entries article .clock h2 {
+		background: var(--gLightBorderColor);
+		border-radius: .5em;
+		padding: .2em;
+		display: inline-block;
+	}
+	.taima .entries article header {
+		grid-area: a;
+	}
+	.taima .entries article .actions {
+		grid-area: c;
+	}
+
+	.taima .entries article.running {
+		border-left: 10px solid rgba(var(--gSecondColor), 0.5);
+	}
+
+	.taima .entries article.running .clock h2 {
+		background: rgba(var(--gSecondColor), 0.5);
 	}
 }
