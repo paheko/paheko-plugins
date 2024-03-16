@@ -16,18 +16,18 @@ if (!Session::getUserId()) {
 // 1607 hours = numbers of hours worked in a year for a 35 hour week,
 // counting holidays
 // 35*52 = what you would do as simple math
-$legal_work_ratio = 1607/(35*52);
-
 $legal_hours = 35;
+$legal_work_ratio = 1607/($legal_hours*52.1429);
+
 $legal_week = $legal_hours * $legal_work_ratio;
-$legal_year = $legal_week * 52;
+$legal_year = $legal_week * 52.1429;
 $legal_month = $legal_year / 12;
 
-$target_work_ratio = 45/52;
+$target_work_ratio = 45/52.1429;
 
 $target_hours = intval($_GET['target_hours'] ?? 13);
 $target_week = $target_hours * $legal_work_ratio;
-$target_year = $target_week * 52;
+$target_year = $target_week * 52.1429;
 $target_month = $target_year / 12;
 
 $user_id = $session->getUser()->id;
