@@ -14,8 +14,17 @@ if (!Session::getUserId()) {
 }
 
 $user_id = $session->getUser()->id;
-$weeks = Tracking::listUserWeeks($user_id);
+$year = (int) ($_GET['year'] ?? null);
+$years = $months = $weeks = null;
 
-$tpl->assign(compact('weeks'));
+if ($year) {
+	$months = Tracking::listUserMonths($user_id, $year);
+	$weeks = Tracking::listUserWeeks($user_id, $year);
+}
+else {
+	$years = Tracking::listUserYears($user_id);
+}
+
+$tpl->assign(compact('weeks', 'months', 'years'));
 
 $tpl->display(\Paheko\PLUGIN_ROOT . '/templates/year.tpl');

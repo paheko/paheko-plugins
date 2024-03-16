@@ -113,13 +113,36 @@ class Tracking
 				AND (strftime(\'%%s\', \'now\') - timer_started) > %2$d*60;', Entry::TABLE, $max));
 	}
 
-	static public function listUserWeeks(int $user_id)
+	static public function listUserYears(int $user_id): array
+	{
+		$sql = sprintf('SELECT year, SUM(duration) AS duration, COUNT(id) AS entries
+			FROM %s
+			WHERE user_id = ?
+			GROUP BY year
+			ORDER BY date DESC;', Entry::TABLE);
+		return DB::getInstance()->get($sql, $user_id);
+	}
+
+	static public function listUserMonths(int $user_id, int $year): array
+	{
+		$sql = sprintf('SELECT year, SUM(duration) AS duration, COUNT(id) AS entries, date
+			FROM %s
+			WHERE user_id = ? AND year = ?
+			GROUP BY strftime(date, \'%%Y-%%m\')
+			ORDER BY date DESC;', Entry::TABLE);
+		return DB::getInstance()->get($sql, $user_id, $year);
+	}
+
+	static public function listUserWeeks(int $user_id, int $year)
 	{
 		$sql = sprintf('SELECT year, week, SUM(duration) AS duration, COUNT(id) AS entries,
 			date(date, \'weekday 0\', \'-6 day\') AS first,
 			date(date, \'weekday 0\') AS last
-			FROM %s WHERE user_id = ? GROUP BY year, week ORDER BY year DESC, week DESC;', Entry::TABLE);
-		return DB::getInstance()->get($sql, $user_id);
+			FROM %s
+			WHERE user_id = ? AND year = ?
+			GROUP BY year, week
+			ORDER BY year DESC, week DESC;', Entry::TABLE);
+		return DB::getInstance()->get($sql, $user_id, $year);
 	}
 
 	static public function listTasks()
