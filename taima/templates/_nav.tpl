@@ -1,11 +1,4 @@
 <nav class="tabs">
-	{if $current === 'all'}
-		<aside>
-			{exportmenu}
-			{linkbutton target="_dialog" href="edit.php?id_user=%d"|args:$filters.user_id label="Ajouter une tâche" shape="plus"}
-		</aside>
-	{/if}
-
 	<ul>
 	{if $logged_user.id}
 		<li{if $current === 'index'} class="current"{/if}><a href="./">Ma semaine</a></li>
@@ -20,15 +13,4 @@
 		<li{if $current === 'config'} class="current"{/if}><a href="config.php">Configuration</a></li>
 {/if}
 	</ul>
-
-	{if $logged_user.id && $current === 'all' && isset($filters) && !$filters.user_id && !$filters.task_id}
-	<ul class="sub">
-		<li {if !$filters.except}class="current"{/if}>{link href=$self_url_no_qs label="Tous les membres"}</li>
-		<li {if $filters.except}class="current"{/if}>{link href="?except_me" label="Sauf moi-même"}</li>
-	</ul>
-	{elseif isset($subtitle)}
-	<ul class="sub">
-		<li class="title">{$subtitle}</li>
-	</ul>
-	{/if}
 </nav>

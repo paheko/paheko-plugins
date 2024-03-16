@@ -11,31 +11,17 @@
 	{/if}
 
 	<ul class="sub">
-		<li{if $period == 'week'} class="current"{/if}><a href="?p=week&g={$group}{$filters_uri}">Par semaine</a></li>
-		<li{if $period == 'month'} class="current"{/if}><a href="?p=month&g={$group}{$filters_uri}">Par mois</a></li>
-		<li{if $period == 'year'} class="current"{/if}><a href="?p=year&g={$group}{$filters_uri}">Par année</a></li>
-		<li{if $period == 'accounting'} class="current"{/if}><a href="?p=accounting&g={$group}{$filters_uri}">Par exercice</a></li>
+		<li{if $period == 'week'} class="current"{/if}><a href="?period=week&group={$group}&{$filters_uri}">Par semaine</a></li>
+		<li{if $period == 'month'} class="current"{/if}><a href="?period=month&group={$group}&{$filters_uri}">Par mois</a></li>
+		<li{if $period == 'year'} class="current"{/if}><a href="?period=year&group={$group}&{$filters_uri}">Par année</a></li>
+		<li{if $period == 'accounting'} class="current"{/if}><a href="?period=accounting&group={$group}&{$filters_uri}">Par exercice</a></li>
 	</ul>
 	<ul class="sub">
-		<li{if $group === 'task'} class="current"{/if}><a href="?p={$period}{$filters_uri}">Par catégorie</a></li>
-		<li{if $group === 'user'} class="current"{/if}><a href="?p={$period}&g=user{$filters_uri}">Par personne</a></li>
+		<li{if $group === 'task'} class="current"{/if}><a href="?period={$period}&{$filters_uri}">Par catégorie</a></li>
+		<li{if $group === 'user'} class="current"{/if}><a href="?period={$period}&group=user&{$filters_uri}">Par personne</a></li>
 	</ul>
 
-	<form method="get" action="" class="{if !$filters_uri}hidden {/if}noprint" id="filterForm">
-		<input type="hidden" name="p" value="{$period}" />
-		<input type="hidden" name="g" value="{$group}" />
-		<fieldset>
-			<legend>Filtrer par date</legend>
-			<p>
-				<label for="f_after">Du</label>
-				{input type="date" name="start" default=$filters.start}
-				<label for="f_before">au</label>
-				{input type="date" name="end" default=$filters.end}
-				{button type="submit" label="Filtrer" shape="right"}
-				<input type="submit" value="Annuler" onclick="this.form.querySelectorAll('input:not([type=hidden]), select').forEach((a) => a.disabled = true); this.form.submit();" />
-			</p>
-		</fieldset>
-	</form>
+	{include file="./_filters.tpl"}
 </nav>
 
 {if !$list->count()}
@@ -57,9 +43,9 @@
 			</th>
 			<td>
 				{if $group === 'user' && $row.user_id}
-					{link href="all.php?id_user=%d"|args:$row.user_id label=$row.group}
+					{link href="all.php?id_user=%d&%s"|args:$row.user_id:$filters_uri label=$row.group}
 				{elseif $row.task_id}
-					{link href="all.php?id_task=%d"|args:$row.task_id label=$row.group}
+					{link href="all.php?id_task=%d&%s"|args:$row.task_id:$filters_uri label=$row.group}
 				{elseif $row.group === 'total'}
 					<strong>Total</strong>
 				{else}

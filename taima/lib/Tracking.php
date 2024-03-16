@@ -14,6 +14,7 @@ use Paheko\Accounting\Transactions;
 
 use Paheko\DB;
 use Paheko\DynamicList;
+use Paheko\Entity;
 use Paheko\Plugins;
 use Paheko\Utils;
 use Paheko\UserException;
@@ -286,20 +287,32 @@ class Tracking
 			LEFT JOIN users u ON u.id = e.user_id';
 
 		$conditions = '1';
+		$params = [];
 
 		if (!empty($filters['except'])) {
 			$conditions = 'e.user_id IS NULL OR e.user_id != ' . (int)$filters['except'];
 		}
-		elseif (!empty($filters['user_id'])) {
-			$conditions = 'e.user_id = ' . (int)$filters['user_id'];
+		elseif (!empty($filters['id_user'])) {
+			$conditions = 'e.user_id = ' . (int)$filters['id_user'];
 		}
-		elseif (!empty($filters['task_id'])) {
-			$conditions = 'e.task_id = ' . (int)$filters['task_id'];
+		elseif (!empty($filters['id_task'])) {
+			$conditions = 'e.task_id = ' . (int)$filters['id_task'];
 			$columns['task']['export'] = true;
 			unset($columns['notes']['export']);
 		}
 
+		if (!empty($filters['start']) && ($start = Entity::filterUserDateValue($filters['start']))) {
+			$conditions .= ' AND e.date >= :start';
+			$params['start'] = $start;
+		}
+
+		if (!empty($filters['end']) && ($end = Entity::filterUserDateValue($filters['end']))) {
+			$conditions .= ' AND e.date <= :end';
+			$params['end'] = $end;
+		}
+
 		$list = new DynamicList($columns, $tables, $conditions);
+		$list->setParameters($params);
 		$list->orderBy('date', true);
 
 		$list->setExportCallback(function (&$row) {
@@ -403,7 +416,7 @@ class Tracking
 		}
 
 		if (!empty($filters['end']) && ($end = Entity::filterUserDateValue($filters['end']))) {
-			$where .= ' AND e.date <= :end';
+			$conditions .= ' AND e.date <= :end';
 			$params['end'] = $end;
 		}
 

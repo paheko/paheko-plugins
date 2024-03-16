@@ -2,7 +2,6 @@
 
 namespace Paheko\Plugin\Taima;
 
-use Paheko\Entity;
 use Paheko\Plugin\Taima\Tracking;
 
 use function Paheko\{f, qg};
@@ -21,16 +20,16 @@ if ($end = qg('end')) {
 	$filters['end'] = $end;
 }
 
-$period = qg('p') ?? 'week';
-$group = qg('g') ?? 'task';
+$period = qg('period') ?? 'week';
+$group = qg('group') ?? 'task';
 
 $list = Tracking::listPerInterval($period, $group, $filters);
 $list->loadFromQueryString();
 
 $filters_uri = http_build_query($filters);
-$filters['start'] ??= new \DateTime('first day of this year');
-$filters['end'] ??= new \DateTime('last day of this year');
+$default_start = (new \DateTime('first day of this year'))->format('d/m/Y');
+$default_end = (new \DateTime('last day of this year'))->format('d/m/Y');
 
-$tpl->assign(compact('period', 'group', 'filters', 'filters_uri', 'list'));
+$tpl->assign(compact('period', 'group', 'filters', 'filters_uri', 'list', 'default_start', 'default_end'));
 
 $tpl->display(__DIR__ . '/../templates/stats.tpl');

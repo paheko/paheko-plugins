@@ -2,6 +2,29 @@
 
 {include file="./_nav.tpl" current="all"}
 
+<nav class="tabs">
+	<aside>
+		{if !$filters.start}
+			{linkbutton shape="search" href="#" id="filterFormButton" label="Filtrer par dates" onclick="var a = $('#filterForm'); a.disabled = false; g.toggle(a, true); this.remove(); var a = $('#compareFormButton'); a ? a.remove() : null; return false;"}
+		{/if}
+		{exportmenu}
+		{linkbutton target="_dialog" href="edit.php?id_user=%d"|args:$filters.user_id label="Ajouter une tâche" shape="plus"}
+	</aside>
+
+	{if $logged_user.id && !$filters.id_user && !$filters.id_task}
+	<ul class="sub">
+		<li {if !$filters.except}class="current"{/if}>{link href=$self_url_no_qs label="Tous les membres"}</li>
+		<li {if $filters.except}class="current"{/if}>{link href="?except" label="Sauf moi-même"}</li>
+	</ul>
+	{elseif isset($subtitle)}
+	<ul class="sub">
+		<li class="title">{$subtitle}</li>
+	</ul>
+	{/if}
+</nav>
+
+{include file="./_filters.tpl"}
+
 {$list->getHTMLPagination()|raw}
 
 	{include file="common/dynamic_list_head.tpl"}
@@ -9,18 +32,18 @@
 		{foreach from=$list->iterate() item="task"}
 		<tr>
 			<td>{link href="!users/details.php?id=%d"|args:$task.user_id label=$task.user_name}</td>
-			<th>
-				{if $filters.task_id}
+			<td>
+				{if $filters.id_task}
 					{$task.notes}
 				{else}
 					{if $task.task}
-						{$task.task}
+						<h4>{$task.task}</h4>
 					{else}
 						— Non spécifiée —
 					{/if}
-					{if $task.notes}<br /><small>{$task.notes|escape|nl2br}</small>{/if}
+					{if $task.notes}<small>{$task.notes|escape|nl2br}</small>{/if}
 				{/if}
-			</th>
+			</td>
 			<td>{$task.year}</td>
 			<td>{$task.week}</td>
 			<td>{$task.date|taima_date:'d MMMM YYYY'}</td>
