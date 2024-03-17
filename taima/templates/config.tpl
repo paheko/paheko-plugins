@@ -4,10 +4,6 @@
 	{include file="./_nav.tpl" current="config"}
 {/if}
 
-<p class="actions">
-	{linkbutton href="import.php" shape="upload" label="Import Bénévalibre"}
-</p>
-
 {form_errors}
 
 <table class="list">

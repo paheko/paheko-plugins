@@ -4,6 +4,7 @@ namespace Paheko\Plugin\Taima\Entities;
 
 use Paheko\Entity;
 use Paheko\Form;
+use Paheko\Users\Users;
 
 use KD2\DB\Date;
 
@@ -109,5 +110,14 @@ class Entry extends Entity
 
 		$this->set('duration', intval($this->duration + ceil((time() - $this->timer_started) / 60)));
 		$this->set('timer_started', null);
+	}
+
+	public function user_name(): ?string
+	{
+		if (null === $this->user_id) {
+			return null;
+		}
+
+		return Users::getName($this->user_id);
 	}
 }

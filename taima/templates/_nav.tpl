@@ -1,4 +1,9 @@
 <nav class="tabs">
+	{if $current === 'config'}
+	<aside>
+		{linkbutton href="import.php" shape="import" label="Import de tâches"}
+	</aside>
+	{/if}
 	<ul>
 	{if $logged_user.id}
 		<li{if $current === 'index'} class="current"{/if}><a href="./">Ma semaine</a></li>

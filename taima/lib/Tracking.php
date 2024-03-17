@@ -12,6 +12,7 @@ use Paheko\Entities\Accounting\Year;
 use Paheko\Accounting\Accounts;
 use Paheko\Accounting\Transactions;
 
+use Paheko\CSV_Custom;
 use Paheko\DB;
 use Paheko\DynamicList;
 use Paheko\Entity;
@@ -582,5 +583,99 @@ class Tracking
 		$minutes -= $hours * 60;
 
 		return sprintf('%d:%02d', $hours, $minutes);
+	}
+
+	static public function findImportCategories(CSV_Custom $csv, array $tasks): array
+	{
+		$categories = [];
+
+		foreach ($csv->iterate() as $row) {
+			if (isset($row->task)) {
+				$categories[$row->task] = null;
+			}
+		}
+
+		foreach ($categories as $clabel => &$match) {
+			foreach ($tasks as $id => $label) {
+				if (strnatcasecmp($clabel, $label) === 0) {
+					$match = $id;
+				}
+			}
+		}
+
+		unset($match);
+
+		return $categories;
+	}
+
+	static public function saveImport(CSV_Custom $csv, array $categories): void
+	{
+		$db = DB::getInstance();
+		$db->begin();
+
+		foreach (self::createImport($csv, $categories) as $e) {
+			$e->save();
+		}
+
+		$db->commit();
+	}
+
+	static public function createImport(CSV_Custom $csv, array $categories): \Generator
+	{
+		$id_field = DynamicFields::getNameFieldsSQL();
+		$db = DB::getInstance();
+
+		foreach ($csv->iterate() as $i => $row) {
+			$e = new Entry;
+			$e->setDateString($row->date);
+
+			if (isset($row->duration_hours)) {
+				$e->setDuration($row->duration_hours);
+			}
+			elseif (isset($row->duration)) {
+				$e->set('duration', (int)$row->duration);
+			}
+			else {
+				throw new UserException('Aucune durée n\'est indiquée');
+			}
+
+			if (array_key_exists($row->task, $categories)) {
+				$e->set('task_id', (int)$categories[$row->task]);
+			}
+
+			$id = null;
+			$name = null;
+
+			if (isset($row->name, $row->surname)) {
+				$a = trim($row->name . ' ' . $row->surname);
+				$b = trim($row->surname . ' ' . $row->name);
+				$name = $b;
+				$id = $db->firstColumn(sprintf('SELECT id FROM users WHERE %s = ? COLLATE U_NOCASE OR %1$s = ? COLLATE U_NOCASE;', $id_field), $a, $b);
+			}
+
+			if (isset($row->fullname)) {
+				$name = trim($row->fullname);
+				$id = $db->firstColumn(sprintf('SELECT id FROM users WHERE %s = ? COLLATE U_NOCASE;', $id_field), $name);
+			}
+
+			$e->set('user_id', $id ?: null);
+
+			$notes = [];
+
+			if (!$e->user_id && $name) {
+				$notes[] = $name;
+			}
+
+			if (!empty($row->title)) {
+				$notes[] = trim($row->title);
+			}
+
+			if (!empty($row->notes)) {
+				$notes[] = trim($row->notes);
+			}
+
+			$e->set('notes', implode("\n", $notes) ?: null);
+			yield $i => $e;
+		}
 	}
 }
