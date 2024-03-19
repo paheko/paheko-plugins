@@ -38,7 +38,6 @@
 let d = $('#f_duration');
 let focusDuration = () => {ldelim} d.focus(); d.select(); {rdelim};
 let s = $('#f_task_id');
-s.onchange = focusDuration;
 
 {if $entry->exists()}
 	focusDuration();
