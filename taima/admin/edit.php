@@ -13,12 +13,11 @@ use function Paheko\{f, qg};
 
 use KD2\DB\Date;
 
-$session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
-
 require_once __DIR__ . '/_inc.php';
 
 $csrf_key = 'edit_task';
 $selected_user = null;
+
 $user = qg('id_user');
 
 if ($user) {
@@ -48,6 +47,11 @@ else {
 	if (isset($_GET['date'])) {
 		$entry->importForm(['date' => $_GET['date'], 'user_id' => $session::getUserId()]);
 	}
+}
+
+if (!$session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)
+	&& (!$session->isLogged() || $entry->user_id !== $session::getUserId())) {
+	throw new UserException('Vous n\'avez pas accès à cette tâche');
 }
 
 $form->runIf('save', function () use ($entry) {
