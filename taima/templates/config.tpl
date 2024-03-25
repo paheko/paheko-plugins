@@ -22,7 +22,7 @@
 			<td class="num">{$task.account}</td>
 			<td class="money">{if $task.value}{$task.value|raw|money_currency:true} / h{/if}</td>
 			<td class="actions">
-				{linkbutton label="Liste des tâches" href="all.php?id_task=%d"|args:$task.id shape="menu"}
+				{linkbutton label="Suivi des tâches" href="all.php?id_task=%d"|args:$task.id shape="menu"}
 				{linkbutton label="Éditer" href="?edit=%d"|args:$task.id shape="edit" target="_dialog"}
 				{linkbutton label="Supprimer" href="?delete=%d"|args:$task.id shape="delete" target="_dialog"}
 			</td>
