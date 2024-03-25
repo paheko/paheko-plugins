@@ -49,7 +49,7 @@ else {
 	}
 }
 
-if (!$session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)
+if (!$session->canAccess($session::SECTION_USERS, $session::ACCESS_WRITE)
 	&& (!$session->isLogged() || $entry->user_id !== $session::getUserId())) {
 	throw new UserException('Vous n\'avez pas accès à cette tâche');
 }
