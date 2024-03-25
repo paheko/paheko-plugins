@@ -1,9 +1,12 @@
 <nav class="tabs">
-	{if $current === 'config'}
 	<aside>
+	{if $current === 'config'}
 		{linkbutton href="import.php" shape="import" label="Import de tâches"}
-	</aside>
 	{/if}
+	{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_WRITE)}
+		{linkbutton shape="plus" label="Saisie pour un autre membre" href="edit.php"}
+	{/if}
+	</aside>
 	<ul>
 	{if $logged_user.id}
 		<li{if $current === 'index'} class="current"{/if}><a href="./">Ma semaine</a></li>

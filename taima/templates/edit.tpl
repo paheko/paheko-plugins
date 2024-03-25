@@ -5,6 +5,10 @@
 {/if}
 {include file="_head.tpl" title=$title}
 
+{if !$date && !$dialog}
+	{include file="./_nav.tpl" current="edit"}
+{/if}
+
 {if isset($_GET.ok)}
 	<p class="confirm block">Tâche enregistrée.</p>
 {/if}

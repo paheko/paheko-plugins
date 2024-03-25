@@ -8,7 +8,6 @@
 			{linkbutton shape="search" href="#" id="filterFormButton" label="Filtrer par dates" onclick="var a = $('#filterForm'); a.disabled = false; g.toggle(a, true); this.remove(); var a = $('#compareFormButton'); a ? a.remove() : null; return false;"}
 		{/if}
 		{exportmenu}
-		{linkbutton target="_dialog" href="edit.php?id_user=%d"|args:$filters.user_id label="Ajouter une tâche" shape="plus"}
 	</aside>
 
 	{if $logged_user.id && !$filters.id_user && !$filters.id_task}
