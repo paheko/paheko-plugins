@@ -63,7 +63,7 @@ class Entry extends Entity
 
 	public function setDateString(string $date)
 	{
-		$this->setDate($this->filterUserValue('date', $date, 'date'));
+		$this->setDate($this->filterUserDateValue($date, Date::class));
 	}
 
 	public function setDuration(string $duration = null)
