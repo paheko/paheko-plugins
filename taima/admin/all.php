@@ -10,7 +10,7 @@ use Paheko\UserException;
 
 use function Paheko\{f, qg};
 
-$session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
+$session->requireAccess($session::SECTION_USERS, $session::ACCESS_WRITE);
 
 require_once __DIR__ . '/_inc.php';
 
