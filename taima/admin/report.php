@@ -15,7 +15,7 @@ use function Paheko\{f, qg};
 require_once __DIR__ . '/_inc.php';
 
 $session = Session::getInstance();
-$session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
+$session->requireAccess($session::SECTION_USERS, $session::ACCESS_WRITE);
 $session->requireAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE);
 
 $csrf_key = 'taima_report';
