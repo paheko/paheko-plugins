@@ -12,7 +12,7 @@
 		<li{if $current === 'index'} class="current"{/if}><a href="./">Ma semaine</a></li>
 		<li{if $current === 'year'} class="current"{/if}><a href="year.php">Mon résumé</a></li>
 	{/if}
-{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)}
+{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_WRITE)}
 		<li{if $current === 'all'} class="current"{/if}><a href="all.php">Suivi</a></li>
 		<li{if $current === 'stats'} class="current"{/if}><a href="stats.php">Statistiques</a></li>
 {if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
