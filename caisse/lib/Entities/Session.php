@@ -111,10 +111,16 @@ class Session extends Entity
 		}
 	}
 
-	public function getTotal()
+	public function getPaymentsTotal()
 	{
 		return DB::getInstance()->firstColumn(POS::sql('SELECT SUM(tp.amount) FROM @PREFIX_tabs_payments tp
 			INNER JOIN @PREFIX_tabs t ON tp.tab = t.id AND t.session = ?'), $this->id);
+	}
+
+	public function getItemsTotal()
+	{
+		return DB::getInstance()->firstColumn(POS::sql('SELECT SUM(ti.qty * ti.price) FROM @PREFIX_tabs_items ti
+			INNER JOIN @PREFIX_tabs t ON ti.tab = t.id AND t.session = ?'), $this->id);
 	}
 
 	public function listPayments()
@@ -167,6 +173,7 @@ class Session extends Entity
 	{
 		return DB::getInstance()->get(POS::sql('SELECT
 			SUM(ti.qty * ti.price) AS total,
+			SUM(ti.qty) AS count,
 			ti.category_name,
 			c.account
 			FROM @PREFIX_tabs_items ti
@@ -174,6 +181,19 @@ class Session extends Entity
 			LEFT JOIN @PREFIX_categories c ON c.id = p.category
 			WHERE ti.tab IN (SELECT id FROM @PREFIX_tabs WHERE session = ?)
 			GROUP BY category_name;'), $this->id);
+
+	}
+
+	public function listCountsByProduct()
+	{
+		return DB::getInstance()->get(POS::sql('SELECT
+			SUM(ti.qty * ti.price) AS total,
+			SUM(ti.qty) AS count,
+			ti.name, ti.category_name
+			FROM @PREFIX_tabs_items ti
+			LEFT JOIN @PREFIX_products p ON ti.product = p.id
+			WHERE ti.tab IN (SELECT id FROM @PREFIX_tabs WHERE session = ?)
+			GROUP BY ti.name ORDER BY ti.category_name, ti.name;'), $this->id);
 
 	}
 
@@ -208,7 +228,9 @@ class Session extends Entity
 		$tpl->assign('payments_totals', $this->listPaymentTotals());
 		$tpl->assign('tabs', $this->listTabsWithItems());
 		$tpl->assign('totals_categories', $this->listTotalsByCategory());
-		$tpl->assign('total', $this->getTotal());
+		$tpl->assign('totals_products', $this->listCountsByProduct());
+		$tpl->assign('total', $this->getPaymentsTotal());
+		$tpl->assign('total_sales', $this->getItemsTotal());
 		$tpl->assign('missing_users_tabs', $this->listMissingUsers());
 
 		$tpl->assign('title', sprintf('Session de caisse n°%d du %s', $this->id, Utils::date_fr($this->opened)));

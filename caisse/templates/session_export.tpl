@@ -121,7 +121,7 @@
 </div>
 {/if}
 
-<h2 class="ruler">Recettes par catégorie</h2>
+<h2 class="ruler">Ventes par catégorie</h2>
 
 <table class="list">
 	<thead>
@@ -129,6 +129,7 @@
 			<td>Compte</td>
 			<td>Catégorie</td>
 			<td>Montant</td>
+			<td>Nombre de ventes</td>
 		</tr>
 	</thead>
 	<tbody>
@@ -139,14 +140,51 @@
 			<td>
 				{$cat.total|raw|money_currency}
 			</td>
+			<td>{$cat.count}</td>
 		</tr>
+		<?php $count ??= 0; $count += $cat->count; ?>
 		{/foreach}
 	</tbody>
 	<tfoot>
 		<tr>
 			<td></td>
 			<th>Total</th>
-			<td>{$total|raw|money_currency}</td>
+			<td>{$total_sales|raw|money_currency}</td>
+			<td>{$count}</td>
+		</tr>
+	</tfoot>
+</table>
+
+<h2 class="ruler">Ventes par produit</h2>
+
+<table class="list">
+	<thead>
+		<tr>
+			<td>Catégorie</td>
+			<td>Produit</td>
+			<td>Montant</td>
+			<td>Nombre de ventes</td>
+		</tr>
+	</thead>
+	<tbody>
+		{foreach from=$totals_products item="p"}
+		<tr>
+			<td>{$p.category_name}</td>
+			<th>{$p.name}</th>
+			<td>
+				{$p.total|raw|money_currency}
+			</td>
+			<td>{$p.count}</td>
+		</tr>
+		<?php $count ??= 0; $count += $p->count; ?>
+		{/foreach}
+	</tbody>
+	<tfoot>
+		<tr>
+			<td></td>
+			<th>Total</th>
+			<td>{$total_sales|raw|money_currency}</td>
+			<td>{$count}</td>
 		</tr>
 	</tfoot>
 </table>
@@ -242,7 +280,7 @@
 		<tr>
 			<td></td>
 			<th>Total</th>
-			<td>{$total|raw|money_currency}</td>
+			<td>{$total_payments|raw|money_currency}</td>
 			<td class="actions"></td>
 		</tr>
 	</tfoot>

@@ -69,6 +69,7 @@ class Tabs
 			$sql = sprintf('%s %s ?', $column, $operator);
 		}
 
+		// FIXME: use users_search
 		$sql = sprintf('SELECT u.id, %s AS number, %s AS email, %s AS name
 			FROM users u
 			WHERE %s
