@@ -133,6 +133,7 @@
 		</tr>
 	</thead>
 	<tbody>
+		{assign var="count" value=0}
 		{foreach from=$totals_categories item="cat"}
 		<tr>
 			<td>{$cat.account}</td>
@@ -142,7 +143,7 @@
 			</td>
 			<td>{$cat.count}</td>
 		</tr>
-		<?php $count ??= 0; $count += $cat->count; ?>
+		<?php $count += $cat->count; ?>
 		{/foreach}
 	</tbody>
 	<tfoot>
@@ -167,6 +168,7 @@
 		</tr>
 	</thead>
 	<tbody>
+		{assign var="count" value=0}
 		{foreach from=$totals_products item="p"}
 		<tr>
 			<td>{$p.category_name}</td>
@@ -176,7 +178,7 @@
 			</td>
 			<td>{$p.count}</td>
 		</tr>
-		<?php $count ??= 0; $count += $p->count; ?>
+		<?php $count += $p->count; ?>
 		{/foreach}
 	</tbody>
 	<tfoot>
