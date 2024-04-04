@@ -229,7 +229,7 @@ class Session extends Entity
 		$tpl->assign('tabs', $this->listTabsWithItems());
 		$tpl->assign('totals_categories', $this->listTotalsByCategory());
 		$tpl->assign('totals_products', $this->listCountsByProduct());
-		$tpl->assign('total', $this->getPaymentsTotal());
+		$tpl->assign('total_payments', $this->getPaymentsTotal());
 		$tpl->assign('total_sales', $this->getItemsTotal());
 		$tpl->assign('missing_users_tabs', $this->listMissingUsers());
 
