@@ -141,7 +141,6 @@ var pm = document.querySelector('select[name="method_id"]');
 
 function toggleMethod() {
 	var o = pm.options[pm.selectedIndex];
-	console.log(o.dataset.reference);
 	document.querySelector('#f_amount').value = o.getAttribute('data-amount');
 	document.querySelector('.reference').style.display = (o.dataset.iscash != 1) ? null : 'none';
 }
@@ -241,3 +240,17 @@ $('.products ul li a').forEach((elm) => {
 		return false;
 	};
 });
+
+var show_button = $('.pos-tabs .plus')[0];
+var hidden = 0;
+
+$('.pos-tabs li.tab').forEach((elm) => {
+	var parent_height = elm.parentNode.offsetHeight;
+	if (elm.offsetTop > parent_height) {
+		hidden++;
+	}
+});
+
+if (!hidden) {
+	show_button.remove();
+}

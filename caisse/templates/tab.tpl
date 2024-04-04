@@ -11,26 +11,28 @@
 		{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}
 	{/if}
 
-	<ul class="pos-tabs">
+	<nav class="pos-tabs">
+		<ul class="pos-tabs">
 	{foreach from=$tabs item="tab"}
 		<li class="tab {if $tab.id == $tab_id}current{/if} {if $tab.closed}closed{/if}">
 			<a href="{$self_url_no_qs}?id={$tab.id}">
-				{$tab.id}. {$tab.opened|date_hour}
-				{if $tab.total} — {$tab.total|escape|money_currency}{/if}
-				{if $tab.name} — {$tab.name}{/if}
+				{if $tab.name}{$tab.name} — {/if}
+				{if $tab.total}{$tab.total|escape|money_currency} — {/if}
+				{$tab.opened|date_hour}
 			</a>
 		</li>
 	{/foreach}
-	</ul>
+		</ul>
+		<p>{linkbutton class="plus" shape="eye" href="#" label="Afficher toutes les notes" onclick="this.parentNode.parentNode.classList.add('open'); this.remove()"}</p>
+	</nav>
 </nav>
 
 {if $tab_id}
 <section class="pos">
 	<section class="tab">
 		<header>
-			<div>
+			<div class="title">
 				<h2>
-				{$current_tab.id}.
 				{$current_tab.opened|date_hour}
 				{if $current_tab.closed}
 				&rarr; {$current_tab.closed|date_hour}
@@ -38,8 +40,9 @@
 				</h2>
 				<h3>{$current_tab.name}</h3>
 			</div>
-			<div>
+			<div class="actions">
 				<form method="post">
+					<span class="id">Note #{$current_tab.id}</span>
 					{linkbutton title="Reçu" label=null shape="print" target="_dialog" href="./receipt.php?tab=%d"|args:$current_tab.id}
 				{if $current_tab.user_id}
 					{linkbutton href="!users/details.php?id=%d"|args:$current_tab.user_id label="" shape="user" target="_blank" title="Ouvrir la fiche membre"}
