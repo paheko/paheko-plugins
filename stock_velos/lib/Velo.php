@@ -28,7 +28,7 @@ class Velo extends Entity
 	protected ?float $prix = null;
 
 	protected Date $date_entree;
-	protected string $etat_entree;
+	protected ?string $etat_entree;
 
 	protected ?Date $date_sortie = null;
 	protected ?string $raison_sortie = null;

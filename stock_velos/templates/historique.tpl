@@ -6,15 +6,16 @@
 
     {foreach from=$list->iterate() item="row"}
         <tr>
-            <th class="num"><a href="{plugin_url query=1}id={$row.id|escape}">{$row.id|escape}</a></th>
-            <td>{$row.type|escape}</td>
-            <td>{$row.roues|escape}</td>
-            <td>{$row.genre|escape}</td>
-            <td>{$row.modele|escape}</td>
-            <td>{$row.couleur|escape}</td>
-            <td>{if empty($row.prix)}--{elseif $row.prix < 0}à&nbsp;démonter{else}{$row.prix|escape} €{/if}</td>
+            <th class="num"><a href="{plugin_url query=1}id={$row.id}">{$row.id}</a></th>
+            <td>{$row.etiquette}</td>
+            <td>{$row.type}</td>
+            <td>{$row.roues}</td>
+            <td>{$row.genre}</td>
+            <td>{$row.modele}</td>
+            <td>{$row.couleur}</td>
+            <td>{if empty($row.prix)}--{elseif $row.prix < 0}à&nbsp;démonter{else}{$row.prix} €{/if}</td>
             <td>{$row.date_sortie|date_short}</td>
-            <td>{$row.raison_sortie|escape}</td>
+            <td>{$row.raison_sortie}</td>
         </tr>
     {/foreach}
     </tbody>

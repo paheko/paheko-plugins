@@ -3,6 +3,7 @@
 namespace Paheko\Plugin\Stock_Velos;
 
 use Paheko\DB;
+use Paheko\Entity;
 use Paheko\Membres;
 use Paheko\UserException;
 use Paheko\Utils;
@@ -10,6 +11,7 @@ use Paheko\DynamicList;
 use Paheko\Users\Session;
 use Paheko\Entities\Plugin;
 
+use KD2\DB\Date;
 use KD2\DB\EntityManager;
 use KD2\Graphics\SVG\Bar;
 use KD2\Graphics\SVG\Bar_Data_Set;
@@ -77,6 +79,10 @@ class Velos
             'Vendu',
             'Vendu en bourse',
             'Jeté',
+        ],
+        'sources_details' => [
+            'Déchetterie',
+            'Copropriété',
         ],
     ];
 
@@ -151,6 +157,26 @@ class Velos
             'date_entree' => [
                 'label' => 'Entrée'
             ],
+            'source' => [
+                'label' => 'Source',
+                'export' => true,
+            ],
+            'source_details' => [
+                'label' => 'Détails sur la source',
+                'export' => true,
+            ],
+            'etat_entree' => [
+                'label' => 'État à l\'entrée',
+                'export' => true,
+            ],
+            'bicycode' => [
+                'label' => 'Bicycode',
+                'export' => true,
+            ],
+            'notes' => [
+                'label' => 'Notes',
+                'export' => true,
+            ],
         ];
 
 
@@ -159,7 +185,9 @@ class Velos
 
         $list = new DynamicList($columns, $tables, $conditions);
         $list->orderBy('etiquette', false);
-        $list->setCount('COUNT(*)');
+        $list->setModifier(function (&$row) {
+            $row->date_entree = Entity::filterUserDateValue($row->date_entree, Date::class);
+        });
         return $list;
     }
 
@@ -168,6 +196,9 @@ class Velos
         $columns = [
             'id' => [
                 'label' => 'Num.',
+            ],
+            'etiquette' => [
+                'label' => 'Etiq.',
             ],
             'type' => [
                 'label' => 'Type',
@@ -188,10 +219,38 @@ class Velos
                 'label' => 'Prix'
             ],
             'date_sortie' => [
-                'label' => 'Sortie'
+                'label' => 'Sortie',
             ],
             'raison_sortie' => [
-                'label' => 'Raison'
+                'label' => 'Raison',
+            ],
+            'details_sortie' => [
+                'label' => 'Détails sortie',
+                'export' => true,
+            ],
+            'source' => [
+                'label' => 'Source',
+                'export' => true,
+            ],
+            'source_details' => [
+                'label' => 'Détails sur la source',
+                'export' => true,
+            ],
+            'date_entree' => [
+                'label' => 'Date entrée',
+                'export' => true,
+            ],
+            'etat_entree' => [
+                'label' => 'État à l\'entrée',
+                'export' => true,
+            ],
+            'bicycode' => [
+                'label' => 'Bicycode',
+                'export' => true,
+            ],
+            'notes' => [
+                'label' => 'Notes',
+                'export' => true,
             ],
         ];
 
@@ -200,7 +259,10 @@ class Velos
 
         $list = new DynamicList($columns, $tables, $conditions);
         $list->orderBy('date_sortie', true);
-        $list->setCount('COUNT(*)');
+        $list->setModifier(function (&$row) {
+            $row->date_sortie = Entity::filterUserDateValue($row->date_sortie, Date::class);
+            $row->date_entree = Entity::filterUserDateValue($row->date_entree, Date::class);
+        });
         return $list;
     }
 
