@@ -103,10 +103,10 @@ ur_input.onkeyup = (e) => {
 
 document.querySelectorAll('input[name*="change_qty"], button[name*="change_price"], button[name*="change_weight"]').forEach((elm) => {
 	var label;
-	if (elm.name.match('change_qty')) {
+	if (elm.name.includes('change_qty')) {
 		label = 'Saisir la quantité :';
 	}
-	else if (elm.name.match('change_weight')) {
+	else if (elm.name.includes('change_weight')) {
 		label = 'Saisir le poids (en kilogrammes) :';
 	}
 	else {
@@ -153,14 +153,6 @@ if (pm) {
 // Quick search field
 var q = document.querySelector('input[name="q"]');
 
-RegExp.escape = function(string) {
-  return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
-};
-
-function normalizeString(str) {
-	return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
-}
-
 if (q) {
 	var q_timeout;
 
@@ -171,15 +163,15 @@ if (q) {
 	};
 
 	function searchProduct() {
-		var search = new RegExp(RegExp.escape(normalizeString(q.value)), 'i');
+		var search = g.normalizeString(q.value);
 		var code = q.value.replace(/\s/, '');
 
 		// Try to match barcodes
 		if (code.match(/^\d+$/)) {
-			search = new RegExp(RegExp.escape(q.value));
+			search = q.value;
 
 			document.querySelectorAll('.products button').forEach((elm) => {
-				if (elm.hasAttribute('data-code') && elm.dataset.code.match(search)) {
+				if (elm.hasAttribute('data-code') && elm.dataset.code.includes(search)) {
 					if (code.length === 13) {
 						elm.click();
 					}
@@ -195,7 +187,7 @@ if (q) {
 		}
 		else {
 			document.querySelectorAll('.products button h3').forEach((elm) => {
-				if (normalizeString(elm.innerText).match(search)) {
+				if (g.normalizeString(elm.innerText).includes(search)) {
 					elm.parentNode.hidden = false;
 				}
 				else {
