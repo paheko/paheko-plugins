@@ -29,7 +29,7 @@
 	<legend>Provenance</legend>
 	<dl>
 		{input type="select" name="source" label="D'où provient le vélo ?" required=true options=$defaults.sources default="Don" source=$velo}
-		{input type="datalist" name="source_details" label="Détails sur la provenance" help="pour le don : numéro d'adhérent ou nom du donneur" required=true source=$velo options=$defaults.sources_details}
+		{input type="text" name="source_details" label="Détails sur la provenance" help="pour le don : numéro d'adhérent ou nom du donneur" required=true source=$velo datalist=$defaults.sources_details}
 	</dl>
 </fieldset>
 
