@@ -49,6 +49,8 @@
 					{$value|strftime:'%m - %B'}
 				{elseif $key === 'sum'}
 					{$value|escape|money_currency}
+				{elseif $key === 'weight'}
+					{$value|weight:false:true}
 				{else}
 					{$value}
 				{/if}

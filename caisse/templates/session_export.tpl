@@ -130,10 +130,11 @@
 			<td>Catégorie</td>
 			<td>Montant</td>
 			<td>Nombre de ventes</td>
+			<td>Poids</td>
 		</tr>
 	</thead>
 	<tbody>
-		{assign var="count" value=0}
+		<?php $count = $weight = 0; ?>
 		{foreach from=$totals_categories item="cat"}
 		<tr>
 			<td>{$cat.account}</td>
@@ -142,8 +143,9 @@
 				{$cat.total|raw|money_currency}
 			</td>
 			<td>{$cat.count}</td>
+			<td>{$cat.weight|weight:false:true}</td>
 		</tr>
-		<?php $count += $cat->count; ?>
+		<?php $count += $cat->count; $weight += $cat->weight; ?>
 		{/foreach}
 	</tbody>
 	<tfoot>
@@ -152,6 +154,7 @@
 			<th>Total</th>
 			<td>{$total_sales|raw|money_currency}</td>
 			<td>{$count}</td>
+			<td>{$weight|weight:false:true}</td>
 		</tr>
 	</tfoot>
 </table>
@@ -165,10 +168,11 @@
 			<td>Produit</td>
 			<td>Montant</td>
 			<td>Nombre de ventes</td>
+			<td>Poids</td>
 		</tr>
 	</thead>
 	<tbody>
-		{assign var="count" value=0}
+		<?php $count = $weight = 0; ?>
 		{foreach from=$totals_products item="p"}
 		<tr>
 			<td>{$p.category_name}</td>
@@ -177,8 +181,9 @@
 				{$p.total|raw|money_currency}
 			</td>
 			<td>{$p.count}</td>
+			<td>{$p.weight|weight:false:true}</td>
 		</tr>
-		<?php $count += $p->count; ?>
+		<?php $count += $p->count; $weight += $p->weight; ?>
 		{/foreach}
 	</tbody>
 	<tfoot>
@@ -187,6 +192,7 @@
 			<th>Total</th>
 			<td>{$total_sales|raw|money_currency}</td>
 			<td>{$count}</td>
+			<td>{$weight|weight:false:true}</td>
 		</tr>
 	</tfoot>
 </table>

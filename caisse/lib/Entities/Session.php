@@ -174,6 +174,7 @@ class Session extends Entity
 		return DB::getInstance()->get(POS::sql('SELECT
 			SUM(ti.qty * ti.price) AS total,
 			SUM(ti.qty) AS count,
+			SUM(ti.qty * ti.weight) AS weight,
 			ti.category_name,
 			c.account
 			FROM @PREFIX_tabs_items ti
@@ -189,6 +190,7 @@ class Session extends Entity
 		return DB::getInstance()->get(POS::sql('SELECT
 			SUM(ti.qty * ti.price) AS total,
 			SUM(ti.qty) AS count,
+			SUM(ti.qty * ti.weight) AS weight,
 			ti.name, ti.category_name
 			FROM @PREFIX_tabs_items ti
 			LEFT JOIN @PREFIX_products p ON ti.product = p.id

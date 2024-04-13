@@ -96,6 +96,10 @@ class Products
 				'label' => 'Montant total',
 				'select' => 'SUM(i.qty * i.price)',
 			],
+			'weight' => [
+				'label' => 'Poids total',
+				'select' => 'SUM(i.qty * i.weight)',
+			],
 		];
 
 		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price > 0');
@@ -120,6 +124,10 @@ class Products
 			'sum' => [
 				'label' => 'Montant total',
 				'select' => 'SUM(i.qty * i.price)',
+			],
+			'weight' => [
+				'label' => 'Poids total',
+				'select' => 'SUM(i.qty * i.weight)',
 			],
 		];
 
