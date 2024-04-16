@@ -86,10 +86,10 @@
 						<td class="money">
 							{if !$current_tab.closed && $item.weight}
 								<button type="submit" title="Cliquer pour changer le poids" name="change_weight[{$item.id}]">
-									{$item.weight|format_weight:true:true}
+									{$item.weight|weight:true:true}
 								</button>
 							{else}
-								{$item.weight|format_weight:false:true}
+								{$item.weight|weight:false:true}
 							{/if}
 						</td>
 					{/if}
