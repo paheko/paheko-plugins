@@ -7,7 +7,7 @@
 		{if !$filters.start}
 			{linkbutton shape="search" href="#" id="filterFormButton" label="Filtrer par dates" onclick="var a = $('#filterForm'); a.disabled = false; g.toggle(a, true); this.remove(); var a = $('#compareFormButton'); a ? a.remove() : null; return false;"}
 		{/if}
-		{exportmenu}
+		{exportmenu right=true}
 	</aside>
 
 	{if $logged_user.id && !$filters.id_user && !$filters.id_task}

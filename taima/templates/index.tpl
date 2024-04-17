@@ -17,9 +17,9 @@
 	{/if}
 	<section class="header">
 		<p class="btns">
-			<a href="{$prev_url}" class="icn-btn" title="Semaine précédente">{icon shape="left"}</a>
+			{linkbutton shape="left" title="Semaine précédente" href=$prev_url label=null}
 			{button id="datepicker" shape="calendar" data-date=$day|date_format:'%Y-%m-%d'}
-			<a href="{$next_url}" class="icn-btn" title="Semaine suivante">{icon shape="right"}</a>
+			{linkbutton shape="right" title="Semaine suivante" href=$next_url label=null}
 		</p>
 		<h2>{$day|taima_date:'EEEE d MMMM yyyy'}</h2>
 		{if !$is_today}

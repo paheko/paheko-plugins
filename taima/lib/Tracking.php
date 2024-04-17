@@ -276,7 +276,7 @@ class Tracking
 			],
 			'value' => [
 				'label' => 'Valorisation',
-				'select' => '(e.duration * t.value) / 100',
+				'select' => '(e.duration/60 * t.value) / 100',
 				'export' => true,
 			],
 			'user_id' => [],
@@ -553,7 +553,7 @@ class Tracking
 			$line = new Line;
 			$line->debit = $row->total;
 			$line->id_account = $row->id_account;
-			$line->label = sprintf('%s (%d heures à %s / h)', $row->label, $row->hours, Utils::money_format($row->total));
+			$line->label = sprintf('%s (%d heures à %s / h)', $row->label, $row->hours, Utils::money_format($row->value));
 
 			$t->addLine($line);
 		}
