@@ -37,7 +37,7 @@ function get_receipt($tab)
 	$remainder_after = $remainder - $eligible;
 
 	$tpl = new UserTemplate;
-	$tpl->setSource(PLUGIN_ROOT . '/templates/invoice.skel');
+	$tpl->setSourcePath(PLUGIN_ROOT . '/templates/invoice.skel');
 
 	$tpl->assignArray(compact('items', 'payments', 'tab', 'remainder', 'eligible', 'remainder_after'));
 	return $tpl;
