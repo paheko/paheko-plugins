@@ -54,15 +54,15 @@ class Tracking
 		return sprintf(self::FIXED_ICON, $size);
 	}
 
-	static public function getWorkingHours(int $hours = 35, int $working_weeks = 46): array
+	static public function getWorkingHours(int $hours = 35): array
 	{
 		// 1607 hours = numbers of hours worked in a year for a 35 hour week,
 		// counting holidays
 		// 35*52 = what you would do as simple math
-		$legal_work_ratio = 1607/(35*52.1429);
+		$legal_work_ratio = 1596/(35*52.1429);
 
-		$week = $hours * $legal_work_ratio;
-		$year = $week * 52.1429;
+		$week = $hours;
+		$year = $hours * 44.4;
 		$month = $year / 12;
 
 		return compact('hours', 'week', 'year', 'month');
@@ -276,7 +276,7 @@ class Tracking
 			],
 			'value' => [
 				'label' => 'Valorisation',
-				'select' => '(e.duration/60 * t.value) / 100',
+				'select' => 'ROUND((e.duration/60.0 * t.value) / 100, 2)',
 				'export' => true,
 			],
 			'user_id' => [],

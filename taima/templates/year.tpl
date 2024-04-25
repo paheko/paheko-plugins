@@ -85,7 +85,7 @@
 			<legend>Objectif personnel</legend>
 			<p class="help">
 				Permet d'indiquer un nombre d'heures hebdomadaires qu'on désire utiliser comme valeur de comparaison.<br />
-				Le calcul prend en compte 6 semaines de congés, et une semaine de jours fériés (45 semaines d'activité par an).
+				Le calcul annuel prend en compte 6 semaines de congés, et 11 jours de jours fériés.
 			</p>
 			<dl>
 				{input type="number" label="Nombre d'heures par semaine" name="target_hours" required=true default=$target['hours']}

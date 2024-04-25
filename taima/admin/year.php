@@ -13,10 +13,21 @@ if (!Session::getUserId()) {
 	Utils::redirect('./all.php');
 }
 
-$hours = intval($_GET['target_hours'] ?? 13);
-$target = Tracking::getWorkingHours($hours, 45); // 6 weeks of paid vacations
+$user = $session->getUser();
 
-$user_id = $session->getUser()->id;
+$hours = $_GET['target_hours'] ?? null;
+$hours ??= $user->getPreference('taima_week_hours');
+$hours ??= 13;
+$hours = (int) $hours;
+
+if ($hours !== 13) {
+	$user->setPreference('taima_week_hours', $hours);
+}
+
+
+$target = Tracking::getWorkingHours($hours);
+
+$user_id = $user->id;
 $year = (int) ($_GET['year'] ?? null);
 $years = $months = $weeks = null;
 
