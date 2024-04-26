@@ -59,6 +59,8 @@ class Tracking
 		// 1607 hours = numbers of hours worked in a year for a 35 hour week,
 		// counting holidays
 		// 35*52 = what you would do as simple math
+		// 1596 hours = number of hours worked in a year, without the "solidarity day" (+7 hours)
+		// or the "rounding" (+4 hours)
 		$legal_work_ratio = 1596/(35*52.1429);
 
 		$week = $hours;
