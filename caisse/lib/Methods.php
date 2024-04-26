@@ -29,14 +29,9 @@ class Methods
 		return EM::getInstance(Method::class)->all('SELECT * FROM @TABLE ORDER BY name;');
 	}
 
-	static public function listSalesPerMonth(int $year): DynamicList
+	static public function listSales(int $year, string $period = 'year'): DynamicList
 	{
 		$columns = [
-			'month' => [
-				'label' => 'Mois',
-				'select' => 'strftime(\'%Y-%m-01\', p.date)',
-				'order' => 'p.date %s, m.name %1$s',
-			],
 			'method' => [
 				'label' => 'Méthode',
 				'select' => 'm.name',
@@ -54,18 +49,19 @@ class Methods
 		$tables = '@PREFIX_tabs_payments p INNER JOIN @PREFIX_methods m ON m.id = p.method';
 
 		$list = POS::DynamicList($columns, $tables, 'strftime(\'%Y\', p.date) = :year AND amount > 0');
-		$list->groupBy('strftime(\'%Y-%m\', p.date), m.id');
-		$list->orderBy('month', false);
+		$list->groupBy('m.id');
+		$list->orderBy('method', true);
 		$list->setParameter('year', (string)$year);
-		$list->setTitle(sprintf('Paiements encaissés %d, par mois et par moyen de paiement', $year));
+		$list->setTitle(sprintf('Paiements encaissés %d, par moyen de paiement', $year));
+		POS::applyPeriodToList($list, $period, 'p.date');
 		return $list;
 	}
 
-	static public function listExitsPerMonth(int $year): DynamicList
+	static public function listExits(int $year, string $period = 'year'): DynamicList
 	{
-		$list = self::listSalesPerMonth($year);
+		$list = self::listSales($year, $period);
 		$list->setConditions('strftime(\'%Y\', p.date) = :year AND amount < 0');
-		$list->setTitle(sprintf('Paiements décaissés %d, par mois et par moyen de paiement', $year));
+		$list->setTitle(sprintf('Paiements décaissés %d, par moyen de paiement', $year));
 		return $list;
 	}
 

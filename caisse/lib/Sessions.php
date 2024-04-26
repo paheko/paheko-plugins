@@ -14,7 +14,7 @@ class Sessions
 	static public function listYears(): array
 	{
 		return DB::getInstance()->getAssoc(POS::sql('SELECT strftime(\'%Y\', opened), strftime(\'%Y\', opened)
-			FROM @PREFIX_sessions GROUP BY strftime(\'%Y\', opened);'));
+			FROM @PREFIX_sessions GROUP BY strftime(\'%Y\', opened) ORDER BY opened DESC;'));
 	}
 
 	static public function open(string $user_name, int $amount): Session

@@ -1,26 +1,41 @@
-{include file="_head.tpl" title="Gestion de la caisse"}
+{include file="_head.tpl" title=$title}
 
 {include file="./_nav.tpl" current='stats'}
 
-{if !$year}
-
-	<p class="help">Sélectionner une année ci-dessous.</p>
-	<ul style="font-size: 2em; display: flex; flex-wrap: wrap; gap: 1em">
-		{foreach from=$years item="year"}
-		<li>{linkbutton href="?year=%d"|args:$year label=$year}</li>
+<nav class="tabs">
+	<ul class="sub">
+		{foreach from=$years item="y"}
+		<li class="{if $year === $y}current{/if}">{link href="?year=%d&page=%s&period=%s"|args:$y:$page:$period label=$y}</li>
 		{/foreach}
 	</ul>
 
-{elseif $list}
+	{if $year}
+	<ul class="sub">
+		<li class="{if $page === 'sales_categories'}current{/if}">{link href="?year=%d&page=sales_categories&period=%s"|args:$year:$period label="Ventes, par catégorie"}</li>
+		<li class="{if $page === 'sales_products'}current{/if}">{link href="?year=%d&page=sales_products&period=%s"|args:$year:$period label="Ventes, par produit"}</li>
+		<li class="{if $page === 'methods_in'}current{/if}">{link href="?year=%d&page=methods_in&period=%s"|args:$year:$period label="Encaissements"}</li>
+		<li class="{if $page === 'methods_out'}current{/if}">{link href="?year=%d&page=methods_out&period=%s"|args:$year:$period label="Décaissements"}</li>
+	</ul>
 
-	{if $page === 'methods_in'}
+	<ul class="sub">
+		<li class="{if $period === 'year'}current{/if}">{link href="?year=%d&page=%s&period=year"|args:$year:$page label="Sur l'année"}</li>
+		<li class="{if $period === 'semester'}current{/if}">{link href="?year=%d&page=%s&period=semester"|args:$year:$page label="Par semestre"}</li>
+		<li class="{if $period === 'quarter'}current{/if}">{link href="?year=%d&page=%s&period=quarter"|args:$year:$page label="Par trimestre"}</li>
+		<li class="{if $period === 'month'}current{/if}">{link href="?year=%d&page=%s&period=month"|args:$year:$page label="Par mois"}</li>
+	</ul>
+	{/if}
+</nav>
+
+{if $list}
+
+	{if $page === 'methods_in' && $period === 'year'}
 		<section class="graphs">
 			<figure>
 				<figcaption><h2>Montant des encaissements, par méthode et par mois</h2></figcaption>
 				<img src="?graph=methods&year={$year}"/>
 			</figure>
 		</section>
-	{elseif $page === 'sales_categories'}
+	{elseif $page === 'sales_categories' && $period === 'year'}
 		<section class="graphs">
 			<figure>
 				<figcaption><h2>Montant des ventes, par catégorie et par mois</h2></figcaption>
@@ -33,9 +48,6 @@
 		</section>
 	{/if}
 
-
-	<h2 class="ruler">{$list->getTitle()}</h2>
-
 	<p class="actions">
 		{exportmenu right=true}
 	</p>
@@ -45,7 +57,7 @@
 			<tr>
 			{foreach from=$row key="key" item="value"}
 				<td>
-				{if $key === 'month'}
+				{if $key === 'period' && $period === 'month'}
 					{$value|strftime:'%m - %B'}
 				{elseif $key === 'sum'}
 					{$value|escape|money_currency}
@@ -62,18 +74,11 @@
 		</tbody>
 	</table>
 
-
 {else}
 
-	<h2 class="ruler">Année {$year}</h2>
-
-	<dl class="large">
-		<dt><a href="?year={$year}&amp;page=sales_categories">Ventes, par mois et par catégorie</a></dt>
-		<dt><a href="?year={$year}&amp;page=sales_products_month">Ventes, par mois et par produit</a></dt>
-		<dt><a href="?year={$year}&amp;page=sales_products_year">Ventes, par produit, sur toute l'année</a></dt>
-		<dt><a href="?year={$year}&amp;page=methods_in">Encaissements, par mois et par méthode de paiement</a></dt>
-		<dt><a href="?year={$year}&amp;page=methods_out">Décaissements, par mois et par méthode de paiement</a></dt>
-	</dl>
+	<p class="help">
+		Merci de sélectionner un choix ci-dessus.
+	</p>
 
 {/if}
 

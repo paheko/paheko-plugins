@@ -32,14 +32,9 @@ class Categories
 		return $db->getAssoc(POS::sql('SELECT id, name FROM @PREFIX_categories ORDER BY name;'));
 	}
 
-	static public function listSalesPerMonth(int $year): DynamicList
+	static public function listSales(int $year, string $period = 'year'): DynamicList
 	{
 		$columns = [
-			'month' => [
-				'label' => 'Mois',
-				'select' => 'strftime(\'%Y-%m-01\', i.added)',
-				'order' => 'i.added %s, i.category_name %1$s',
-			],
 			'category' => [
 				'label' => 'Catégorie',
 				'select' => 'i.category_name',
@@ -59,10 +54,10 @@ class Categories
 		];
 
 		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price > 0');
-		$list->groupBy('strftime(\'%Y-%m\', i.added), i.category_name');
-		$list->orderBy('month', false);
+		$list->groupBy('i.category_name');
 		$list->setParameter('year', (string)$year);
-		$list->setTitle(sprintf('Ventes %d, par mois et par catégorie', $year));
+		$list->setTitle(sprintf('Ventes %d, par catégorie', $year));
+		POS::applyPeriodToList($list, $period, 'i.added');
 		return $list;
 	}
 

@@ -42,6 +42,41 @@ class POS
 		return $list;
 	}
 
+	static public function applyPeriodToList(DynamicList $list, string $period, string $column_name): DynamicList
+	{
+		if ($period === 'quarter') {
+			$group = '\'T\' || floor( (strftime(\'%m\', ' . $column_name . ') + 2) / 3)';
+			$label = 'Trimestre';
+		}
+		elseif ($period === 'semester') {
+			$group = '\'S\' || floor( (strftime(\'%m\', ' . $column_name . ') - 1) / 6 + 1)';
+			$label = 'Semestre';
+		}
+		elseif ($period === 'month') {
+			$group = 'strftime(\'%Y-%m-01\', ' . $column_name . ')';
+			$label = 'Mois';
+		}
+		else {
+			$group = null;
+			$label = 'Année';
+		}
+
+		if ($group) {
+			$list->groupBy($group . ', ' . $list->getGroupBy());
+
+			$list->addColumn('period', [
+				'select' => $group,
+				'label' => $label,
+				'order' => $column_name . ' %s',
+			], 0);
+
+			$list->orderBy('period', false);
+		}
+
+		$list->setTitle($list->getTitle() . sprintf(' (%s)', $label));
+		return $list;
+	}
+
 	static public function barGraph(?string $title, array $data): string
 	{
 		$bar = new Bar(1000, 400);

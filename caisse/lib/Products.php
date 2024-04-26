@@ -76,41 +76,7 @@ class Products
 		return new Entities\Product;
 	}
 
-	static public function listSalesPerMonth(int $year): DynamicList
-	{
-		$columns = [
-			'month' => [
-				'label' => 'Mois',
-				'select' => 'strftime(\'%Y-%m-01\', i.added)',
-				'order' => 'i.added %s, i.name %1$s',
-			],
-			'name' => [
-				'label' => 'Produit',
-				'select' => 'i.name',
-			],
-			'count' => [
-				'label' => 'Nombres de ventes',
-				'select' => 'SUM(i.qty)',
-			],
-			'sum' => [
-				'label' => 'Montant total',
-				'select' => 'SUM(i.qty * i.price)',
-			],
-			'weight' => [
-				'label' => 'Poids total',
-				'select' => 'SUM(i.qty * i.weight)',
-			],
-		];
-
-		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price > 0');
-		$list->groupBy('strftime(\'%Y-%m\', i.added), i.product');
-		$list->orderBy('count', true);
-		$list->setParameter('year', (string)$year);
-		$list->setTitle(sprintf('Ventes %d, par mois et par produit', $year));
-		return $list;
-	}
-
-	static public function listSales(int $year): DynamicList
+	static public function listSales(int $year, string $period = 'year'): DynamicList
 	{
 		$columns = [
 			'name' => [
@@ -131,11 +97,12 @@ class Products
 			],
 		];
 
-		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price > 0');
+		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price > 0', );
 		$list->groupBy('i.product');
 		$list->orderBy('count', true);
 		$list->setParameter('year', (string)$year);
 		$list->setTitle(sprintf('Ventes %d, par produit', $year));
+		POS::applyPeriodToList($list, $period, 'i.added');
 		return $list;
 	}
 
