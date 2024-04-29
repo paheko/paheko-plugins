@@ -54,7 +54,13 @@ if (version_compare($old_version, '0.6.0', '<')) {
 	DROP TABLE plugin_taima_entries_old;');
 
 	$db->commitSchemaUpdate();
+}
 
+// Change ON DELETE CASCADE to ON DELETE SET NULL
+if (version_compare($old_version, '1.0.1', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec('CREATE INDEX IF NOT EXISTS plugin_taima_entries_user_timer ON plugin_taima_entries (user_id, timer_started);');
+	$db->commitSchemaUpdate();
 }
 
 $plugin->registerSignal('menu.item', [Tracking::class, 'menuItem']);

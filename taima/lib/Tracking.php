@@ -97,7 +97,7 @@ class Tracking
 		$user_id = Session::getUserId();
 		$running_timers = $user_id ? self::hasRunningTimers($user_id) : false;
 
-		if ($user_id && self::hasRunningTimers($user_id)) {
+		if ($user_id && $running_timers) {
 			$icon = self::animatedIcon(16, '', 'float: right');
 		}
 
