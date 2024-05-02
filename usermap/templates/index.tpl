@@ -3,7 +3,7 @@
 <nav class="tabs">
 	<ul>
 		<li class="current"><a href="./">Statistiques</a></li>
-		<li><a href="map.php">Carte</a></li>
+		<li><a href="map.php">Répartition sur la carte</a></li>
 	</ul>
 </nav>
 
@@ -33,9 +33,9 @@
 {/if}
 
 <form method="get" action="">
-	<h2 class="ruler">Distance moyenne des membres</h2>
+	<h2 class="ruler">Statistiques sur la distance des membres</h2>
 	<fieldset>
-		<legend>Calculer la distance moyenne des membres par rapport à une adresse</legend>
+		<legend>Calculer la distance des membres par rapport à une adresse</legend>
 		<dl>
 			{input type="text" name="address" default=$address label="Adresse" required=true}
 		</dl>

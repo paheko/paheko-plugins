@@ -1,9 +1,9 @@
-{include file="_head.tpl" title="Carte des membres"}
+{include file="_head.tpl" title=$plugin.label}
 
 <nav class="tabs">
 	<ul>
 		<li><a href="./">Statistiques</a></li>
-		<li class="current"><a href="map.php">Carte</a></li>
+		<li class="current"><a href="map.php">Répartition sur la carte</a></li>
 	</ul>
 </nav>
 
@@ -12,13 +12,21 @@
 <script src="leaflet/leaflet-src.js"></script>
 <script src="leaflet/heat.js"></script>
 
+<style type="text/css">
+{literal}
+.leaflet-heatmap-layer {
+	opacity: .75;
+}
+{/literal}
+</style>
+
 <script type="text/javascript">
 var list = {$list|escape:'json'};
 var center = {$center|escape:'json'};
 {literal}
 var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		maxZoom: 18,
-		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Points &copy 2012 LINZ'
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 	}),
 	latlng = L.latLng(center.lat, center.lon);
 
