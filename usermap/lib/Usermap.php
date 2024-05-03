@@ -5,6 +5,7 @@ namespace Paheko\Plugin\Usermap;
 use Paheko\Config;
 use Paheko\DB;
 use Paheko\Utils;
+use Paheko\UserException;
 use Paheko\Users\DynamicFields;
 use KD2\HTTP;
 
@@ -39,6 +40,11 @@ class Usermap
 
 		$db = DB::getInstance();
 		$db->createFunction('DISTANCE_TO', [$this, 'haversineDistanceTo'], 4);
+	}
+
+	public function count(): int
+	{
+		return DB::getInstance()->count('plugin_usermap_locations');
 	}
 
 	public function haversineDistanceTo($lat1, $lon1, $lat2, $lon2)

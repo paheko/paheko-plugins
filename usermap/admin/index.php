@@ -30,6 +30,7 @@ $form->runIf('sync', function () use ($usermap, $plugin) {
 $address = $_GET['address'] ?? $config->org_address;
 $address = $usermap->normalizeAddress($address);
 
+$tpl->assign('count', $usermap->count());
 $tpl->assign('missing_users_count', $usermap->countMissingUsers());
 $tpl->assign('stats', $address ? $usermap->getDistanceStatsTo($address) : null);
 $tpl->assign(compact('csrf_key', 'address'));

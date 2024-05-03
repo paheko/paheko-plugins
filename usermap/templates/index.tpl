@@ -32,8 +32,10 @@
 </form>
 {/if}
 
+{if $count}
 <form method="get" action="">
 	<h2 class="ruler">Statistiques sur la distance des membres</h2>
+	<p class="help">Il y a {$count} membres localisés.</p>
 	<fieldset>
 		<legend>Calculer la distance des membres par rapport à une adresse</legend>
 		<dl>
@@ -62,5 +64,6 @@
 		</tbody>
 	</table>
 </form>
+{/if}
 
 {include file="_foot.tpl"}
