@@ -24,6 +24,7 @@
             <td>{$row.type}</td>
             <td>{$row.details}</td>
             <td>{$row.nb}</td>
+            <td>{$row.poids|weight:true} kg</td>
         </tr>
         {/foreach}
     </tbody>
@@ -39,6 +40,7 @@
             <td>{$row.type}</td>
             <td>{$row.details}</td>
             <td>{$row.nb}</td>
+            <td>{$row.poids|weight:true} kg</td>
         </tr>
         {/foreach}
     </tbody>

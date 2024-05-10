@@ -41,6 +41,7 @@
 		{input type="select" name="genre" label="Genre de cadre" required=true options=$defaults.genres source=$velo}
 		{input type="text" name="couleur" label="Couleur" required=true source=$velo}
 		{input type="text" name="modele" label="Marque et modèle" required=true source=$velo}
+		{input type="weight" name="poids" label="Poids (en kg)" required=false source=$velo}
 	</dl>
 </fieldset>
 

@@ -5,6 +5,7 @@ namespace Paheko\Plugin\Stock_Velos;
 use Paheko\DB;
 use Paheko\Entity;
 use Paheko\UserException;
+use Paheko\Utils;
 use Paheko\Users\DynamicFields;
 use Paheko\Users\Users;
 use KD2\DB\Date;
@@ -35,6 +36,7 @@ class Velo extends Entity
 	protected ?string $details_sortie = null;
 
 	protected ?string $notes = null;
+	protected ?int $poids = null;
 
 	public function selfCheck(): void
 	{
@@ -73,6 +75,16 @@ class Velo extends Entity
 		}
 	}
 
+	public function importForm(array $source = null)
+	{
+		$source ??= $_POST;
+
+		if (isset($source['poids'])) {
+			$source['poids'] = Utils::weightToInteger($source['poids']);
+		}
+
+		parent::importForm($source);
+	}
 
     public function sortie(string $raison, string $details, $date = null)
     {

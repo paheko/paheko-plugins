@@ -83,6 +83,10 @@
             <dt>Marque et modèle</dt>
             <dd>{$velo.modele|escape}</dd>
         </dl>
+        <dl>
+            <dt>Poids</dt>
+            <dd>{if $velo.poids}{$velo.poids|weight:true} kg{else}<i>Non précisé</i>{/if}</dd>
+        </dl>
     </article>
 
     {if !empty($velo.notes)}

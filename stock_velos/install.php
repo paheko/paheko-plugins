@@ -41,7 +41,9 @@ $db->exec(<<<EOF
         raison_sortie TEXT,
         details_sortie TEXT,
 
-        notes TEXT
+        notes TEXT,
+
+        poids INTEGER NULL
     );
 
     CREATE INDEX IF NOT EXISTS prv_etiquette ON plugin_stock_velos (etiquette);
@@ -51,5 +53,6 @@ $db->exec(<<<EOF
     CREATE INDEX IF NOT EXISTS prv_couleur ON plugin_stock_velos (couleur);
     CREATE INDEX IF NOT EXISTS prv_date_entree ON plugin_stock_velos (date_entree);
     CREATE INDEX IF NOT EXISTS prv_date_sortie ON plugin_stock_velos (date_sortie);
+    CREATE INDEX IF NOT EXISTS prv_poids ON plugin_stock_velos (poids);
 EOF
 );

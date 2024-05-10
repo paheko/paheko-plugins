@@ -389,7 +389,8 @@ class Velos
                 strftime(\'%Y-%m\', date_sortie) AS month,
                 \'Sortie\' AS type,
                 raison_sortie AS details,
-                COUNT(*) AS nb
+                COUNT(*) AS nb,
+                SUM(poids) AS poids
                 FROM plugin_stock_velos
                 WHERE raison_sortie IS NOT NULL
                 GROUP BY strftime(\'%m/%Y\', date_sortie), raison_sortie
@@ -398,7 +399,8 @@ class Velos
                 strftime(\'%Y-%m\', date_entree) AS month,
                 \'Entrée\' AS type,
                 source AS details,
-                COUNT(*) AS nb
+                COUNT(*) AS nb,
+                SUM(poids) AS poids
                 FROM plugin_stock_velos
                 GROUP BY strftime(\'%m/%Y\', date_entree), source
             ORDER BY month DESC, type, details;
@@ -413,7 +415,8 @@ class Velos
                 strftime(\'%Y\', date_sortie) AS year,
                 \'Sortie\' AS type,
                 raison_sortie AS details,
-                COUNT(*) AS nb
+                COUNT(*) AS nb,
+                SUM(poids) AS poids
                 FROM plugin_stock_velos
                 WHERE raison_sortie IS NOT NULL
                 GROUP BY strftime(\'%Y\', date_sortie), raison_sortie
@@ -422,7 +425,8 @@ class Velos
                 strftime(\'%Y\', date_entree) AS year,
                 \'Entrée\' AS type,
                 source AS details,
-                COUNT(*) AS nb
+                COUNT(*) AS nb,
+                SUM(poids) AS poids
                 FROM plugin_stock_velos
                 GROUP BY strftime(\'%Y\', date_entree), source
             ORDER BY year DESC, type, details;
