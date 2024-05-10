@@ -28,7 +28,7 @@ $form->runIf('sync', function () use ($usermap, $plugin) {
 }, $csrf_key);
 
 $address = $_GET['address'] ?? $config->org_address;
-$address = $address ? $usermap->normalizeAddress($address) : null;
+$address = $usermap->normalizeAddress($address);
 
 $tpl->assign('count', $usermap->count());
 $tpl->assign('missing_users_count', $usermap->countMissingUsers());

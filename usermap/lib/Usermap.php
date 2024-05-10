@@ -66,11 +66,11 @@ class Usermap
 		return (acos(sin($lat1rad) * sin($lat2rad) + cos($lat1rad) * cos($lat2rad) * cos(deg2rad($lon2) - deg2rad($lon1))) * 6378.1);
 	}
 
-	public function normalizeAddress(string $address): string
+	public function normalizeAddress(?string $address): ?string
 	{
-		$address = str_replace("\n", ' ', $address);
+		$address = str_replace("\n", ' ', (string) $address);
 		$address = trim($address);
-		return $address;
+		return $address ?: null;
 	}
 
 	public function getDistanceStatsTo(string $address): ?array
