@@ -32,7 +32,7 @@
 </form>
 {/if}
 
-{if $count && $stats}
+{if $count}
 <form method="get" action="">
 	<h2 class="ruler">Statistiques sur la distance des membres</h2>
 	<p class="help">Il y a {$count} membres localisés.</p>
@@ -45,6 +45,7 @@
 			{button type="submit" label="Calculer" shape="right"}
 		</p>
 	</fieldset>
+	{if $stats}
 	<table class="list auto">
 		<thead>
 			<tr>
@@ -63,6 +64,7 @@
 		{/foreach}
 		</tbody>
 	</table>
+	{/if}
 </form>
 {/if}
 
