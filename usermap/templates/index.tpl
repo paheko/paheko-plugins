@@ -66,6 +66,8 @@
 	</table>
 	{/if}
 </form>
+{elseif !$missing_users_count}
+	<p class="block alert">Aucun membre n'est géolocalisable. Cela peut arriver si aucune fiche de membre n'indique le pays "France".</p>
 {/if}
 
 {include file="_foot.tpl"}
