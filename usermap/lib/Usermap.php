@@ -37,33 +37,11 @@ class Usermap
 		if ($config->country !== 'FR') {
 			throw new UserException('Cette extension ne fonctionne actuellement qu\'avec les adresses en france');
 		}
-
-		$db = DB::getInstance();
-		$db->createFunction('DISTANCE_TO', [$this, 'haversineDistanceTo'], 4);
 	}
 
 	public function count(): int
 	{
 		return DB::getInstance()->count('plugin_usermap_locations');
-	}
-
-	public function haversineDistanceTo($lat1, $lon1, $lat2, $lon2)
-	{
-		if (is_null($lat1) || is_null($lon1) || is_null($lat2) || is_null($lon2))
-			return null;
-
-		$lat1 = (double) $lat1;
-		$lon1 = (double) $lon1;
-		$lat2 = (double) $lat2;
-		$lon2 = (double) $lon2;
-
-		// convert lat1 and lat2 into radians now, to avoid doing it twice below
-		$lat1rad = deg2rad($lat1);
-		$lat2rad = deg2rad($lat2);
-
-		// apply the spherical law of cosines to our latitudes and longitudes, and set the result appropriately
-		// 6378.1 is the approximate radius of the earth in kilometres
-		return (acos(sin($lat1rad) * sin($lat2rad) + cos($lat1rad) * cos($lat2rad) * cos(deg2rad($lon2) - deg2rad($lon1))) * 6378.1);
 	}
 
 	public function normalizeAddress(?string $address): ?string
@@ -99,7 +77,7 @@ class Usermap
 		];
 
 		$sql = sprintf('CREATE TEMP TABLE plugin_usermap_locations_distances (distance);
-			INSERT INTO plugin_usermap_locations_distances SELECT DISTANCE_TO(%s, %s, lat, lon) FROM plugin_usermap_locations WHERE lat IS NOT NULL;',
+			INSERT INTO plugin_usermap_locations_distances SELECT haversine_distance(%s, %s, lat, lon) FROM plugin_usermap_locations WHERE lat IS NOT NULL AND lon IS NOT NULL AND lat != \'\' AND lon != \'\';',
 			$ll['lat'], $ll['lon']);
 		$db->exec($sql);
 
@@ -252,7 +230,7 @@ class Usermap
 					continue;
 				}
 
-				if (!isset($row[4], $row[5])) {
+				if (empty($row[4]) || empty($row[5])) {
 					continue;
 				}
 
