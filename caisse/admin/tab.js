@@ -85,7 +85,7 @@ function completeUserName(list) {
 		return false;
 	}
 
-	fetch(g.admin_url + 'p/caisse/_member_search.php?q=' + encodeURIComponent(v))
+	fetch(g.admin_url + 'p/caisse/user_search.php?q=' + encodeURIComponent(v))
 		.then(response => response.text())
 		.then(list => {
 			ur_list.innerHTML = list;
