@@ -5,6 +5,7 @@
 <section class="fiche">
     <p>
         {linkbutton shape="edit" href="modifier.php?id=%d"|args:$velo.id label="Modifier la fiche de ce vélo"}
+        {linkbutton shape="delete" href="delete.php?id=%d"|args:$velo.id label="Supprimer"}
         {if empty($velo.date_sortie) && $velo.prix > 0}
             {linkbutton shape="money" href="vente.php?id=%d"|args:$velo.id label="Vendre ce vélo"}
         {elseif empty($velo.date_sortie) && $velo.prix == 0}
