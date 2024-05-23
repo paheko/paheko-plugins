@@ -213,7 +213,7 @@ class POS
 				$transaction->import((array) $row);
 			}
 
-			$transaction->addLine(Line::create($accounts[$row->account]->id, $row->credit, $row->debit, $row->line_label, $row->line_reference));
+			$transaction->addLine(Line::create($accounts[$row->account]->id, $row->credit, $row->debit, substr($row->line_label, 0, 200), substr($row->line_reference, 0, 200)));
 		}
 
 		if ($transaction && $row) {
