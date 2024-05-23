@@ -213,7 +213,7 @@ class POS
 				$transaction->import((array) $row);
 			}
 
-			$transaction->addLine(Line::create($accounts[$row->account]->id, $row->credit, $row->debit, substr($row->line_label, 0, 200), substr($row->line_reference, 0, 200)));
+			$transaction->addLine(Line::create($accounts[$row->account]->id, $row->credit, $row->debit, $row->line_label, $row->line_reference));
 		}
 
 		if ($transaction && $row) {
@@ -252,7 +252,7 @@ class POS
 				WHEN SUM(lines.debit) < 0 THEN 0
 				ELSE SUM(lines.debit)
 			END AS debit,
-			lines.reference AS line_reference,
+			CASE WHEN lines.reference IS NULL THEN NULL ELSE SUBSTR(lines.reference, 1, 199) END AS line_reference,
 			NULL AS line_label,
 			0 AS reconciled,
 			s.id AS sid
