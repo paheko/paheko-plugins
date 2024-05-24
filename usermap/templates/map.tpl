@@ -37,7 +37,7 @@
 
 	addressPoints = list.map(function (p) { return [p.lat, p.lon]; });
 
-	var heat = L.heatLayer(addressPoints, {minOpacity: 0.1}).addTo(map);
+	var heat = L.heatLayer(addressPoints, {minOpacity: addressPoints.lenth >= 1000 ? 0.1 : 0.4}).addTo(map);
 	{/literal}
 	</script>
 {/if}
