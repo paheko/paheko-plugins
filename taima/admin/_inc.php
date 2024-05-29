@@ -4,13 +4,13 @@ namespace Paheko\Plugin\Taima;
 
 use Paheko\Plugin\Taima\Tracking;
 use Paheko\Utils;
+use Paheko\Users\Session;
 
 use KD2\DB\Date;
 
 use function Paheko\{f, qg};
 
-
-$user_id = $session->getUser()->id;
+$user_id = Session::getUserId();
 
 function taima_url($day = null)
 {

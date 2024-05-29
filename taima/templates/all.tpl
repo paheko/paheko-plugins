@@ -30,7 +30,7 @@
 
 		{foreach from=$list->iterate() item="task"}
 		<tr>
-			<td>{link href="!users/details.php?id=%d"|args:$task.user_id label=$task.user_name}</td>
+			<td>{if $is_admin}{link href="!users/details.php?id=%d"|args:$task.user_id label=$task.user_name}{else}{$task.user_name}{/if}</td>
 			<td>
 				{if $filters.id_task}
 					{$task.notes}
