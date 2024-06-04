@@ -24,6 +24,10 @@ class PDF
 
 	static public function install(): void
 	{
+		if (!function_exists('imagecreatefromwebp')) {
+			throw new \LogicException('You need to install the PHP GD extension to be able to use this extension.');
+		}
+
 		// Remove old setup, new one is shared between setups
 		if (file_exists(CACHE_ROOT . '/dompdf')) {
 			Utils::deleteRecursive(CACHE_ROOT . '/dompdf', true);
