@@ -11,7 +11,7 @@ use Paheko\Entities\Signal;
 
 class PDF
 {
-	const VERSION = '2.0.4';
+	const VERSION = '3.0.0';
 	const URL = 'https://github.com/dompdf/dompdf/releases/download/v' . self::VERSION . '/dompdf-' . self::VERSION . '.zip';
 	const DIRECTORY = SHARED_CACHE_ROOT . '/dompdf';
 	const VERSION_FILE = self::DIRECTORY . '/dompdf/VERSION';
