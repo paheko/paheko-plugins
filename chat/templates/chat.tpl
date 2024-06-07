@@ -3,20 +3,29 @@
 {form_errors}
 
 <div id="chat">
-	<section class="channels">
-	</section>
+	<nav class="channels">
+		<aside>
+			{linkbutton shape="plus" label="Nouvelle discussion" href="edit.php?id=%d"|args:$channel.id}
+		<ul>
+		{foreach from=$channels item="c"}
+			<li {if $c.id === $channel.id}class="current"{/if}>{link href="?id=%d"|args:$c.id label=$c.name}</li>
+		{/foreach}
+		</ul>
+	</nav>
 
-	<section class="users">
-		<table>
-			{foreach from=$users item="user"}
-			<tr>
-				<th>{$user.name}</th>
-			</tr>
-			{/foreach}
-		</table>
+	<section class="channel">
+		{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)}
+			<aside>
+				{linkbutton shape="plus" label="Inviter" href="edit.php?id=%d"|args:$channel.id}
+				{linkbutton shape="edit" label="Gérer" href="edit.php?id=%d"|args:$channel.id}
+			</aside>
+		{/if}
+		<h2>{$channel.name}</h2>
+		{$channel.description|markdown|raw}
 	</section>
 
 	<section class="messages">
+		<div>
 		<?php $current_user = null; $current_day = null; ?>
 		{foreach from=$messages item="message"}
 			{assign var="date" value=$message.added|date:'Ymd'}
@@ -32,10 +41,16 @@
 						<strong>{$message.user_name}</strong>
 						<time>{$message.added|date:'H:i'}</time>
 					</header>
+					<div class="web-content">{$message.content}</div>
+				{else}
+					<div class="line">
+						<time>{$message.added|date:'H:i'}</time>
+						<div class="web-content">{$message.content|nl2br|raw}</div>
+					</div>
 				{/if}
-				<div class="web-content">{$message.content}</div>
 			</article>
 		{/foreach}
+	</div>
 	</section>
 
 	<section class="chatbox">

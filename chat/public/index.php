@@ -32,9 +32,9 @@ if ($id) {
 		$channel->say($user, $_POST['text'] ?? '');
 	}, $csrf_key, '?id=' . $id);
 
-	$users = $channel->listUsers();
-	$messages = $channel->listMessages();
-	$tpl->assign(compact('users', 'messages', 'channel', 'csrf_key'));
+	$channels = Chat::listChannels($session);
+	$messages = $channel->listMessages(null, 50);
+	$tpl->assign(compact('messages', 'channel', 'channels', 'csrf_key'));
 	$tpl->display(PLUGIN_ROOT . '/templates/chat.tpl');
 }
 else {

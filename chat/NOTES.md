@@ -8,6 +8,8 @@
 
 ## Later
 
+* Add emoticons to messages
+* Reactions: https://emoji.julien-marcou.fr/node_modules/unicode-emoji/unicode-emoji.js
 * Delete messages
 * Attach internal files / new files to messages
 * Archiving of channels: no one can join, messages are displayed, that's all
@@ -15,7 +17,6 @@
   * Public: available for everyone on the website
   * Invite-only: only invited people can join
 * /me messages
-* Add emoticons to messages
 * Some kind of Markdown rendering (lists, bold, italic, strikethrough, code, quote) [Slack support](https://www.markdownguide.org/tools/slack/)
 * @Mentions
 * Browser notifications

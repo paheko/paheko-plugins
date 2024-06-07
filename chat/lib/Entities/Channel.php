@@ -39,7 +39,8 @@ class Channel extends Entity
 		}
 		else {
 			$this->assert(trim($this->name) !== '', 'Le nom ne peut rester vide.');
-			$this->assert(strlen($this->name) < 200, 'Le nom doit faire moins de 200 caractères.');
+			$this->assert(strlen($this->name) <= 50, 'Le nom doit faire moins de 50 caractères.');
+			$this->assert(preg_match('/^[^\x00\x07\x0A\x0D, :]+$/', $this->name), 'Le nom contient des caractères invalides.');
 			$this->assert(null === $this->description || strlen($this->description) < 65000, 'La description doit faire moins de 65.000 caractères.');
 		}
 	}

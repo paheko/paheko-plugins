@@ -1,26 +1,70 @@
-#chat {
-	display: grid;
-	grid-template-areas: "a b c"
-		"d d d";
-	grid-template-columns: .2fr .6fr .2fr;
-	grid-template-rows: 1fr 3em;
-	height: 97vh;
+body {
+	overflow: hidden;
 }
 
-#chat .channels {
-	grid-area: a;
+#chat {
+	display: grid;
+	grid-template-areas: "c cc"
+		"m cc"
+		"cb cc";
+	grid-template-columns: 1fr 12em;
+	grid-template-rows: 5em 1fr 5em;
+	height: 100vh;
+	margin-left: -10px;
+}
+
+#chat .channel {
+	grid-area: c;
+	border-bottom: 2px solid rgba(var(--gSecondColor), 0.4);
+	padding: .5em;
+}
+
+#chat .channel div {
+	font-size: .9em;
+	color: var(--gBorderColor);
+}
+
+#chat .channel aside {
+	float: right;
 }
 
 #chat .messages {
-	grid-area: b;
-}
-
-#chat .users {
-	grid-area: c;
+	grid-area: m;
+	overflow: auto;
+	border-bottom: 2px solid rgba(var(--gSecondColor), 0.4);
+	display: flex;
+	flex-direction: column-reverse;
 }
 
 #chat .chatbox {
-	grid-area: d;
+	grid-area: cb;
+	padding: .5em;
+}
+
+#chat .channels {
+	padding: .5em 0;
+	grid-area: cc;
+	border-left: 2px solid rgba(var(--gSecondColor), 0.4);
+}
+
+.channels ul {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: flex-start;
+	gap: .3em;
+	padding: .5em 0;
+}
+
+.channels ul li a {
+	display: block;
+	border-radius: 0 .5em .5em 0;
+	padding: .2em .5em;
+}
+
+.channels ul li.current a {
+    background: rgba(var(--gSecondColor), 0.4);
+    font-weight: bold;
 }
 
 .chatbox form {
@@ -43,10 +87,31 @@
 	align-self: stretch;
 }
 
-.messages {
+/** Wrapper to scroll automatically to the bottom */
+.messages > div {
 	display: flex;
-	gap: .5em;
 	flex-direction: column;
+}
+
+.messages article .line {
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-start;
+	padding: .3em;
+}
+
+.messages article .line time {
+	flex-shrink: 0;
+	width: 50px;
+	visibility: hidden;
+}
+
+.messages article:hover {
+	background: var(--gLightBackgroundColor);
+}
+
+.messages article .line:hover time {
+	visibility: visible;
 }
 
 .messages article time {
@@ -56,14 +121,31 @@
 
 .messages figure {
 	float: left;
-	margin-right: 8px;
+	margin-right: 18px;
 }
+
 .messages figure img {
 	width: 32px;
 	border-radius: .3em;
 	margin-top: 5px;
 }
 
-.messages article div {
-	margin-left: 40px;
+.messages article header {
+	padding: .3em;
+}
+
+.messages .web-content br {
+	margin-top: .5em;
+	content: " ";
+	display: block;
+}
+
+
+.messages::-webkit-scrollbar {
+    background: none;
+    width: 10px;
+}
+
+.messages::-webkit-scrollbar-thumb {
+    background: rgba(var(--gSecondColor), 0.3);
 }
