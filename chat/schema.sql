@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS plugin_chat_messages (
 	id_channel INTEGER NOT NULL REFERENCES plugin_chat_channels ON DELETE CASCADE,
 	id_thread INTEGER NULL REFERENCES plugin_chat_messages(id) ON DELETE CASCADE,
 	added INTEGER NOT NULL,
-	id_user INTEGER NULL REFERENCES users (id) ON DELETE SET NULL,
+	id_user INTEGER NULL REFERENCES plugin_chat_users (id) ON DELETE SET NULL,
 	user_name TEXT NULL,
 	type TEXT NULL, -- NULL if deleted
 	id_file INTEGER NULL REFERENCES files(id) ON DELETE SET NULL, -- NULL if deleted
@@ -37,3 +37,12 @@ CREATE TABLE IF NOT EXISTS plugin_chat_messages (
 );
 
 CREATE INDEX IF NOT EXISTS plugin_chat_messages_idx ON plugin_chat_messages (id_channel, last_updated);
+
+CREATE VIRTUAL TABLE IF NOT EXISTS plugin_chat_messages_search USING fts4
+-- Search inside messages content
+(
+	tokenize=unicode61, -- Available from SQLITE 3.7.13 (2012)
+	content TEXT NULL -- Text content
+);
+
+INSERT OR IGNORE INTO plugin_chat_channels VALUES (1, 'Général', NULL, 'private', 0);

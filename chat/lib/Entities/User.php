@@ -26,4 +26,9 @@ class User extends Entity
 		$this->set('last_disconnect', time());
 		$this->save();
 	}
+
+	public function isOnline()
+	{
+		return $this->joined && (!$this->last_disconnect || $this->last_disconnect < time() - 1);
+	}
 }
