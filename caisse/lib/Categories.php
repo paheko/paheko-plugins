@@ -54,10 +54,11 @@ class Categories
 		];
 
 		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price > 0');
-		$list->groupBy('i.category_name');
 		$list->setParameter('year', (string)$year);
 		$list->setTitle(sprintf('Ventes %d, par catégorie', $year));
-		POS::applyPeriodToList($list, $period, 'i.added');
+		$list->groupBy('i.category_name');
+		POS::applyPeriodToList($list, $period, 'i.added', 'i.id');
+
 		return $list;
 	}
 

@@ -53,7 +53,33 @@ class Methods
 		$list->orderBy('method', true);
 		$list->setParameter('year', (string)$year);
 		$list->setTitle(sprintf('Paiements encaissés %d, par moyen de paiement', $year));
-		POS::applyPeriodToList($list, $period, 'p.date');
+		POS::applyPeriodToList($list, $period, 'p.date', 'p.id');
+
+		// List all sales
+		if ($period === 'all') {
+			unset($columns['count']);
+			$columns['sum'] = [
+				'select' => 'amount',
+				'label' => 'Montant',
+			];
+			$columns['reference'] = [
+				'select' => 'p.reference',
+				'label' => 'Référence de paiement',
+			];
+			$columns['date'] = [
+				'select' => 'p.date',
+				'label'  => 'Date',
+			];
+			$columns['tab'] = [
+				'select' => 'p.tab',
+				'label'  => 'Note',
+			];
+			$list->setColumns($columns);
+			$list->setModifier(function (&$row) {
+				$row->date = new \DateTime($row->date);
+			});
+		}
+
 		return $list;
 	}
 

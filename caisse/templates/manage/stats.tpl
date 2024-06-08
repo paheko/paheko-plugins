@@ -3,6 +3,14 @@
 {include file="./_nav.tpl" current='stats'}
 
 <nav class="tabs">
+	{if $year}
+		<aside>
+			{linkmenu shape="export" label="Exporter…" right=true}
+				{linkbutton href="?year=%d&export_all=products"|args:$year label="Toutes les ventes de l'année"}
+				{linkbutton href="?year=%d&export_all=methods"|args:$year label="Tous les encaissements de l'année"}
+			{/linkmenu}
+		</aside>
+	{/if}
 	<ul class="sub">
 		{foreach from=$years item="y"}
 		<li class="{if $year === $y}current{/if}">{link href="?year=%d&page=%s&period=%s"|args:$y:$page:$period label=$y}</li>
@@ -22,6 +30,7 @@
 		<li class="{if $period === 'semester'}current{/if}">{link href="?year=%d&page=%s&period=semester"|args:$year:$page label="Par semestre"}</li>
 		<li class="{if $period === 'quarter'}current{/if}">{link href="?year=%d&page=%s&period=quarter"|args:$year:$page label="Par trimestre"}</li>
 		<li class="{if $period === 'month'}current{/if}">{link href="?year=%d&page=%s&period=month"|args:$year:$page label="Par mois"}</li>
+		<li class="{if $period === 'all'}current{/if}">{link href="?year=%d&page=%s&period=all"|args:$year:$page label="Tout"}</li>
 	</ul>
 	{/if}
 </nav>
@@ -59,10 +68,14 @@
 				<td>
 				{if $key === 'period' && $period === 'month'}
 					{$value|strftime:'%m - %B'}
-				{elseif $key === 'sum'}
+				{elseif $key === 'date'}
+					{$value|date_short:true}
+				{elseif $key === 'sum' || $key === 'price'}
 					{$value|escape|money_currency}
 				{elseif $key === 'weight'}
 					{$value|weight:false:true}
+				{elseif $key === 'tab'}
+					{link href="../tab.php?id=%d"|args:$value label=$value class="num"}
 				{else}
 					{$value}
 				{/if}
@@ -73,6 +86,8 @@
 		{/foreach}
 		</tbody>
 	</table>
+
+	{$list->getHTMLPagination()|raw}
 
 {else}
 

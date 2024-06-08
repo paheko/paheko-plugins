@@ -98,11 +98,37 @@ class Products
 		];
 
 		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price > 0', );
-		$list->groupBy('i.product');
 		$list->orderBy('count', true);
 		$list->setParameter('year', (string)$year);
 		$list->setTitle(sprintf('Ventes %d, par produit', $year));
-		POS::applyPeriodToList($list, $period, 'i.added');
+		$list->groupBy('i.product');
+		POS::applyPeriodToList($list, $period, 'i.added', 'i.id');
+
+		// List all sales
+		if ($period === 'all') {
+			$columns['count']['label'] = 'Quantité';
+			$columns['price'] = [
+				'select' => 'i.price',
+				'label' => 'Prix unitaire',
+			];
+			$columns['category'] = [
+				'select' => 'i.category_name',
+				'label' => 'Catégorie',
+			];
+			$columns['date'] = [
+				'select' => 'i.added',
+				'label'  => 'Date',
+			];
+			$columns['tab'] = [
+				'select' => 'i.tab',
+				'label'  => 'Note',
+			];
+			$list->setColumns($columns);
+			$list->setModifier(function (&$row) {
+				$row->date = new \DateTime($row->date);
+			});
+		}
+
 		return $list;
 	}
 

@@ -42,7 +42,7 @@ class POS
 		return $list;
 	}
 
-	static public function applyPeriodToList(DynamicList $list, string $period, string $column_name): DynamicList
+	static public function applyPeriodToList(DynamicList $list, string $period, string $column_name, string $group_all): DynamicList
 	{
 		if ($period === 'quarter') {
 			$group = '\'T\' || floor( (strftime(\'%m\', ' . $column_name . ') + 2) / 3)';
@@ -56,9 +56,14 @@ class POS
 			$group = 'strftime(\'%Y-%m-01\', ' . $column_name . ')';
 			$label = 'Mois';
 		}
-		else {
+		elseif ($period === 'year') {
 			$group = null;
 			$label = 'Année';
+		}
+		else {
+			$list->groupBy($group_all);
+			$label = 'Tout';
+			$group = null;
 		}
 
 		if ($group) {
