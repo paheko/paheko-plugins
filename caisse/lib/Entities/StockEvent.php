@@ -19,10 +19,12 @@ class StockEvent extends Entity
 	const TYPE_OTHER = 0;
 	const TYPE_INVENTORY = 1;
 	const TYPE_ORDER_RECEIVED = 2;
+	const TYPE_LOSS = 3;
 
 	const TYPES = [
 		self::TYPE_INVENTORY => 'Inventaire',
 		self::TYPE_ORDER_RECEIVED => 'Réception de commande',
+		self::TYPE_LOSS => 'Perte / vol / destruction',
 		self::TYPE_OTHER => 'Autre',
 	];
 
