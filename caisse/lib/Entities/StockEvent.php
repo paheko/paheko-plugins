@@ -138,7 +138,7 @@ class StockEvent extends Entity
 		$p->product = $id;
 		$p->event = $this->id();
 		$p->date = new \DateTime;
-		$p->change = $qty;
+		$p->change = ($this->type === self::TYPE_LOSS) ? $qty * -1 : $qty;
 		$p->save();
 		return $p;
 	}
