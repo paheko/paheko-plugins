@@ -141,7 +141,7 @@ class Tab extends Entity
 			ORDER BY ti.id;'), $this->id);
 	}
 
-	public function pay(int $method_id, int $amount, ?string $reference)
+	public function pay(int $method_id, int $amount, ?string $reference, bool $auto_close = true): void
 	{
 		if ($this->closed) {
 			throw new UserException('Il n\'est pas possible de modifier une note clôturée.');
@@ -149,6 +149,12 @@ class Tab extends Entity
 
 		if ('' === trim($reference)) {
 			$reference = NULL;
+		}
+
+		$remainder = $this->getRemainder();
+
+		if ($amount > $remainder) {
+			throw new UserException('Il n\'est pas possible d\'encaisser un montant supérieur au reste à payer.');
 		}
 
 		$options = $this->listPaymentOptions();
@@ -166,13 +172,17 @@ class Tab extends Entity
 			throw new UserException('Référence indiquée pour un règlement en espèces : vouliez-vous enregistrer un règlement par chèque ?');
 		}
 
-		return DB::getInstance()->insert(POS::tbl('tabs_payments'), [
+		DB::getInstance()->insert(POS::tbl('tabs_payments'), [
 			'tab'         => $this->id,
 			'method'      => $method_id,
 			'amount'      => $amount,
 			'reference'   => $reference,
 			'account'     => $option->account,
 		]);
+
+		if ($remainder - $amount === 0 && $auto_close) {
+			$this->close();
+		}
 	}
 
 	public function removePayment(int $id)

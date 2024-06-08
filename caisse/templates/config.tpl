@@ -18,6 +18,8 @@
 				Si la case est décochée, c'est le nom du membre actuellement connecté qui sera enregistré.<br />
 				Utiliser ce réglage si vous avez des bénévoles partageant le même compte membre.
 			</dd>
+			{input type="checkbox" name="auto_close_tabs" label="Clôturer automatiquement les notes de caisse une fois qu'elles sont entièrement réglées" default=$plugin.config.auto_close_tabs value=1}
+			</dd>
 	</fieldset>
 	<p class="submit">
 		{csrf_field key=$csrf_key}

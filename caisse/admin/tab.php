@@ -45,7 +45,7 @@ elseif (!empty($_POST['change_price'])) {
 	reload();
 }
 elseif (!empty($_POST['pay'])) {
-	$tab->pay((int)$_POST['method_id'], get_amount(f('amount')), $_POST['reference']);
+	$tab->pay((int)$_POST['method_id'], get_amount(f('amount')), $_POST['reference'], $plugin->getConfig('auto_close_tabs') ?? false);
 	reload();
 }
 elseif (qg('delete_payment')) {

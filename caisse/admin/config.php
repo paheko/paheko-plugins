@@ -11,6 +11,7 @@ $csrf_key = 'caisse_config';
 $form->runIf('save', function () use ($plugin) {
 	$plugin->setConfigProperty('allow_custom_user_name', (bool)f('allow_custom_user_name'));
 	$plugin->setConfigProperty('send_email_when_closing', trim(f('send_email_when_closing') ?: '') ?: null);
+	$plugin->setConfigProperty('auto_close_tabs', (bool)f('auto_close_tabs'));
 	$plugin->save();
 }, $csrf_key, PLUGIN_ADMIN_URL . 'config.php?ok');
 

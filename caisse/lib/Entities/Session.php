@@ -4,7 +4,6 @@ namespace Paheko\Plugin\Caisse\Entities;
 
 use Paheko\Email\Emails;
 use Paheko\DB;
-use Paheko\Config;
 use Paheko\Template;
 use Paheko\UserException;
 use Paheko\Utils;
