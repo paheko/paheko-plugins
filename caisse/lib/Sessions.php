@@ -96,6 +96,7 @@ class Sessions
 		$list = new DynamicList($columns, $tables);
 		$list->orderBy('opened', true);
 		$list->groupBy('s.id');
+		$list->setCount('COUNT(DISTINCT s.id)');
 		return $list;
 	}
 }
