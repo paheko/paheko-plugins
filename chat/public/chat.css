@@ -230,12 +230,21 @@ body {
 	box-shadow: 0px 0px 5px var(--gBorderColor);
 }
 
-.messages article footer button {
+.messages article footer button, .messages article footer a {
 	margin: 0;
+	border: none;
+	background: none;
+	box-shadow: none;
+	text-decoration: none;
+}
+
+.messages article footer button:hover, .messages article footer a:hover {
+	color: darkred;
+	background: none;
 }
 
 .messages article:hover footer {
-	display: block;
+	display: flex;
 }
 
 span.chat-status {

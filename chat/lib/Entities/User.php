@@ -13,22 +13,38 @@ class User extends Entity
 	const TABLE = 'plugin_chat_users';
 
 	protected ?int $id;
-	protected int $id_channel;
 	protected ?int $id_user;
 	protected ?string $name;
-	protected ?string $invitation;
-	protected ?int $joined;
+	protected ?string $session_id;
+	protected ?int $last_connect;
 	protected ?int $last_disconnect;
-	protected ?int $last_seen_message_id;
 
-	public function disconnect()
+	public function disconnect(): void
 	{
 		$this->set('last_disconnect', time());
 		$this->save();
 	}
 
-	public function isOnline()
+	public function isOnline(): bool
 	{
-		return $this->joined && (!$this->last_disconnect || $this->last_disconnect < time() - 1);
+		if (!$this->last_connect) {
+			return false;
+		}
+
+		$now = time();
+
+		if ($this->last_connect > $this->last_disconnect && $this->last_connect >= $now - 60) {
+			return true;
+		}
+
+		if (!$this->last_disconnect) {
+			return true;
+		}
+
+		if ($this->last_disconnect >= $now - 15) {
+			return true;
+		}
+
+		return false;
 	}
 }

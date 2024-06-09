@@ -8,18 +8,33 @@ use function Paheko\Plugin\Chat\get_channel;
 
 require __DIR__ . '/_inc.php';
 
-$session = Session::getInstance();
-$channel = get_channel();
+$me = Chat::getUser();
 
-$me = $channel->getUser($session);
+$channel = null;
 
-if ($_GET['with'] ?? null) {
-	$channel = Chat::getPMChannel($me, (int)$_GET['with']);
+if ($_GET['id'] ?? null) {
+	$channel = Chat::getChannel((int)$_GET['id'], $me);
+}
+elseif ($_GET['with'] ?? null) {
+	$channel = Chat::getDirectChannel($me, (int)$_GET['with']);
 
 	if (!$channel) {
 		throw new ValidationException('No valid channel provided', 400);
 	}
 }
+else {
+	$channel = Chat::getFallbackChannel($me);
+}
+
+if (!$channel) {
+	if ($session->isLogged()) {
+		Utils::redirect('!p/chat/edit.php');
+	}
+
+	throw new UserException('Vous n\'avez accès à aucune discussion.', 404);
+}
+
+$channel->join($me);
 
 $csrf_key = 'chat';
 
@@ -27,7 +42,7 @@ $form = new Form;
 $tpl->assign_by_ref('form', $form);
 
 $form->runIf('send', function () use ($me, $channel) {
-	$channel->say($me, $_POST['text'] ?? '');
+	$channel->say($me, $_POST['send'] ?? '');
 }, $csrf_key, '?id=' . $channel->id());
 
 $channels = Chat::listChannels($session);

@@ -2,7 +2,7 @@
 
 {form_errors}
 
-<div id="chat">
+<div id="chat" data-channel-id="{$channel.id}">
 	<nav class="channels">
 		{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)}
 		<aside>
@@ -18,7 +18,7 @@
 
 	<section class="channel">
 		<h2>
-		{if $channel.access === $channel::ACCESS_PM}
+		{if $channel.access === $channel::ACCESS_DIRECT}
 			{chat_avatar object=$recipient name=true online=true}
 		{else}
 			{$channel.name}
@@ -27,7 +27,7 @@
 		<aside>
 			{if $recipient.id_user}
 				{linkbutton href="!users/details.php?id=%d"|args:$recipient.id_user label="Fiche membre" shape="user"}
-			{elseif $channel.access !== $channel::ACCESS_PM && $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)}
+			{elseif $channel.access !== $channel::ACCESS_DIRECT && $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)}
 				{linkbutton shape="users" label="Participant⋅e⋅s" href="%s/users.php?id=%d"|args:$plugin_url:$channel.id target="_dialog"}
 				{linkbutton shape="edit" label="Gérer" href="!p/chat/edit.php?id=%d"|args:$channel.id target="_dialog"}
 			{/if}
@@ -41,45 +41,16 @@
 		<div>
 		<?php $current_user = null; $current_day = null; ?>
 		{foreach from=$messages item="message"}
-			{assign var="date" value=$message.added|date:'Ymd'}
-			{if $current_day !== $date}
-				{assign var="current_day" value=$message.added|date:'Ymd'}
-				<h4 class="ruler">{$message.added|date_long}</h4>
-			{/if}
-			<article>
-				{if $current_user !== $message.user_name}
-					{assign var="current_user" value=$message.user_name}
-					<header>
-						{chat_avatar href="?id=%d&with=%d"|args:$channel.id:$message.id_user object=$message}
-						<strong><a href="?id={$channel.id}&amp;with={$message.id_user}">{$message.user_name}</a></strong>
-						<time>{$message.added|date:'H:i'}</time>
-					</header>
-					<div class="web-content">{$message.content}</div>
-				{else}
-					<div class="line">
-						<time>{$message.added|date:'H:i'}</time>
-						<div class="web-content">{$message.content|nl2br|raw}</div>
-					</div>
-				{/if}
-				<footer>
-					{if $message.id_user === $me.id}
-					{button shape="edit" title="Éditer"}
-					{button shape="delete" title="Supprimer"}
-					{/if}
-
-					{button shape="chat" title="Répondre"}
-					{button shape="smile" title="Réaction"}
-				</footer>
-			</article>
+			{$message|chat_message_html:$me:$current_day:$current_user|raw}
 		{/foreach}
 	</div>
 	</section>
 
 	<section class="chatbox">
 		<form method="post" action="">
-			{input type="textarea" cols=50 rows=2 name="text" required=true}
+			{input type="textarea" cols=50 rows=2 name="send"}
 			{csrf_field key=$csrf_key}
-			{button type="submit" name="send" title="Envoyer" shape="right"}
+			{button type="submit" title="Envoyer" shape="right"}
 		</form>
 	</section>
 </div>

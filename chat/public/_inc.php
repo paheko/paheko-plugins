@@ -7,6 +7,8 @@ use Paheko\Plugin\Chat\Entities\Channel;
 use Paheko\Plugin\Chat\Entities\User;
 use Paheko\Users\Session;
 use Paheko\Template;
+use Paheko\UserTemplate\CommonFunctions;
+use Paheko\UserTemplate\CommonModifiers;
 use const Paheko\PLUGIN_URL;
 
 function chat_avatar(array $params): string
@@ -35,8 +37,8 @@ function chat_avatar(array $params): string
 	$out = '<img src="' . $avatar_url . '" />';
 	$link = '%s';
 
-	if (isset($params['pm'])) {
-		$href = sprintf('./?id=%d&with=%d', $object->id_channel, $id);
+	if (isset($params['direct'])) {
+		$href = sprintf('./?with=%d', $id);
 		$link = sprintf('<a href="%s" target="_parent">%%s</a>', htmlspecialchars($href), $out);
 	}
 
@@ -74,7 +76,67 @@ function chat_message_format(string $text): string
 	$text = preg_replace('/((?:(?!~~).)+?)~~/s', '<del>$1</del>', $text);
 	$text = preg_replace('/^>(.*)$/m', '<blockquote>$1</blockquote>', $text);
 	$text = preg_replace(';(?<!")https?://[^<\s]+(?!");', '<a href="$0" target="_blank">$0</a>', $text);
+	$text = nl2br($text);
 	return $text;
+}
+
+function chat_message_html($message, User $me, ?string &$current_day, ?string &$current_user): string
+{
+	$date = date('Ymd', $message->added);
+	$out = '';
+
+	if ($current_day !== $date && $current_day != -1) {
+		$current_day = $date;
+		$out .= sprintf('<h4 class="ruler">%s</h4>', CommonModifiers::date_long($message->added));
+	}
+
+	$out .= sprintf('<article data-date="%d" data-user="%d" data-id="%d" id="msg-%3$d">', $date, $message->id_user, $message->id);
+
+	if ($current_user != $message->id_user && $current_user != -1) {
+		$current_user = $message->id_user;
+
+		$out .= sprintf('
+			<header>
+				%s
+				<time>%s</time>
+			</header>
+			<div class="line">
+				<div class="web-content">%s</div>
+			</div>',
+			chat_avatar(['direct' => true, 'object' => $message, 'name' => true]),
+			date('H:i', $message->added),
+			chat_message_format($message->content)
+		);
+	}
+	else {
+		$out .= sprintf('
+			<div class="line">
+				<time>%s</time>
+				<div class="web-content">%s</div>
+			</div>',
+			date('H:i', $message->added),
+			chat_message_format($message->content)
+		);
+	}
+
+	$out .= '<footer>';
+
+	if ($message->id_user === $me->id) {
+		$out .= CommonFunctions::linkbutton(['shape' => 'edit', 'title' => 'Éditer', 'target' => '_dialog', 'href' => 'edit_message.php?id=' . $message->id, 'label' => '']);
+		$out .= CommonFunctions::linkbutton(['shape' => 'delete', 'title' => 'Supprimer', 'target' => '_dialog', 'href' => 'delete_message.php?id=' . $message->id, 'label' => '']);
+	}
+
+	// FIXME
+	//$out .= CommonFunctions::linkbutton(['shape' => 'link', 'title' => 'Permalien', 'target' => '_blank', 'href' => sprintf('./?id=%d&focus=%d', $message->id_channel, $message->id)]);
+
+	$out .= CommonFunctions::button(['shape' => 'chat', 'title' => 'Répondre', 'data-action' => 'reply']);
+	$out .= CommonFunctions::button(['shape' => 'smile', 'title' => 'Réaction', 'data-action' => 'react']);
+
+	$out .= '
+		</footer>
+	</article>';
+
+	return $out;
 }
 
 $tpl = Template::getInstance();
@@ -82,28 +144,5 @@ $tpl = Template::getInstance();
 $tpl->assign('custom_css', PLUGIN_URL . 'chat.css');
 
 $tpl->register_function('chat_avatar', __NAMESPACE__ . '\chat_avatar');
-$tpl->register_function('user_online', __NAMESPACE__ . '\user_online');
+$tpl->register_modifier('chat_message_html', __NAMESPACE__ . '\chat_message_html');
 
-function get_channel(): Channel
-{
-	$session = Session::getInstance();
-	$channel = null;
-
-	if ($_GET['id'] ?? null) {
-		$channel = Chat::getChannel((int)$_GET['id'], $session);
-	}
-
-	if (!$channel) {
-		$channel = Chat::getFallbackChannel($session);
-	}
-
-	if (!$channel) {
-		if ($session->isLogged()) {
-			Utils::redirect('!p/chat/edit.php');
-		}
-
-		throw new ValidationException('No valid channel provided', 400);
-	}
-
-	return $channel;
-}

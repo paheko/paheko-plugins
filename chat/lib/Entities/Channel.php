@@ -24,13 +24,13 @@ class Channel extends Entity
 	const ACCESS_PUBLIC = 'public'; // everyone
 	const ACCESS_PRIVATE = 'private'; // logged-in users only
 	const ACCESS_INVITE = 'invite'; // invited users/invited anonymous only
-	const ACCESS_PM = 'pm'; // logged-in users only
+	const ACCESS_DIRECT = 'direct'; // direct messages
 
 	const ACCESS_LIST = [
 		self::ACCESS_PUBLIC => 'Discussion publique',
 		self::ACCESS_PRIVATE => 'Discussion privée, réservée aux membres connectés',
 		self::ACCESS_INVITE => 'Discussion privée, sur invitation',
-		self::ACCESS_PM => 'Discussion privée, entre deux personnes',
+		self::ACCESS_DIRECT => 'Discussion privée, entre deux personnes',
 	];
 
 	public function getAccessLabel(): string
@@ -42,9 +42,9 @@ class Channel extends Entity
 	{
 		parent::selfCheck();
 
-		$this->assert(in_array($this->access, [self::ACCESS_PUBLIC, self::ACCESS_INVITE, self::ACCESS_PRIVATE, self::ACCESS_PM]));
+		$this->assert(in_array($this->access, [self::ACCESS_PUBLIC, self::ACCESS_INVITE, self::ACCESS_PRIVATE, self::ACCESS_DIRECT]));
 
-		if ($this->access === self::ACCESS_PM) {
+		if ($this->access === self::ACCESS_DIRECT) {
 			$this->assert(!isset($this->name));
 			$this->assert(!isset($this->description));
 		}
@@ -56,73 +56,50 @@ class Channel extends Entity
 		}
 	}
 
-	public function getUser(Session $session): ?User
+	public function join(User $user): ?int
 	{
-		$user_id = $session::getUserId();
+		$db = DB::getInstance();
 
-		if ($user_id) {
-			$user = EM::findOne(User::class, 'SELECT * FROM @TABLE WHERE id_channel = ? AND id_user = ?', $this->id(), $user_id);
+		$last_seen_message_id = $db->firstColumn('SELECT last_seen_message_id FROM plugin_chat_users_channels WHERE id_channel = ? AND id_user = ?;', $this->id(), $user->id());
 
-			if (!$user) {
-				$user = new User;
-				$user->import([
-					'id_channel' => $this->id(),
-					'id_user'    => $user_id,
-					'joined'     => time(),
-					'name'       => $session->user()->name(),
-				]);
-				$user->save();
-			}
-			elseif ($user->name !== $session->user()->name()) {
-				$user->set('name', $session->user()->name());
-				$user->save();
-			}
+		$db->begin();
 
-			return $user;
+		if ($last_seen_message_id !== false) {
+			$db->preparedQuery('UPDATE plugin_chat_users_channels SET last_connect = ? WHERE id_channel = ? AND id_user = ?;',
+				time(), $this->id(), $user->id());
+		}
+		else {
+			$db->insert('plugin_chat_users_channels', [
+				'last_connect' => time(),
+				'id_channel'   => $this->id(),
+				'id_user'      => $user->id(),
+			]);
+			$last_seen_message_id = null;
 		}
 
-		if (empty($_COOKIE['chat'])
-			|| strlen($_COOKIE['chat']) !== 40
-			|| ctype_alnum($_COOKIE['chat'])) {
-			return null;
-		}
+		$user->set('last_connect', time());
+		$user->set('last_disconnect', null);
+		$user->save();
+		$db->commit();
 
-		$session_id = $_COOKIE['chat'];
-		return EM::findOne(User::class, 'SELECT * FROM @TABLE WHERE id_channel = ? AND invitation = ?', $this->id(), $session_id);
-	}
-
-	public function createAnonymousUser(string $name, ?string $invitation): User
-	{
-		if ($this->access === self::ACCESS_PM) {
-			throw new ValidationException('You don\'t have access to this channel');
-		}
-
-		if (empty($invitation)
-			|| strlen($invitation) !== 40
-			|| ctype_alnum($invitation)) {
-			$invitation = null;
-		}
-
-		$invitation ??= sha1(random_bytes(10));
-		$user = EM::findOne(User::class, 'SELECT * FROM @TABLE WHERE id_channel = ? AND invitation = ?', $this->id(), $invitation);
-
-		if (!$user && $this->access === self::ACCESS_INVITE) {
-			throw new ValidationException('You don\'t have access to this channel');
-		}
-		elseif (!$user) {
-			// Create user entity FIXME
-		}
-
-		setcookie('chat', $invitation, time() + 3600*24*365);
+		return $last_seen_message_id;
 	}
 
 	public function getRecipient(User $me): ?User
 	{
-		if ($this->access !== self::ACCESS_PM) {
+		if ($this->access !== self::ACCESS_DIRECT) {
 			return null;
 		}
 
-		return EM::findOne(User::class, 'SELECT * FROM @TABLE WHERE id_channel = ? AND id != ? LIMIT 1', $this->id(), $me->id());
+		return EM::findOne(User::class, 'SELECT u.*
+			FROM @TABLE u
+			INNER JOIN plugin_chat_users_channels c ON c.id_user = u.id
+			WHERE c.id_channel = ? AND u.id != ? LIMIT 1', $this->id(), $me->id());
+	}
+
+	public function addUser(User $user): void
+	{
+		DB::getInstance()->insert('plugin_chat_users_channels', ['id_user' => $user->id, 'id_channel' => $this->id()]);
 	}
 
 	public function say(User $user, string $text): Message
@@ -153,7 +130,10 @@ class Channel extends Entity
 
 	public function listUsers(): array
 	{
-		$sql = 'SELECT * FROM @TABLE WHERE id_channel = ? AND (id_user IS NOT NULL OR last_disconnect < ?) ORDER BY name COLLATE U_NOCASE;';
+		$sql = 'SELECT u.* FROM @TABLE u
+			INNER JOIN plugin_chat_users_channels uc ON uc.id_user = u.id
+			WHERE uc.id_channel = ? AND (u.id_user IS NOT NULL OR last_disconnect < ?)
+			ORDER BY u.name COLLATE U_NOCASE;';
 		return EM::getInstance(User::class)->all($sql, $this->id(), time() - 3600);
 	}
 
@@ -171,28 +151,25 @@ class Channel extends Entity
 			FROM plugin_chat_messages m
 			LEFT JOIN plugin_chat_users u ON u.id = m.id_user
 			WHERE m.id_channel = ? %s
-			LIMIT 0, ?;',
+			ORDER BY id ASC
+			LIMIT -?;',
 			$clause
 		);
 
 		return DB::getInstance()->get($sql, $this->id(), $count);
 	}
 
-	public function getEventsSince(int $since, User $user): \Generator
+	public function getEventsSince(int $since, int $last_seen_message_id, User $user): \Generator
 	{
 		$db = DB::getInstance();
-		// Delete old anonymous users
-		$db->delete('plugin_chat_users', 'id_user IS NULL AND last_disconnect < ' . (time() - 3600*24));
 
-		foreach ($db->iterate('SELECT * FROM plugin_chat_users WHERE last_disconnect > ?;', $since + 15) as $user) {
-			yield ['type' => 'user_offline', 'data' => $user];
-		}
+		$sql = 'SELECT m.*, CASE WHEN u.id IS NOT NULL THEN u.name ELSE m.user_name END AS user_name,
+			CASE WHEN u.id_user IS NOT NULL THEN u.id_user ELSE NULL END AS real_user_id
+			FROM plugin_chat_messages m
+			LEFT JOIN plugin_chat_users u ON u.id = m.id_user
+			WHERE m.id > ? OR (last_updated != added AND last_updated > ?) ORDER BY id;';
 
-		foreach ($db->iterate('SELECT * FROM plugin_chat_users WHERE joined > ?;', $since) as $user) {
-			yield ['type' => 'user_joined', 'data' => $user];
-		}
-
-		foreach ($db->iterate('SELECT * FROM plugin_chat_messages WHERE last_updated > ? ORDER BY added, id;', $since) as $message) {
+		foreach ($db->iterate($sql, $last_seen_message_id, $since) as $message) {
 			if ($message->last_updated !== $message->added) {
 				yield ['type' => 'message_updated', 'data' => $message];
 			}
