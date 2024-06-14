@@ -2,15 +2,15 @@ var main = document.querySelector('#chat');
 
 var container = document.querySelector('#chat .messages div');
 var last_message = container.lastElementChild;
-var current_user = last_message.dataset.user || '';
-var current_day = last_message.dataset.date || '';
-var last_seen_id = last_message.dataset.id || '';
+var current_user = last_message ? last_message.dataset.user : '';
+var current_day = last_message ? last_message.dataset.date : '';
+var last_seen_id = last_message ? last_message.dataset.id : '';
 
 var input = document.querySelector('#chat .chatbox textarea');
 
 input.onkeydown = (e) => {
-	if (e.key == 'Enter') {
-		input.form.querySelector('button').click();
+	if (e.key == 'Enter' && !e.ctrlKey && !e.shiftKey) {
+		input.form.submit();
 		e.preventDefault();
 		return false;
 	}

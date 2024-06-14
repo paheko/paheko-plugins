@@ -167,9 +167,9 @@ class Channel extends Entity
 			CASE WHEN u.id_user IS NOT NULL THEN u.id_user ELSE NULL END AS real_user_id
 			FROM plugin_chat_messages m
 			LEFT JOIN plugin_chat_users u ON u.id = m.id_user
-			WHERE m.id > ? OR (last_updated != added AND last_updated > ?) ORDER BY id;';
+			WHERE m.id_channel = ? AND (m.id > ? OR (last_updated != added AND last_updated > ?)) ORDER BY id;';
 
-		foreach ($db->iterate($sql, $last_seen_message_id, $since) as $message) {
+		foreach ($db->iterate($sql, $this->id(), $last_seen_message_id, $since) as $message) {
 			if ($message->last_updated !== $message->added) {
 				yield ['type' => 'message_updated', 'data' => $message];
 			}

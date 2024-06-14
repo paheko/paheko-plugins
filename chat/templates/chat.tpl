@@ -32,6 +32,7 @@
 				{linkbutton shape="edit" label="Gérer" href="!p/chat/edit.php?id=%d"|args:$channel.id target="_dialog"}
 			{/if}
 				{linkbutton href="search.php?id=%d"|args:$channel.id shape="search" title="Rechercher dans cette discussion" target="_dialog" label=""}
+				{linkbutton href="#" shape="camera" title="Lancer une réunion vidéo" target="_dialog" label=""}
 		</aside>
 		<article>{$channel.description|markdown|raw}</article>
 		<h5>{$channel->getAccessLabel()}</h5>
@@ -48,8 +49,12 @@
 
 	<section class="chatbox">
 		<form method="post" action="">
-			{input type="textarea" cols=50 rows=2 name="send"}
 			{csrf_field key=$csrf_key}
+			<header>
+				{button title="Joindre un fichier" shape="attach"}
+				{button title="Enregistrer un extrait audio" shape="microphone"}
+			</header>
+			{input type="textarea" cols=50 rows=2 name="send"}
 			{button type="submit" title="Envoyer" shape="right"}
 		</form>
 	</section>

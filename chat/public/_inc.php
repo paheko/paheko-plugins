@@ -121,13 +121,14 @@ function chat_message_html($message, User $me, ?string &$current_day, ?string &$
 
 	$out .= '<footer>';
 
+	// TODO
+	$out .= CommonFunctions::linkbutton(['shape' => 'link', 'title' => 'Permalien', 'label' => '', 'target' => '_blank', 'href' => sprintf('./?id=%d&focus=%d', $message->id_channel, $message->id)]);
+
+
 	if ($message->id_user === $me->id) {
 		$out .= CommonFunctions::linkbutton(['shape' => 'edit', 'title' => 'Éditer', 'target' => '_dialog', 'href' => 'edit_message.php?id=' . $message->id, 'label' => '']);
 		$out .= CommonFunctions::linkbutton(['shape' => 'delete', 'title' => 'Supprimer', 'target' => '_dialog', 'href' => 'delete_message.php?id=' . $message->id, 'label' => '']);
 	}
-
-	// FIXME
-	//$out .= CommonFunctions::linkbutton(['shape' => 'link', 'title' => 'Permalien', 'target' => '_blank', 'href' => sprintf('./?id=%d&focus=%d', $message->id_channel, $message->id)]);
 
 	$out .= CommonFunctions::button(['shape' => 'chat', 'title' => 'Répondre', 'data-action' => 'reply']);
 	$out .= CommonFunctions::button(['shape' => 'smile', 'title' => 'Réaction', 'data-action' => 'react']);
