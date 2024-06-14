@@ -140,7 +140,7 @@
 			<td>{$cat.account}</td>
 			<th>{$cat.category_name}</th>
 			<td>
-				{$cat.total|raw|money_currency}
+				{$cat.total|raw|money_currency:false}
 			</td>
 			<td>{$cat.count}</td>
 			<td>{$cat.weight|weight:false:true}</td>
@@ -152,7 +152,7 @@
 		<tr>
 			<td></td>
 			<th>Total</th>
-			<td>{$total_sales|raw|money_currency}</td>
+			<td>{$total_sales|raw|money_currency:false}</td>
 			<td>{$count}</td>
 			<td>{$weight|weight:false:true}</td>
 		</tr>
@@ -178,7 +178,7 @@
 			<td>{$p.category_name}</td>
 			<th>{$p.name}</th>
 			<td>
-				{$p.total|raw|money_currency}
+				{$p.total|raw|money_currency:false}
 			</td>
 			<td>{$p.count}</td>
 			<td>{$p.weight|weight:false:true}</td>
@@ -190,7 +190,7 @@
 		<tr>
 			<td></td>
 			<th>Total</th>
-			<td>{$total_sales|raw|money_currency}</td>
+			<td>{$total_sales|raw|money_currency:false}</td>
 			<td>{$count}</td>
 			<td>{$weight|weight:false:true}</td>
 		</tr>
@@ -211,7 +211,7 @@
 		<tr>
 			<th>{$payment.method_name}</th>
 			<td>
-				{$payment.total|raw|money_currency}
+				{$payment.total|raw|money_currency:false}
 			</td>
 		</tr>
 		{/foreach}
@@ -241,7 +241,7 @@
 			</th>
 			<td>{$payment.method_name}</td>
 			<td>
-				{$payment.amount|raw|money_currency}
+				{$payment.amount|raw|money_currency:false}
 			</td>
 			<td>{$payment.reference}</td>
 			<td class="actions">
@@ -276,7 +276,7 @@
 				{/if}
 			</th>
 			<td>
-				{$tab.total|raw|money_currency}
+				{$tab.total|raw|money_currency:false}
 			</td>
 			<td class="actions">
 				{linkbutton shape="menu" label="Détails" href="tab.php?id=%d"|args:$tab.id class="noprint"}
@@ -288,7 +288,7 @@
 		<tr>
 			<td></td>
 			<th>Total</th>
-			<td>{$total_payments|raw|money_currency}</td>
+			<td>{$total_payments|raw|money_currency:false}</td>
 			<td class="actions"></td>
 		</tr>
 	</tfoot>
@@ -319,8 +319,8 @@
 				<td>{$item.category_name}</td>
 				<th>{$item.name}</th>
 				<td>{$item.qty}</td>
-				<td>{$item.price|raw|money_currency}</td>
-				<td>{$item.total|raw|money_currency}</td>
+				<td>{$item.price|raw|money_currency:false}</td>
+				<td>{$item.total|raw|money_currency:false}</td>
 			</tr>
 			{/foreach}
 			</tbody>
@@ -330,7 +330,7 @@
 					<th>Total</th>
 					<td></td>
 					<td></td>
-					<td>{$tab.total|raw|money_currency}</td>
+					<td>{$tab.total|raw|money_currency:false}</td>
 				</tr>
 			</tfoot>
 		</table>
