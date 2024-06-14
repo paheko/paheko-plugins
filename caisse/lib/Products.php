@@ -97,7 +97,7 @@ class Products
 			],
 		];
 
-		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price > 0', );
+		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year');
 		$list->orderBy('count', true);
 		$list->setParameter('year', (string)$year);
 		$list->setTitle(sprintf('Ventes %d, par produit', $year));
