@@ -3,14 +3,6 @@
 {include file="./_nav.tpl" current='stats'}
 
 <nav class="tabs">
-	{if $year}
-		<aside>
-			{linkmenu shape="export" label="Exporter…" right=true}
-				{linkbutton href="?year=%d&export_all=products"|args:$year label="Toutes les ventes de l'année"}
-				{linkbutton href="?year=%d&export_all=methods"|args:$year label="Tous les encaissements de l'année"}
-			{/linkmenu}
-		</aside>
-	{/if}
 	<ul class="sub">
 		{foreach from=$years item="y"}
 		<li class="{if $year === $y}current{/if}">{link href="?year=%d&page=%s&period=%s"|args:$y:$page:$period label=$y}</li>
