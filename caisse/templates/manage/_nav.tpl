@@ -6,7 +6,7 @@
 	</aside>
 	{elseif $current == 'categories'}
 	<aside>
-		{linkbutton href="edit.php?new" label="Nouvelle catégorie" shape="plus" target="_dialog"}
+		{linkbutton href="edit.php?new" label="Nouvelle catégorie" shape="plus"}
 	</aside>
 	{elseif $current == 'methods'}
 	<aside>

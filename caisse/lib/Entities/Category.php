@@ -19,4 +19,15 @@ class Category extends Entity
 	{
 		$this->assert(trim($this->name) !== '', 'Le nom ne peut rester vide.');
 	}
+
+	public function importForm(?array $source = null): void
+	{
+		$source ??= $_POST;
+
+		if (isset($source['account']) && is_array($source['account'])) {
+			$source['account'] = key($source['account']);
+		}
+
+		parent::importForm($source);
+	}
 }
