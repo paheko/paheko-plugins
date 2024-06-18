@@ -48,14 +48,31 @@
 	</section>
 
 	<section class="chatbox">
-		<form method="post" action="">
+		<form method="post" action="" data-disable-progress="1">
 			{csrf_field key=$csrf_key}
-			<header>
-				{button title="Joindre un fichier" shape="attach"}
-				{button title="Enregistrer un extrait audio" shape="microphone"}
-			</header>
-			{input type="textarea" cols=50 rows=2 name="send"}
-			{button type="submit" title="Envoyer" shape="right"}
+			<article class="text">
+				<header>
+					{button title="Joindre un fichier" shape="attach"}
+					{button title="Enregistrer un extrait audio" shape="microphone" id="record-button"}
+				</header>
+				{input type="textarea" cols=50 rows=2 name="message"}
+			</article>
+			<article class="audio">
+				<header>
+					{button title="Annuler" shape="delete" id="record-cancel-button"}
+				</header>
+				<div id="recorder-container"></div>
+				<div class="recording">
+					<h3>Enregistrement en cours…</h3>
+					{button label="Arrêter l'enregistrement" id="record-stop-button" class="stop"}
+				</div>
+			</article>
+			<article class="file">
+			</article>
+			<footer>
+				{button type="submit" title="Envoyer" shape="right"}
+				<input type="hidden" name="send" value="1" />
+			</footer>
 		</form>
 	</section>
 </div>

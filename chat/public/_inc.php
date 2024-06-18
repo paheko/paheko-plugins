@@ -5,6 +5,8 @@ namespace Paheko\Plugin\Chat;
 use Paheko\Plugin\Chat\Chat;
 use Paheko\Plugin\Chat\Entities\Channel;
 use Paheko\Plugin\Chat\Entities\User;
+
+use Paheko\Files\Files;
 use Paheko\Users\Session;
 use Paheko\Template;
 use Paheko\UserTemplate\CommonFunctions;
@@ -77,7 +79,22 @@ function chat_message_format(string $text): string
 	$text = preg_replace('/^>(.*)$/m', '<blockquote>$1</blockquote>', $text);
 	$text = preg_replace(';(?<!")https?://[^<\s]+(?!");', '<a href="$0" target="_blank">$0</a>', $text);
 	$text = nl2br($text);
-	return $text;
+	return sprintf('<div class="web-content">%s</div>', $text);
+}
+
+function chat_message_file(int $id): string
+{
+	$file = Files::getByID($id);
+
+	if (!$file) {
+		return '<p class="deleted">Ce fichier a été supprimé.</p>';
+	}
+
+	if ($file->mime === 'audio/ogg') {
+		return sprintf('<audio autostart="0" controls="true" preload="none" src="%s" />', $file->url());
+	}
+
+	return $file->link(Session::getInstance(), 'auto', true);
 }
 
 function chat_message_html($message, User $me, ?string &$current_day, ?string &$current_user): string
@@ -92,6 +109,16 @@ function chat_message_html($message, User $me, ?string &$current_day, ?string &$
 
 	$out .= sprintf('<article data-date="%d" data-user="%d" data-id="%d" id="msg-%3$d">', $date, $message->id_user, $message->id);
 
+	if ($message->content) {
+		$content = chat_message_format($message->content);
+	}
+	elseif ($message->id_file) {
+		$content = chat_message_file($message->id_file);
+	}
+	else {
+		$content = '<p class="deleted">Ce message a été supprimé.</p>';
+	}
+
 	if ($current_user != $message->id_user && $current_user != -1) {
 		$current_user = $message->id_user;
 
@@ -101,36 +128,36 @@ function chat_message_html($message, User $me, ?string &$current_day, ?string &$
 				<time>%s</time>
 			</header>
 			<div class="line">
-				<div class="web-content">%s</div>
+				%s
 			</div>',
 			chat_avatar(['direct' => true, 'object' => $message, 'name' => true]),
 			date('H:i', $message->added),
-			chat_message_format($message->content)
+			$content
 		);
 	}
 	else {
 		$out .= sprintf('
 			<div class="line">
 				<time>%s</time>
-				<div class="web-content">%s</div>
+				%s
 			</div>',
 			date('H:i', $message->added),
-			chat_message_format($message->content)
+			$content
 		);
 	}
 
 	$out .= '<footer>';
 
 	// TODO
-	$out .= CommonFunctions::linkbutton(['shape' => 'link', 'title' => 'Permalien', 'label' => '', 'target' => '_blank', 'href' => sprintf('./?id=%d&focus=%d', $message->id_channel, $message->id)]);
+	//$out .= CommonFunctions::linkbutton(['shape' => 'link', 'title' => 'Permalien', 'label' => '', 'target' => '_blank', 'href' => sprintf('./?id=%d&focus=%d', $message->id_channel, $message->id)]);
 
 
 	if ($message->id_user === $me->id) {
-		$out .= CommonFunctions::linkbutton(['shape' => 'edit', 'title' => 'Éditer', 'target' => '_dialog', 'href' => 'edit_message.php?id=' . $message->id, 'label' => '']);
-		$out .= CommonFunctions::linkbutton(['shape' => 'delete', 'title' => 'Supprimer', 'target' => '_dialog', 'href' => 'delete_message.php?id=' . $message->id, 'label' => '']);
+		$out .= CommonFunctions::linkbutton(['shape' => 'edit', 'title' => 'Éditer', 'target' => '_dialog', 'href' => 'msg_edit.php?id=' . $message->id, 'label' => '']);
+		$out .= CommonFunctions::linkbutton(['shape' => 'delete', 'title' => 'Supprimer', 'target' => '_dialog', 'href' => 'msg_delete.php?id=' . $message->id, 'label' => '']);
 	}
 
-	$out .= CommonFunctions::button(['shape' => 'chat', 'title' => 'Répondre', 'data-action' => 'reply']);
+	//$out .= CommonFunctions::button(['shape' => 'chat', 'title' => 'Répondre', 'data-action' => 'reply']);
 	$out .= CommonFunctions::button(['shape' => 'smile', 'title' => 'Réaction', 'data-action' => 'react']);
 
 	$out .= '

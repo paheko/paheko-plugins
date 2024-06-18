@@ -125,6 +125,7 @@ body {
 	align-items: stretch;
 	justify-content: stretch;
 	gap: .5em;
+	height: 100%;
 }
 
 .chatbox header {
@@ -144,17 +145,58 @@ body {
 }
 
 .chatbox textarea {
-	width: calc(100% - 4em);
+	width: calc(100% - 1em);
+	height: calc(100% - 1em);
 	display: block;
 	resize: none;
 }
 
-.chatbox button {
+.chatbox footer button {
 	display: block;
 	margin: 0;
 	width: 4em;
 	margin-left: auto;
 	align-self: stretch;
+	height: 100%;
+}
+
+.chatbox article {
+	display: none;
+	width: 100%;
+	gap: .5em;
+	justify-content: stretch;
+	align-items: stretch;
+}
+
+.chatbox article.text {
+	display: flex;
+}
+
+.chatbox.audio article.text {
+	display: none;
+}
+
+.chatbox.audio article.audio {
+	display: flex;
+	width: 100%;
+	justify-content: stretch;
+	align-items: stretch;
+	text-align: center;
+}
+
+.chatbox.audio article.audio .recording, .chatbox.audio article.audio #recorder-container {
+	width: 100%;
+}
+
+.chatbox.audio article.audio .buttons {
+	display: flex;
+	flex-direction: column;
+	justify-content: stretch;
+	align-items: flex-start;
+}
+
+.chatbox.recorded article.audio .recording {
+	display: none;
 }
 
 /** Wrapper to scroll automatically to the bottom */
@@ -167,7 +209,7 @@ body {
 	display: flex;
 	justify-content: flex-start;
 	align-items: flex-start;
-	padding: .3em;
+	padding: .3em 0;
 }
 
 .messages article .line time {
@@ -200,7 +242,8 @@ body {
 
 #chat .messages .chat-avatar {
 	float: left;
-	margin-right: 18px;
+	width: 42px;
+	padding: 4px;
 }
 
 #chat .messages .chat-avatar img {
@@ -209,7 +252,7 @@ body {
 }
 
 .messages article header {
-	padding: .3em;
+	padding: .3em 0;
 }
 
 .messages .web-content br {
@@ -280,4 +323,9 @@ span.chat-status.online {
 
 span.chat-status.offline {
 	background: #999;
+}
+
+#chat .block.alert {
+	margin: 0;
+	border: 0;
 }

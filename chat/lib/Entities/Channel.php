@@ -9,6 +9,9 @@ use Paheko\UserException;
 use Paheko\Utils;
 use Paheko\Users\Session;
 
+use Paheko\Files\Files;
+use Paheko\Entities\Files\File;
+
 use KD2\DB\EntityManager as EM;
 
 class Channel extends Entity
@@ -55,6 +58,17 @@ class Channel extends Entity
 			$this->assert(!isset($this->description) || strlen($this->description) < 65000, 'La description doit faire moins de 65.000 caractères.');
 		}
 	}
+
+	public function delete(): bool
+	{
+		// Delete all files
+		if ($dir = Files::get($this->storage_root())) {
+			$dir->delete();
+		}
+
+		return parent::delete();
+	}
+
 
 	public function join(User $user): ?int
 	{
@@ -121,6 +135,58 @@ class Channel extends Entity
 
 		$message->save();
 		return $message;
+	}
+
+	public function react(User $user, int $message_id, string $emoji): Message
+	{
+		$message = EM::findOne(Message::class, 'SELECT * FROM @TABLE WHERE id = ? AND id_channel = ?;', $message_id, $this->id());
+
+		if (!$message) {
+			return $message;
+		}
+
+		$message->react($emoji);
+		return $message;
+	}
+
+	public function storage_root(): string
+	{
+		return File::CONTEXT_EXTENSIONS . '/p/chat/' . $this->id();
+	}
+
+	public function uploadRecording(User $user, string $key): Message
+	{
+		$name = sprintf('recording_%s_%s.opus', date('Y-m-d.His'), bin2hex(random_bytes(4)));
+		return self::uploadFile($user, $key, $name);
+	}
+
+	public function uploadFile(User $user, string $key, ?string $name = null): Message
+	{
+		$file = Files::upload($this->storage_root(), $key, $name);
+
+		try {
+			$now = time();
+
+			$message = new Message;
+			$message->import([
+				'id_channel'   => $this->id(),
+				'id_thread'    => null,
+				'added'        => $now,
+				'id_user'      => $user->id,
+				'user_name'    => $user->id_user ? null : $user->name,
+				'type'         => Message::TYPE_FILE,
+				'id_file'      => $file->id(),
+				'reactions'    => null,
+				'last_updated' => $now,
+			]);
+
+			$message->save();
+			return $message;
+		}
+		catch (\Throwable $e) {
+			$file->delete();
+			throw $e;
+		}
 	}
 
 	public function requiresLogin(): bool

@@ -19,7 +19,8 @@ class Message extends Entity
 	protected ?int $id_user = null;
 	protected ?string $user_name = null;
 	protected string $type;
-	protected ?string $content;
+	protected ?int $id_file = null;
+	protected ?string $content = null;
 	protected ?array $reactions;
 	protected int $last_updated;
 
@@ -41,7 +42,7 @@ class Message extends Entity
 			$this->assert(null !== $this->user_name);
 		}
 
-		if ($this->access === self::TYPE_FILE) {
+		if ($this->type === self::TYPE_FILE) {
 			$this->assert(null === $this->content);
 		}
 		else {

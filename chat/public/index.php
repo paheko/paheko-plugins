@@ -42,7 +42,18 @@ $form = new Form;
 $tpl->assign_by_ref('form', $form);
 
 $form->runIf('send', function () use ($me, $channel) {
-	$channel->say($me, $_POST['send'] ?? '');
+	if (isset($_POST['message'])) {
+		$channel->say($me, $_POST['message']);
+	}
+	elseif (isset($_FILES['audio'])) {
+		$channel->uploadRecording($me, 'audio');
+	}
+	elseif (isset($_FILES['file'])) {
+		$channel->uploadFile($me, 'file');
+	}
+	elseif (isset($_POST['reaction_id'], $_POST['reaction_emoji'])) {
+		$channel->reactTo($me, (int)$_POST['reaction_id'], $_POST['reaction_emoji']);
+	}
 }, $csrf_key, '?id=' . $channel->id());
 
 $channels = Chat::listChannels($session);
