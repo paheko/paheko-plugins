@@ -410,3 +410,10 @@ nav.reactions button.me {
 nav.reactions button span {
 	font-size: .9em;
 }
+
+#jitsi {
+	border-radius: .5em;
+	overflow: hidden;
+	width: 90%;
+	height: 90vh;
+}

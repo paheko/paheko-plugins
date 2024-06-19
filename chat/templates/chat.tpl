@@ -2,7 +2,7 @@
 
 {form_errors}
 
-<div id="chat" data-channel-id="{$channel.id}">
+<div id="chat" data-channel-id="{$channel.id}" data-user-name="{$me.name}" data-channel-name="{$channel.name}" data-org-name="{$config.org_name}">
 	<nav class="channels">
 		{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)}
 		<aside>
@@ -32,7 +32,7 @@
 				{linkbutton shape="edit" label="Gérer" href="!p/chat/edit.php?id=%d"|args:$channel.id target="_dialog"}
 			{/if}
 				{linkbutton href="search.php?id=%d"|args:$channel.id shape="search" title="Rechercher dans cette discussion" target="_dialog" label=""}
-				{linkbutton href="#" shape="camera" title="Lancer une réunion vidéo" target="_dialog" label=""}
+				{linkbutton href="#" shape="camera" title="Lancer une réunion vidéo" onclick="openJitsi(); return false;" label=""}
 		</aside>
 		<article>{$channel.description|markdown|raw}</article>
 		<h5>{$channel->getAccessLabel()}</h5>

@@ -1,46 +1,33 @@
 ## Fonctionnalités actuelles
 
 * Discussions en temps réel
-* Envoi et lecture de messages audio au format Opus (léger, environ 7 Mo par heure de discussion, soit le poids de 2 photos !)
-* 
+* Création et suppression de salons
+* Salons publics, accessibles aux visiteurs
+* Salons privés, réservés aux membres de l'association
+* Salons privés, sur invitation à des membres ou des intervenants externes
+* Messages privés entre deux personnes
+* Ajout de réactions / emojis aux messages
+* Envoi et lecture de messages audio, au format Opus (léger, environ 7 Mo par heure de discussion, soit le poids de 2 photos !)
+* Communication entre tabs/fenêtres du navigateur pour s'assurer qu'une seule tab peut recevoir les mises à jour en temps réel ([cf. cette discussion](https://linuxfr.org/news/communiquer-avec-le-serveur-depuis-un-navigateur-web-xhr-sse-et-websockets#toc-les-server-sent-events-%C3%A0-la-rescousse))
+* Rendu Markdown de base (listes, gras, italique, barré, code, citation), comme [Slack](https://www.markdownguide.org/tools/slack/)
+* Transformation automatique des URLs en liens
+* Messages sur plusieurs lignes avec Ctrl+Entrée, ou Shift+Entrée
+* Ouverture de visioconférence directement depuis un salon (en utilisant Jitsi)
+* Très faible empreinte écologique
 
-## Features
+## Fonctionnalités prévues
 
-* Real-time chat
-* Chatrooms confidentiality:
-  * Private: only logged-in users can access, eventually restricted to one category
-* Auto-linkify of URLs
-* Multi-line messages with Shift+Enter
-* Some kind of Markdown rendering (lists, bold, italic, strikethrough, code, quote), just like [Slack support](https://www.markdownguide.org/tools/slack/)
-
-## Later
-
-* Reactions: https://github.com/julien-marcou/unicode-emoji
-* Delete messages
-* Attach internal files / new files to messages
-* Archiving of channels: no one can join, messages are displayed, that's all
-* Ability to send invitations to a chatroom to external users
-  * Public: available for everyone on the website
-  * Invite-only: only invited people can join
+* Suppression de message
+* Édition de message
+* Envoi de fichier
+* Archivage de salon : plus personne ne peut rejoindre le salon
+* Suppression des fichiers lors de la suppression du salon
+* Recherche de message dans les salons
 * /me messages
 * @Mentions
 * Browser notifications
 * Email notifications of mentions
 * Threads
-* Audio messages using [Opus](https://github.com/zhukov/opus-recorder)
-* Make sure only one tab can use SSE at the same time to avoid inter-tabs lock: https://linuxfr.org/news/communiquer-avec-le-serveur-depuis-un-navigateur-web-xhr-sse-et-websockets#toc-les-server-sent-events-%C3%A0-la-rescousse
-* Jitsi chat integration (iframe): <div id="meet"></div>
-<script src='https://meet.jit.si/external_api.js'></script>
-<script>
-	const domain = 'meet.jit.si';
-const options = {
-    roomName: 'JitsiMeetAPIExample',
-    width: 700,
-    height: 700,
-    parentNode: document.querySelector('#meet'),
-    lang: 'de'
-};
-const api = new JitsiMeetExternalAPI(domain, options);</script>
 
 ## How it works
 

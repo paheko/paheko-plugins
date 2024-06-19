@@ -327,6 +327,14 @@
 			e.preventDefault();
 			return false;
 		}
+
 	}
 
+	window.openJitsi = () => {
+		const jitsi_url = 'https://meet.jit.si/';
+		var name = main.dataset.orgName + '--' + main.dataset.channelName;
+		name = name.replace(/[^\w\p{L}-]+/gu, '_');
+		name = name.replace(/--/, '/');
+		window.open(jitsi_url + name + '?lang=fr#config.prejoinConfig.enabled=false&userInfo.displayName=' + encodeURIComponent('"' + main.dataset.userName + '"', 'jitsi'));
+	};
 })();
