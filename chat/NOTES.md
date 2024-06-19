@@ -1,4 +1,4 @@
-## Fonctionnalités
+## Fonctionnalités actuelles
 
 * Discussions en temps réel
 * Envoi et lecture de messages audio au format Opus (léger, environ 7 Mo par heure de discussion, soit le poids de 2 photos !)

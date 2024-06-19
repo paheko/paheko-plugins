@@ -97,10 +97,18 @@ function chat_message_file(int $id): string
 	return $file->link(Session::getInstance(), 'auto', true);
 }
 
-function chat_message_html($message, User $me, ?string &$current_day, ?string &$current_user): string
+function chat_message_html($message, User $me, ?string &$current_day = null, ?string &$current_user = null): string
 {
 	$date = date('Ymd', $message->added);
 	$out = '';
+
+	if (!$current_day && isset($message->previous_added)) {
+		$current_day = date('Ymd', $message->previous_added);
+	}
+
+	if (!$current_user && isset($message->previous_user_id)) {
+		$current_user = $message->previous_user_id;
+	}
 
 	if ($current_day !== $date && $current_day != -1) {
 		$current_day = $date;
@@ -144,6 +152,26 @@ function chat_message_html($message, User $me, ?string &$current_day, ?string &$
 			date('H:i', $message->added),
 			$content
 		);
+	}
+
+	if (!empty($message->reactions)) {
+		$out .= '<nav class="reactions">';
+
+		if (is_string($message->reactions)) {
+			$message->reactions = json_decode($message->reactions, true);
+		}
+
+		foreach ($message->reactions as $emoji => $users) {
+			$users_names = implode("\n", Chat::getUsersNames($users));
+			$out .= sprintf('<button title="%s" %s><b>%s</b> <span>%d</span></button>',
+				$users_names,
+				in_array($me->id(), $users) ? 'class="me"' : '',
+				$emoji,
+				count($users)
+			);
+		}
+
+		$out .= '</nav>';
 	}
 
 	$out .= '<footer>';

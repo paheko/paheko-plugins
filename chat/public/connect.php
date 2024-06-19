@@ -53,11 +53,14 @@ while (true) {
 	$refresh = false;
 
 	foreach ($channel->getEventsSince($last_seen_ts, $last_seen_id, $me) as $event) {
-		$html = chat_message_html($event['data'], $me, $current_day, $current_user);
+		if ($event['type'] === 'message') {
+			$event['data']['html'] = chat_message_html($event['data']['message'], $me);
+		}
 
 		echo "event: " . $event['type'] . "\r\n";
-		echo "data: " . json_encode($html) . "\r\n\r\n";
-		$last_seen_id = max($last_seen_id, $event['data']->id);
+		echo "data: " . json_encode($event['data']) . "\r\n\r\n";
+		$last_seen_id = max($last_seen_id, $event['data']['message']->id);
+		$refresh = true;
 	}
 
 	if ($refresh) {

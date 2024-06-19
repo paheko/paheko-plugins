@@ -72,16 +72,42 @@ class Message extends Entity
 		return true;
 	}
 
-	public function react(string $emoticon)
+	public function react(User $user, string $emoji)
 	{
-		if (\IntlChar::charType($emoticon) === null) {
-			throw new \InvalidArgumentException('Invalid emoticon character');
+		$cats = json_decode(file_get_contents(__DIR__ . '/../../public/emojis.json'), true);
+		$found = false;
+
+		foreach ($cats as $emojis) {
+			if (array_key_exists($emoji, $emojis)) {
+				$found = true;
+				break;
+			}
+		}
+
+		if (!$found) {
+			throw new UserException('This emoji is not allowed');
 		}
 
 		$reactions = $this->reactions;
 
-		$reactions[$emoticon] ??= 0;
-		$reactions[$emoticon]++;
+		if (!isset($reactions[$emoji]) || !is_array($reactions[$emoji])) {
+			$reactions[$emoji] = [];
+		}
+
+		if (false !== ($found = array_search($user->id, $reactions[$emoji], true))) {
+			unset($reactions[$emoji][$found]);
+		}
+		else {
+			$reactions[$emoji][] = $user->id;
+		}
+
+		if (!count($reactions[$emoji])) {
+			unset($reactions[$emoji]);
+		}
+
+		if (!count($reactions)) {
+			$reactions = null;
+		}
 
 		$this->set('reactions', $reactions);
 		$this->set('last_updated', time());

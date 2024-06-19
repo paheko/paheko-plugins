@@ -116,8 +116,8 @@ body {
 }
 
 .channels ul li.current a {
-    background: rgba(var(--gSecondColor), 0.4);
-    font-weight: bold;
+	background: rgba(var(--gSecondColor), 0.4);
+	font-weight: bold;
 }
 
 .chatbox form {
@@ -214,8 +214,9 @@ body {
 
 .messages article .line time {
 	flex-shrink: 0;
-	width: 50px;
+	width: 46px;
 	visibility: hidden;
+	padding: 3px;
 }
 
 .messages article {
@@ -262,12 +263,12 @@ body {
 }
 
 .messages::-webkit-scrollbar {
-    background: none;
-    width: 10px;
+	background: none;
+	width: 10px;
 }
 
 .messages::-webkit-scrollbar-thumb {
-    background: rgba(var(--gSecondColor), 0.3);
+	background: rgba(var(--gSecondColor), 0.3);
 }
 
 .messages article footer {
@@ -328,4 +329,84 @@ span.chat-status.offline {
 #chat .block.alert {
 	margin: 0;
 	border: 0;
+}
+
+.emoji-selector {
+	width: 90%;
+	height: 80%;
+	overflow: auto;
+}
+
+.emoji-selector input {
+	display: block;
+	margin: .5em;
+}
+
+.emoji-selector section {
+	margin: .5em 0;
+}
+
+.emoji-selector nav {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 3em;
+	padding: .5rem;
+	gap: .2em;
+}
+
+.emoji-selector nav button {
+	width: 2em;
+	box-shadow: none;
+	border-radius: 0;
+	border-bottom: 5px solid transparent;
+}
+
+.emoji-selector nav button.selected {
+	border-bottom: 5px solid var(--gBorderColor);
+}
+
+.emoji-selector button, .reactions button b {
+	font-family: "Twemoji Mozilla", Apple Color Emoji, "Segoe UI Emoji", "Noto Color Emoji", "EmojiOne Color";
+}
+
+.emoji-selector button {
+	border: none;
+	margin: 0;
+	background: none;
+	padding: .2rem;
+}
+
+.emoji-selector section button:hover {
+	box-shadow: 0px 0px 10px var(--gBorderColor);
+}
+
+.emoji-selector section {
+	font-size: 2.5em;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(1.85em, 1fr));
+	grid-gap: 0.2em;
+}
+
+nav.reactions {
+	margin-left: 50px;
+}
+
+nav.reactions button {
+	margin: 0;
+	margin-right: .1rem;
+	padding: .1rem .25rem;
+	border-radius: .5em;
+	background: rgba(var(--gSecondColor), 0.1);
+	border: 1px solid rgba(var(--gMainColor), 0.1);
+	box-shadow: none;
+}
+
+nav.reactions button.me {
+	background: rgba(var(--gSecondColor), 0.2);
+	border: 1px solid rgba(var(--gMainColor), 0.2);
+}
+
+nav.reactions button span {
+	font-size: .9em;
 }

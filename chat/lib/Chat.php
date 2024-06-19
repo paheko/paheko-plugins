@@ -6,6 +6,7 @@ use Paheko\Plugin\Chat\Entities\Channel;
 use Paheko\Plugin\Chat\Entities\User;
 use Paheko\Plugin\Chat\Entities\Message;
 use Paheko\Users\Session;
+use Paheko\DB;
 
 use KD2\DB\EntityManager as EM;
 
@@ -171,5 +172,34 @@ class Chat
 		$sql = sprintf('SELECT *, CASE WHEN access = ? THEN (SELECT name FROM plugin_chat_users WHERE %s LIMIT 1) ELSE name END AS name
 			FROM @TABLE WHERE access = ? %s ORDER BY access = \'direct\', name COLLATE NOCASE;', $pm_name, $access);
 		return EM::getInstance(Channel::class)->all($sql, ...$params);
+	}
+
+	static public function getUsersNames(array $ids): array
+	{
+		static $users = [];
+
+		$out = [];
+
+		// Use cache
+		foreach ($ids as $key => $id) {
+			if (array_key_exists($id, $users)) {
+				$out[] = $users[$id];
+				unset($ids[$key]);
+			}
+		}
+
+		if (!count($ids)) {
+			return $out;
+		}
+
+		$db = DB::getInstance();
+		$sql = sprintf('SELECT id, name FROM plugin_chat_users WHERE %s AND name IS NOT NULL;', $db->where('id', $ids));
+
+		foreach ($db->iterate($sql) as $row) {
+			$out[] = $row->name;
+			$users[$row->id] = $row->name;
+		}
+
+		return $out;
 	}
 }

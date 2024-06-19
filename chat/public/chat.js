@@ -41,8 +41,6 @@
 		}
 
 		var last_message = container.lastElementChild;
-		var current_user = last_message ? last_message.dataset.user : '';
-		var current_day = last_message ? last_message.dataset.date : '';
 		var last_seen_id = last_message ? last_message.dataset.id : '';
 
 		chatbox_input.onkeydown = (e) => {
@@ -69,12 +67,28 @@
 			}
 
 			sse = new EventSource(g.admin_url + '/../../p/chat/connect.php?id='
-				+ main.dataset.channelId+ '&current_user=' + current_user + '&current_day=' + current_day
+				+ main.dataset.channelId
 				+ '&last_seen_id=' + last_seen_id);
 
 			sse.onerror = () => setTimeout(chatConnect, 5000);
-			sse.addEventListener('message_new', function(event) {
-				container.innerHTML += JSON.parse(event.data);
+			sse.addEventListener('message', function(event) {
+				var data = JSON.parse(event.data);
+				console.log(data);
+				var element = document.getElementById('msg-' + data.message.id);
+
+				if (element) {
+					element.outerHTML = data.html;
+					addMessageEvents(element);
+				}
+				else if (data.message.id > last_message.dataset.id) {
+					container.innerHTML += data.html;
+					last_message = container.lastElementChild;
+					addMessageEvents(last_message);
+				}
+				else {
+					// Ignore messages out of current scope
+					console.log('ignored', data.message, last_message.dataset.id);
+				}
 			});
 		}
 
@@ -103,22 +117,109 @@
 
 		var emoji_selector = null;
 
-		function buildEmojiSelector()
+		function sendReaction(message, emoji)
 		{
+			var fd = new FormData(form);
+			fd.append('reaction_emoji', emoji);
+			fd.append('reaction_message_id', message.dataset.id);
+			fd.delete('message');
 
+			fetch(form.action, {
+				method: 'POST',
+				mode: 'cors',
+				cache: 'no-cache',
+				headers: {"Accept": "application/json"},
+				body: fd,
+			}).then((r) => r.text()).then(() => {
+				g.closeDialog();
+				emoji_selector = null;
+			});
 		}
 
-		function openEmojiSelector(callback)
+		function openEmojiSelector(message)
 		{
-			if (emoji_selector === null) {
-				buildEmojiSelector();
-			}
+			g.script('../../p/chat/emojis.js', () => {
+				emoji_selector = document.createElement('div');
+				emoji_selector.className = 'content emoji-selector';
+				emoji_selector.open = false;
 
-			emoji_selector.querySelectorAll('button').forEach((e) => e.onclick = callback);
-			emoji_selector.open = true;
-			emoji_selector.top = XX;
-			emoji_selector.left = XX;
+				var search = document.createElement('input');
+				search.type = 'search';
+				search.className = 'full-width';
+				search.oninput = () => {
+					var s = search.value.trim().toLowerCase();
+					if (selected = emoji_selector.querySelector('nav .selected')) {
+						selected.classList.remove('selected');
+					}
+
+					if (s === '') {
+						emoji_selector.querySelectorAll('section').forEach((e) => e.classList.toggle('hidden', true));
+						emoji_selector.querySelectorAll('section button').forEach((e) => e.classList.toggle('hidden', false));
+						emoji_selector.querySelector('nav').classList.remove('hidden');
+						return;
+					}
+
+					emoji_selector.querySelectorAll('nav, section, section button').forEach((e) => e.classList.toggle('hidden', true));
+					emoji_selector.querySelectorAll('section button').forEach((e) => {
+						var match = e.dataset.text.includes(s);
+						if (!match) {
+							return;
+						}
+						e.parentNode.classList.toggle('hidden', !match);
+						e.classList.toggle('hidden', !match);
+					});
+				};
+				search.autofocus = true;
+				emoji_selector.appendChild(search);
+
+				var tabs = document.createElement('nav');
+
+				for (const [cat_emoji, list] of Object.entries(emojis)) {
+					const cat = document.createElement('section');
+					cat.className = 'hidden';
+
+					const b = document.createElement('button');
+					b.innerText = cat_emoji;
+					b.onclick = () => {
+						emoji_selector.querySelectorAll('nav button').forEach((e) => e.classList.remove('selected'));
+						b.classList.toggle('selected');
+
+						if (b.classList.contains('selected')) {
+							emoji_selector.querySelectorAll('section').forEach((e) => e.classList.add('hidden'));
+							cat.classList.remove('hidden');
+						}
+
+						search.focus();
+					};
+					tabs.appendChild(b);
+
+					for (const [emoji, match] of Object.entries(list)) {
+						const e = document.createElement('button');
+						e.onclick = () => {
+							sendReaction(message, e.innerText);
+						};
+						e.innerText = emoji;
+						e.dataset.text = match;
+						cat.appendChild(e);
+					}
+
+					emoji_selector.appendChild(cat);
+				}
+
+				emoji_selector.insertBefore(tabs, search.nextSibling);
+
+				g.openDialog(emoji_selector);
+				search.focus();
+			});
 		}
+
+		function addMessageEvents(message)
+		{
+			message.querySelector('footer [data-action="react"]').onclick = () => openEmojiSelector(message);
+			message.querySelectorAll('.reactions button').forEach((e) => e.onclick = () => sendReaction(e.parentNode.parentNode, e.firstChild.innerText));
+		}
+
+		$('.messages article').forEach((e) => e.onclick = () => addMessageEvents(e));
 
 		// See https://github.com/mdn/dom-examples/blob/main/media/web-dictaphone/scripts/app.js
 		var recorder;

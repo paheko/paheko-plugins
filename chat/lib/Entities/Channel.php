@@ -137,7 +137,7 @@ class Channel extends Entity
 		return $message;
 	}
 
-	public function react(User $user, int $message_id, string $emoji): Message
+	public function reactTo(User $user, int $message_id, string $emoji): ?Message
 	{
 		$message = EM::findOne(Message::class, 'SELECT * FROM @TABLE WHERE id = ? AND id_channel = ?;', $message_id, $this->id());
 
@@ -145,7 +145,7 @@ class Channel extends Entity
 			return $message;
 		}
 
-		$message->react($emoji);
+		$message->react($user, $emoji);
 		return $message;
 	}
 
@@ -230,18 +230,20 @@ class Channel extends Entity
 		$db = DB::getInstance();
 
 		$sql = 'SELECT m.*, CASE WHEN u.id IS NOT NULL THEN u.name ELSE m.user_name END AS user_name,
-			CASE WHEN u.id_user IS NOT NULL THEN u.id_user ELSE NULL END AS real_user_id
+			CASE WHEN u.id_user IS NOT NULL THEN u.id_user ELSE NULL END AS real_user_id,
+			m2.*
 			FROM plugin_chat_messages m
+			INNER JOIN (SELECT id, LAG(added) OVER (ORDER BY id) AS previous_added, LAG(id_user) OVER (ORDER BY id) AS previous_user_id FROM plugin_chat_messages) AS m2 ON m2.id = m.id
 			LEFT JOIN plugin_chat_users u ON u.id = m.id_user
 			WHERE m.id_channel = ? AND (m.id > ? OR (last_updated != added AND last_updated > ?)) ORDER BY id;';
 
 		foreach ($db->iterate($sql, $this->id(), $last_seen_message_id, $since) as $message) {
-			if ($message->last_updated !== $message->added) {
-				yield ['type' => 'message_updated', 'data' => $message];
-			}
-			else {
-				yield ['type' => 'message_new', 'data' => $message];
-			}
+			yield [
+				'type' => 'message',
+				'data' => [
+					'message' => $message,
+				]
+			];
 		}
 	}
 }
