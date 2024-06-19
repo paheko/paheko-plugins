@@ -32,7 +32,7 @@ while (!feof($fp)) {
 	$line = array_combine($header, $line);
 	$line = (object) $line;
 
-	if (!version_compare($line->version, '9', '<=')) {
+	if (!version_compare($line->version, '14', '<=')) {
 		continue;
 	}
 

@@ -25,9 +25,11 @@
 * Recherche de message dans les salons
 * /me messages
 * @Mentions
-* Browser notifications
-* Email notifications of mentions
-* Threads
+* Affichage du nombre de messages non lus dans chaque canal
+* Affichage de la ligne montrant le dernier message non lu quand on ouvre un salon
+* Envoi de notification par e-mail en cas de mention
+* Envoi des discussions par e-mail après X jours d'absence (résumé)
+* Fils de discussion ?
 
 ## How it works
 

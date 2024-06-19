@@ -1,3 +1,10 @@
+@font-face {
+	font-family: 'Emoji';
+	src: url('Twemoji.Mozilla.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
 .chat-users li a {
 	padding: .3em;
 	display: inline-flex;
@@ -367,7 +374,8 @@ span.chat-status.offline {
 }
 
 .emoji-selector button, .reactions button b {
-	font-family: "Twemoji Mozilla", Apple Color Emoji, "Segoe UI Emoji", "Noto Color Emoji", "EmojiOne Color";
+	font-family: "Emoji";
+	font-weight: normal;
 }
 
 .emoji-selector button {
@@ -397,14 +405,18 @@ nav.reactions button {
 	margin-right: .1rem;
 	padding: .1rem .25rem;
 	border-radius: .5em;
-	background: rgba(var(--gSecondColor), 0.1);
-	border: 1px solid rgba(var(--gMainColor), 0.1);
+	background: none;
+	border: 1px solid var(--gLightBorderColor);
+	display: inline-flex;
 	box-shadow: none;
 }
 
+nav.reactions button b {
+	text-shadow: 0px 0px 2px rgb(var(--gTextColor));
+}
+
 nav.reactions button.me {
-	background: rgba(var(--gSecondColor), 0.2);
-	border: 1px solid rgba(var(--gMainColor), 0.2);
+	background-color: rgba(var(--gHoverLinkColor), 0.1);
 }
 
 nav.reactions button span {
