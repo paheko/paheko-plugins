@@ -44,7 +44,23 @@ class Chat
 		return DB::getInstance()->test(Channel::TABLE, 'access = ?', Channel::ACCESS_PUBLIC);
 	}
 
-	static public function getChannel(int $id, User $user): ?Channel
+	static public function getMessage(int $id, ?User $user): Message
+	{
+		if ($user) {
+			$message = EM::findOne(Message::class, 'SELECT * FROM @TABLE WHERE id = ? AND id_user = ?;', $id, $user->id());
+		}
+		else {
+			$message = EM::findOne(Message::class, 'SELECT * FROM @TABLE WHERE id = ?;', $id);
+		}
+
+		if (!$message) {
+			throw new UserException('This message does not exist or does not belong to you', 404);
+		}
+
+		return $message;
+	}
+
+	static public function getChannel(int $id, User $user): Channel
 	{
 		$channel = EM::findOneById(Channel::class, $id);
 

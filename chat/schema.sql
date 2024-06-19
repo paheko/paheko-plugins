@@ -45,9 +45,7 @@ CREATE TABLE IF NOT EXISTS plugin_chat_messages (
 	id_file INTEGER NULL REFERENCES files(id) ON DELETE SET NULL, -- NULL if deleted
 	content TEXT NULL,
 	reactions TEXT NULL,
-	last_updated INTEGER NOT NULL,
-	CHECK (content IS NOT NULL OR id_file IS NOT NULL),
-	CHECK (id_user IS NOT NULL OR user_name IS NOT NULL)
+	last_updated INTEGER NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS plugin_chat_messages_idx ON plugin_chat_messages (id_channel, last_updated);

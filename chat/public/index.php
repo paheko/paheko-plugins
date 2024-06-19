@@ -42,6 +42,13 @@ $csrf_key = 'chat';
 $form = new Form;
 $tpl->assign_by_ref('form', $form);
 
+$is_admin = $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
+
+$form->runIf('delete_message', function () use ($me, $is_admin) {
+	$message = Chat::getMessage((int)$_POST['delete_message'], $is_admin ? null : $me);
+	$message->delete();
+}, $csrf_key, './?id=' . $channel->id());
+
 $form->runIf('send', function () use ($me, $channel) {
 	if (isset($_POST['message'])) {
 		$channel->say($me, $_POST['message']);
@@ -55,7 +62,7 @@ $form->runIf('send', function () use ($me, $channel) {
 	elseif (isset($_POST['reaction_message_id'], $_POST['reaction_emoji'])) {
 		$channel->reactTo($me, (int)$_POST['reaction_message_id'], $_POST['reaction_emoji']);
 	}
-}, $csrf_key, '?id=' . $channel->id());
+}, $csrf_key, './?id=' . $channel->id());
 
 $channels = Chat::listChannels($me);
 $messages = $channel->listMessages(null, 50);

@@ -80,7 +80,7 @@
 					element = document.getElementById('msg-' + data.message.id);
 					addMessageEvents(element);
 				}
-				else if (data.message.id > last_message.dataset.id) {
+				else if (!last_message || data.message.id > last_message.dataset.id) {
 					container.innerHTML += data.html;
 					last_message = container.lastElementChild;
 					addMessageEvents(last_message);
@@ -215,7 +215,13 @@
 
 		function addMessageEvents(message)
 		{
-			message.querySelector('footer [data-action="react"]').onclick = () => openEmojiSelector(message);
+			var f = message.querySelector('footer');
+
+			if (f) {
+				f.querySelector('[data-action="react"]').onclick = () => openEmojiSelector(message);
+				f.querySelector('footer [data-action="delete"]').onclick = () => deleteMessage(message);
+			}
+
 			message.querySelectorAll('.reactions button').forEach((e) => { e.onclick = () => sendReaction(message, e.dataset.emoji);});
 		}
 
@@ -378,6 +384,28 @@
 			return false;
 		}
 
+	}
+
+	function deleteMessage(message) {
+		if (!window.confirm('Supprimer définitivement ce message ?')) {
+			return;
+		}
+
+		var fd = new FormData(form);
+		fd.append('delete_message', message.dataset.id);
+		fd.delete('message');
+		fd.delete('send');
+
+		fetch(form.action, {
+			method: 'POST',
+			mode: 'cors',
+			cache: 'no-cache',
+			headers: {"Accept": "application/json"},
+			body: fd,
+		}).then((r) => r.text()).then(() => {
+		});
+
+		return false;
 	}
 
 	window.openJitsi = () => {

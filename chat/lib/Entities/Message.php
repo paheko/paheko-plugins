@@ -7,6 +7,8 @@ use Paheko\Entity;
 use Paheko\ValidationException;
 use Paheko\UserException;
 use Paheko\Utils;
+use Paheko\Files\Files;
+use Paheko\Entities\Files\File;
 
 class Message extends Entity
 {
@@ -27,12 +29,13 @@ class Message extends Entity
 	const TYPE_TEXT = 'text';
 	const TYPE_FILE = 'file';
 	const TYPE_COMMENT = 'comment'; // /me command
+	const TYPE_DELETED = 'deleted';
 
 	public function selfCheck(): void
 	{
 		parent::selfCheck();
 
-		$this->assert(in_array($this->type, [self::TYPE_TEXT, self::TYPE_FILE, self::TYPE_COMMENT]));
+		$this->assert(in_array($this->type, [self::TYPE_TEXT, self::TYPE_FILE, self::TYPE_COMMENT, self::TYPE_DELETED]));
 
 		if (null !== $this->id_user) {
 			$this->assert(null === $this->user_name);
@@ -45,7 +48,7 @@ class Message extends Entity
 		if ($this->type === self::TYPE_FILE) {
 			$this->assert(null === $this->content);
 		}
-		else {
+		elseif ($this->type === self::TYPE_TEXT) {
 			$this->assert(null !== $this->content && trim($this->content) !== '', 'Le texte ne peut rester vide.');
 			$this->assert(strlen($this->content) < 20000, 'Le texte doit faire moins de 20.000 caractères.');
 		}
@@ -64,12 +67,22 @@ class Message extends Entity
 
 	public function delete(): bool
 	{
+		if ($this->type === self::TYPE_FILE) {
+			$this->file()->delete();
+			$this->set('id_file', null);
+		}
+
+		$this->set('type', self::TYPE_DELETED);
 		$this->set('content', null);
-		$this->set('type', null);
 		$this->set('reactions', null);
 		$this->set('last_updated', time());
 		$this->save();
 		return true;
+	}
+
+	public function file(): ?File
+	{
+		return Files::getByID($this->id_file);
 	}
 
 	public function react(User $user, string $emoji)

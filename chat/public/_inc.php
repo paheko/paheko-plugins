@@ -4,6 +4,7 @@ namespace Paheko\Plugin\Chat;
 
 use Paheko\Plugin\Chat\Chat;
 use Paheko\Plugin\Chat\Entities\Channel;
+use Paheko\Plugin\Chat\Entities\Message;
 use Paheko\Plugin\Chat\Entities\User;
 
 use Paheko\Files\Files;
@@ -125,6 +126,7 @@ function chat_message_file(int $id): string
 
 function chat_message_html($message, User $me, ?string &$current_day = null, ?string &$current_user = null): string
 {
+	static $is_admin = Session::getInstance()->canAccess(Session::SECTION_USERS, Session::ACCESS_ADMIN);
 	$date = date('Ymd', $message->added);
 	$out = '';
 
@@ -143,13 +145,13 @@ function chat_message_html($message, User $me, ?string &$current_day = null, ?st
 
 	$out .= sprintf('<article data-date="%d" data-user="%d" data-id="%d" id="msg-%3$d">', $date, $message->id_user, $message->id);
 
-	if ($message->content) {
+	if ($message->type === Message::TYPE_TEXT) {
 		$content = chat_message_format($message->content);
 	}
-	elseif ($message->id_file) {
+	elseif ($message->type === Message::TYPE_FILE) {
 		$content = chat_message_file($message->id_file);
 	}
-	else {
+	elseif ($message->type === Message::TYPE_DELETED) {
 		$content = '<p class="deleted">Ce message a été supprimé.</p>';
 	}
 
@@ -200,22 +202,26 @@ function chat_message_html($message, User $me, ?string &$current_day = null, ?st
 		$out .= '</nav>';
 	}
 
-	$out .= '<footer>';
 
 	// TODO
 	//$out .= CommonFunctions::linkbutton(['shape' => 'link', 'title' => 'Permalien', 'label' => '', 'target' => '_blank', 'href' => sprintf('./?id=%d&focus=%d', $message->id_channel, $message->id)]);
 
+	if ($message->type !== Message::TYPE_DELETED) {
+		$out .= '<footer>';
+		if ($message->id_user === $me->id || $is_admin) {
+			if ($message->type === Message::TYPE_TEXT) {
+				$out .= CommonFunctions::button(['shape' => 'edit', 'title' => 'Éditer', 'data-action' => 'edit',]);
+			}
 
-	if ($message->id_user === $me->id) {
-		$out .= CommonFunctions::linkbutton(['shape' => 'edit', 'title' => 'Éditer', 'target' => '_dialog', 'href' => 'msg_edit.php?id=' . $message->id, 'label' => '']);
-		$out .= CommonFunctions::linkbutton(['shape' => 'delete', 'title' => 'Supprimer', 'target' => '_dialog', 'href' => 'msg_delete.php?id=' . $message->id, 'label' => '']);
+			$out .= CommonFunctions::button(['shape' => 'delete', 'title' => 'Supprimer', 'data-action' => 'delete']);
+		}
+
+		//$out .= CommonFunctions::button(['shape' => 'chat', 'title' => 'Répondre', 'data-action' => 'reply']);
+		$out .= CommonFunctions::button(['shape' => 'smile', 'title' => 'Réaction', 'data-action' => 'react']);
+		$out .= '</footer>';
 	}
 
-	//$out .= CommonFunctions::button(['shape' => 'chat', 'title' => 'Répondre', 'data-action' => 'reply']);
-	$out .= CommonFunctions::button(['shape' => 'smile', 'title' => 'Réaction', 'data-action' => 'react']);
-
 	$out .= '
-		</footer>
 	</article>';
 
 	return $out;

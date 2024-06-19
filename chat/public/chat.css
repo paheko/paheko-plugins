@@ -202,6 +202,10 @@ body {
 	text-align: center;
 }
 
+.chatbox.file article.file .file-selector p.help {
+	margin: 0;
+}
+
 .chatbox.file article.file .file-selector table {
 	display: none;
 }
@@ -383,11 +387,16 @@ body {
 	max-height: 96px;
 }
 
-figure.file a span::before {
+.messages figure.file a span::before {
     color: rgba(var(--gMainColor), 0.7);
     font-size: 5em;
     padding: .2em !important;
 
+}
+
+.messages .deleted {
+	color: var(--gBorderColor);
+	font-style: italic;
 }
 
 span.chat-status {
