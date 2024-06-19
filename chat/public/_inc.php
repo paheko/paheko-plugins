@@ -73,12 +73,13 @@ function chat_message_format(string $text): string
 	$text = htmlspecialchars($text);
 	$text = preg_replace('/\*\*((?:(?!\*\*).)+?)\*\*/s', '<b>$1</b>', $text);
 	$text = preg_replace('/_([^_]+?)_/s', '<i>$1</i>', $text);
-	$text = preg_replace('/`([^`]+?)`/s', '<code>$1</code>', $text);
-	$text = preg_replace('/~~((?:(?!~~).)+?)~~/s', '<del>$1</del>', $text);
-	$text = preg_replace('/((?:(?!~~).)+?)~~/s', '<del>$1</del>', $text);
-	$text = preg_replace('/^>(.*)$/m', '<blockquote>$1</blockquote>', $text);
+	$text = preg_replace_callback('/`+([^`]+?)`+/s', fn($match) => '<code>' . str_replace("\n", '<br />', trim($match[1], "\n")) . '</code>', $text);
+	$text = preg_replace('/~~((?:(?!~~).)+?)~~/s', '<s>$1</s>', $text);
+	$text = preg_replace('/^&gt;(.*)$/m', '<blockquote>$1</blockquote>', $text);
+	$text = preg_replace('/^\*\s+(.*)$/m', '<li>$1', $text);
 	$text = preg_replace(';(?<!")https?://[^<\s]+(?!");', '<a href="$0" target="_blank">$0</a>', $text);
 	$text = nl2br($text);
+	$text = preg_replace('!</blockquote>\s*<br\s+/?>\s*<blockquote>!', '<br />', $text);
 	return sprintf('<div class="web-content">%s</div>', $text);
 }
 

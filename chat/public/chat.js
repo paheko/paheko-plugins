@@ -46,7 +46,7 @@
 		chatbox_input.onkeydown = (e) => {
 			if (e.key == 'Enter' && !e.ctrlKey && !e.shiftKey) {
 				e.preventDefault();
-				form.onsubmit();
+				form.onsubmit(e);
 				return false;
 			}
 		};

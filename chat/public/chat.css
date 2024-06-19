@@ -278,10 +278,26 @@ body {
 	padding: .3em 0;
 }
 
-.messages .web-content br {
+.messages .web-content > br {
 	margin-top: .5em;
 	content: " ";
 	display: block;
+}
+
+.messages .web-content blockquote {
+	border-left: 5px solid var(--gLightBorderColor);
+	background: var(--gLightBackgroundColor);
+	padding: 5px;
+	margin: 0;
+	padding-left: 10px;
+}
+
+.messages .web-content code {
+	border: 1px solid var(--gLightBorderColor);
+	padding: 5px;
+	display: inline-block;
+	white-space: pre;
+	border-radius: 5px;
 }
 
 .messages::-webkit-scrollbar {
