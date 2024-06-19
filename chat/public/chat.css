@@ -409,6 +409,7 @@ nav.reactions button {
 	border: 1px solid var(--gLightBorderColor);
 	display: inline-flex;
 	box-shadow: none;
+	position: relative;
 }
 
 nav.reactions button b {
@@ -421,6 +422,33 @@ nav.reactions button.me {
 
 nav.reactions button span {
 	font-size: .9em;
+}
+
+nav.reactions button:hover::after {
+	display: block;
+	position: absolute;
+	content: attr(title);
+	background: rgb(var(--gBgColor));
+	border-radius: .5em;
+	font-size: .8em;
+	padding: .2em .5em;
+	top: 1rem;
+	left: 0;
+	z-index: 2;
+	white-space: pre;
+	border: 1px solid var(--gLightBorderColor);
+}
+
+nav.reactions button:hover::before {
+	display: block;
+	position: absolute;
+	content: attr(data-emoji);
+	top: -1.2rem;
+	z-index: 3;
+	font-family: "Emoji";
+	font-size: 2em;
+	left: .5rem;
+	text-shadow: 0px 0px 10px rgb(var(--gTextColor));
 }
 
 #jitsi {

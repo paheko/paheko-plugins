@@ -73,11 +73,11 @@
 			sse.onerror = () => setTimeout(chatConnect, 5000);
 			sse.addEventListener('message', function(event) {
 				var data = JSON.parse(event.data);
-				console.log(data);
 				var element = document.getElementById('msg-' + data.message.id);
 
 				if (element) {
 					element.outerHTML = data.html;
+					element = document.getElementById('msg-' + data.message.id);
 					addMessageEvents(element);
 				}
 				else if (data.message.id > last_message.dataset.id) {
@@ -216,10 +216,10 @@
 		function addMessageEvents(message)
 		{
 			message.querySelector('footer [data-action="react"]').onclick = () => openEmojiSelector(message);
-			message.querySelectorAll('.reactions button').forEach((e) => e.onclick = () => sendReaction(e.parentNode.parentNode, e.firstChild.innerText));
+			message.querySelectorAll('.reactions button').forEach((e) => { e.onclick = () => sendReaction(message, e.dataset.emoji);});
 		}
 
-		$('.messages article').forEach((e) => e.onclick = () => addMessageEvents(e));
+		$('.messages article').forEach((e) => addMessageEvents(e));
 
 		// See https://github.com/mdn/dom-examples/blob/main/media/web-dictaphone/scripts/app.js
 		var recorder;

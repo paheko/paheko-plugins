@@ -163,7 +163,7 @@ function chat_message_html($message, User $me, ?string &$current_day = null, ?st
 
 		foreach ($message->reactions as $emoji => $users) {
 			$users_names = implode("\n", Chat::getUsersNames($users));
-			$out .= sprintf('<button title="%s" %s><b>%s</b> <span>%d</span></button>',
+			$out .= sprintf('<button title="%s" %s data-emoji="%3$s"><b>%s</b> <span>%d</span></button>',
 				$users_names,
 				in_array($me->id(), $users) ? 'class="me"' : '',
 				$emoji,
