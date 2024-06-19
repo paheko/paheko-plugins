@@ -127,6 +127,10 @@ body {
 	font-weight: bold;
 }
 
+.channels ul li.direct a {
+	font-style: italic;
+}
+
 .chatbox form {
 	display: flex;
 	align-items: stretch;
@@ -179,16 +183,27 @@ body {
 	display: flex;
 }
 
-.chatbox.audio article.text {
+.chatbox.audio article.text, .chatbox.file article.text {
 	display: none;
 }
 
-.chatbox.audio article.audio {
+.chatbox.audio article.audio, .chatbox.file article.file {
 	display: flex;
 	width: 100%;
 	justify-content: stretch;
 	align-items: stretch;
 	text-align: center;
+}
+
+.chatbox.file article.file .file-selector {
+	border: none;
+	margin: 0;
+	width: 100%;
+	text-align: center;
+}
+
+.chatbox.file article.file .file-selector table {
+	display: none;
 }
 
 .chatbox.audio article.audio .recording, .chatbox.audio article.audio #recorder-container {
@@ -316,6 +331,49 @@ body {
 	display: flex;
 }
 
+.messages figure.image img {
+	max-width: 360px;
+}
+
+.messages figure.file {
+	display: flex;
+	max-width: 30em;
+	background: rgba(var(--gSecondColor), 0.1);
+	grid-template-columns: 100px 1fr;
+	border-radius: .5em;
+	padding: .5em;
+}
+
+.messages figure.file .thumb a {
+	float: left;
+	width: 150px;
+	text-align: center;
+	display: block;
+	background: #fff;
+	border-radius: .5em;
+	margin-right: 1em;
+}
+
+.messages figure.file figcaption {
+	font-size: 1.1em;
+}
+
+.messages figure.file .actions {
+	font-size: .8em;
+	margin-top: 1em;
+}
+
+.messages figure.file .thumb img {
+	max-height: 96px;
+}
+
+figure.file a span::before {
+    color: rgba(var(--gMainColor), 0.7);
+    font-size: 5em;
+    padding: .2em !important;
+
+}
+
 span.chat-status {
 	border-radius: 50%;
 	width: .5em;
@@ -398,6 +456,7 @@ span.chat-status.offline {
 
 nav.reactions {
 	margin-left: 50px;
+	margin-bottom: .3em;
 }
 
 nav.reactions button {

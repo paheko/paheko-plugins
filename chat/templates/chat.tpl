@@ -2,16 +2,16 @@
 
 {form_errors}
 
-<div id="chat" data-channel-id="{$channel.id}" data-user-name="{$me.name}" data-channel-name="{$channel.name}" data-org-name="{$config.org_name}">
+<div id="chat" data-channel-id="{$channel.id}" data-user-name="{$me.name}" data-channel-name="{if $channel.name}{$channel.name}{else}{$recipient.name}{/if}" data-org-name="{$config.org_name}">
 	<nav class="channels">
 		{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)}
 		<aside>
-			{linkbutton shape="plus" label="Nouvelle discussion" href="!p/chat/edit.php?id=%d"|args:$channel.id target="_dialog"}
+			{linkbutton shape="plus" label="Nouvelle discussion" href="!p/chat/edit.php" target="_dialog"}
 		</aside>
 		{/if}
 		<ul>
 		{foreach from=$channels item="c"}
-			<li {if $c.id === $channel.id}class="current"{/if}>{link href="?id=%d"|args:$c.id label=$c.name}</li>
+			<li class="{if $c.id === $channel.id}current{/if} {if $c.access === $channel::ACCESS_DIRECT}direct{/if}">{link href="./?id=%d"|args:$c.id label=$c.name}</li>
 		{/foreach}
 		</ul>
 	</nav>
@@ -52,7 +52,7 @@
 			{csrf_field key=$csrf_key}
 			<article class="text">
 				<header>
-					{button title="Joindre un fichier" shape="attach"}
+					{button title="Joindre un fichier" shape="attach" id="file-button"}
 					{button title="Enregistrer un extrait audio" shape="microphone" id="record-button"}
 				</header>
 				{input type="textarea" cols=50 rows=2 name="message"}
@@ -68,6 +68,10 @@
 				</div>
 			</article>
 			<article class="file">
+				<header>
+					{button title="Annuler" shape="delete" id="file-cancel-button"}
+				</header>
+				{input type="file" name="" label=null data-enhanced=1}
 			</article>
 			<footer>
 				{button type="submit" title="Envoyer" shape="right"}

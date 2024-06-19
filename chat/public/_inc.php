@@ -90,11 +90,36 @@ function chat_message_file(int $id): string
 		return '<p class="deleted">Ce fichier a été supprimé.</p>';
 	}
 
+	$session = Session::getInstance();
+
+	if (!$file->canRead($session)) {
+		return '<p class="deleted">Vous n\'avez pas accès à ce fichier.</p>';
+	}
+
 	if ($file->mime === 'audio/ogg') {
 		return sprintf('<audio autostart="0" controls="true" preload="none" src="%s" />', $file->url());
 	}
 
-	return $file->link(Session::getInstance(), 'auto', true);
+	if ($file->isImage()) {
+		return '<figure class="image">' . $file->link($session, '500px', true) . '</figure>';
+	}
+
+	return sprintf('
+		<figure class="file">
+			<span class="thumb">%s</span>
+			<span>
+			<figcaption>
+				%s
+			</figcaption>
+			<span class="actions">
+				%s
+			</span>
+			</span>
+		</figure>',
+		$file->link($session, '150px', true),
+		$file->link($session),
+		CommonFunctions::linkbutton(['shape' => 'download', 'href' => $file->url(true), 'target' => '_blank', 'label' => 'Télécharger'])
+	);
 }
 
 function chat_message_html($message, User $me, ?string &$current_day = null, ?string &$current_user = null): string

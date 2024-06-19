@@ -54,7 +54,7 @@ class Channel extends Entity
 		else {
 			$this->assert(trim($this->name) !== '', 'Le nom ne peut rester vide.');
 			$this->assert(strlen($this->name) <= 50, 'Le nom doit faire moins de 50 caractères.');
-			$this->assert(preg_match('/^[^\x00\x07\x0A\x0D, :]+$/', $this->name), 'Le nom contient des caractères invalides.');
+			$this->assert(preg_match('/^[^\x00\x07\x0A\x0D,:]+$/', $this->name), 'Le nom contient des caractères invalides.');
 			$this->assert(!isset($this->description) || strlen($this->description) < 65000, 'La description doit faire moins de 65.000 caractères.');
 		}
 	}
@@ -108,7 +108,7 @@ class Channel extends Entity
 		return EM::findOne(User::class, 'SELECT u.*
 			FROM @TABLE u
 			INNER JOIN plugin_chat_users_channels c ON c.id_user = u.id
-			WHERE c.id_channel = ? AND u.id != ? LIMIT 1', $this->id(), $me->id());
+			WHERE c.id_channel = ? ORDER BY u.id != ? LIMIT 1', $this->id(), $me->id());
 	}
 
 	public function addUser(User $user): void

@@ -8,6 +8,7 @@ use function Paheko\Plugin\Chat\get_channel;
 
 require __DIR__ . '/_inc.php';
 
+$session = Session::getInstance();
 $me = Chat::getUser();
 
 $channel = null;
@@ -56,7 +57,7 @@ $form->runIf('send', function () use ($me, $channel) {
 	}
 }, $csrf_key, '?id=' . $channel->id());
 
-$channels = Chat::listChannels($session);
+$channels = Chat::listChannels($me);
 $messages = $channel->listMessages(null, 50);
 $recipient = $channel->getRecipient($me);
 

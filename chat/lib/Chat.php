@@ -139,6 +139,15 @@ class Chat
 		return $channel;
 	}
 
+	static public function createChannel(): Channel
+	{
+		$channel = new Channel;
+		$channel->import([
+			'access' => $channel::ACCESS_PRIVATE,
+		]);
+		return $channel;
+	}
+
 	static public function getFallbackChannel(User $user): ?Channel
 	{
 		$channel = EM::findOne(Channel::class, 'SELECT * FROM @TABLE
@@ -151,27 +160,27 @@ class Chat
 		return $channel;
 	}
 
-	static public function listChannels(Session $session): array
+	static public function listChannels(User $user): array
 	{
-		$params = [Channel::ACCESS_PUBLIC, Channel::ACCESS_PUBLIC];
-		$access = '';
+		$private_access = '';
 
-		if ($session->isLogged()) {
-			$access = ' OR access = ? OR id IN (SELECT id_channel FROM plugin_chat_users_channels WHERE id_user = ?)';
-			$params[] = Channel::ACCESS_PRIVATE;
-			$params[] = $session::getUserId();
-
-			$pm_name = 'id_user != ?';
-			$params[] = $session::getUserId();
-		}
-		else {
-			$pm_name = 'invitation != ?';
-			$params[] = self::getAnonymousSessionId();
+		if ($user->id_user) {
+			$private_access = sprintf('OR access = \'%s\'', Channel::ACCESS_PRIVATE);
 		}
 
-		$sql = sprintf('SELECT *, CASE WHEN access = ? THEN (SELECT name FROM plugin_chat_users WHERE %s LIMIT 1) ELSE name END AS name
-			FROM @TABLE WHERE access = ? %s ORDER BY access = \'direct\', name COLLATE NOCASE;', $pm_name, $access);
-		return EM::getInstance(Channel::class)->all($sql, ...$params);
+		$sql = sprintf('SELECT *,
+			CASE WHEN access = \'%s\' THEN (
+				SELECT u.name FROM plugin_chat_users u
+				INNER JOIN plugin_chat_users_channels uc ON uc.id_channel = c.id AND uc.id_user = u.id
+				ORDER BY u.id != %d LIMIT 1
+			) ELSE name END AS name
+			FROM @TABLE c WHERE access = \'%s\' %s OR id IN (SELECT id_channel FROM plugin_chat_users_channels WHERE id_user = %2$d)
+			ORDER BY access = \'direct\', name COLLATE NOCASE;',
+			Channel::ACCESS_DIRECT,
+			$user->id,
+			Channel::ACCESS_PUBLIC,
+			$private_access);
+		return EM::getInstance(Channel::class)->all($sql);
 	}
 
 	static public function getUsersNames(array $ids): array

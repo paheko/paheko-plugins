@@ -6,39 +6,27 @@ use Paheko\Users\Session;
 
 use Paheko\Plugin\Chat\Chat;
 
-$id = intval($_GET['id'] ?? 0);
 $session = Session::getInstance();
+$session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
+
+$id = intval($_GET['id'] ?? 0);
+$csrf_key = 'edit_channel';
+$me = Chat::getUser();
 $channel = null;
 
-$tpl->assign('custom_css', PLUGIN_URL . 'chat.css');
-
-if ($id) {
-	$channel = Chat::getChannel($id, $session);
+if ($_GET['id'] ?? null) {
+	$channel = Chat::getChannel((int)$_GET['id'], $me);
+}
+else {
+	$channel = Chat::createChannel();
 }
 
-if (!$channel) {
-	$channel = Chat::getFallbackChannel($session);
-}
+$form->runIf('save', function () use ($channel) {
+	$channel->importForm();
+	$channel->save();
+	Utils::redirectParent('./?id=' . $channel->id());
+}, $csrf_key);
 
-if (!$channel) {
-	if ($session->isLogged()) {
-		Utils::redirect('./edit.php');
-	}
+$tpl->assign(compact('channel', 'csrf_key'));
 
-	throw new ValidationException('No valid channel provided', 400);
-}
-
-$me = $channel->getUser($session);
-$csrf_key = 'chat';
-
-$form = new Form;
-$tpl->assign_by_ref('form', $form);
-
-$form->runIf('send', function () use ($me, $channel) {
-	$channel->say($me, $_POST['text'] ?? '');
-}, $csrf_key, '?id=' . $id);
-
-$channels = Chat::listChannels($session);
-$messages = $channel->listMessages(null, 50);
-$tpl->assign(compact('messages', 'channel', 'channels', 'csrf_key'));
-$tpl->display(PLUGIN_ROOT . '/templates/chat.tpl');
+$tpl->display(PLUGIN_ROOT . '/templates/edit.tpl');

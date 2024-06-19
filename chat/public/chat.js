@@ -221,6 +221,56 @@
 
 		$('.messages article').forEach((e) => addMessageEvents(e));
 
+		var file_button = $('#file-button');
+		var file = chatbox.querySelector('input[type=file]');
+
+		file.addEventListener('change', () => {
+			chatbox_send_button.disabled = file.files.length < 1;
+		});
+
+		file_button.onclick = () => {
+			chatbox.classList.add('file');
+			form.onsubmit = sendFile;
+			chatbox_send_button.disabled = true;
+			file.click();
+		};
+
+		$('#file-cancel-button').onclick = () => {
+			file.value = '';
+			chatbox.classList.remove('file');
+		};
+
+		async function sendFile(e)
+		{
+			e.preventDefault();
+			form.classList.add('progressing');
+
+			var fd = new FormData(form);
+			fd.append('file', file.files[0]);
+			fd.delete('message');
+
+			const r = await fetch(form.action, {
+				method: 'POST',
+				mode: 'cors',
+				cache: 'no-cache',
+				headers: {"Accept": "application/json"},
+				body: fd,
+			});
+
+			if (!r.ok) {
+				const data = await r.json();
+				alert(data.message);
+			}
+
+			form.classList.remove('progressing');
+			file.value = '';
+			chatbox.classList.remove('file');
+
+			e.preventDefault();
+			return false;
+		}
+
+
 		// See https://github.com/mdn/dom-examples/blob/main/media/web-dictaphone/scripts/app.js
 		var recorder;
 		var recording_blob;
