@@ -36,4 +36,6 @@
     </tbody>
 </table>
 
+{$list->getHTMLPagination()|raw}
+
 {include file="_foot.tpl"}
