@@ -15,12 +15,12 @@
 * Envoi et lecture de messages audio, au format Opus (léger, environ 7 Mo par heure de discussion, soit le poids de 2 photos !)
 * Ouverture de visioconférence directement depuis un salon (en utilisant Jitsi)
 * Très faible empreinte écologique
+* Suppression de message
 
 ## Fonctionnalités prévues
 
 * Lien permanent vers un messagede la discussion
 * Possibilité de remonter dans l'historique
-* Suppression de message
 * Édition de message
 * Archivage de salon : plus personne ne peut rejoindre le salon
 * Suppression des fichiers lors de la suppression du salon
