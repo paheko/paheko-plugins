@@ -14,6 +14,7 @@ class StockEvent extends Entity
 	protected \DateTime $date;
 	protected int $type = 0;
 	protected string $label = '';
+	protected ?string $description = null;
 	protected bool $applied = false;
 
 	const TYPE_OTHER = 0;

@@ -45,25 +45,11 @@ class Products
 		$where = $only_stockable ? 'AND p.stock IS NOT NULL' : '';
 
 		// Don't select products that don't have any payment method linked: you wouldn't be able to pay for them
-		$products = $db->get(POS::sql(sprintf('SELECT p.*, c.name AS category_name FROM @PREFIX_products p %s
+		return $db->get(POS::sql(sprintf('SELECT p.*, c.name AS category_name, p.stock * p.price AS sale_value, p.stock * p.purchase_price AS stock_value
+			FROM @PREFIX_products p %s
 			INNER JOIN @PREFIX_categories c ON c.id = p.category
 			WHERE 1 %s
 			GROUP BY p.id ORDER BY category_name COLLATE U_NOCASE, name COLLATE U_NOCASE;', $join, $where)));
-
-		$list = [];
-
-		foreach ($products as $product) {
-			$cat = $product->category_name;
-			$product->images_path = sprintf('p/public/%s/%d', 'caisse', $product->id);
-
-			if (!array_key_exists($cat, $list)) {
-				$list[$cat] = [];
-			}
-
-			$list[$cat][] = $product;
-		}
-
-		return $list;
 	}
 
 	static public function get(int $id): ?Entities\Product

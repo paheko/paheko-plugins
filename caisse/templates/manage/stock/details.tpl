@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="Stock : %s"|args:$event.label}
 
-{include file="../_nav.tpl" current='stock'}
+{include file="../_nav.tpl" current='stock' subcurrent="events"}
 
 {if !$event.applied}
 <p class="help">
@@ -12,6 +12,10 @@
 {/if}
 
 {form_errors}
+
+{if $event.description}
+	<p class="help">{$event.description|escape|nl2br}</p>
+{/if}
 
 <section class="pos">
 	<section class="tab">
@@ -77,20 +81,22 @@
 	<section class="products">
 		<input type="text" name="q" placeholder="Recherche rapide" autofocus />
 		<form method="post" action="">
-		{foreach from=$products_categories key="category" item="products"}
+	<?php $category = null; ?>
+	{foreach from=$products_categories item="product"}
+		{if $category !== $product.category}
+			{if $category}</div></section>{/if}
 			<section>
-				<h2 class="ruler">{$category}</h2>
-
+			<?php $category = $product->category; ?>
+			<h2 class="ruler">{$product.category_name}</h2>
 				<div>
-				{foreach from=$products item="product"}
-					<button name="add[{$product.id}]" class="change" value="0">
-						<h3>{$product.name}</h3>
-						<h4>{$product.price|escape|money_currency}</h4>
-					</button>
-				{/foreach}
-				</div>
-			</section>
+		{/if}
+		<button name="add[{$product.id}]" class="change" value="0">
+			<h3>{$product.name}</h3>
+			<h4>{$product.price|escape|money_currency}</h4>
+		</button>
 		{/foreach}
+			</div>
+		</section>
 		{csrf_field key=$csrf_key}
 		</form>
 	</section>

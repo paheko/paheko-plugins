@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS @PREFIX_stock_events (
 	date TEXT NOT NULL,
 	type INTEGER NOT NULL,
 	label TEXT NOT NULL,
+	description TEXT NULL,
 	applied INTEGER NOT NULL
 );
 

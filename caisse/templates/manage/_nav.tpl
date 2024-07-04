@@ -31,4 +31,11 @@
 		<li{if $current == 'config'} class="current"{/if}><a href="{$plugin_admin_url}config.php">Configuration</a></li>
 		{/if}
 	</ul>
+
+	{if $current === 'stock'}
+	<ul class="sub">
+		<li {if $subcurrent === 'products'}class="current"{/if}><a href="./">Stock des produits</a></li>
+		<li {if $subcurrent === 'events'}class="current"{/if}><a href="events.php">Événéments de stock</a></li>
+	</ul>
+	{/if}
 </nav>

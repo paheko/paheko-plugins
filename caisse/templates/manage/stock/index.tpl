@@ -1,56 +1,56 @@
-{include file="_head.tpl" title="Gestion stock"}
+{include file="_head.tpl" title="Stock des produits"}
 
-{include file="../_nav.tpl" current='stock'}
+{include file="../_nav.tpl" current='stock' subcurrent="products"}
 
-<h2 class="ruler">Événements de stock</h2>
-
-{if count($list)}
-	<table class="list">
-		<thead>
-			<tr>
-				<td>Date</td>
-				<td>Type</td>
-				<th>Événement</th>
-				<td></td>
-			</tr>
-		</thead>
-		<tbody>
-			{foreach from=$list item="event"}
-				<tr>
-					<td>{$event.date|date}</td>
-					<td>{$event::TYPES[$event.type]}</td>
-					<th>{$event.label}</th>
-					<td class="actions">
-						{linkbutton href="details.php?id=%d"|args:$event.id label="Détails" shape="menu"}
-						{linkbutton href="edit.php?id=%d&delete"|args:$event.id label="Supprimer" shape="delete" target="_dialog"}
-					</td>
-				</tr>
-			{/foreach}
-		</tbody>
-	</table>
-{else}
-	<p class="alert block">Aucun événement</p>
-{/if}
-
-<h2 class="ruler">Stock actuel</h2>
+<p class="actions">
+	{exportmenu right=true table=true}
+</p>
 
 <table class="list">
 	<thead>
 		<tr>
-			<th>Catégorie</th>
-			<td>Produits en stock</td>
-			<td class="money">Valeur du stock</td>
+			<th>Nom</th>
+			<td>Prix unitaire</td>
+			<td>En stock</td>
+			<td>Valeur commerciale<br />(prix de vente)</td>
+			<td>Valeur du stock<br />(prix d'achat)</td>
+			<td></td>
 		</tr>
 	</thead>
 	<tbody>
-		{foreach from=$value_list item="row"}
+	<?php $category = null; ?>
+	{foreach from=$list item="product"}
+		{if $category !== $product.category}
+			<?php $category = $product->category; $c = $categories[$category]; ?>
 			<tr>
-				<th>{$row.label}</th>
-				<td>{$row.count}</td>
-				<td class="money">{$row.value|raw|money_currency}</td>
+				<th colspan="2"><h2 class="ruler">{$c.label}</h2></th>
+				<td class="num">{$c.stock}</td>
+				<td class="money">{$c.sale_value|escape|money_currency}</td>
+				<td class="money">{$c.stock_value|escape|money_currency}</td>
+				<td></td>
 			</tr>
-		{/foreach}
+		{/if}
+			<tr>
+				<th>{$product.name}</th>
+				<td class="money">{$product.price|escape|money_currency}</td>
+				<td class="num">{$product.stock}</td>
+				<td class="money">{$product.sale_value|escape|money_currency}</td>
+				<td class="money">{$product.stock_value|escape|money_currency}</td>
+				<td class="actions">
+					{linkbutton href="../products/history.php?id=%d"|args:$product.id label="Historique" shape="calendar"}
+				</td>
+			</tr>
+	{/foreach}
 	</tbody>
+	<tfoot>
+		<tr>
+			<th colspan="2"><h2 class="ruler">Total</h2></th>
+			<td class="num">{$categories.total.stock}</td>
+			<td class="money">{$categories.total.sale_value|escape|money_currency}</td>
+			<td class="money">{$categories.total.stock_value|escape|money_currency}</td>
+			<td></td>
+		</tr>
+	</tfoot>
 </table>
 
 {include file="_foot.tpl"}
