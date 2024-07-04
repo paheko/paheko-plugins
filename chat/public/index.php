@@ -46,7 +46,7 @@ $is_admin = $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)
 
 $form->runIf('delete_message', function () use ($me, $is_admin) {
 	$message = Chat::getMessage((int)$_POST['delete_message'], $is_admin ? null : $me);
-	$message->delete();
+	$message->markAsDeleted();
 }, $csrf_key, './?id=' . $channel->id());
 
 $form->runIf('send', function () use ($me, $channel) {

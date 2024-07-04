@@ -23,6 +23,8 @@ class Channel extends Entity
 	protected ?string $description = null;
 	protected string $access;
 	protected int $archived = 0;
+	protected ?int $delete_after = null;
+	protected ?int $max_history = null;
 
 	const ACCESS_PUBLIC = 'public'; // everyone
 	const ACCESS_PRIVATE = 'private'; // logged-in users only
@@ -34,6 +36,23 @@ class Channel extends Entity
 		self::ACCESS_PRIVATE => 'Discussion privée, réservée aux membres connectés',
 		self::ACCESS_INVITE => 'Discussion privée, sur invitation',
 		self::ACCESS_DIRECT => 'Discussion privée, entre deux personnes',
+	];
+
+	const DELETE_AFTER_OPTIONS = [
+		null          => 'Désactivé',
+		1800          => '30 minutes',
+		3600          => '1 heure',
+		3600*12       => '12 heures',
+		3600*24       => '24 heures',
+		3600*24*7     => '7 jours',
+		3600*24*15    => '15 jours',
+		3600*24*30    => '30 jours',
+		3600*24*60    => '2 mois',
+		3600*24*90    => '3 mois',
+		3600*24*180   => '6 mois',
+		3600*24*365   => '1 an',
+		3600*24*365*2 => '2 ans',
+		3600*24*365*3 => '3 ans',
 	];
 
 	public function getAccessLabel(): string
@@ -57,6 +76,56 @@ class Channel extends Entity
 			$this->assert(preg_match('/^[^\x00\x07\x0A\x0D,:]+$/', $this->name), 'Le nom contient des caractères invalides.');
 			$this->assert(!isset($this->description) || strlen($this->description) < 65000, 'La description doit faire moins de 65.000 caractères.');
 		}
+
+		$this->assert(array_key_exists($this->delete_after, self::DELETE_AFTER_OPTIONS));
+		$this->assert(null === $this->max_history || $this->max_history > 0, 'Le nombre de messages conservés ne peut être zéro ou négatif.');
+	}
+
+	public function importForm(array $source = null)
+	{
+		$source ??= $_POST;
+
+		if (array_key_exists('delete_after', $source) && empty($source['delete_after'])) {
+			$source['delete_after'] = null;
+		}
+
+		if (array_key_exists('max_history', $source) && empty($source['max_history'])) {
+			$source['max_history'] = null;
+		}
+
+		parent::importForm($source);
+	}
+
+	public function prune(): void
+	{
+		$db = DB::getInstance();
+		$em = EM::getInstance(Message::class);
+		$db->begin();
+
+		if ($this->delete_after) {
+			$time = time() - $this->delete_after;
+			$db->preparedQuery('DELETE FROM plugin_chat_messages WHERE id_channel = ? AND id_file IS NULL AND added < ?;', $this->id(), $time);
+
+			$i = $em->iterate('SELECT * FROM @TABLE WHERE id_channel = ? AND added < ? AND id_file IS NOT NULL;', $this->id(), $time);
+			foreach ($i as $row) {
+				$row->delete();
+			}
+		}
+
+		if ($this->max_history) {
+			$last_id = $db->firstColumn('SELECT id FROM plugin_chat_messages WHERE id_channel = ? ORDER BY id DESC ?,1;', $this->id(), $this->max_history);
+
+			if ($last_id) {
+				$db->preparedQuery('DELETE FROM plugin_chat_messages WHERE id_channel = ? AND id_file IS NULL AND id < ?);', $this->id(), $last_id);
+
+				$i = $em->iterate('SELECT * FROM @TABLE WHERE id_channel = ? AND id_file IS NOT NULL AND id < ?;', $this->id(), $time, $last_id);
+				foreach ($i as $row) {
+					$row->delete();
+				}
+			}
+		}
+
+		$db->commit();
 	}
 
 	public function delete(): bool

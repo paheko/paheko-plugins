@@ -16,6 +16,8 @@
 * Ouverture de visioconférence directement depuis un salon (en utilisant Jitsi)
 * Très faible empreinte écologique
 * Suppression de message
+* Messages éphémères : suppression automatique des messages après un certain délai
+* Limitation du nombre de messages enregistrés dans le salon
 
 ## Fonctionnalités prévues
 
@@ -33,6 +35,10 @@
 * Envoi des discussions par e-mail après X jours d'absence (résumé)
 * Possibilité de répondre à un message (fil de discussion)
 * API simple pour qu'un bot puisse poster des messages
+
+## Ce qui n'est pas prévu
+
+
 
 ## How it works
 

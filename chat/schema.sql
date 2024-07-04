@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS plugin_chat_channels (
 	name TEXT NULL,
 	description TEXT NULL,
 	access TEXT NOT NULL, -- public/private/pm
-	archived INTEGER NOT NULL DEFAULT 0
+	archived INTEGER NOT NULL DEFAULT 0,
+	delete_after INTEGER NULL
 );
 
 CREATE TABLE IF NOT EXISTS plugin_chat_users (
@@ -53,8 +54,25 @@ CREATE INDEX IF NOT EXISTS plugin_chat_messages_idx ON plugin_chat_messages (id_
 CREATE VIRTUAL TABLE IF NOT EXISTS plugin_chat_messages_search USING fts4
 -- Search inside messages content
 (
+	content="plugin_chat_messages",
 	tokenize=unicode61, -- Available from SQLITE 3.7.13 (2012)
 	content TEXT NULL -- Text content
 );
+
+CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_u BEFORE UPDATE ON plugin_chat_messages BEGIN
+	DELETE FROM plugin_chat_messages_search WHERE docid = old.rowid;
+END;
+
+CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_d BEFORE DELETE ON plugin_chat_messages BEGIN
+	DELETE FROM plugin_chat_messages_search WHERE docid = old.rowid;
+END;
+
+CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_au AFTER UPDATE ON plugin_chat_messages BEGIN
+	INSERT INTO plugin_chat_messages_search(docid, content) VALUES(new.rowid, new.content);
+END;
+
+CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_ai AFTER INSERT ON plugin_chat_messages BEGIN
+	INSERT INTO plugin_chat_messages_search(docid, content) VALUES(new.rowid, new.content);
+END;
 
 INSERT OR IGNORE INTO plugin_chat_channels VALUES (1, 'Général', NULL, 'private', 0);

@@ -65,19 +65,36 @@ class Message extends Entity
 		$this->save();
 	}
 
-	public function delete(): bool
+	public function deleteFile(): void
 	{
-		if ($this->type === self::TYPE_FILE) {
-			$this->file()->delete();
-			$this->set('id_file', null);
+		if ($this->type !== self::TYPE_FILE) {
+			return;
 		}
 
+		$file = $this->file();
+
+		if (!$file) {
+			return;
+		}
+
+		$file->delete();
+	}
+
+	public function delete(): bool
+	{
+		$this->deleteFile();
+		return parent::delete();
+	}
+
+	public function markAsDeleted(): void
+	{
+		$this->deleteFile();
+		$this->set('id_file', null);
 		$this->set('type', self::TYPE_DELETED);
 		$this->set('content', null);
 		$this->set('reactions', null);
 		$this->set('last_updated', time());
 		$this->save();
-		return true;
 	}
 
 	public function file(): ?File
