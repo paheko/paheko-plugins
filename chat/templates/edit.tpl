@@ -12,8 +12,8 @@
 		<dl>
 			{input type="text" label="Nom" required=true name="name" source=$channel maxlength=50}
 			{input type="text" name="description" label="Description" source=$channel maxlength=200 size=100}
-			{input type="select" name="delete_after" label="Messages éphémères" source=$channel options=$channel::DELETE_AFTER_OPTIONS help="Les messages seront supprimés après ce délai, qu'ils aient été lus ou non par les autres participant⋅e⋅s."}
-			{input type="number" name="max_history" label="Nombre de messages à garder" source=$channel help="Les messages anciens seront supprimés s'il y a plus de messages que le nombre indiqué. Laisser vide pour garder tous les messages."}
+			{input type="select" name="delete_after" label="Messages éphémères" source=$channel options=$channel::DELETE_AFTER_OPTIONS help="Les messages seront supprimés après ce délai, qu'ils aient été lus ou non par les autres participant⋅e⋅s." required=true}
+			{input type="number" name="max_history" label="Nombre de messages à conserver" source=$channel help="Les messages anciens seront supprimés s'il y a plus de messages que le nombre indiqué. Laisser vide pour garder tous les messages."}
 			<dt><label for="f_access_public">Accès</label></dt>
 			{input type="radio-btn" name="access" value=$channel::ACCESS_PUBLIC label="Discussion publique" source=$channel help="Toute personne, interne ou externe à l'organisation, pourra participer, sans connexion."}
 			{input type="radio-btn" name="access" value=$channel::ACCESS_PRIVATE label="Discussion privée" help="Seuls les membres connectés pourront accéder à cette discussion." source=$channel}

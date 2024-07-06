@@ -12,6 +12,11 @@
 		chatbox.innerHTML = msg;
 	}
 
+	if (location.hash.match(/msg-/)) {
+		chatError('fail'); //TODO: implement  scrolling/auto-load to last message
+		return;
+	}
+
 	// Make sure we only have one active chat tab open
 	bc.onmessage = (e) => {
 		if (e.source === self) {
@@ -219,7 +224,8 @@
 
 			if (f) {
 				f.querySelector('[data-action="react"]').onclick = () => openEmojiSelector(message);
-				f.querySelector('footer [data-action="delete"]').onclick = () => deleteMessage(message);
+				f.querySelector('[data-action="delete"]').onclick = () => deleteMessage(message);
+				f.querySelectorAll('.react').forEach((e) => { e.onclick = () => sendReaction(message, e.innerText);});
 			}
 
 			message.querySelectorAll('.reactions button').forEach((e) => { e.onclick = () => sendReaction(message, e.dataset.emoji);});

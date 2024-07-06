@@ -171,6 +171,14 @@ body {
 	height: 100%;
 }
 
+.messages footer button.react, .messages footer button::before, .messages footer a::before {
+	text-shadow: 1px 2px 5px rgba(var(--gTextColor), 0.5);
+}
+
+.messages footer button.react:hover {
+	text-shadow: 1px 2px 5px rgba(var(--gHoverLinkColor), .7);
+}
+
 .chatbox article {
 	display: none;
 	width: 100%;
@@ -253,7 +261,7 @@ body {
 	background: var(--gLightBackgroundColor);
 }
 
-.messages article .line:hover time {
+.messages article .line:hover time, .messages article:target .line time {
 	visibility: visible;
 }
 
@@ -311,6 +319,10 @@ body {
 
 .messages::-webkit-scrollbar-thumb {
 	background: rgba(var(--gSecondColor), 0.3);
+}
+
+.messages article:target {
+	box-shadow: 0px 0px 10px orange;
 }
 
 .messages article footer {
@@ -456,7 +468,7 @@ span.chat-status.offline {
 	border-bottom: 5px solid var(--gBorderColor);
 }
 
-.emoji-selector button, .reactions button b {
+.emoji-selector button, .reactions button b, .messages footer button.react {
 	font-family: "Emoji";
 	font-weight: normal;
 }

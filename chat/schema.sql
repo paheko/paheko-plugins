@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS plugin_chat_channels (
 	description TEXT NULL,
 	access TEXT NOT NULL, -- public/private/pm
 	archived INTEGER NOT NULL DEFAULT 0,
-	delete_after INTEGER NULL
+	delete_after INTEGER NULL,
+	max_history INTEGER NULL
 );
 
 CREATE TABLE IF NOT EXISTS plugin_chat_users (
@@ -75,4 +76,4 @@ CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_ai AFTER INSERT ON plug
 	INSERT INTO plugin_chat_messages_search(docid, content) VALUES(new.rowid, new.content);
 END;
 
-INSERT OR IGNORE INTO plugin_chat_channels VALUES (1, 'Général', NULL, 'private', 0);
+INSERT OR IGNORE INTO plugin_chat_channels VALUES (1, 'Général', NULL, 'private', 0, NULL, NULL);

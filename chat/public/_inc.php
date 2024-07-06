@@ -48,7 +48,7 @@ function chat_avatar(array $params): string
 	$out = '<figure class="chat-avatar">' . $out . '</figure>';
 
 	if (!empty($params['name'])) {
-		$out .= htmlspecialchars($name);
+		$out .= htmlspecialchars($params['name']);
 	}
 
 	if (!empty($params['online'])) {
@@ -203,14 +203,14 @@ function chat_message_html($message, User $me, ?string &$current_day = null, ?st
 	}
 
 
-	// TODO
-	//$out .= CommonFunctions::linkbutton(['shape' => 'link', 'title' => 'Permalien', 'label' => '', 'target' => '_blank', 'href' => sprintf('./?id=%d&focus=%d', $message->id_channel, $message->id)]);
-
 	if ($message->type !== Message::TYPE_DELETED) {
 		$out .= '<footer>';
+		// TODO
+		$out .= CommonFunctions::linkbutton(['shape' => 'link', 'title' => 'Permalien', 'label' => '', 'target' => '_blank', 'href' => sprintf('./?id=%d&focus=%d#msg-%2$d', $message->id_channel, $message->id)]);
+
 		if ($message->id_user === $me->id || $is_admin) {
 			if ($message->type === Message::TYPE_TEXT) {
-				$out .= CommonFunctions::button(['shape' => 'edit', 'title' => 'Éditer', 'data-action' => 'edit',]);
+				//$out .= CommonFunctions::button(['shape' => 'edit', 'title' => 'Éditer', 'data-action' => 'edit',]);
 			}
 
 			$out .= CommonFunctions::button(['shape' => 'delete', 'title' => 'Supprimer', 'data-action' => 'delete']);
@@ -218,6 +218,8 @@ function chat_message_html($message, User $me, ?string &$current_day = null, ?st
 
 		//$out .= CommonFunctions::button(['shape' => 'chat', 'title' => 'Répondre', 'data-action' => 'reply']);
 		$out .= CommonFunctions::button(['shape' => 'smile', 'title' => 'Réaction', 'data-action' => 'react']);
+		$out .= '<button class="react">👍</button>';
+		$out .= '<button class="react">❤️</button>';
 		$out .= '</footer>';
 	}
 

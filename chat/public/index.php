@@ -64,8 +64,14 @@ $form->runIf('send', function () use ($me, $channel) {
 	}
 }, $csrf_key, './?id=' . $channel->id());
 
+$focus = qg('focus');
+
+if ($focus) {
+	$focus = (int)$focus;
+}
+
 $channels = Chat::listChannels($me);
-$messages = $channel->listMessages(null, 50);
+$messages = $channel->listMessages($focus, 100);
 $recipient = $channel->getRecipient($me);
 
 $tpl = Template::getInstance();

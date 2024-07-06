@@ -42,11 +42,9 @@ $current_user = ($_GET['current_user'] ?? null) ?: null;
 
 while (true) {
 	$elapsed = time() - $started;
-	file_put_contents(DATA_ROOT . '/lol', '.', FILE_APPEND);
 
 	// Stop loop if connection is closed, or if time is running out
 	if (connection_aborted() || $elapsed >= 590) {
-		file_put_contents(DATA_ROOT . '/lol', '_', FILE_APPEND);
 		break;
 	}
 
@@ -78,6 +76,5 @@ while (true) {
 	usleep(500000);
 }
 
-file_put_contents(DATA_ROOT . '/lol', '!!!', FILE_APPEND);
-
 $me->disconnect();
+$channel->prune();

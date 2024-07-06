@@ -272,26 +272,29 @@ class Channel extends Entity
 		return EM::getInstance(User::class)->all($sql, $this->id(), time() - 3600);
 	}
 
-	public function listMessages(?int $before = null, ?int $count = 100): array
+	public function listMessages(?int $focus = null, ?int $count = 100): array
 	{
-		$clause = '';
-
-		if ($before) {
-			$clause = ' AND m.id < ' . (int)$before;
-		}
-
-		$sql = sprintf('SELECT m.*,
+		$query = 'SELECT m.*,
 			CASE WHEN u.id IS NOT NULL THEN u.name ELSE m.user_name END AS user_name,
 			CASE WHEN u.id_user IS NOT NULL THEN u.id_user ELSE NULL END AS real_user_id
 			FROM plugin_chat_messages m
 			LEFT JOIN plugin_chat_users u ON u.id = m.id_user
-			WHERE m.id_channel = ? %s
-			ORDER BY id ASC
-			LIMIT -?;',
-			$clause
-		);
+			WHERE m.id_channel = %d %s
+			ORDER BY id %s
+			LIMIT %d';
 
-		return DB::getInstance()->get($sql, $this->id(), $count);
+		if ($focus) {
+			$count = round($count / 2);
+			$sql = sprintf('SELECT * FROM (%s) UNION ALL SELECT * FROM (%s) ORDER BY id ASC;',
+				sprintf($query, $this->id(), ' AND m.id <= ' . $focus, 'DESC', $count),
+				sprintf($query, $this->id(), ' AND m.id > ' . $focus, 'ASC', $count)
+			);
+		}
+		else {
+			$sql = sprintf($query, $this->id(), '', 'ASC', $count);
+		}
+
+		return DB::getInstance()->get($sql);
 	}
 
 	public function getEventsSince(int $since, int $last_seen_message_id, User $user): \Generator
