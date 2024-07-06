@@ -39,7 +39,6 @@ class Channel extends Entity
 	];
 
 	const DELETE_AFTER_OPTIONS = [
-		null          => 'Désactivé',
 		1800          => '30 minutes',
 		3600          => '1 heure',
 		3600*12       => '12 heures',
@@ -72,12 +71,12 @@ class Channel extends Entity
 		}
 		else {
 			$this->assert(trim($this->name) !== '', 'Le nom ne peut rester vide.');
-			$this->assert(strlen($this->name) <= 50, 'Le nom doit faire moins de 50 caractères.');
-			$this->assert(preg_match('/^[^\x00\x07\x0A\x0D,:]+$/', $this->name), 'Le nom contient des caractères invalides.');
+			$this->assert(mb_strlen($this->name) <= 49, 'Le nom doit faire moins de 49 caractères.');
+			$this->assert(!preg_match('/^[a-zA-Z0-9\p{L}_-]+$/U', $this->name), 'Le nom contient des caractères invalides.');
 			$this->assert(!isset($this->description) || strlen($this->description) < 65000, 'La description doit faire moins de 65.000 caractères.');
 		}
 
-		$this->assert(array_key_exists($this->delete_after, self::DELETE_AFTER_OPTIONS));
+		$this->assert(null === $this->delete_after || array_key_exists($this->delete_after, self::DELETE_AFTER_OPTIONS));
 		$this->assert(null === $this->max_history || $this->max_history > 0, 'Le nombre de messages conservés ne peut être zéro ou négatif.');
 	}
 

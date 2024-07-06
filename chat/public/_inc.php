@@ -47,8 +47,8 @@ function chat_avatar(array $params): string
 
 	$out = '<figure class="chat-avatar">' . $out . '</figure>';
 
-	if (!empty($params['name'])) {
-		$out .= htmlspecialchars($params['name']);
+	if (!empty($params['name']) && $name) {
+		$out .= htmlspecialchars($name);
 	}
 
 	if (!empty($params['online'])) {

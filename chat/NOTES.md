@@ -1,6 +1,6 @@
 ## Fonctionnalités actuelles
 
-* Remplace Slack, Discord, Zulip, Mattermost et Rocket Chat
+* Remplace Microsoft Teams, Slack, Discord, Zulip, Mattermost ou Rocket Chat
 * Discussions en temps réel
 * Création et suppression de salons
 * Salons publics, accessibles aux visiteurs

@@ -136,8 +136,8 @@ class Chat
 			INNER JOIN plugin_chat_users_channels a ON a.id_channel = c.id AND a.id_user = ?
 			INNER JOIN plugin_chat_users_channels b ON b.id_channel = c.id AND b.id_user = ?
 			WHERE c.access = ? GROUP BY c.id LIMIT 1;',
-			$me->id_user,
-			$recipient->id_user,
+			$me->id,
+			$recipient->id,
 			Channel::ACCESS_DIRECT
 		);
 
@@ -149,7 +149,11 @@ class Chat
 			$channel->save();
 
 			$channel->addUser($me);
-			$channel->addUser($recipient);
+
+			// Don't add myself twice if the channel is with myself
+			if ($recipient->id !== $me->id) {
+				$channel->addUser($recipient);
+			}
 		}
 
 		return $channel;
