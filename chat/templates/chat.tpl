@@ -11,7 +11,7 @@
 		{/if}
 		<ul>
 		{foreach from=$channels item="c"}
-			<li class="{if $c.id === $channel.id}current{/if} {if $c.access === $channel::ACCESS_DIRECT}direct{/if}">{link href="./?id=%d"|args:$c.id label=$c.name}</li>
+			<li class="{if $c.id === $channel.id}current{/if} {$c.access}">{link href="./?id=%d"|args:$c.id label=$c.name}</li>
 		{/foreach}
 		</ul>
 	</nav>

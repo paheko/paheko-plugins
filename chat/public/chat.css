@@ -127,8 +127,27 @@ body {
 	font-weight: bold;
 }
 
-.channels ul li.direct a {
-	font-style: italic;
+.channels ul li a::before {
+	text-decoration: none;
+	display: inline-block;
+	color: var(--gBorderColor);
+	width: 1.5em;
+	text-align: center;
+	font-family: "paheko", Verdana, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+}
+
+.channels ul li.private a::before {
+	content: "&";
+}
+.channels ul li.public a::before {
+	content: "#";
+}
+.channels ul li.invite a::before {
+	content: "+";
+}
+.channels ul li.direct a::before {
+	content: "👤";
 }
 
 .chatbox form {
@@ -261,7 +280,7 @@ body {
 	background: var(--gLightBackgroundColor);
 }
 
-.messages article .line:hover time, .messages article:target .line time {
+.messages article:hover time, .messages article:target .line time {
 	visibility: visible;
 }
 

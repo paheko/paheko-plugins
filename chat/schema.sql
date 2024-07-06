@@ -76,4 +76,4 @@ CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_ai AFTER INSERT ON plug
 	INSERT INTO plugin_chat_messages_search(docid, content) VALUES(new.rowid, new.content);
 END;
 
-INSERT OR IGNORE INTO plugin_chat_channels VALUES (1, 'Général', NULL, 'private', 0, NULL, NULL);
+INSERT OR IGNORE INTO plugin_chat_channels VALUES (1, 'interne', 'Discussions internes à l''association', 'private', 0, NULL, NULL);
