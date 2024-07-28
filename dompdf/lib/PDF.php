@@ -50,7 +50,15 @@ class PDF
 
 		$file = SHARED_CACHE_ROOT . '/dompdf.zip';
 
-		copy(self::URL, $file);
+		if (ini_get('allow_url_fopen')) {
+			copy(self::URL, $file);
+		}
+		elseif (!file_exists($file)) {
+			echo 'Downloading files is forbidden by your server configuration (allow_url_fopen is disabled).<br />';
+			printf('Please download this file: <a href="%s">%s</a><br />', self::URL);
+			printf('And copy it here: <code>%s</code>', $file);
+			exit;
+		}
 
 		$zip = new \PharData($file);
 		$zip->extractTo(self::DIRECTORY, null, true);
