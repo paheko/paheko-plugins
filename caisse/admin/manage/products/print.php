@@ -15,15 +15,15 @@ $csrf_key = 'print';
 
 $form->runIf('print', function () use ($tpl) {
 	$products = Products::listByCategory();
-	$selected = (array)f('selected');
+	$selected = array_keys((array)f('selected'));
 
-	foreach ($products as $cat => $list) {
-		if (!in_array($cat, $selected)) {
-			unset($products[$cat]);
+	foreach ($products as $key => $product) {
+		if (!in_array($product->category, $selected)) {
+			unset($products[$key]);
 		}
 	}
 
-	$tpl->assign('products_categories', $products);
+	$tpl->assign('products', $products);
 
 	$out = $tpl->fetch(PLUGIN_ROOT . '/templates/manage/products/print.tpl');
 	$filename = 'Produits.pdf';

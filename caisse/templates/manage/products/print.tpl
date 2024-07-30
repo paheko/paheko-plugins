@@ -59,20 +59,26 @@
 <body>
 
 <section class="products">
-	{foreach from=$products_categories key="category" item="products"}
-		<section>
-			<h2 class="ruler">{$category}</h2>
+	<?php $cat = null; ?>
+	{foreach from=$products item="product"}
+		{if $cat.id !== $product.category}
+			{if $cat}
+				</table>
+			</section>
+			{/if}
+			<section>
+				<h2 class="ruler">{$product.category_name}</h2>
 
-			<table>
-			{foreach from=$products item="product"}
-				<tr>
-					<th>{$product.name}</th>
-					<td>{$product.price|escape|money_currency}</td>
-				</tr>
-			{/foreach}
-			</table>
-		</section>
+				<table>
+			<?php $cat = $product->category; ?>
+		{/if}
+			<tr>
+				<th>{$product.name}</th>
+				<td>{$product.price|escape|money_currency}</td>
+			</tr>
 	{/foreach}
+		</table>
+	</section>
 </section>
 
 </body>
