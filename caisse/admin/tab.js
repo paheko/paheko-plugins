@@ -152,6 +152,7 @@ if (pm) {
 
 // Quick search field
 var q = document.querySelector('input[name="q"]');
+var list = null;
 
 if (q) {
 	var q_timeout;
@@ -159,7 +160,7 @@ if (q) {
 	q.onkeyup = (e) => {
 		window.clearTimeout(q_timeout);
 		q_timeout = window.setTimeout(searchProduct, 150);
-		return true;
+		return true;codes
 	};
 
 	function searchProduct() {
@@ -171,43 +172,36 @@ if (q) {
 			search = q.value;
 
 			document.querySelectorAll('.products button').forEach((elm) => {
-				if (elm.hasAttribute('data-code') && elm.dataset.code.includes(search)) {
-					if (code.length === 13) {
-						elm.click();
-					}
-					elm.hidden = false;
-				}
-				else {
-					elm.hidden = true;
+				var found = elm.hasAttribute('data-code') && elm.dataset.code.includes(search);
+
+				if (found && code.length === 13) {
+					elm.click();
+					return;
 				}
 
-				// Apparently hidden does not work with <button>
-				elm.style.display = elm.hidden ? 'none' : null;
+				g.toggle(elm, found);
+				elm.hidden = !found;
 			});
 		}
 		else {
 			document.querySelectorAll('.products button h3').forEach((elm) => {
-				if (g.normalizeString(elm.innerText).includes(search)) {
-					elm.parentNode.hidden = false;
-				}
-				else {
-					elm.parentNode.hidden = true;
+				if (!elm.hasAttribute('data-search')) {
+					// Add some cache
+					elm.dataset.search = g.normalizeString(elm.innerText);
 				}
 
-				// Apparently hidden does not work with <button>
-				elm.parentNode.style.display = elm.parentNode.hidden ? 'none' : null;
+				var found = elm.dataset.search.includes(search);
+				g.toggle(elm.parentNode, found);
+				elm.parentNode.hidden = !found;
 			});
 		}
 
 		// Also hide complete sections if nothing matches
 		document.querySelectorAll('.products section').forEach((s) => {
-			if (!s.querySelectorAll('button:not([hidden]').length) {
-				s.style.display = 'none';
-			}
-			else {
-				s.style.display = null;
-			}
+			g.toggle(s, s.querySelectorAll('button:not([hidden]').length > 0);
 		});
+
+		g.toggle('.pos .products ul', search.length === 0);
 	}
 
 	q.focus();

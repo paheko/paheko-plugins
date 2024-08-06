@@ -16,13 +16,27 @@ if (null !== qg('id')) {
 	if (!$tab) {
 		throw new UserException('La note sélectionnée n\'existe pas ou plus.');
 	}
-}
 
-$current_pos_session = Sessions::get($tab ? $tab->session : (int)qg('session'));
+	$current_pos_session = Sessions::get($tab->session);
+}
+elseif (qg('session')) {
+	$current_pos_session = Sessions::get((int)qg('session'));
+}
+else {
+	$current_pos_session = Sessions::getCurrent();
+}
 
 if (!$current_pos_session) {
 	throw new UserException('Aucune session de caisse en cours et aucune note sélectionnée');
 }
+
+$form->runIf(qg('code') !== null, function () use ($current_pos_session, &$tab) {
+	$tab = $current_pos_session->getFirstOpenTab();
+	$tab ??= $current_pos_session->openTab();
+
+	$tab->addItemByCode(qg('code'));
+	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab->id]));
+});
 
 if (!empty($_POST['add_item'])) {
 	$tab->addItem((int)key($_POST['add_item']), current($_POST['add_item']));

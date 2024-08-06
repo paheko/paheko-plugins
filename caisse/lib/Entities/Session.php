@@ -17,6 +17,7 @@ use Paheko\Entity;
 use Paheko\ValidationException;
 
 use KD2\Mail_Message;
+use KD2\DB\EntityManager;
 
 class Session extends Entity
 {
@@ -31,8 +32,14 @@ class Session extends Entity
 	protected ?string $close_user;
 	protected ?int $error_amount;
 
-	public function hasOpenNotes() {
+	public function hasOpenNotes(): bool
+	{
 		return DB::getInstance()->test(POS::tbl('tabs'), 'session = ? AND closed IS NULL', $this->id);
+	}
+
+	public function getFirstOpenTab(): ?Tab
+	{
+		return EntityManager::findOne(Tab::class, 'SELECT * FROM @TABLE WHERE closed IS NULL ORDER BY opened DESC LIMIT 1;');
 	}
 
 	public function close(string $user_name, int $amount, ?bool $confirm_error, array $payments, ?string $send_email)

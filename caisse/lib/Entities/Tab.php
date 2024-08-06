@@ -43,6 +43,24 @@ class Tab extends Entity
 			- COALESCE((SELECT SUM(amount) FROM @PREFIX_tabs_payments WHERE tab = ?), 0);'), $this->id, $this->id);
 	}
 
+	public function addItemByCode(string $code): void
+	{
+		$code = trim($code);
+		$code = preg_replace('/\s+/', '', $code);
+
+		if (!ctype_digit($code)) {
+			throw new UserException('Code barre invalide : ' . $code);
+		}
+
+		$id = DB::getInstance()->firstColumn(POS::sql('SELECT id FROM @PREFIX_products WHERE code = ? ORDER BY id LIMIT 1;'), $code);
+
+		if (!$id) {
+			throw new UserException('Code barre inconnu : ' . $code);
+		}
+
+		$this->addItem($id);
+	}
+
 	public function addItem(int $id, string $user_weight = null)
 	{
 		if ($this->closed) {
