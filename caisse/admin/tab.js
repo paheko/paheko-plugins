@@ -259,12 +259,13 @@ function enableBarcodeScanner()
 		var video = document.createElement('video');
 		video.style.width = '100%';
 		video.style.height = '100%';
+		video.style.display = 'block';
 		g.openDialog(video);
 
 		const barcodeDetector = new BarcodeDetector({formats: ["ean_13", "ean_8", "upc_a", "upc_e"]});
 
 		video.autoplay = true;
-		video.srcObject = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'user' } });
+		video.srcObject = await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
 
 		await new Promise(r => setTimeout(r, 1000));
 
