@@ -264,6 +264,7 @@ function enableBarcodeScanner()
 
 		g.openDialog(video, {"callback": async () => {
 			try {
+				await new Promise(r => setTimeout(r, 1000));
 				const barcodeDetector = new BarcodeDetector({formats: ["ean_13"]});
 
 				while (true) {
