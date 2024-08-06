@@ -27,8 +27,6 @@
 	</nav>
 </nav>
 
-{form_errors}
-
 {if $tab_id}
 <section class="pos">
 	<section class="tab">
@@ -191,7 +189,10 @@
 
 	{if !$current_tab.closed}
 	<section class="products">
-		<input type="text" name="q" placeholder="Recherche rapide" />
+		<header>
+			<input type="text" name="q" placeholder="Recherche rapide" />
+			{button shape="barcode" label="" title="Scanner un code barre" id="scanbarcode" class="hidden"}
+		</header>
 		<ul>
 			<li {if !$selected_cat} class="current"{/if}><a href="?id={$tab.id}" data-cat=""><strong>Tout afficher</strong></a></li>
 			<?php $h = -45; ?>
@@ -236,7 +237,7 @@
 	</div>
 </div>
 
-<script type="text/javascript" src="{$plugin_admin_url}tab.js?2024" async="async"></script>
+<script type="text/javascript" src="{$plugin_admin_url}tab.js?2024-08" async="async"></script>
 {/if}
 
 {include file="_foot.tpl"}

@@ -36,7 +36,7 @@
 	text-align: center;
 }
 
-.pos .products button {
+.pos .products section button {
     background: #eee;
     border: .2rem solid #ddd;
     border-color: hsl(var(--cat-hue), 40%, 75%);
@@ -48,17 +48,17 @@
 	min-width: 9rem !important;
 }
 
-.pos .products button h4 {
+.pos .products section button h4 {
 	color: #666;
 	font-size: 1em;
 	margin: .5em 0;
 }
 
-.pos .products button h3 {
+.pos .products section  button h3 {
 	font-size: 1.1em;
 }
 
-.pos .products button:hover {
+.pos .products section button:hover {
 	background: #fee;
 	border-color: #fcc;
 }
@@ -74,10 +74,17 @@
 	margin: 1rem 0;
 }
 
-input[name="q"] {
+.pos .products header input[name="q"] {
 	font-size: 2rem;
 	min-width: 5em;
 	width: calc(100% - 1em);
+}
+
+.pos .products header {
+	display: flex;
+}
+
+.pos .products header button {
 }
 .pos form {
 	display: inline;

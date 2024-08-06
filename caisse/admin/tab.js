@@ -205,6 +205,7 @@ if (q) {
 	}
 
 	q.focus();
+	enableBarcodeScanner();
 }
 
 
@@ -239,4 +240,45 @@ $('.pos-tabs li.tab').forEach((elm) => {
 
 if (!hidden) {
 	show_button.remove();
+}
+
+
+function enableBarcodeScanner()
+{
+	var barcode_btn = $('#scanbarcode');
+
+	if (!('BarcodeDetector' in window)) {
+		return;
+		//window['BarcodeDetector'] = barcodeDetectorPolyfill.BarcodeDetectorPolyfill;
+		//<script src="https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@0.9.15/dist/index.js"></script>
+		//<script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@0.9.20/dist/index.js"></script>
+	}
+
+	g.toggle(barcode_btn, true);
+	barcode_btn.onclick = async () => {
+		var video = document.createElement('video');
+		g.openDialog(video);
+
+		const barcodeDetector = new BarcodeDetector({formats: ["ean_13", "ean_8", "upc_a", "upc_e"]});
+
+		video.autoplay = true;
+		video.srcObject = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+
+		while (true) {
+			var barcodes = await barcodeDetector.detect(video);
+			console.log(barcodes, barcodeDetector)
+
+			if (barcodes.length == 0) {
+				// The higher the interval the longer the battery lasts.
+				await new Promise(r => setTimeout(r, 50));
+				continue;
+			}
+
+			navigator.vibrate(200);
+			q.value = barcodes[0].rawValue;
+			g.closeDialog();
+			searchProduct();
+			return;
+		}
+	};
 }
