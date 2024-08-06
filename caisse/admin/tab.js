@@ -158,9 +158,14 @@ if (q) {
 	var q_timeout;
 
 	q.onkeyup = (e) => {
+		if (e.key === 'Enter' && (a = document.querySelector('.products section button:not([hidden])'))) {
+			a.click();
+			return;
+		}
+
 		window.clearTimeout(q_timeout);
 		q_timeout = window.setTimeout(searchProduct, 150);
-		return true;codes
+		return true;
 	};
 
 	function searchProduct() {
