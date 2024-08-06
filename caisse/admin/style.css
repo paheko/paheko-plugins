@@ -85,9 +85,36 @@
 }
 
 .pos .products header button {
+	font-size: 1.5em;
+	border: none;
 }
+
 .pos form {
 	display: inline;
+}
+
+.pos .items table td, .pos .items table th {
+	padding: .5em;
+}
+
+@media screen and (max-width:600px) {
+	.items table.list tbody tr {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.items table.list tbody th {
+		flex-grow: 1;
+		width: 100% !important;
+		text-align: left !important;
+	}
+	.items table.list thead {
+		display: none;
+	}
+	.items table.list tfoot tr {
+		display: flex;
+	}
 }
 
 .pos .items i {
