@@ -248,44 +248,44 @@ function enableBarcodeScanner()
 	var barcode_btn = $('#scanbarcode');
 
 	if (!('BarcodeDetector' in window)) {
-		//window['BarcodeDetector'] = barcodeDetectorPolyfill.BarcodeDetectorPolyfill;
-		return;
+		window['BarcodeDetector'] = barcodeDetectorPolyfill.BarcodeDetectorPolyfill;
+		//return;
 		//<script src="https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@0.9.15/dist/index.js"></script>
 		//<script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@0.9.20/dist/index.js"></script>
 	}
 
 	g.toggle(barcode_btn, true);
 	barcode_btn.onclick = async () => {
-		try {
-			var video = document.createElement('video');
-			video.style.width = '100%';
-			video.style.height = '100%';
-			g.openDialog(video);
+		var video = document.createElement('video');
+		video.style.width = '100%';
+		video.style.height = '100%';
+		video.autoplay = true;
+		video.srcObject = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'environment' } });
 
-			const barcodeDetector = new BarcodeDetector({formats: ["ean_13"]});
+		g.openDialog(video, {"callback": async () => {
+			try {
+				const barcodeDetector = new BarcodeDetector({formats: ["ean_13"]});
 
-			video.autoplay = true;
-			video.srcObject = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'environment' } });
+				while (true) {
+					var barcodes = await barcodeDetector.detect(video);
 
-			while (true) {
-				var barcodes = await barcodeDetector.detect(video);
+					if (barcodes.length == 0) {
+						// The higher the interval the longer the battery lasts.
+						await new Promise(r => setTimeout(r, 50));
+						continue;
+					}
 
-				if (barcodes.length == 0) {
-					// The higher the interval the longer the battery lasts.
-					await new Promise(r => setTimeout(r, 50));
-					continue;
+					navigator.vibrate(200);
+					q.value = barcodes[0].rawValue;
+					g.closeDialog();
+					searchProduct();
+					return;
 				}
-
-				navigator.vibrate(200);
-				q.value = barcodes[0].rawValue;
-				g.closeDialog();
-				searchProduct();
-				return;
 			}
-		}
-		catch (e) {
-			alert("La détection du code barre ne semble pas fonctionner sur votre terminal");
-			throw e;
-		}
+			catch (e) {
+				alert("La détection du code barre ne semble pas fonctionner sur votre terminal");
+				throw e;
+			}
+		}});
 	};
 }
