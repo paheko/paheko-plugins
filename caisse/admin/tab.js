@@ -266,6 +266,8 @@ function enableBarcodeScanner()
 		video.autoplay = true;
 		video.srcObject = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'user' } });
 
+		await new Promise(r => setTimeout(r, 1000));
+
 		while (true) {
 			var barcodes = await barcodeDetector.detect(video);
 			console.log(barcodes);
