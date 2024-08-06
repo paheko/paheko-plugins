@@ -30,12 +30,12 @@ class Sessions
 	static public function getCurrentId(): ?int
 	{
 		$db = DB::getInstance();
-		return $db->firstColumn(POS::sql('SELECT id FROM @PREFIX_sessions WHERE closed IS NULL LIMIT 1;'));
+		return $db->firstColumn(POS::sql('SELECT id FROM @PREFIX_sessions WHERE closed IS NULL ORDER BY opened DESC LIMIT 1;'));
 	}
 
 	static public function getCurrent(): ?Session
 	{
-		return EM::findOne(Session::class, 'SELECT * FROM @TABLE WHERE closed IS NULL LIMIT 1;');
+		return EM::findOne(Session::class, 'SELECT * FROM @TABLE WHERE closed IS NULL ORDER BY opened DESC LIMIT 1;');
 	}
 
 	static public function get(int $id): ?Session

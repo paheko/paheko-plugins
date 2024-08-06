@@ -27,6 +27,8 @@
 	</nav>
 </nav>
 
+{form_errors}
+
 {if $tab_id}
 <section class="pos">
 	<section class="tab">
