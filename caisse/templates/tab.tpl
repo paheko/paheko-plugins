@@ -237,6 +237,11 @@
 	</div>
 </div>
 
+{*
+	<script src="https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@0.9.15/dist/index.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@0.9.20/dist/index.js"></script>
+*}
+
 <script type="text/javascript" src="{$plugin_admin_url}tab.js?2024-08" async="async"></script>
 {/if}
 

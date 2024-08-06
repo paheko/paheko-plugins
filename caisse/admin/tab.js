@@ -248,8 +248,8 @@ function enableBarcodeScanner()
 	var barcode_btn = $('#scanbarcode');
 
 	if (!('BarcodeDetector' in window)) {
-		return;
 		//window['BarcodeDetector'] = barcodeDetectorPolyfill.BarcodeDetectorPolyfill;
+		return;
 		//<script src="https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@0.9.15/dist/index.js"></script>
 		//<script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@0.9.20/dist/index.js"></script>
 	}
@@ -257,6 +257,8 @@ function enableBarcodeScanner()
 	g.toggle(barcode_btn, true);
 	barcode_btn.onclick = async () => {
 		var video = document.createElement('video');
+		video.style.width = '400px';
+		video.style.height = '300px';
 		g.openDialog(video);
 
 		const barcodeDetector = new BarcodeDetector({formats: ["ean_13", "ean_8", "upc_a", "upc_e"]});
@@ -266,7 +268,6 @@ function enableBarcodeScanner()
 
 		while (true) {
 			var barcodes = await barcodeDetector.detect(video);
-			console.log(barcodes, barcodeDetector)
 
 			if (barcodes.length == 0) {
 				// The higher the interval the longer the battery lasts.
