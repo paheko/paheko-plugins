@@ -171,7 +171,7 @@ if (q) {
 		if (code.match(/^\d+$/)) {
 			search = q.value;
 
-			document.querySelectorAll('.products button').forEach((elm) => {
+			document.querySelectorAll('.products section button').forEach((elm) => {
 				var found = elm.hasAttribute('data-code') && elm.dataset.code.includes(search);
 
 				if (found && code.length === 13) {
@@ -184,7 +184,7 @@ if (q) {
 			});
 		}
 		else {
-			document.querySelectorAll('.products button h3').forEach((elm) => {
+			document.querySelectorAll('.products section button h3').forEach((elm) => {
 				if (!elm.hasAttribute('data-search')) {
 					// Add some cache
 					elm.dataset.search = g.normalizeString(elm.innerText);
@@ -248,10 +248,10 @@ function enableBarcodeScanner()
 	var barcode_btn = $('#scanbarcode');
 
 	if (!('BarcodeDetector' in window)) {
-		window['BarcodeDetector'] = barcodeDetectorPolyfill.BarcodeDetectorPolyfill;
-		//return;
 		//<script src="https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@0.9.15/dist/index.js"></script>
 		//<script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@0.9.20/dist/index.js"></script>
+		//window['BarcodeDetector'] = barcodeDetectorPolyfill.BarcodeDetectorPolyfill;
+		return;
 	}
 
 	g.toggle(barcode_btn, true);
@@ -264,8 +264,11 @@ function enableBarcodeScanner()
 
 		g.openDialog(video, {"callback": async () => {
 			try {
-				await new Promise(r => setTimeout(r, 1000));
 				const barcodeDetector = new BarcodeDetector({formats: ["ean_13"]});
+				g.addDialogEvent('close', () => {
+					var stream = video.srcObject;
+					stream.getTracks().forEach(track => { track.stop(); stream.removeTrack(track); });
+				});
 
 				while (true) {
 					var barcodes = await barcodeDetector.detect(video);
@@ -285,6 +288,7 @@ function enableBarcodeScanner()
 			}
 			catch (e) {
 				alert("La détection du code barre ne semble pas fonctionner sur votre terminal");
+				g.closeDialog();
 				throw e;
 			}
 		}});
