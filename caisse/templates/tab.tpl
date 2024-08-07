@@ -146,7 +146,7 @@
 			{/if}
 
 			{if $remainder && count($payment_options)}
-			<form method="post">
+			<form method="post" action="" class="payment">
 				<fieldset>
 					<legend>
 						{if $remainder < 0}
@@ -174,6 +174,10 @@
 					<dl class="reference">
 						{input type="text" label="Référence du paiement (numéro de chèque…)" name="reference"}
 					</dl>
+					<p class="alert block toomuch hidden">
+						Monnaie à rendre : <b></b><br />
+						{button type="button" label="J'ai rendu la monnaie" shape="right"}
+					</p>
 					<p class="submit">
 						{button type="submit" name="pay" label="Enregistrer le paiement" shape="right" class="main" accesskey="P"}
 					</p>
@@ -242,7 +246,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@0.9.20/dist/index.js"></script>
 *}
 
-<script type="text/javascript" src="{$plugin_admin_url}tab.js?2024-08" async="async"></script>
+<script type="text/javascript" src="{$plugin_admin_url}tab.js?2024-08b" async="async"></script>
 {/if}
 
 {include file="_foot.tpl"}

@@ -247,13 +247,38 @@ if (!hidden) {
 	show_button.remove();
 }
 
+if (a = $('#f_amount')) {
+	function updatePaidAmount() {
+		var o = pm.options[pm.selectedIndex];
+
+		if (!o.dataset.iscash) {
+			return;
+		}
+
+		var max = g.getMoneyAsInt(o.dataset.amount);
+		var diff = g.getMoneyAsInt(a.value) - max;
+
+		g.toggle('form.payment .submit', diff <= 0);
+		g.toggle('form.payment .toomuch', diff > 0);
+
+		document.querySelector('form.payment .toomuch b').innerText = g.formatMoney(diff);
+	}
+
+	a.addEventListener('keyup', updatePaidAmount);
+
+	document.querySelector('form.payment .toomuch button').onclick = () => {
+		var o = pm.options[pm.selectedIndex];
+		a.value = o.dataset.amount;
+		updatePaidAmount();
+	};
+}
 
 function enableBarcodeScanner()
 {
 	var barcode_btn = $('#scanbarcode');
 
 	if (!('BarcodeDetector' in window)) {
-		if (barcodeDetectorPolyfill) {
+		if (window['barcodeDetectorPolyfill']) {
 			window['BarcodeDetector'] = barcodeDetectorPolyfill.BarcodeDetectorPolyfill;
 		}
 		else {
