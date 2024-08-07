@@ -82,7 +82,7 @@ class Categories
 		$data = DB::getInstance()->getAssocMulti($sql, (string) $year, (string)$year);
 		$empty = array_fill(1, 12, 0);
 
-		foreach ($data as $key => &$value) {
+		foreach ($data as &$value) {
 			$value = array_replace($empty, $value);
 		}
 
@@ -107,7 +107,7 @@ class Categories
 		$data = DB::getInstance()->getAssocMulti($sql, (string) $year);
 		$empty = array_fill(1, 12, 0);
 
-		foreach ($data as $key => &$value) {
+		foreach ($data as &$value) {
 			$value = array_replace($empty, $value);
 		}
 

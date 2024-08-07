@@ -86,9 +86,6 @@ class POS
 	{
 		$bar = new Bar(1000, 400);
 		$bar->setTitle($title);
-		$current_group = null;
-		$set = null;
-		$sum = 0;
 		$i = -50;
 
 		$color = function () use (&$i) {
@@ -113,8 +110,6 @@ class POS
 	{
 		$plot = new Plot(1000, 400);
 		$plot->setTitle($title);
-		$current_group = null;
-		$sum = 0;
 
 		$i = -50;
 

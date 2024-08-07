@@ -45,8 +45,6 @@ class Sessions
 
 	static public function list(): DynamicList
 	{
-		$db = DB::getInstance();
-
 		$columns = [
 			'id' => [
 				'select' => 's.id',
