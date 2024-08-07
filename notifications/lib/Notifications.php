@@ -98,8 +98,6 @@ class Notifications
 
 	public function list(): array
 	{
-		$out = [];
-
 		foreach ($this->notifications as $n) {
 			$n->signal_label = self::SIGNALS[$n->signal];
 			$n->action_label = self::ACTIONS[$n->action];
@@ -213,7 +211,7 @@ class Notifications
 						continue;
 					}
 
-					$out .= sprintf("%s :\n- %s\n+ %s\n\n\n", $key, $b[$key], $a[$key]);
+					$out .= sprintf("%s :\n- %s\n+ %s\n\n\n", $key, $value, $a[$key]);
 				}
 
 				return $out;
