@@ -28,7 +28,6 @@ class Product extends Entity
 	public function selfCheck(): void
 	{
 		$this->assert(trim($this->name) !== '', 'Le nom ne peut rester vide.');
-		$this->assert($this->price != 0, 'Le prix doit ne peut être égal à zéro.');
 		$this->assert($this->qty >= 0, 'La quantité doit être supérieure ou égale à zéro.');
 		$this->assert($this->weight === null || $this->weight === -1 || $this->weight > 0, 'Le poids doit être vide ou supérieur à zéro.');
 		$this->assert($this->purchase_price === null || $this->purchase_price > 0, 'Le prix d\'achat doit être vide ou supérieur à zéro.');
