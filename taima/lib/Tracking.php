@@ -332,7 +332,6 @@ class Tracking
 		$order = 'period';
 		$desc = true;
 		$params = [];
-		$select = '';
 		$tables = 'plugin_taima_entries e
 			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
 			LEFT JOIN users u ON u.id = e.user_id';

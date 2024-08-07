@@ -13,7 +13,6 @@ use function Paheko\{f, qg};
 
 require_once __DIR__ . '/_inc.php';
 
-$list = null;
 $filters = [];
 $title = 'Suivi';
 $subtitle = null;
