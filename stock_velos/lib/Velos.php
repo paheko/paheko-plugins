@@ -4,7 +4,6 @@ namespace Paheko\Plugin\Stock_Velos;
 
 use Paheko\DB;
 use Paheko\Entity;
-use Paheko\Membres;
 use Paheko\UserException;
 use Paheko\Utils;
 use Paheko\DynamicList;
@@ -347,7 +346,7 @@ class Velos
         }
 
         $query = 'SELECT ' . $fields . ' FROM plugin_stock_velos ' . $query;
-        
+
         $db = DB::getInstance();
 
         try {
@@ -368,7 +367,7 @@ class Velos
 
     public function getSchemaSQL()
     {
-        $schema = DB::getInstance()->firstColumn('SELECT sql FROM sqlite_master 
+        $schema = DB::getInstance()->firstColumn('SELECT sql FROM sqlite_master
             WHERE type = "table" AND name="plugin_stock_velos";');
 
         $schema = str_replace('CREATE TABLE plugin_stock_velos', 'CREATE TABLE velos', $schema);
@@ -493,9 +492,6 @@ class Velos
     {
         $bar = new Bar(1000, 400);
         $bar->setTitle($title);
-        $current_group = null;
-        $set = null;
-        $sum = 0;
 
         $color = function (string $str): string {
             return sprintf('#%s', substr(md5($str), 0, 6));
@@ -503,11 +499,9 @@ class Velos
 
         foreach ($data as $group_label => $group) {
             $set = new Bar_Data_Set($group_label);
-            $sum = 0;
 
             foreach ($group as $label => $value) {
                 $set->add($value, $label, $color($label));
-                $sum += $value;
             }
 
             $bar->add($set);
