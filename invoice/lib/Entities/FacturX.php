@@ -16,6 +16,12 @@ use const Paheko\{ROOT, FACTURX_COMMAND, STATIC_CACHE_ROOT};
  *
  * @see https://www.ghostscript.com/blog/zugferd.html
  */
+/*
+$f = new FacturX;
+$f->set('html', $html);
+$f->import((array)$invoice);
+$f->stream($download);
+ */
 // TODO: reference here: https://fnfe-mpe.org/factur-x/qui-propose-factur-x/
 class FacturX extends Entity
 {
