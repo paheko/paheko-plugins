@@ -120,7 +120,7 @@ class Usermap
 	{
 		$db = DB::getInstance();
 		$fields = array_map([$db, 'quoteIdentifier'], $this->fields);
-		$fields = array_map(fn($a) => 'u.' . $a, $this->fields);
+		$fields = array_map(fn($a) => 'u.' . $a, $fields);
 		$where = implode(' AND ', array_map(fn($a) => $a . ' IS NOT NULL', $fields));
 		$full_address = implode(' || \' \' || ', $fields);
 		$full_address = 'TRIM(' . $full_address . ')';
@@ -204,7 +204,6 @@ class Usermap
 			curl_setopt($curl, CURLOPT_FILE, $fp);
 
 			curl_exec($curl);
-			$info = curl_getinfo($curl);
 
 			if ($error = curl_error($curl)) {
 				throw new UserException(sprintf('L\'API ne répond pas : %s', $error));
