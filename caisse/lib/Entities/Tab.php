@@ -64,7 +64,7 @@ class Tab extends Entity
 	public function addItem(int $id, string $user_weight = null)
 	{
 		if ($this->closed) {
-			throw new UserException('Cette note est close, impossible d\'ajouter un produit.');
+			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
 		$db = DB::getInstance();
@@ -99,7 +99,7 @@ class Tab extends Entity
 	public function removeItem(int $id)
 	{
 		if ($this->closed) {
-			throw new \LogicException('Cannot modify a closed tab');
+			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
 		return DB::getInstance()->delete(POS::tbl('tabs_items'), 'id = ? AND tab = ?', $id, $this->id);
@@ -108,7 +108,7 @@ class Tab extends Entity
 	public function updateItemQty(int $id, int $qty)
 	{
 		if ($this->closed) {
-			throw new \LogicException('Cannot modify a closed tab');
+			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
 		$db = DB::getInstance();
@@ -120,7 +120,7 @@ class Tab extends Entity
 	public function updateItemWeight(int $id, string $weight)
 	{
 		if ($this->closed) {
-			throw new \LogicException('Cannot modify a closed tab');
+			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
 		$weight = Utils::weightToInteger($weight);
@@ -134,7 +134,7 @@ class Tab extends Entity
 	public function updateItemPrice(int $id, string $price)
 	{
 		if ($this->closed) {
-			throw new \LogicException('Cannot modify a closed tab');
+			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
 		$price = Utils::moneyToInteger($price);
@@ -206,7 +206,7 @@ class Tab extends Entity
 	public function removePayment(int $id)
 	{
 		if ($this->closed) {
-			throw new \LogicException('Cannot modify a closed tab');
+			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
 		return DB::getInstance()->delete(POS::tbl('tabs_payments'), 'id = ? AND tab = ?', $id, $this->id);
@@ -248,7 +248,7 @@ class Tab extends Entity
 
 	public function renameItem(int $id, string $name) {
 		if ($this->closed) {
-			throw new \LogicException('Cannot modify a closed tab');
+			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
 		return DB::getInstance()->update(POS::tbl('tabs_items'), ['name' => trim($name)], sprintf('id = %d AND tab = %d', $id, $this->id));
