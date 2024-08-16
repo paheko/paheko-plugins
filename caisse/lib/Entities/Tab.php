@@ -64,7 +64,7 @@ class Tab extends Entity
 	public function addItem(int $id, string $user_weight = null)
 	{
 		if ($this->closed) {
-			throw new \LogicException('Cannot modify a closed tab');
+			throw new UserException('Cette note est close, impossible d\'ajouter un produit.');
 		}
 
 		$db = DB::getInstance();
