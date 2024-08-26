@@ -25,11 +25,18 @@ class Product extends Entity
 	protected ?string $image = null;
 	protected ?string $code = null;
 
+	const WEIGHT_DISABLED = null;
+	const WEIGHT_REQUIRED = -1;
+	const WEIGHT_BASED_PRICE = -2;
+
 	public function selfCheck(): void
 	{
 		$this->assert(trim($this->name) !== '', 'Le nom ne peut rester vide.');
 		$this->assert($this->qty >= 0, 'La quantité doit être supérieure ou égale à zéro.');
-		$this->assert($this->weight === null || $this->weight === -1 || $this->weight > 0, 'Le poids doit être vide ou supérieur à zéro.');
+		$this->assert($this->weight === self::WEIGHT_DISABLED
+			|| $this->weight === self::WEIGHT_REQUIRED
+			|| $this->weight === self::WEIGHT_BASED_PRICE
+			|| $this->weight > 0, 'Le poids doit être vide ou supérieur à zéro.');
 		$this->assert($this->purchase_price === null || $this->purchase_price > 0, 'Le prix d\'achat doit être vide ou supérieur à zéro.');
 
 		$this->assert((bool) EM::findOneById(Category::class, $this->category), 'Catégorie invalide');
@@ -58,8 +65,11 @@ class Product extends Entity
 			$source['purchase_price'] = Utils::moneyToInteger($source['purchase_price']) ?: null;
 		}
 
-		if (!empty($source['weight_required'])) {
-			$source['weight'] = -1;
+		if (!empty($source['weight_based_price'])) {
+			$source['weight'] = self::WEIGHT_BASED_PRICE;
+		}
+		elseif (!empty($source['weight_required'])) {
+			$source['weight'] = self::WEIGHT_REQUIRED;
 		}
 		elseif (isset($source['weight'])) {
 			$source['weight'] = Utils::weightToInteger($source['weight']);

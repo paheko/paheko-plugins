@@ -19,12 +19,20 @@
 		<fieldset>
 			<legend>Poids</legend>
 			<dl>
-				<?php $weight_required = $product->weight < 0; ?>
+				<?php
+				$weight_based_price = $product->weight === $product::WEIGHT_BASED_PRICE;
+				$weight_required = $product->weight === $product::WEIGHT_REQUIRED || $weight_based_price;
+				$weight = $product->weight > 0 ? $product->weight : 0;
+				?>
 				{input type="checkbox" name="weight_required" value=1 default=$weight_required label="Demander le poids du produit"}
 				<dd class="help">Si cette case est cochée, la personne utilisant la caisse devra saisir un poids lors de l'ajout de ce produit dans une note de caisse.</dd>
 			</dl>
+			<dl class="price-weight">
+				{input type="checkbox" name="weight_based_price" value=1 default=$weight_based_price label="Le prix du produit est basé sur le poids"}
+				<dd class="help">Cocher cette case pour vendre un produit au poids (par exemple des légumes). Dans ce cas le prix unitaire indiqué dans cette fiche vaudra pour 1 kg.</dd>
+			</dl>
 			<dl class="weight">
-				{input type="weight" name="weight" label="Poids unitaire" source=$product required=false help="Indiquer ici le poids du produit, en kilogrammes. Ce poids est utilisé pour calculer la quantité de marchandises vendues."}
+				{input type="weight" name="weight" label="Poids unitaire" default=$weight required=false help="Indiquer ici le poids du produit, en kilogrammes. Ce poids est utilisé pour calculer la quantité de marchandises vendues."}
 			</dl>
 		</fieldset>
 
@@ -59,6 +67,7 @@
 var c = $('#f_weight_required_1');
 function checkWeightRequired() {
 	g.toggle('.weight', !c.checked);
+	g.toggle('.price-weight', c.checked);
 }
 
 checkWeightRequired();

@@ -78,8 +78,15 @@ class Tab extends Entity
 		}
 
 		$weight = $product->weight;
+		$price = (int)$product->price;
 
-		if ($weight < 0) {
+		if ($weight === Product::WEIGHT_BASED_PRICE) {
+			$weight = Utils::weightToInteger($user_weight);
+
+			// Cents * grams = Centsgrams / 1000 = cents/kg
+			$price = ($price * $weight) / 1000;
+		}
+		elseif ($weight === Product::WEIGHT_REQUIRED) {
 			$weight = Utils::weightToInteger($user_weight);
 		}
 
@@ -87,7 +94,7 @@ class Tab extends Entity
 			'tab'           => $this->id,
 			'product'       => (int)$product->id,
 			'qty'           => (int)$product->qty,
-			'price'         => (int)$product->price,
+			'price'         => $price,
 			'weight'        => $weight,
 			'name'          => $product->name,
 			'category_name' => $product->category_name,
