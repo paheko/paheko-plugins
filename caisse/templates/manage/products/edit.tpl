@@ -68,6 +68,9 @@ var c = $('#f_weight_required_1');
 function checkWeightRequired() {
 	g.toggle('.weight', !c.checked);
 	g.toggle('.price-weight', c.checked);
+	if (!c.checked) {
+		$('#f_weight_based_price_1').checked = false;
+	}
 }
 
 checkWeightRequired();
