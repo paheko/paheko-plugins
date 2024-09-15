@@ -3,6 +3,7 @@
 namespace Paheko\Plugin\Caisse\Entities;
 
 use Paheko\Plugin\Caisse\POS;
+use Paheko\DB;
 use Paheko\Entity;
 use Paheko\Utils;
 use Paheko\ValidationException;
@@ -24,6 +25,7 @@ class Product extends Entity
 	protected ?int $weight = null;
 	protected ?string $image = null;
 	protected ?string $code = null;
+	protected bool $archived = false;
 
 	const WEIGHT_DISABLED = null;
 	const WEIGHT_REQUIRED = -1;
@@ -85,6 +87,10 @@ class Product extends Entity
 			$source['code'] = $code->get();
 		}
 
+		if (isset($source['archived_present'])) {
+			$source['archived'] = boolval($source['archived'] ?? false);
+		}
+
 		parent::importForm($source);
 	}
 
@@ -98,7 +104,7 @@ class Product extends Entity
 		return $code->toSVG();
 	}
 
-	public function setMethods(array $methods)
+	public function setMethods(array $methods): void
 	{
 		$db = EM::getInstance(self::class)->DB();
 		$db->begin();
@@ -111,6 +117,12 @@ class Product extends Entity
 		}
 
 		$db->commit();
+	}
+
+	public function enableAllMethodsExceptDebt(): void
+	{
+		$sql = POS::sql('INSERT INTO @PREFIX_products_methods (product, method) SELECT ?, id FROM @PREFIX_methods WHERE type != ?;');
+		DB::getInstance()->preparedQuery($sql, $this->id(), Method::TYPE_DEBT);
 	}
 
 	public function history(bool $only_events = false): array

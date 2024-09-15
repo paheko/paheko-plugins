@@ -6,6 +6,8 @@ use Paheko\DB;
 use Paheko\UserException;
 
 use Paheko\Plugin\Caisse\POS;
+use Paheko\Plugin\Caisse\Products;
+use Paheko\Plugin\Caisse\Tabs;
 use Paheko\Entity;
 use Paheko\Utils;
 use Paheko\ValidationException;
@@ -17,11 +19,17 @@ class Tab extends Entity
 	protected ?int $id;
 	protected int $session;
 	protected \DateTime $opened;
-	protected ?\DateTime $closed;
-	protected ?string $name;
-	protected ?int $user_id;
+	protected ?\DateTime $closed = null;
+	protected ?string $name = null;
+	protected ?int $user_id = null;
 
 	public int $total;
+
+	const PAYMENT_STATUS_DEBT = 0;
+	const PAYMENT_STATUS_PAID = 1;
+
+	const ITEM_TYPE_PRODUCT = 0;
+	const ITEM_TYPE_PAYOFF = 1;
 
 	public function load(array $data): self
 	{
@@ -61,7 +69,7 @@ class Tab extends Entity
 		$this->addItem($id);
 	}
 
-	public function addItem(int $id, string $user_weight = null)
+	public function addItem(int $id, string $user_weight = null, int $price = null, int $type = self::ITEM_TYPE_PRODUCT)
 	{
 		if ($this->closed) {
 			throw new UserException('Cette note est close, impossible de modifier la note.');
@@ -78,7 +86,7 @@ class Tab extends Entity
 		}
 
 		$weight = $product->weight;
-		$price = (int)$product->price;
+		$price ??= (int)$product->price;
 
 		if ($weight === Product::WEIGHT_BASED_PRICE) {
 			$weight = Utils::weightToInteger($user_weight);
@@ -100,6 +108,7 @@ class Tab extends Entity
 			'category_name' => $product->category_name,
 			'description'   => $product->description,
 			'account'       => $product->category_account,
+			'type'          => $type,
 		]);
 	}
 
@@ -183,7 +192,11 @@ class Tab extends Entity
 		}
 
 		$options = $this->listPaymentOptions();
-		$option = $options[$method_id];
+		$option = $options[$method_id] ?? null;
+
+		if (!$option) {
+			throw new UserException('Ce moyen de paiement n\'est pas disponible.');
+		}
 
 		if (empty($option->amount)) {
 			throw new UserException('Ce moyen de paiement ne peut pas être utilisé pour cette note');
@@ -193,16 +206,17 @@ class Tab extends Entity
 			throw new UserException(sprintf('Ce moyen de paiement ne peut être utilisé pour un montant supérieur à %d,%02d€', (int) ($a/100), (int) ($a%100)));
 		}
 
-		if (null !== $reference && $option->is_cash) {
+		if (null !== $reference && $option->type !== Method::TYPE_TRACKED) {
 			throw new UserException('Référence indiquée pour un règlement en espèces : vouliez-vous enregistrer un règlement par chèque ?');
 		}
 
 		DB::getInstance()->insert(POS::tbl('tabs_payments'), [
-			'tab'         => $this->id,
-			'method'      => $method_id,
-			'amount'      => $amount,
-			'reference'   => $reference,
-			'account'     => $option->account,
+			'tab'       => $this->id,
+			'method'    => $method_id,
+			'amount'    => $amount,
+			'reference' => $reference,
+			'account'   => $option->account,
+			'status'    => $option->type === Method::TYPE_DEBT ? self::PAYMENT_STATUS_DEBT : self::PAYMENT_STATUS_PAID,
 		]);
 
 		if ($remainder - $amount === 0 && $auto_close) {
@@ -224,7 +238,7 @@ class Tab extends Entity
 		return DB::getInstance()->get(POS::sql('SELECT tp.*,
 			m.name AS method_name
 			FROM @PREFIX_tabs_payments tp
-			INNER JOIN @PREFIX_methods m ON m.id = tp.method
+			LEFT JOIN @PREFIX_methods m ON m.id = tp.method
 			WHERE tp.tab = ?;'), $this->id);
 	}
 
@@ -282,5 +296,68 @@ class Tab extends Entity
 		}
 
 		return parent::delete();
+	}
+
+	public function getUserDebt(): int
+	{
+		if (empty($this->user_id)) {
+			return 0;
+		}
+
+		return Tabs::getUnpaidDebtAmount($this->user_id);
+	}
+
+	public function addDebt(string $account, int $amount): void
+	{
+		if ($this->closed) {
+			throw new UserException('Cette note est close, impossible de modifier la note.');
+		}
+
+		$db = DB::getInstance();
+		$sql = POS::sql('SELECT p.id
+			FROM @PREFIX_products p
+			INNER JOIN @PREFIX_categories c ON c.id = p.category
+			WHERE c.account = ? LIMIT 1;');
+
+		// Get first product matching debt account
+		$product_id = $db->firstColumn($sql, $account);
+
+		// Automatically create missing product
+		if (!$product_id) {
+			$product = Products::createAndSaveForDebtAccount($account);
+			$product_id = $product->id();
+		}
+
+		$this->addItem($product_id, null, $amount, self::ITEM_TYPE_PAYOFF);
+	}
+
+	public function addUserDebt(): void
+	{
+		if ($this->closed) {
+			throw new UserException('Cette note est close, impossible de modifier la note.');
+		}
+
+		$list = Tabs::listDebtsHistory($this->user_id);
+		$list->setPageSize(null);
+		$due = [];
+
+		// Create list of debts, by third-party account
+		foreach ($list->iterate() as $item) {
+			$due[$item->account] ??= 0;
+
+			if ($item->type === 'debt') {
+				$due[$item->account] += $item->amount;
+			}
+			else {
+				$due[$item->account] -= $item->amount;
+			}
+		}
+
+		// Remove accounts where they are at zero
+		$due = array_filter($due);
+
+		foreach ($due as $account => $amount) {
+			$this->addDebt($account, $amount);
+		}
 	}
 }

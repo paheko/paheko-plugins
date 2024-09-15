@@ -13,9 +13,12 @@ class Products
 		$db = DB::getInstance();
 		$sql = POS::sql('SELECT p.*, c.name AS category_name, c.id AS category_id
 			FROM @PREFIX_products p
-			INNER JOIN @PREFIX_products_methods pm ON pm.product = p.id INNER JOIN @PREFIX_methods m ON m.id = pm.method AND m.enabled = 1
+			INNER JOIN @PREFIX_products_methods pm ON pm.product = p.id
+			INNER JOIN @PREFIX_methods m ON m.id = pm.method AND m.enabled = 1
 			INNER JOIN @PREFIX_categories c ON c.id = p.category
-			GROUP BY p.id ORDER BY category_name COLLATE U_NOCASE, name COLLATE U_NOCASE;');
+			WHERE p.archived = 0
+			GROUP BY p.id
+			ORDER BY category_name COLLATE U_NOCASE, name COLLATE U_NOCASE;');
 
 		$list = [];
 
@@ -60,6 +63,37 @@ class Products
 	static public function new(): Entities\Product
 	{
 		return new Entities\Product;
+	}
+
+	static public function createAndSaveForDebtAccount(string $account): Entities\Product
+	{
+		$db = DB::getInstance();
+		$db->begin();
+		$category_id = $db->firstColumn(POS::sql('SELECT id FROM @PREFIX_categories WHERE account = ?;'), $account);
+
+		if (!$category_id) {
+			$cat = Categories::new();
+			$cat->importForm([
+				'account' => $account,
+				'name'    => 'Règlement d\'ardoise',
+			]);
+
+			$cat->save();
+			$category_id = $cat->id();
+		}
+
+		$product = self::new();
+		$product->importForm([
+			'category' => $category_id,
+			'name'     => 'Règlement d\'ardoise',
+			'qty'      => 1,
+			'archived' => true,
+		]);
+
+		$product->save();
+		$product->enableAllMethodsExceptDebt();
+		$db->commit();
+		return $product;
 	}
 
 	static public function listSales(int $year, string $period = 'year'): DynamicList

@@ -7,6 +7,7 @@ use Paheko\DB;
 use Paheko\Template;
 use Paheko\UserException;
 use Paheko\Utils;
+use Paheko\Users\Users;
 use Paheko\Users\DynamicFields;
 
 use const Paheko\PLUGIN_ROOT;
@@ -56,7 +57,7 @@ class Session extends Entity
 		$check_payments = $db->firstColumn(sprintf(POS::sql('SELECT COUNT(*) FROM @PREFIX_tabs_payments tp
 			INNER JOIN @PREFIX_tabs t ON t.id = tp.tab AND t.session = ?
 			INNER JOIN @PREFIX_methods m ON m.id = tp.method
-			WHERE tp.id NOT IN (%s) AND m.is_cash = 0 LIMIT 1;'), $payments), $this->id);
+			WHERE tp.id NOT IN (%s) AND m.type = %d LIMIT 1;'), $payments, Method::TYPE_TRACKED), $this->id);
 
 		if ($check_payments) {
 			throw new UserException('Certains paiements n\'ont pas été cochés comme vérifiés');
@@ -211,20 +212,21 @@ class Session extends Entity
 			SELECT SUM(amount) FROM @PREFIX_tabs_payments p
 			INNER JOIN @PREFIX_tabs t ON t.id = p.tab
 			INNER JOIN @PREFIX_methods m ON m.id = p.method
-			WHERE t.session = ? AND m.is_cash = 1;'), $this->id);
+			WHERE t.session = ? AND m.type = ?;'), $this->id, Method::TYPE_CASH);
 	}
 
-	public function listPaymentWithoutCash()
+	public function listTrackedPayment()
 	{
 		return DB::getInstance()->get(POS::sql('
 			SELECT p.*, m.name AS method_name FROM @PREFIX_tabs_payments p
 			INNER JOIN @PREFIX_tabs t ON t.id = p.tab
 			INNER JOIN @PREFIX_methods m ON m.id = p.method
-			WHERE t.session = ? AND m.is_cash = 0
-			ORDER BY p.date;'), $this->id);
+			WHERE t.session = ? AND m.type = ?
+			ORDER BY p.date;'), $this->id, Method::TYPE_TRACKED);
 	}
 
-	public function listMissingUsers() {
+	public function listMissingUsers()
+	{
 		return DB::getInstance()->get(POS::sql('SELECT * FROM @PREFIX_tabs WHERE user_id IS NULL AND session = ?;'), $this->id);
 	}
 
@@ -258,7 +260,7 @@ class Session extends Entity
 		}
 	}
 
-	public function openTab(): Tab
+	public function openTab(?int $user_id = null): Tab
 	{
 		if (!$this->exists()) {
 			throw new \LogicException('Cannot open tab for unsaved session');
@@ -267,6 +269,12 @@ class Session extends Entity
 		$tab = new Tab;
 		$tab->session = $this->id();
 		$tab->opened = new \DateTime;
+		$tab->user_id = $user_id;
+
+		if ($tab->user_id) {
+			$tab->name = Users::getName($tab->user_id);
+		}
+
 		$tab->save();
 		return $tab;
 	}
@@ -283,5 +291,10 @@ class Session extends Entity
 		}
 
 		return parent::delete();
+	}
+
+	public function findOpenTabByUser(int $id): ?Tab
+	{
+		return EntityManager::findOne(Tab::class, 'SELECT * FROM @TABLE WHERE user_id = ? AND session = ? AND closed IS NULL;', $id, $this->id());
 	}
 }

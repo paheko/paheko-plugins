@@ -1,11 +1,15 @@
 {include file="_head.tpl" title="Sessions de caisse"}
 
-<p>
-	{linkbutton href="session_open.php" shape="right" label="Ouvrir la caisse" class="main"}
+<nav class="tabs">
+	<aside>
+		{linkbutton href="debts.php" label="Ardoises" shape="history"}
 	{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
 		{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}
 	{/if}
-</p>
+	</aside>
+
+	{linkbutton href="session_open.php" shape="right" label="Ouvrir la caisse" class="main"}
+</nav>
 
 {include file="common/dynamic_list_head.tpl"}
 		{foreach from=$list->iterate() item="pos_session"}

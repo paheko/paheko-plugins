@@ -1,5 +1,22 @@
-var fr = document.querySelector('button[name="rename"]');
+var show_button = $('.tabs .plus')[0].parentNode;
+var hidden = 0;
 
+$('.pos-tabs li.tab').forEach((elm) => {
+	var parent_height = elm.parentNode.offsetHeight;
+	if (elm.offsetTop > parent_height) {
+		hidden++;
+	}
+});
+
+if (!hidden) {
+	show_button.remove();
+}
+
+if (!document.querySelector('.pos')) {
+	throw 'Not in a tab';
+}
+
+var fr = document.querySelector('button[name="rename"]');
 
 var ur = $('#user_rename');
 var ur_input = $('#user_rename input[type=text]')[0];
@@ -142,7 +159,7 @@ var pm = document.querySelector('select[name="method_id"]');
 function toggleMethod() {
 	var o = pm.options[pm.selectedIndex];
 	document.querySelector('#f_amount').value = o.getAttribute('data-amount');
-	document.querySelector('.reference').style.display = (o.dataset.iscash != 1) ? null : 'none';
+	document.querySelector('.reference').style.display = (o.dataset.type == 0) ? null : 'none';
 }
 
 if (pm) {
@@ -233,25 +250,11 @@ $('.products ul li a').forEach((elm) => {
 	};
 });
 
-var show_button = $('.pos-tabs .plus')[0];
-var hidden = 0;
-
-$('.pos-tabs li.tab').forEach((elm) => {
-	var parent_height = elm.parentNode.offsetHeight;
-	if (elm.offsetTop > parent_height) {
-		hidden++;
-	}
-});
-
-if (!hidden) {
-	show_button.remove();
-}
-
 if (a = $('#f_amount')) {
 	function updatePaidAmount() {
 		var o = pm.options[pm.selectedIndex];
 
-		if (!o.dataset.iscash) {
+		if (!o.dataset.type) {
 			return;
 		}
 

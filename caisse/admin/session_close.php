@@ -38,6 +38,6 @@ $cash_total = $pos_session->getCashTotal();
 $tpl->assign('cash_total', $cash_total);
 $tpl->assign('user_name', $session->getUser()->name());
 $tpl->assign('close_total', $cash_total + $pos_session->open_amount);
-$tpl->assign('payments_except_cash', $pos_session->listPaymentWithoutCash());
+$tpl->assign('payments_except_cash', $pos_session->listTrackedPayment());
 
 $tpl->display(PLUGIN_ROOT . '/templates/session_close.tpl');

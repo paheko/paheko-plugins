@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_products (
 	stock INTEGER NULL, -- NULL if it's not subject to stock change (like a membership)
 	weight INTEGER NULL,
 	image TEXT NULL,
-	code TEXT NULL
+	code TEXT NULL,
+	archived INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS @PREFIX_products_category ON @PREFIX_products (category);
@@ -63,7 +64,7 @@ CREATE TABLE IF NOT EXISTS @PREFIX_methods (
 	-- Payment methods
 	id INTEGER NOT NULL PRIMARY KEY,
 	name TEXT NOT NULL,
-	is_cash INTEGER NOT NULL DEFAULT 0, -- If "1" then no reference will be asked, if "0" then a reference can be attached, and the payment needs to be checked when closing the register
+	type INTEGER NOT NULL DEFAULT 0, -- If "1" then no reference will be asked, if "0" then a reference can be attached, and the payment needs to be checked when closing the register
 	min INTEGER NULL, -- Minimum amount that can be paid using this method
 	max INTEGER NULL, -- Maximum amount that can be paid using this method
 	account TEXT NULL, -- Accounting account code
@@ -113,7 +114,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_items (
 	name TEXT NOT NULL,
 	category_name TEXT NOT NULL,
 	description TEXT NULL,
-	account TEXT NULL
+	account TEXT NULL,
+	type INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS @PREFIX_tabs_items_tab ON @PREFIX_tabs_items (tab);
@@ -126,7 +128,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_payments (
 	date TEXT NOT NULL DEFAULT (datetime('now','localtime')),
 	amount INTEGER NOT NULL, -- Can be negative for a refund
 	reference TEXT NULL,
-	account TEXT NULL
+	account TEXT NULL,
+	status INTEGER NOT NULL DEFAULT 1
 );
 
 CREATE INDEX IF NOT EXISTS @PREFIX_tabs_payments_tab ON @PREFIX_tabs_payments (tab);

@@ -50,6 +50,9 @@
 			<?=$product->getSVGBarcode();?>
 			{input type="number" name="stock" label="Stock" help="Nombre de produits dans le stock à cet instant. Celui-ci sera décrémenté à chaque clôture de caisse. Ne modifier que si vous faites un inventaire. Laisser vide pour les produits non-stockables (adhésions, services, etc.)." source=$product}
 			{input type="money" name="purchase_price" label="Prix d'achat unitaire" source=$product required=false help="Indiquer ici le prix d'achat, si le produit a été acheté. Ce prix est utilisé pour calculer la valeur du stock lors de l'inventaire."}
+			<dt>Archivage</dt>
+			{input type="checkbox" name="archived" label="Produit archivé" source=$product value=1}
+			<dd class="help">Si coché, ce produit ne sera plus proposé à la vente.</dd>
 		</dl>
 	</fieldset>
 

@@ -10,7 +10,7 @@
 	</aside>
 	{elseif $current == 'methods'}
 	<aside>
-		{linkbutton href="edit.php?new" label="Nouveau moyen de paiement" shape="plus" target="_dialog"}
+		{linkbutton href="edit.php?new" label="Nouveau moyen de paiement" shape="plus"}
 	</aside>
 	{elseif $current == 'stock'}
 	<aside>
@@ -19,7 +19,7 @@
 	{/if}
 
 	<ul>
-		<li{if $current == ''} class="current"{/if}><a href="{$plugin_admin_url}">Caisse</a></li>
+		<li{if $current == ''} class="current"{/if}><a href="{$plugin_admin_url}">{icon shape="left"} Caisse</a></li>
 		<li{if $current == 'stats'} class="current"{/if}><a href="{$plugin_admin_url}manage/stats.php">Statistiques</a></li>
 		<li{if $current == 'products'} class="current"{/if}><a href="{$plugin_admin_url}manage/products/">Produits</a></li>
 		<li{if $current == 'categories'} class="current"{/if}><a href="{$plugin_admin_url}manage/categories/">Catégories</a></li>

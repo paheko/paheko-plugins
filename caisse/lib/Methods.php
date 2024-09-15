@@ -9,6 +9,7 @@ use Paheko\Utils;
 use KD2\DB\EntityManager as EM;
 
 use Paheko\Plugin\Caisse\Entities\Method;
+use Paheko\Plugin\Caisse\Entities\Tab;
 
 class Methods
 {

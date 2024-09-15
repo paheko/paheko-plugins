@@ -213,7 +213,14 @@ class POS
 				$transaction->import((array) $row);
 			}
 
-			$transaction->addLine(Line::create($accounts[$row->account]->id, $row->credit, $row->debit, $row->line_label, $row->line_reference));
+			// In case there are debit and credit on the same account, create two lines
+			if ($row->debit && $row->credit) {
+				$transaction->addLine(Line::create($accounts[$row->account]->id, $row->credit, 0, $row->line_label, $row->line_reference));
+				$transaction->addLine(Line::create($accounts[$row->account]->id, 0, $row->debit, $row->line_label, $row->line_reference));
+			}
+			else {
+				$transaction->addLine(Line::create($accounts[$row->account]->id, $row->credit, $row->debit, $row->line_label, $row->line_reference));
+			}
 		}
 
 		if ($transaction && $row) {
@@ -273,7 +280,7 @@ class POS
 				AND date(s.closed) >= date(?) AND date(s.closed) <= date(?)
 				' . $errors_only . '
 			GROUP BY s.id, lines.account, lines.reference
-			HAVING SUM(lines.debit) != 0 OR SUM(lines.credit) != 0
+			HAVING (SUM(lines.debit) != 0 OR SUM(lines.credit) != 0)
 			ORDER BY s.id, lines.account, lines.reference;';
 
 		$sql = POS::sql($sql);

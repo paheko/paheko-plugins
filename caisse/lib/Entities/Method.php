@@ -4,6 +4,7 @@ namespace Paheko\Plugin\Caisse\Entities;
 
 use Paheko\Plugin\Caisse\POS;
 use Paheko\Entity;
+use Paheko\Form;
 use Paheko\ValidationException;
 use Paheko\Utils;
 
@@ -15,12 +16,21 @@ class Method extends Entity
 
 	protected ?int $id;
 	protected string $name = '';
-	protected bool $is_cash = false;
+	protected int $type = self::TYPE_TRACKED;
 	protected ?int $min = null;
 	protected ?int $max = null;
 	protected ?string $account = null;
 	protected bool $enabled = false;
 
+	const TYPE_TRACKED = 0;
+	const TYPE_CASH = 1;
+	const TYPE_DEBT = 2;
+
+	const TYPES_LABELS = [
+		self::TYPE_TRACKED => 'Suivi',
+		self::TYPE_CASH => 'Informel',
+		self::TYPE_DEBT => 'Ardoise',
+	];
 
 	public function importForm(array $source = null)
 	{
@@ -36,8 +46,11 @@ class Method extends Entity
 			$source['max'] = Utils::moneyToInteger($source['max']);
 		}
 
-		$source['is_cash'] = !empty($source['is_cash']);
 		$source['enabled'] = !empty($source['enabled']);
+
+		if (isset($source['account'])) {
+			$source['account'] = Form::getSelectorValue($source['account']);
+		}
 
 		parent::importForm($source);
 	}

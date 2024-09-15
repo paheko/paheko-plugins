@@ -4,6 +4,7 @@ namespace Paheko\Plugin\Caisse;
 
 use Paheko\Config;
 use Paheko\DB;
+use Paheko\DynamicList;
 use Paheko\Users\DynamicFields;
 
 use Paheko\Plugin\Caisse\Entities\Tab;
@@ -97,5 +98,122 @@ class Tabs
 				ORDER BY status DESC, s.label COLLATE U_NOCASE;', (int) $u->id);
 			yield $u;
 		}
+	}
+
+	static public function getUnpaidDebtAmount(?int $user_id = null): int
+	{
+		if ($user_id !== null) {
+			$join = 'INNER JOIN @PREFIX_tabs t ON t.id = p.tab';
+			$where = sprintf(' AND t.user_id = %d', $user_id);
+		}
+		else {
+			$join = $where = '';
+		}
+
+		$db = DB::getInstance();
+		$sql = POS::sql(sprintf('SELECT SUM(p.amount)
+			FROM @PREFIX_tabs_payments p %s
+			WHERE p.status = %d %s;',
+			$join,
+			Tab::PAYMENT_STATUS_DEBT,
+			$where
+		));
+
+		$due = (int) $db->firstColumn($sql);
+
+		$sql = POS::sql(sprintf('SELECT SUM(p.qty * p.price)
+			FROM @PREFIX_tabs_items p %s
+			WHERE p.type = %d %s;',
+			$join,
+			Tab::ITEM_TYPE_PAYOFF,
+			$where
+		));
+
+		$paid = (int) $db->firstColumn($sql);
+
+		return $due - $paid;
+	}
+
+	static public function listDebts(): ?DynamicList
+	{
+		$columns = [
+			'date' => [
+				'label' => 'Date',
+			],
+			'name' => [
+				'label' => 'Nom',
+			],
+			'user_id' => [],
+			'method' => [],
+			'account' => [],
+			'amount' => [
+				'label' => 'Montant',
+			],
+		];
+
+		$tables = '(
+			SELECT MAX(t.opened) AS date, t.name, t.user_id, p.account, SUM(p.amount) - COALESCE((SELECT SUM(ti.qty * ti.price)
+				FROM @PREFIX_tabs_items ti INNER JOIN @PREFIX_tabs tt ON ti.tab = tt.id
+				WHERE ti.type = %d AND tt.user_id = t.user_id AND tt.name = t.name), 0) AS amount
+			FROM @PREFIX_tabs t
+			INNER JOIN @PREFIX_tabs_payments p ON p.tab = t.id
+			LEFT JOIN @PREFIX_methods m ON p.method = m.id
+			WHERE p.status = %d
+			GROUP BY t.user_id, t.name)';
+
+		$tables = POS::sql(sprintf($tables, Tab::ITEM_TYPE_PAYOFF, Tab::PAYMENT_STATUS_DEBT));
+
+		$list = new DynamicList($columns, $tables, 'amount > 0');
+		$list->orderBy('date', true);
+
+		return $list;
+	}
+
+	static public function listDebtsHistory(?int $user_id = null): DynamicList
+	{
+		$columns = [
+			'type' => ['label' => 'Type'],
+			'date' => [
+				'label' => 'Date',
+			],
+			'id' => [
+				'label' => 'Note',
+			],
+			'name' => [
+				'label' => 'Nom',
+			],
+			'user_id' => [],
+			'method' => [],
+			'account' => [],
+			'amount' => [
+				'label' => 'Montant',
+			],
+		];
+
+		$tables = '(
+			SELECT t.id, t.opened AS date, t.name, t.user_id, SUM(p.amount) AS amount, m.name AS method, \'debt\' AS type, p.account
+			FROM @PREFIX_tabs t
+			INNER JOIN @PREFIX_tabs_payments p ON p.tab = t.id
+			LEFT JOIN @PREFIX_methods m ON p.method = m.id
+			WHERE p.status = %d
+			GROUP BY t.id
+			UNION ALL
+			SELECT t.id, t.opened AS date, t.name, t.user_id, SUM(ti.qty * ti.price) AS amount, NULL AS method, \'payoff\' AS type, ti.account
+			FROM @PREFIX_tabs t
+			INNER JOIN @PREFIX_tabs_items ti ON ti.tab = t.id
+			WHERE ti.type = %d
+			GROUP BY t.id)';
+
+		$tables = POS::sql(sprintf($tables, Tab::PAYMENT_STATUS_DEBT, Tab::ITEM_TYPE_PAYOFF));
+		$conditions = '1';
+
+		if ($user_id) {
+			$conditions = 'user_id = ' . (int)$user_id;
+		}
+
+		$list = new DynamicList($columns, $tables, $conditions);
+		$list->orderBy('date', true);
+
+		return $list;
 	}
 }

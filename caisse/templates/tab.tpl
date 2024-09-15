@@ -1,16 +1,27 @@
 {include file="_head.tpl"}
 
 <nav class="tabs">
+	{if $debt_total || $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
+	<aside>
+		{if $debt_total}
+			{assign var="debt_total" value=$debt_total|money_currency_text}
+			{linkbutton href="debts.php" label="Ardoises : %s"|args:$debt_total shape="history"}
+		{else}
+			{linkbutton href="debts.php" label="Ardoises" shape="history"}
+		{/if}
+		{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
+			{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}
+		{/if}
+	</aside>
+	{/if}
+
 	{if !$pos_session.closed}
 		{linkbutton href="?session=%d&new"|args:$pos_session.id label="Nouvelle note" shape="plus"}
 		{linkbutton href="session.php?id=%d"|args:$pos_session.id label="Résumé" shape="menu"}
 		{linkbutton href="session_close.php?id=%d"|args:$pos_session.id label="Clôturer la caisse" shape="delete"}
 	{/if}
 
-	{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
-		{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}
-	{/if}
-
+	<aside>{linkbutton class="plus" shape="eye" href="#" label="Afficher toutes les notes" onclick="this.parentNode.parentNode.classList.add('open'); this.remove()"}</aside>
 	<nav class="pos-tabs">
 		<ul class="pos-tabs">
 	{foreach from=$tabs item="tab"}
@@ -23,11 +34,11 @@
 		</li>
 	{/foreach}
 		</ul>
-		<p>{linkbutton class="plus" shape="eye" href="#" label="Afficher toutes les notes" onclick="this.parentNode.parentNode.classList.add('open'); this.remove()"}</p>
 	</nav>
 </nav>
 
 {if $tab_id}
+
 <section class="pos">
 	<section class="tab">
 		<header>
@@ -40,6 +51,7 @@
 				</h2>
 				<h3>{$current_tab.name}</h3>
 			</div>
+
 			<div class="actions">
 				<form method="post">
 					<span class="id">Note #{$current_tab.id}</span>
@@ -59,6 +71,16 @@
 					{button type="button" name="rename" label="Renommer" accesskey="R" shape="edit"}
 				</form>
 			</div>
+
+			{if $debt}
+			<p class="alert block">
+				Ce membre doit {$debt|money_currency_html|raw}
+				{linkbutton href="debts_history.php?user=%d"|args:$current_tab.user_id label="Historique des ardoises" shape="menu"}
+				{if !$current_tab.closed}
+					{linkbutton href="?id=%d&add_debt=1"|args:$current_tab.id label="Payer cette ardoise" shape="money"}
+				{/if}
+			</p>
+			{/if}
 		</header>
 
 		<section class="items">
@@ -145,6 +167,7 @@
 			</table>
 			{/if}
 
+		{if !$current_tab.closed}
 			{if $remainder && count($payment_options)}
 			<form method="post" action="" class="payment">
 				<fieldset>
@@ -160,7 +183,7 @@
 						<dd>
 							<select name="method_id" id="f_method_id">
 								{foreach from=$payment_options item="method"}
-									<option value="{$method.id}" data-amount="{$method.amount|money_raw}" data-iscash="{$method.is_cash}">
+									<option value="{$method.id}" data-amount="{$method.amount|money_raw}" data-type="{$method.type}">
 										{$method.name}
 										{if $remainder > $method.amount}
 											(jusqu'à {$method.amount|escape|money_currency:false})
@@ -188,6 +211,7 @@
 			{elseif $remainder < 0}
 				<p class="error block">Des paiements ont été enregistrés, mais il n'y a pas de produits dans la note.</p>
 			{/if}
+		{/if}
 		</section>
 	</section>
 
@@ -241,12 +265,14 @@
 	</div>
 </div>
 
+{/if}
+
+
 {* For testing barcode detection on browser
 	<script src="https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@0.9.15/dist/index.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@0.9.20/dist/index.js"></script>
 *}
 
 <script type="text/javascript" src="{$plugin_admin_url}tab.js?2024-08b" async="async"></script>
-{/if}
 
 {include file="_foot.tpl"}
