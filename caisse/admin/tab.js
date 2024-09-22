@@ -1,4 +1,4 @@
-var show_button = $('.tabs .plus')[0].parentNode;
+var show_button = $('#showBtn');
 var hidden = 0;
 
 $('.pos-tabs li.tab').forEach((elm) => {
@@ -10,6 +10,13 @@ $('.pos-tabs li.tab').forEach((elm) => {
 
 if (!hidden) {
 	show_button.remove();
+}
+else {
+	show_button.onclick = () => {
+		$('.pos-tabs')[0].classList.add('open');
+		show_button.remove();
+		return false;
+	};
 }
 
 if (!document.querySelector('.pos')) {

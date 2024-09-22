@@ -21,9 +21,9 @@
 		{linkbutton href="session_close.php?id=%d"|args:$pos_session.id label="Clôturer la caisse" shape="delete"}
 	{/if}
 
-	<aside>{linkbutton class="plus" shape="eye" href="#" label="Afficher toutes les notes" onclick="this.parentNode.parentNode.classList.add('open'); this.remove()"}</aside>
+	<aside>{linkbutton class="plus" shape="eye" href="" label="Afficher toutes les notes" id="showBtn"}</aside>
 	<nav class="pos-tabs">
-		<ul class="pos-tabs">
+		<ul>
 	{foreach from=$tabs item="tab"}
 		<li class="tab {if $tab.id == $tab_id}current{/if} {if $tab.closed}closed{/if}">
 			<a href="{$self_url_no_qs}?id={$tab.id}">
