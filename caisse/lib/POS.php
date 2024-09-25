@@ -210,6 +210,11 @@ class POS
 			if ($transaction && $transaction->reference != $row->reference) {
 				$save_transaction($transaction, $row);
 				$transaction = null;
+
+				// Make sure we create only one transaction for this session (safeguard)
+				if ($only_session_id) {
+					break;
+				}
 			}
 
 			if (!$transaction) {

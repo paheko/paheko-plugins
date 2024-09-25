@@ -3,6 +3,7 @@
 namespace Paheko\Plugin\Caisse\Entities;
 
 use Paheko\Accounting\Years;
+use Paheko\Entities\Accounting\Transaction;
 use Paheko\Email\Emails;
 use Paheko\DB;
 use Paheko\Template;
@@ -120,9 +121,9 @@ class Session extends Entity
 		Emails::sendMessage(Emails::CONTEXT_SYSTEM, $msg);
 	}
 
-	public function syncWithYearId(int $id, ?int $id_creator = null)
+	public function syncWithYearId(int $id, ?int $id_creator = null): bool
 	{
-		POS::syncAccounting($id_creator, Years::get($id), $this->id());
+		return POS::syncAccounting($id_creator, Years::get($id), $this->id()) === 1;
 	}
 
 	public function getPaymentsTotal()
@@ -256,14 +257,12 @@ class Session extends Entity
 		$tpl->assign('details', $details);
 		$tpl->assign('id_field', DynamicFields::getFirstNameField());
 
-		if ($print == 2) {
+		if ($print === 2) {
 			$tpl->PDF(PLUGIN_ROOT . '/templates/session_export.tpl', sprintf('Session de caisse numéro %d du %s', $this->id, Utils::date_fr($this->opened, 'd-m-Y')));
-		}
-		elseif ($print) {
-			return $tpl->fetch(PLUGIN_ROOT . '/templates/session_export.tpl');
+			return null;
 		}
 		else {
-			return $tpl->fetch(PLUGIN_ROOT . '/templates/session.tpl');
+			return $tpl->fetch(PLUGIN_ROOT . '/templates/session_export.tpl');
 		}
 	}
 
@@ -289,6 +288,11 @@ class Session extends Entity
 	public function isSynced(): bool
 	{
 		return DB::getInstance()->test('acc_transactions', 'reference = ?', 'POS-SESSION-' . $this->id());
+	}
+
+	public function getTransaction(): ?Transaction
+	{
+		return EntityManager::findOne(Transaction::class, 'SELECT * FROM @TABLE WHERE reference = ?;', 'POS-SESSION-' . $this->id());
 	}
 
 	public function delete(): bool
