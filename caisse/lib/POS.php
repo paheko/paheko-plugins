@@ -128,8 +128,9 @@ class POS
 		return $plot->output();
 	}
 
-	static public function syncAccounting(int $id_creator, Year $year, bool $attach = true): int
+	static public function syncAccounting(?int $id_creator, Year $year, int $only_session_id = null): int
 	{
+		$attach = true;
 		$db = DB::getInstance();
 		$db->begin();
 
@@ -186,6 +187,11 @@ class POS
 		foreach (self::iterateSessions($year->start_date, $year->end_date) as $row) {
 			// Skip POS sessions already added as transactions
 			if (array_key_exists($row->reference, $exists)) {
+				continue;
+			}
+
+			// Skip if POS session ID differs
+			if ($only_session_id && $row->sid !== $only_session_id) {
 				continue;
 			}
 

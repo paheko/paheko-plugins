@@ -24,9 +24,17 @@ if (isset($_POST['close'], $_POST['amount']) && !empty($_POST['confirm'])) {
 		f('user_name') ?: Session::getInstance()->getUser()->name(),
 		get_amount(f('amount')),
 		(bool) f('recheck'),
-		$payments,
-		$plugin->getConfig('send_email_when_closing')
+		$payments
 	);
+
+	if ($id = $plugin->getConfig('accounting_year_id')) {
+		$pos_session->syncWithYearId($id, Session::getUserId());
+	}
+
+	if ($email = $plugin->getConfig('send_email_when_closing')) {
+		$pos_session->sendTo($email);
+	}
+
 	Utils::redirect(Utils::plugin_url(['file' => 'session.php', 'query' => 'id=' . $pos_session->id]));
 }
 
