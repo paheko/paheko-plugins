@@ -114,7 +114,7 @@ class Session extends Entity
 	{
 		$msg = new Mail_Message;
 		$msg->setHeader('Subject', sprintf('Clôture de caisse n°%d du %s', $this->id, date('d/m/Y à H:i')));
-		$msg->setHeader('To', $send_email);
+		$msg->setHeader('To', $address);
 		$msg->setHeader('From', Emails::getFromHeader());
 		$msg->addPart('text/html', $this->export(true, 1), sprintf('session-%d.html', $this->id));
 		$msg->setBody('Voir les détails dans le contenu HTML ci-joint.');
