@@ -134,7 +134,7 @@ class Session extends Entity
 
 	public function getItemsTotal()
 	{
-		return DB::getInstance()->firstColumn(POS::sql('SELECT SUM(ti.qty * ti.price) FROM @PREFIX_tabs_items ti
+		return DB::getInstance()->firstColumn(POS::sql('SELECT SUM(ti.total) FROM @PREFIX_tabs_items ti
 			INNER JOIN @PREFIX_tabs t ON ti.tab = t.id AND t.session = ?'), $this->id);
 	}
 
@@ -162,7 +162,7 @@ class Session extends Entity
 	public function listTabsTotals()
 	{
 		return DB::getInstance()->get(POS::sql('SELECT *,
-			(SELECT SUM(qty * price) FROM @PREFIX_tabs_items WHERE tab = t.id) AS total
+			(SELECT SUM(total) FROM @PREFIX_tabs_items WHERE tab = t.id) AS total
 			FROM @PREFIX_tabs t WHERE session = ? ORDER BY opened;'), $this->id);
 	}
 
@@ -171,7 +171,7 @@ class Session extends Entity
 		$db = DB::getInstance();
 		$tabs = $db->get(POS::sql('SELECT *, total - paid AS remainder
 			FROM (SELECT *,
-				(SELECT SUM(qty * price) FROM @PREFIX_tabs_items WHERE tab = t.id) AS total,
+				(SELECT SUM(total) FROM @PREFIX_tabs_items WHERE tab = t.id) AS total,
 				(SELECT SUM(amount) FROM @PREFIX_tabs_payments WHERE tab = t.id) AS paid
 				FROM @PREFIX_tabs t WHERE session = ? ORDER BY opened
 			);'), $this->id);
@@ -187,7 +187,7 @@ class Session extends Entity
 	public function listTotalsByCategory()
 	{
 		return DB::getInstance()->get(POS::sql('SELECT
-			SUM(ti.qty * ti.price) AS total,
+			SUM(ti.total) AS total,
 			SUM(ti.qty) AS count,
 			SUM(ti.qty * ti.weight) AS weight,
 			ti.category_name,
@@ -203,7 +203,7 @@ class Session extends Entity
 	public function listCountsByProduct()
 	{
 		return DB::getInstance()->get(POS::sql('SELECT
-			SUM(ti.qty * ti.price) AS total,
+			SUM(ti.total) AS total,
 			SUM(ti.qty) AS count,
 			SUM(ti.qty * ti.weight) AS weight,
 			ti.name, ti.category_name

@@ -80,7 +80,7 @@ class Sessions
 			],
 			'total' => [
 				'label' => 'Recettes',
-				'select' => 'SUM(ti.qty * ti.price)',
+				'select' => 'SUM(ti.total)',
 				'order' => null,
 			],
 		];

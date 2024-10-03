@@ -18,7 +18,7 @@ class Tabs
 	}
 
 	static public function listForSession(int $session_id) {
-		return DB::getInstance()->getGrouped(POS::sql('SELECT id, *, COALESCE((SELECT SUM(qty*price) FROM @PREFIX_tabs_items WHERE tab = @PREFIX_tabs.id), 0) AS total FROM @PREFIX_tabs WHERE session = ? ORDER BY closed IS NOT NULL, CASE WHEN closed IS NOT NULL THEN opened ELSE closed END DESC;'), $session_id);
+		return DB::getInstance()->getGrouped(POS::sql('SELECT id, *, COALESCE((SELECT SUM(total) FROM @PREFIX_tabs_items WHERE tab = @PREFIX_tabs.id), 0) AS total FROM @PREFIX_tabs WHERE session = ? ORDER BY closed IS NOT NULL, CASE WHEN closed IS NOT NULL THEN opened ELSE closed END DESC;'), $session_id);
 	}
 
 	static public function listForUser(string $q): ?array
@@ -121,7 +121,7 @@ class Tabs
 
 		$due = (int) $db->firstColumn($sql);
 
-		$sql = POS::sql(sprintf('SELECT SUM(p.qty * p.price)
+		$sql = POS::sql(sprintf('SELECT SUM(p.total)
 			FROM @PREFIX_tabs_items p %s
 			WHERE p.type = %d %s;',
 			$join,
@@ -152,7 +152,7 @@ class Tabs
 		];
 
 		$tables = '(
-			SELECT MAX(t.opened) AS date, t.name, t.user_id, p.account, SUM(p.amount) - COALESCE((SELECT SUM(ti.qty * ti.price)
+			SELECT MAX(t.opened) AS date, t.name, t.user_id, p.account, SUM(p.amount) - COALESCE((SELECT SUM(ti.total)
 				FROM @PREFIX_tabs_items ti INNER JOIN @PREFIX_tabs tt ON ti.tab = tt.id
 				WHERE ti.type = %d AND tt.user_id = t.user_id AND tt.name = t.name), 0) AS amount
 			FROM @PREFIX_tabs t
@@ -198,7 +198,7 @@ class Tabs
 			WHERE p.status = %d
 			GROUP BY t.id
 			UNION ALL
-			SELECT t.id, t.opened AS date, t.name, t.user_id, SUM(ti.qty * ti.price) AS amount, NULL AS method, \'payoff\' AS type, ti.account
+			SELECT t.id, t.opened AS date, t.name, t.user_id, SUM(ti.total) AS amount, NULL AS method, \'payoff\' AS type, ti.account
 			FROM @PREFIX_tabs t
 			INNER JOIN @PREFIX_tabs_items ti ON ti.tab = t.id
 			WHERE ti.type = %d

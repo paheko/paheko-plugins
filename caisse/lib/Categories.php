@@ -45,7 +45,7 @@ class Categories
 			],
 			'sum' => [
 				'label' => 'Montant total',
-				'select' => 'SUM(i.qty * i.price)',
+				'select' => 'SUM(i.total)',
 			],
 			'weight' => [
 				'label' => 'Poids total',
@@ -66,7 +66,7 @@ class Categories
 	static public function graphStatsPerMonth(int $year): string
 	{
 		$sql = 'SELECT * FROM (
-			SELECT i.category_name AS name, CAST(strftime(\'%m\', i.added) AS INT) AS month, SUM(i.qty * i.price) / 100
+			SELECT i.category_name AS name, CAST(strftime(\'%m\', i.added) AS INT) AS month, SUM(i.total) / 100
 			FROM @PREFIX_tabs_items i
 			WHERE strftime(\'%Y\', i.added) = ? AND i.price > 0
 			GROUP BY strftime(\'%m\', i.added), i.category_name

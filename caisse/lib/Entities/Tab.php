@@ -41,13 +41,13 @@ class Tab extends Entity
 	public function total(): int
 	{
 		$db = DB::getInstance();
-		return $db->firstColumn(POS::sql('SELECT SUM(qty*price) FROM @PREFIX_tabs_items WHERE tab = ?;'), $this->id()) ?: 0;
+		return (int) $db->firstColumn(POS::sql('SELECT SUM(total) FROM @PREFIX_tabs_items WHERE tab = ?;'), $this->id()) ?: 0;
 	}
 
 	public function getRemainder(): int
 	{
 		return (int) DB::getInstance()->firstColumn(POS::sql('SELECT
-			COALESCE((SELECT SUM(price * qty) FROM @PREFIX_tabs_items WHERE tab = ?), 0)
+			COALESCE((SELECT SUM(total) FROM @PREFIX_tabs_items WHERE tab = ?), 0)
 			- COALESCE((SELECT SUM(amount) FROM @PREFIX_tabs_payments WHERE tab = ?), 0);'), $this->id, $this->id);
 	}
 
@@ -87,16 +87,19 @@ class Tab extends Entity
 
 		$weight = $product->weight;
 		$price ??= (int)$product->price;
+		$total = $price;
 
 		if ($weight === Product::WEIGHT_BASED_PRICE) {
 			$weight = Utils::weightToInteger($user_weight);
 
 			// Cents * grams = Centsgrams / 1000 = cents/kg
-			$price = ($price * $weight) / 1000;
+			$total = ($price * $weight) / 1000;
 		}
 		elseif ($weight === Product::WEIGHT_REQUIRED) {
 			$weight = Utils::weightToInteger($user_weight);
 		}
+
+		$total *= $product->qty;
 
 		return $db->insert(POS::tbl('tabs_items'), [
 			'tab'           => $this->id,
@@ -104,6 +107,7 @@ class Tab extends Entity
 			'qty'           => (int)$product->qty,
 			'price'         => $price,
 			'weight'        => $weight,
+			'total'         => $total,
 			'name'          => $product->name,
 			'category_name' => $product->category_name,
 			'description'   => $product->description,
@@ -121,19 +125,20 @@ class Tab extends Entity
 		return DB::getInstance()->delete(POS::tbl('tabs_items'), 'id = ? AND tab = ?', $id, $this->id);
 	}
 
-	public function updateItemQty(int $id, int $qty)
+	public function updateItemQty(int $id, int $qty): void
 	{
 		if ($this->closed) {
 			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
 		$db = DB::getInstance();
-		return $db->update(POS::tbl('tabs_items'),
-			['qty' => $qty],
-			sprintf('id = %d AND tab = %d', $id, $this->id));
+		$sql = 'UPDATE %s SET qty = ?, total = CASE WHEN weight IS NOT NULL THEN (price * ? * weight) / 1000 ELSE price * ? END
+			WHERE id = ? AND tab = ?;';
+		$sql = sprintf($sql, POS::tbl('tabs_items'));
+		$db->preparedQuery($sql, $qty, $qty, $qty, $id, $this->id);
 	}
 
-	public function updateItemWeight(int $id, string $weight)
+	public function updateItemWeight(int $id, string $weight): void
 	{
 		if ($this->closed) {
 			throw new UserException('Cette note est close, impossible de modifier la note.');
@@ -142,12 +147,13 @@ class Tab extends Entity
 		$weight = Utils::weightToInteger($weight);
 
 		$db = DB::getInstance();
-		return $db->update(POS::tbl('tabs_items'),
-			['weight' => $weight],
-			sprintf('id = %d AND tab = %d', $id, $this->id));
+		$sql = 'UPDATE %s SET weight = ?, total = (price * ? * qty) / 1000
+			WHERE id = ? AND tab = ?;';
+		$sql = sprintf($sql, POS::tbl('tabs_items'));
+		$db->preparedQuery($sql, $weight, $weight, $id, $this->id);
 	}
 
-	public function updateItemPrice(int $id, string $price)
+	public function updateItemPrice(int $id, string $price): void
 	{
 		if ($this->closed) {
 			throw new UserException('Cette note est close, impossible de modifier la note.');
@@ -156,15 +162,15 @@ class Tab extends Entity
 		$price = Utils::moneyToInteger($price);
 
 		$db = DB::getInstance();
-		return $db->update(POS::tbl('tabs_items'),
-			['price' => $price],
-			sprintf('id = %d AND tab = %d', $id, $this->id));
+		$sql = 'UPDATE %s SET price = ?, total = CASE WHEN weight IS NOT NULL THEN (? * qty * weight) / 1000 ELSE ? * qty END
+			WHERE id = ? AND tab = ?;';
+		$sql = sprintf($sql, POS::tbl('tabs_items'));
+		$db->preparedQuery($sql, $price, $price, $price, $id, $this->id);
 	}
 
 	public function listItems()
 	{
 		return DB::getInstance()->get(POS::sql('SELECT ti.*,
-			ti.qty * ti.price AS total,
 			GROUP_CONCAT(pm.method, \',\') AS methods
 			FROM @PREFIX_tabs_items ti
 			LEFT JOIN @PREFIX_products p ON ti.product = p.id
@@ -251,7 +257,7 @@ class Tab extends Entity
 				WHEN max IS NOT NULL AND max > 0 AND payable > max THEN max -- We have to pay more than max allowed, then just return max
 				WHEN min IS NOT NULL AND payable < min THEN 0 -- We cannot use as the minimum required amount has not been reached
 				ELSE MIN(:left, payable) END AS amount
-			FROM (SELECT m.*, SUM(pt.amount) AS paid, SUM(i.qty * i.price) AS payable
+			FROM (SELECT m.*, SUM(pt.amount) AS paid, SUM(i.total) AS payable
 				FROM @PREFIX_methods m
 				INNER JOIN @PREFIX_products_methods pm ON pm.method = m.id
 				INNER JOIN @PREFIX_tabs_items i ON i.product = pm.product AND i.tab = :id

@@ -109,7 +109,7 @@ class Products
 			],
 			'sum' => [
 				'label' => 'Montant total',
-				'select' => 'SUM(i.qty * i.price)',
+				'select' => 'SUM(i.total)',
 			],
 			'weight' => [
 				'label' => 'Poids total',
