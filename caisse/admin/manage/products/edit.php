@@ -12,6 +12,11 @@ if (qg('new') !== null) {
 }
 else {
 	$product = Products::get((int) qg('id'));
+
+	if (!$product) {
+		throw new UserException('Ce produit n\'existe pas');
+	}
+
 	$csrf_key = 'product_edit_' . $product->id();
 }
 
