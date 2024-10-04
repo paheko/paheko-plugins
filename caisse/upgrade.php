@@ -100,3 +100,16 @@ if (version_compare($old_version, '0.8.2', '<')) {
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.2.sql')));
 	$db->commitSchemaUpdate();
 }
+
+if (version_compare($old_version, '0.8.3', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.3.sql')));
+	try {
+		// Add column that was missing in schema.sql
+		$db->exec(POS::sql('ALTER TABLE @PREFIX_tabs_items ADD COLUMN total INTEGER NOT NULL DEFAULT 0;'));
+	}
+	catch (\Exception $e) {
+		// Ignore error
+	}
+	$db->commitSchemaUpdate();
+}

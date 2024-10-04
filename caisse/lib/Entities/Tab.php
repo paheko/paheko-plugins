@@ -12,6 +12,8 @@ use Paheko\Entity;
 use Paheko\Utils;
 use Paheko\ValidationException;
 
+use KD2\DB\EntityManager as EM;
+
 class Tab extends Entity
 {
 	const TABLE = POS::TABLES_PREFIX . 'tabs';
@@ -87,33 +89,36 @@ class Tab extends Entity
 
 		$weight = $product->weight;
 		$price ??= (int)$product->price;
-		$total = $price;
+		$pricing = TabItem::PRICING_QTY;
 
 		if ($weight === Product::WEIGHT_BASED_PRICE) {
 			$weight = Utils::weightToInteger($user_weight);
-
-			// Cents * grams = Centsgrams / 1000 = cents/kg
-			$total = ($price * $weight) / 1000;
+			$pricing = TabItem::PRICING_QTY_WEIGHT;
 		}
 		elseif ($weight === Product::WEIGHT_REQUIRED) {
 			$weight = Utils::weightToInteger($user_weight);
 		}
 
-		$total *= $product->qty;
-
-		return $db->insert(POS::tbl('tabs_items'), [
+		$item = new TabItem;
+		$item->importForm([
 			'tab'           => $this->id,
 			'product'       => (int)$product->id,
 			'qty'           => (int)$product->qty,
 			'price'         => $price,
 			'weight'        => $weight,
-			'total'         => $total,
 			'name'          => $product->name,
 			'category_name' => $product->category_name,
 			'description'   => $product->description,
 			'account'       => $product->category_account,
 			'type'          => $type,
+			'pricing'       => $pricing,
 		]);
+		$item->save();
+	}
+
+	public function getItem(int $id): ?TabItem
+	{
+		return EM::findOne(TabItem::class, 'SELECT * FROM @TABLE WHERE id = ? AND tab = ?;', $id, $this->id());
 	}
 
 	public function removeItem(int $id)
@@ -122,7 +127,13 @@ class Tab extends Entity
 			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
-		return DB::getInstance()->delete(POS::tbl('tabs_items'), 'id = ? AND tab = ?', $id, $this->id);
+		$item = $this->getItem($id);
+
+		if (!$item) {
+			return;
+		}
+
+		$item->delete();
 	}
 
 	public function updateItemQty(int $id, int $qty): void
@@ -131,11 +142,9 @@ class Tab extends Entity
 			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
-		$db = DB::getInstance();
-		$sql = 'UPDATE %s SET qty = ?, total = CASE WHEN weight IS NOT NULL THEN (price * ? * weight) / 1000 ELSE price * ? END
-			WHERE id = ? AND tab = ?;';
-		$sql = sprintf($sql, POS::tbl('tabs_items'));
-		$db->preparedQuery($sql, $qty, $qty, $qty, $id, $this->id);
+		$item = $this->getItem($id);
+		$item->set('qty', $qty);
+		$item->save();
 	}
 
 	public function updateItemWeight(int $id, string $weight): void
@@ -146,11 +155,9 @@ class Tab extends Entity
 
 		$weight = Utils::weightToInteger($weight);
 
-		$db = DB::getInstance();
-		$sql = 'UPDATE %s SET weight = ?, total = (price * ? * qty) / 1000
-			WHERE id = ? AND tab = ?;';
-		$sql = sprintf($sql, POS::tbl('tabs_items'));
-		$db->preparedQuery($sql, $weight, $weight, $id, $this->id);
+		$item = $this->getItem($id);
+		$item->set('weight', $weight);
+		$item->save();
 	}
 
 	public function updateItemPrice(int $id, string $price): void
@@ -161,11 +168,9 @@ class Tab extends Entity
 
 		$price = Utils::moneyToInteger($price);
 
-		$db = DB::getInstance();
-		$sql = 'UPDATE %s SET price = ?, total = CASE WHEN weight IS NOT NULL THEN (? * qty * weight) / 1000 ELSE ? * qty END
-			WHERE id = ? AND tab = ?;';
-		$sql = sprintf($sql, POS::tbl('tabs_items'));
-		$db->preparedQuery($sql, $price, $price, $price, $id, $this->id);
+		$item = $this->getItem($id);
+		$item->set('price', $price);
+		$item->save();
 	}
 
 	public function listItems()
@@ -273,15 +278,19 @@ class Tab extends Entity
 		return $db->update(POS::tbl('tabs'), ['name' => $new_name, 'user_id' => $user_id], $db->where('id', $this->id));
 	}
 
-	public function renameItem(int $id, string $name) {
+	public function renameItem(int $id, string $name)
+	{
 		if ($this->closed) {
 			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
-		return DB::getInstance()->update(POS::tbl('tabs_items'), ['name' => trim($name)], sprintf('id = %d AND tab = %d', $id, $this->id));
+		$item = $this->getItem($id);
+		$item->set('name', trim($name));
+		$item->save();
 	}
 
-	public function close() {
+	public function close()
+	{
 		$remainder = $this->getRemainder();
 
 		if ($remainder != 0) {
