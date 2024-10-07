@@ -37,7 +37,9 @@
 				{linkbutton shape="edit" label="Gérer" href="!p/chat/edit.php?id=%d"|args:$channel.id target="_dialog"}
 			{/if}
 				{*TODO {linkbutton href="search.php?id=%d"|args:$channel.id shape="search" title="Rechercher dans cette discussion" target="_dialog" label=""}*}
+			{if $recipient.id_user}
 				{linkbutton href="#" shape="camera" title="Lancer une réunion vidéo" onclick="openJitsi(); return false;" label=""}
+			{/if}
 		</aside>
 		<article>{$channel.description|markdown|raw}</article>
 		<h5>{$channel->getAccessLabel()}</h5>
