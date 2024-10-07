@@ -52,7 +52,7 @@ body.public:has(#chat) main {
 
 body.public #chat {
 	margin: 0;
-	height: calc(100vh - 5em);
+	height: calc(100vh - 8em);
 }
 
 body.public:has(#chat) header.public {
