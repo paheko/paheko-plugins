@@ -24,7 +24,9 @@
 
 ## Fonctionnalités prévues
 
+* mise à jour de la liste des salons (quand un nouveau salon est créé, que quelqu'un vient vous parler en privé, etc.)
 * Pouvoir configurer le serveur Jitsi utilisé
+* Possibilité de définir une URL de visio différente pour chaque salon (par exemple pour aller sur BBB)
 * Transcription automatique des enregistrements audio, via [faster-whisper](https://github.com/SYSTRAN/faster-whisper)
 * Possibilité de remonter dans l'historique
 * Édition de message

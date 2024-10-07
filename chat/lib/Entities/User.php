@@ -19,6 +19,11 @@ class User extends Entity
 	protected ?int $last_connect = null;
 	protected ?int $last_disconnect = null;
 
+	public function isAnonymous(): bool
+	{
+		return $this->id_user === null;
+	}
+
 	public function disconnect(): void
 	{
 		$this->set('last_disconnect', time());

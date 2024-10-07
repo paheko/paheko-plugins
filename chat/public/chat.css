@@ -41,8 +41,27 @@ body {
 	margin-right: -15px;
 }
 
-body:has(#sticky-alert) #chat {
+body.sticky #chat {
 	height: calc(100vh - 2em);
+}
+
+body.public main {
+	max-width: unset;
+	margin: 0;
+}
+
+body.public #chat {
+	margin: 0;
+	height: calc(100vh - 5em);
+}
+
+body.public header.public {
+	margin: 0;
+}
+
+body.public footer.public {
+	margin: 0;
+	max-width: unset;
 }
 
 #chat .channel {

@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Choisir un pseudo"}
+{include file="_head.tpl" title="Choisir un pseudo" layout="public"}
 {form_errors}
 
 <form method="post" action="" data-focus="1">

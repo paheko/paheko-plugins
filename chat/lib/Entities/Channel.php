@@ -272,6 +272,11 @@ class Channel extends Entity
 		return $this->access !== self::ACCESS_PUBLIC;
 	}
 
+	public function isPublic(): bool
+	{
+		return $this->access === self::ACCESS_PUBLIC;
+	}
+
 	public function listUsers(): array
 	{
 		$sql = 'SELECT u.* FROM @TABLE u
