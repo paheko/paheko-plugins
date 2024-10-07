@@ -45,9 +45,9 @@
 
 	<section class="messages">
 		<div>
-		<?php $current_user = null; $current_day = null; ?>
+		<?php $first = true; ?>
 		{foreach from=$messages item="message"}
-			{$message|chat_message_html:$me:$current_day:$current_user|raw}
+			{$message|chat_message_html:$me:$first|raw}
 		{/foreach}
 	</div>
 	</section>

@@ -37,10 +37,7 @@ class Message extends Entity
 
 		$this->assert(in_array($this->type, [self::TYPE_TEXT, self::TYPE_FILE, self::TYPE_COMMENT, self::TYPE_DELETED]));
 
-		if (null !== $this->id_user) {
-			$this->assert(null === $this->user_name);
-		}
-		elseif ($this->exists()) {
+		if ($this->exists() && !$this->id_user) {
 			// Cannot add message with no ID user / no user name
 			$this->assert(null !== $this->user_name);
 		}

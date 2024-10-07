@@ -38,8 +38,6 @@ $started = time();
 $last_seen_ts = intval($_GET['last_seen'] ?? time());
 $last_seen_id = intval($_GET['last_seen_id'] ?? 0);
 $last_seen_message_id = $channel->join($me);
-$current_day = ($_GET['current_day'] ?? null) ?: null;
-$current_user = ($_GET['current_user'] ?? null) ?: null;
 
 while (true) {
 	$elapsed = time() - $started;
@@ -53,7 +51,7 @@ while (true) {
 
 	foreach ($channel->getEventsSince($last_seen_ts, $last_seen_id, $me) as $event) {
 		if ($event['type'] === 'message') {
-			$event['data']['html'] = chat_message_html($event['data']['message'], $me, $current_day, $current_user);
+			$event['data']['html'] = chat_message_html($event['data']['message'], $me);
 		}
 
 		echo "event: " . $event['type'] . "\r\n";

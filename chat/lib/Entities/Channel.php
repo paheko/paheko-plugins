@@ -202,7 +202,8 @@ class Channel extends Entity
 		]);
 
 		$message->save();
-		return $message;	}
+		return $message;
+	}
 
 	public function say(User $user, string $text): Message
 	{
@@ -284,11 +285,13 @@ class Channel extends Entity
 	{
 		$query = 'SELECT m.*,
 			CASE WHEN u.id IS NOT NULL THEN u.name ELSE m.user_name END AS user_name,
-			CASE WHEN u.id_user IS NOT NULL THEN u.id_user ELSE NULL END AS real_user_id
+			CASE WHEN u.id_user IS NOT NULL THEN u.id_user ELSE NULL END AS real_user_id,
+			m2.previous_added, m2.previous_user_id
 			FROM plugin_chat_messages m
 			LEFT JOIN plugin_chat_users u ON u.id = m.id_user
+			LEFT JOIN (SELECT id, LAG(added) OVER (ORDER BY id) AS previous_added, LAG(id_user) OVER (ORDER BY id) AS previous_user_id FROM plugin_chat_messages) AS m2 ON m2.id = m.id
 			WHERE m.id_channel = %d %s
-			ORDER BY id %s
+			ORDER BY id
 			LIMIT %d';
 
 		if ($focus) {
@@ -299,7 +302,7 @@ class Channel extends Entity
 			);
 		}
 		else {
-			$sql = sprintf($query, $this->id(), '', 'ASC', $count);
+			$sql = sprintf($query, $this->id(), '', $count);
 		}
 
 		return DB::getInstance()->get($sql);
@@ -311,9 +314,9 @@ class Channel extends Entity
 
 		$sql = 'SELECT m.*, CASE WHEN u.id IS NOT NULL THEN u.name ELSE m.user_name END AS user_name,
 			CASE WHEN u.id_user IS NOT NULL THEN u.id_user ELSE NULL END AS real_user_id,
-			m2.*
+			m2.previous_added, m2.previous_user_id
 			FROM plugin_chat_messages m
-			INNER JOIN (SELECT id, LAG(added) OVER (ORDER BY id) AS previous_added, LAG(id_user) OVER (ORDER BY id) AS previous_user_id FROM plugin_chat_messages) AS m2 ON m2.id = m.id
+			LEFT JOIN (SELECT id, LAG(added) OVER (ORDER BY id) AS previous_added, LAG(id_user) OVER (ORDER BY id) AS previous_user_id FROM plugin_chat_messages) AS m2 ON m2.id = m.id
 			LEFT JOIN plugin_chat_users u ON u.id = m.id_user
 			WHERE m.id_channel = ? AND (m.id > ? OR (last_updated != added AND last_updated > ?)) ORDER BY id;';
 

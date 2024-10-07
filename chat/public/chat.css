@@ -25,7 +25,8 @@
 }
 
 body {
-	overflow: hidden;
+	overflow: auto;
+	padding: 0;
 }
 
 #chat {
@@ -38,6 +39,10 @@ body {
 	height: 100vh;
 	margin-left: -10px;
 	margin-right: -15px;
+}
+
+body:has(#sticky-alert) #chat {
+	height: calc(100vh - 2em);
 }
 
 #chat .channel {

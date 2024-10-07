@@ -4,12 +4,15 @@ namespace Paheko;
 
 use Paheko\Users\Session;
 use Paheko\Plugin\Chat\Chat;
-use function Paheko\Plugin\Chat\get_channel;
 
 require __DIR__ . '/_inc.php';
 
 $session = Session::getInstance();
 $me = Chat::getUser();
+
+if (!$me) {
+	Utils::redirect('./ask_nick.php');
+}
 
 $channel = null;
 
@@ -80,3 +83,7 @@ $recipient = $channel->getRecipient($me);
 $tpl = Template::getInstance();
 $tpl->assign(compact('messages', 'channel', 'channels', 'csrf_key', 'recipient', 'me'));
 $tpl->display(PLUGIN_ROOT . '/templates/chat.tpl');
+
+if (time() % 10 == 0) {
+	Chat::pruneAnonymousUsers();
+}

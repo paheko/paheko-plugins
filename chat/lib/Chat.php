@@ -7,11 +7,43 @@ use Paheko\Plugin\Chat\Entities\User;
 use Paheko\Plugin\Chat\Entities\Message;
 use Paheko\Users\Session;
 use Paheko\DB;
+use Paheko\UserException;
 
 use KD2\DB\EntityManager as EM;
 
 class Chat
 {
+	static public function createAnonymousUser(string $name): User
+	{
+		if (!self::hasPublicChannels()) {
+			throw new \LogicException('No public channels');
+		}
+
+		$name = trim($name);
+
+		if (!$name || !preg_match('!^[a-z][a-z0-9_]{1,15}$!i', $name)) {
+			throw new UserException('Pseudonyme invalide');
+		}
+
+		$user = new User;
+		$user->set('session_id', sha1(random_bytes(16)));
+		$user->set('name', $name);
+		$user->set('last_connect', time());
+		$user->save();
+
+		setcookie('chat_session', $user->session_id, time() + 3600 * 24 * 7, '/');
+		return $user;
+	}
+
+	static public function pruneAnonymousUsers()
+	{
+		$expire = time() - 3600 * 24 * 7;
+		$db = DB::getInstance();
+		$db->preparedQuery('DELETE FROM plugin_chat_users WHERE session_id IS NOT NULL AND (
+			(last_disconnect IS NULL AND last_connect < ?)
+			OR (last_disconnect IS NOT NULL AND last_disconnect < ?));', $expire, $expire);
+	}
+
 	static public function getUser(): ?User
 	{
 		$session = Session::getInstance();
@@ -34,6 +66,9 @@ class Chat
 				$user->set('name', $session->user()->name());
 				$user->save();
 			}
+		}
+		elseif (!empty($_COOKIE['chat_session'])) {
+			$user = EM::findOne(User::class, 'SELECT * FROM @TABLE WHERE session_id = ?', $_COOKIE['chat_session']);
 		}
 
 		return $user;
@@ -175,6 +210,9 @@ class Chat
 
 		if (!$channel && $user->id_user) {
 			$channel = EM::findOne(Channel::class, 'SELECT * FROM @TABLE WHERE access = ? LIMIT 1;', Channel::ACCESS_PRIVATE);
+		}
+		elseif (!$channel) {
+			$channel = EM::findOne(Channel::class, 'SELECT * FROM @TABLE WHERE access = ? LIMIT 1;', Channel::ACCESS_PUBLIC);
 		}
 
 		return $channel;

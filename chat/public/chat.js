@@ -47,8 +47,6 @@
 
 		var last_message = container.lastElementChild;
 		var last_seen_id = last_message ? last_message.dataset.id : '';
-		var current_day = last_message ? last_message.dataset.date : '';
-		var current_user = last_message ? last_message.dataset.user : '';
 
 		chatbox_input.onkeydown = (e) => {
 			if (e.key == 'Enter' && !e.ctrlKey && !e.shiftKey) {
@@ -75,9 +73,7 @@
 
 			var url = g.admin_url + '/../../p/chat/connect.php?id='
 				+ main.dataset.channelId
-				+ '&last_seen_id=' + last_seen_id
-				+ '&current_day=' + current_day
-				+ '&current_user=' + current_user;
+				+ '&last_seen_id=' + last_seen_id;
 
 			sse = new EventSource(url);
 
@@ -255,7 +251,11 @@
 
 			if (f) {
 				f.querySelector('[data-action="react"]').onclick = () => openEmojiSelector(message);
-				f.querySelector('[data-action="delete"]').onclick = () => deleteMessage(message);
+
+				if (d = f.querySelector('[data-action="delete"]')) {
+					d.onclick = () => deleteMessage(message);
+				}
+
 				f.querySelectorAll('.react').forEach((e) => { e.onclick = () => sendReaction(message, e.innerText);});
 			}
 

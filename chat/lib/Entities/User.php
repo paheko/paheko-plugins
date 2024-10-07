@@ -13,11 +13,11 @@ class User extends Entity
 	const TABLE = 'plugin_chat_users';
 
 	protected ?int $id;
-	protected ?int $id_user;
+	protected ?int $id_user = null;
 	protected ?string $name;
-	protected ?string $session_id;
-	protected ?int $last_connect;
-	protected ?int $last_disconnect;
+	protected ?string $session_id = null;
+	protected ?int $last_connect = null;
+	protected ?int $last_disconnect = null;
 
 	public function disconnect(): void
 	{

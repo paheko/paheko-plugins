@@ -130,14 +130,13 @@ function chat_message_file(int $id): string
 	);
 }
 
-function chat_message_html($message, User $me, ?string &$current_day = null, ?string &$current_user = null): string
+function chat_message_html($message, User $me, bool &$first = false): string
 {
 	static $is_admin = Session::getInstance()->canAccess(Session::SECTION_USERS, Session::ACCESS_ADMIN);
 	$date = date('Ymd', $message->added);
 	$out = '';
 
-	if ($current_day !== $date && $current_day != -1) {
-		$current_day = $date;
+	if ($first || !$message->previous_added || $date != date('Ymd', $message->previous_added)) {
 		$out .= sprintf('<h4 class="ruler">%s</h4>', CommonModifiers::date_long($message->added));
 	}
 
@@ -156,9 +155,7 @@ function chat_message_html($message, User $me, ?string &$current_day = null, ?st
 		$content = '<p class="deleted">Ce message a été supprimé.</p>';
 	}
 
-	if ($current_user != $message->id_user && $current_user != -1) {
-		$current_user = $message->id_user;
-
+	if ($first || !$message->previous_user_id || $message->previous_user_id != $message->id_user) {
 		$out .= sprintf('
 			<header>
 				%s
@@ -211,6 +208,7 @@ function chat_message_html($message, User $me, ?string &$current_day = null, ?st
 
 		if ($message->id_user === $me->id || $is_admin) {
 			if ($message->type === Message::TYPE_TEXT) {
+				// TODO
 				//$out .= CommonFunctions::button(['shape' => 'edit', 'title' => 'Éditer', 'data-action' => 'edit',]);
 			}
 
@@ -226,6 +224,8 @@ function chat_message_html($message, User $me, ?string &$current_day = null, ?st
 
 	$out .= '
 	</article>';
+
+	$first = false;
 
 	return $out;
 }
