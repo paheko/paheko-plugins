@@ -22,11 +22,10 @@ if (!$channel) {
 	throw new ValidationException('No valid channel provided', 404);
 }
 
+ob_end_clean();
+
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');
-
-ob_implicit_flush(true);
-ob_end_flush();
 
 if (false === strpos(@ini_get('disable_functions'), 'set_time_limit')) {
 	@set_time_limit(600);
@@ -72,8 +71,8 @@ while (true) {
 		echo ": ping\r\n\r\n";
 	}
 
-	ob_flush();
-	flush();
+	@ob_flush();
+	@flush();
 
 	// Sleep for 500 ms
 	usleep(500000);
