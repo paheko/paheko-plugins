@@ -80,7 +80,7 @@ $channels = Chat::listChannels($me);
 $messages = $channel->listMessages($focus, 100);
 $recipient = $channel->getRecipient($me);
 
-$layout = $channel->isPublic() && $me->isAnonymous() ? 'public' : null;
+$layout = $me->isAnonymous() ? 'public' : null;
 
 $tpl = Template::getInstance();
 $tpl->assign(compact('messages', 'channel', 'channels', 'csrf_key', 'recipient', 'me', 'layout'));
