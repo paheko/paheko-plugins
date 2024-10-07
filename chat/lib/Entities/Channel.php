@@ -176,7 +176,7 @@ class Channel extends Entity
 		return EM::findOne(User::class, 'SELECT u.*
 			FROM @TABLE u
 			INNER JOIN plugin_chat_users_channels c ON c.id_user = u.id
-			WHERE c.id_channel = ? ORDER BY u.id != ? LIMIT 1', $this->id(), $me->id());
+			WHERE c.id_channel = ? ORDER BY u.id != ? DESC LIMIT 1', $this->id(), $me->id());
 	}
 
 	public function addUser(User $user): void
