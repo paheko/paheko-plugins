@@ -230,7 +230,7 @@ class Chat
 			CASE WHEN access = \'%s\' THEN (
 				SELECT u.name FROM plugin_chat_users u
 				INNER JOIN plugin_chat_users_channels uc ON uc.id_channel = c.id AND uc.id_user = u.id
-				ORDER BY u.id != %d LIMIT 1
+				ORDER BY u.id != %d DESC LIMIT 1
 			) ELSE name END AS name
 			FROM @TABLE c WHERE access = \'%s\' %s OR id IN (SELECT id_channel FROM plugin_chat_users_channels WHERE id_user = %2$d)
 			ORDER BY access = \'direct\', name COLLATE NOCASE;',
