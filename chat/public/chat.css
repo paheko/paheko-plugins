@@ -45,7 +45,7 @@ body.sticky #chat {
 	height: calc(100vh - 2em);
 }
 
-body.public main {
+body.public:has(#chat) main {
 	max-width: unset;
 	margin: 0;
 }
@@ -55,11 +55,11 @@ body.public #chat {
 	height: calc(100vh - 5em);
 }
 
-body.public header.public {
+body.public:has(#chat) header.public {
 	margin: 0;
 }
 
-body.public footer.public {
+body.public:has(#chat) footer.public {
 	margin: 0;
 	max-width: unset;
 }
