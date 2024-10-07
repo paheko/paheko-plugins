@@ -117,6 +117,7 @@
 				form.classList.remove('progressing');
 				chatbox_input.value = '';
 				chatbox_input.focus();
+				form.reset();
 			});
 
 			return false;
@@ -307,6 +308,7 @@
 
 			form.classList.remove('progressing');
 			file.value = '';
+			form.reset();
 			chatbox.classList.remove('file');
 
 			return false;
