@@ -41,26 +41,18 @@ body {
 	margin-right: -15px;
 }
 
-body.sticky #chat {
+body.sticky:not(.public) #chat {
 	height: calc(100vh - 2em);
 }
 
 body.public:has(#chat) main {
 	max-width: unset;
 	margin: 0;
-	flex: 1 1 auto;
 }
 
 body.public #chat {
+	height: 90vh;
 	margin: 0;
-	height: 100%;
-}
-
-body.public:has(#chat) {
-	display: flex;
-	flex-direction: column;
-	height: 100vh;
-	justify-content: stretch;
 }
 
 body.public:has(#chat) header.public {

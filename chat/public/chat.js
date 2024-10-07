@@ -281,6 +281,7 @@
 
 		$('#file-cancel-button').onclick = () => {
 			file.value = '';
+			form.onsubmit = sendMessage;
 			chatbox.classList.remove('file');
 		};
 
@@ -309,6 +310,7 @@
 			form.classList.remove('progressing');
 			file.value = '';
 			form.reset();
+			form.onsubmit = sendMessage;
 			chatbox.classList.remove('file');
 
 			return false;

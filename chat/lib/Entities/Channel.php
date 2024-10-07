@@ -130,7 +130,11 @@ class Channel extends Entity
 	public function delete(): bool
 	{
 		// Delete all files
-		if ($dir = Files::get($this->storage_root())) {
+		if ($dir = Files::get($this->public_storage_root())) {
+			$dir->delete();
+		}
+
+		if ($dir = Files::get($this->private_storage_root())) {
 			$dir->delete();
 		}
 
@@ -227,9 +231,24 @@ class Channel extends Entity
 		return $message;
 	}
 
-	public function storage_root(): string
+	public function public_storage_root(): string
+	{
+		return File::CONTEXT_EXTENSIONS . '/p/chat/public/' . $this->id();
+	}
+
+	public function private_storage_root(): string
 	{
 		return File::CONTEXT_EXTENSIONS . '/p/chat/' . $this->id();
+	}
+
+	public function storage_root(): string
+	{
+		if ($this->access === self::ACCESS_PUBLIC || $this->access === self::ACCESS_INVITE) {
+		 	return $this->public_storage_root();
+		}
+		else {
+		 	return $this->private_storage_root();
+		}
 	}
 
 	public function uploadRecording(User $user, string $key): Message

@@ -90,9 +90,9 @@ function chat_message_format(string $text, ?User $user): string
 	return sprintf('<div class="web-content">%s</div>', $text);
 }
 
-function chat_message_file(int $id): string
+function chat_message_file(?int $id): string
 {
-	$file = Files::getByID($id);
+	$file = Files::getByID($id ?? 0);
 
 	if (!$file) {
 		return '<p class="deleted">Ce fichier a été supprimé.</p>';
