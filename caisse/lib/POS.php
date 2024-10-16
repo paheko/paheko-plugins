@@ -45,11 +45,11 @@ class POS
 	static public function applyPeriodToList(DynamicList $list, string $period, string $column_name, string $group_all): DynamicList
 	{
 		if ($period === 'quarter') {
-			$group = '\'T\' || floor( (strftime(\'%m\', ' . $column_name . ') + 2) / 3)';
+			$group = '\'T\' || CAST( (strftime(\'%m\', ' . $column_name . ') + 2) / 3 AS INT)';
 			$label = 'Trimestre';
 		}
 		elseif ($period === 'semester') {
-			$group = '\'S\' || floor( (strftime(\'%m\', ' . $column_name . ') - 1) / 6 + 1)';
+			$group = '\'S\' || CAST( (strftime(\'%m\', ' . $column_name . ') - 1) / 6 + 1 AS INT)';
 			$label = 'Semestre';
 		}
 		elseif ($period === 'month') {
