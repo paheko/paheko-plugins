@@ -63,6 +63,7 @@ class Tracking
 		// or the "rounding" (+4 hours)
 		$legal_work_ratio = 1596/(35*52.1429);
 
+		$hours = $hours ?: 35;
 		$week = $hours;
 		$year = $hours * 44.4;
 		$month = $year / 12;
