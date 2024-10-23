@@ -72,7 +72,7 @@ class TabItem extends Entity
 
 		if ($this->pricing === self::PRICING_QTY_WEIGHT) {
 			// Cents * grams = Centsgrams / 1000 = cents/kg
-			$total = ($total * $this->weight) / 1000;
+			$total = intval(($total * $this->weight) / 1000);
 		}
 
 		$this->set('total', $total);
