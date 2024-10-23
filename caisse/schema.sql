@@ -60,9 +60,15 @@ CREATE TABLE IF NOT EXISTS @PREFIX_stock_events (
 	applied INTEGER NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS @PREFIX_locations (
+	id INTEGER NOT NULL PRIMARY KEY,
+	name TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS @PREFIX_methods (
 	-- Payment methods
 	id INTEGER NOT NULL PRIMARY KEY,
+	id_location INTEGER NULL REFERENCES @PREFIX_locations (id) ON DELETE CASCADE,
 	name TEXT NOT NULL,
 	type INTEGER NOT NULL DEFAULT 0, -- If "1" then no reference will be asked, if "0" then a reference can be attached, and the payment needs to be checked when closing the register
 	min INTEGER NULL, -- Minimum amount that can be paid using this method
@@ -81,6 +87,7 @@ CREATE TABLE IF NOT EXISTS @PREFIX_products_methods (
 CREATE TABLE IF NOT EXISTS @PREFIX_sessions (
 	-- Cash register sessions
 	id INTEGER NOT NULL PRIMARY KEY,
+	id_location INTEGER NULL REFERENCES @PREFIX_locations (id) ON DELETE RESTRICT,
 	opened TEXT NOT NULL DEFAULT (datetime('now','localtime')),
 	closed TEXT NULL,
 	open_user TEXT NULL,

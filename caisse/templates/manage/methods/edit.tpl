@@ -8,6 +8,16 @@
 	<fieldset>
 		<legend>{if $method->exists()}Modifier un moyen de paiement{else}Nouveau moyen de paiement{/if}</legend>
 		<dl>
+			<dt>Type de paiement</dt>
+			{input type="radio-btn" name="type" value=$method::TYPE_CASH label="Paiement informel (espèces, monnaie locale…)" source=$method}
+			{input type="radio-btn" name="type" value=$method::TYPE_TRACKED label="Paiement suivi (chèques, carte bancaire…)" source=$method help="Une référence sera demandée pour chaque paiement avec ce moyen (par exemple : numéro de chèque), et il faudra valider chaque paiement lors de la clôture de la caisse, pour vérifier que le paiement n'a pas été égaré."}
+			{input type="radio-btn" name="type" value=$method::TYPE_DEBT label="Ardoise (dette)" help="Le paiement sera noté comme étant une dette de l'usager l'égard de l'organisation. La dette pourra être réglée plus tard." source=$method}
+			<dd class="help">Note : les écritures comptables de la caisse étant consolidées (regroupées), les ardoises de la caisse n'apparaissent pas comme dettes dans la comptabilité.</dd>
+
+			{if count($locations)}
+			{input type="select" name="id_location" options=$locations label="Lieu" required=true}
+			{/if}
+
 			{input type="text" name="name" label="Nom" required=true source=$method}
 
 			{if !$method->exists()}
@@ -24,11 +34,6 @@
 				Si décoché, ce moyen de paiement ne sera pas utilisable dans la caisse.
 			</dd>
 
-			<dt>Type de paiement</dt>
-			{input type="radio-btn" name="type" value=$method::TYPE_CASH label="Paiement informel (espèces, monnaie locale…)" source=$method}
-			{input type="radio-btn" name="type" value=$method::TYPE_TRACKED label="Paiement suivi (chèques, carte bancaire…)" source=$method help="Une référence sera demandée pour chaque paiement avec ce moyen (par exemple : numéro de chèque), et il faudra valider chaque paiement lors de la clôture de la caisse, pour vérifier que le paiement n'a pas été égaré."}
-			{input type="radio-btn" name="type" value=$method::TYPE_DEBT label="Ardoise (dette)" help="Le paiement sera noté comme étant une dette de l'usager l'égard de l'organisation. La dette pourra être réglée plus tard." source=$method}
-			<dd class="help">Note : les écritures comptables de la caisse étant consolidées (regroupées), les ardoises de la caisse n'apparaissent pas comme dettes dans la comptabilité.</dd>
 
 		</dl>
 	</fieldset>

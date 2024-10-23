@@ -25,9 +25,41 @@ class Methods
 		return $m;
 	}
 
-	static public function list(): array
+	static public function getList(bool $with_location): DynamicList
 	{
-		return EM::getInstance(Method::class)->all('SELECT * FROM @TABLE ORDER BY name;');
+		$columns = [
+			'id' => ['select' => 'm.id'],
+			'name' => [
+				'label' => 'Nom',
+				'select' => 'm.name',
+			],
+			'location' => [
+				'label' => 'Lieu',
+				'select' => 'CASE WHEN id_location IS NULL THEN NULL ELSE l.name END',
+			],
+			'type' => [
+				'label' => 'Type',
+			],
+			'account' => [
+				'label' => 'Compte',
+			],
+			'enabled' => [
+				'label' => 'Activé',
+			],
+		];
+
+		if (!$with_location) {
+			unset($columns['location']);
+		}
+
+		$tables = '@PREFIX_methods m LEFT JOIN @PREFIX_locations l ON l.id = m.id_location';
+
+		$list = POS::DynamicList($columns, $tables);
+		$list->orderBy('name', false);
+		$list->setModifier(function (&$row) {
+			$row->type = Method::TYPES_LABELS[$row->type];
+		});
+		return $list;
 	}
 
 	static public function listSales(int $year, string $period = 'year'): DynamicList

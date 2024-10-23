@@ -17,12 +17,13 @@ class Sessions
 			FROM @PREFIX_sessions GROUP BY strftime(\'%Y\', opened) ORDER BY opened DESC;'));
 	}
 
-	static public function open(string $user_name, int $amount): Session
+	static public function open(string $user_name, int $amount, ?int $id_location): Session
 	{
 		$session = new Session;
 		$session->set('open_user', $user_name);
 		$session->set('open_amount', $amount);
 		$session->set('opened', new \DateTime);
+		$session->set('id_location', $id_location);
 		$session->save();
 		return $session;
 	}
@@ -43,9 +44,13 @@ class Sessions
 		return EM::findOneById(Session::class, $id);
 	}
 
-	static public function list(): DynamicList
+	static public function list(bool $with_location): DynamicList
 	{
 		$columns = [
+			'location' => [
+				'select' => 'CASE WHEN id_location IS NULL THEN NULL ELSE l.name END',
+				'label' => 'Lieu',
+			],
 			'id' => [
 				'select' => 's.id',
 				'label' => 'Num.',
@@ -85,9 +90,14 @@ class Sessions
 			],
 		];
 
+		if (!$with_location) {
+			unset($columns['location']);
+		}
+
 		$tables = '@PREFIX_sessions s
 			LEFT JOIN @PREFIX_tabs t ON t.session = s.id
-			LEFT JOIN @PREFIX_tabs_items ti ON ti.tab = t.id';
+			LEFT JOIN @PREFIX_tabs_items ti ON ti.tab = t.id
+			LEFT JOIN @PREFIX_locations l ON l.id = s.id_location';
 
 		$tables = POS::sql($tables);
 

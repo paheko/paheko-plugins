@@ -16,6 +16,9 @@
 			{if $plugin.config.allow_custom_user_name}
 				{input type="text" name="user_name" label="Nom de la personne procédant à l'ouverture de la caisse" required=true default=$user_name}
 			{/if}
+			{if count($locations)}
+				{input type="select" name="id_location" label="Lieu de vente" default_empty="— Choisir un lieu —" options=$locations required=true}
+			{/if}
 		</dl>
 	</fieldset>
 	<p class="submit">

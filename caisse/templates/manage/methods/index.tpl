@@ -2,26 +2,15 @@
 
 {include file="../_nav.tpl" current='methods'}
 
-<table class="list">
-	<thead>
-		<tr>
-			<th>Nom</th>
-			<td>Type</td>
-			<td>Compte</td>
-			<td>Minimum</td>
-			<td>Maximum</td>
-			<td>Activé</td>
-			<td></td>
-		</tr>
-	</thead>
-	<tbody>
-		{foreach from=$list item="method"}
+{include file="common/dynamic_list_head.tpl"}
+		{foreach from=$list->iterate() item="method"}
 			<tr>
 				<th>{$method.name}</th>
-				<td>{$method::TYPES_LABELS[$method.type]}</td>
+				{if $has_locations}
+				<td>{if !$method.location}{tag label="Aucun"}{else}{$method.location}{/if}</td>
+				{/if}
+				<td>{$method.type}</td>
 				<td>{$method.account}</td>
-				<td>{$method.min|raw|money_currency}</td>
-				<td>{$method.max|raw|money_currency}</td>
 				<td>{if $method.enabled}{tag label="Activé" color="darkgreen"}{else}{tag label="Désactivé" color="#999"}{/if}</td>
 				<td class="actions">
 					{linkbutton href="products.php?id=%d"|args:$method.id label="Produits" shape="menu"}
@@ -32,5 +21,7 @@
 		{/foreach}
 	</tbody>
 </table>
+
+{$list->getHTMLPagination()|raw}
 
 {include file="_foot.tpl"}

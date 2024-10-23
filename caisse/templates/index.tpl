@@ -14,6 +14,9 @@
 {include file="common/dynamic_list_head.tpl"}
 		{foreach from=$list->iterate() item="pos_session"}
 		<tr>
+			{if $has_locations}
+			<td>{$pos_session.location}</td>
+			{/if}
 			<td class="num">
 				{link href="session.php?id=%d"|args:$pos_session.id label=$pos_session.id}
 			</td>

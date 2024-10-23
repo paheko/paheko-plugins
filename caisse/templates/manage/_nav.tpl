@@ -16,6 +16,10 @@
 	<aside>
 		{linkbutton href="edit.php?new" label="Nouvel événement" shape="plus" target="_dialog"}
 	</aside>
+	{elseif $current === 'config' && $subcurrent === 'locations'}
+		<aside>
+			{linkbutton href="edit.php?new" label="Ajouter un lieu" shape="plus"}
+		</aside>
 	{/if}
 
 	<ul>
@@ -37,5 +41,9 @@
 		<li {if $subcurrent === 'products'}class="current"{/if}><a href="./">Stock des produits</a></li>
 		<li {if $subcurrent === 'events'}class="current"{/if}><a href="events.php">Événéments de stock</a></li>
 	</ul>
+	{elseif $current === 'config'}
+		<ul class="sub">
+			<li {if $subcurrent === 'locations'}class="current"{/if}><a href="{$plugin_admin_url}manage/locations/">Lieux de vente</a></li>
+		</ul>
 	{/if}
 </nav>

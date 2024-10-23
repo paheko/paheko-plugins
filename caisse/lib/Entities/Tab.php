@@ -33,11 +33,22 @@ class Tab extends Entity
 	const ITEM_TYPE_PRODUCT = 0;
 	const ITEM_TYPE_PAYOFF = 1;
 
+	protected ?Session $_session = null;
+
 	public function load(array $data): self
 	{
 		parent::load($data);
 		$this->total = $this->total();
 		return $this;
+	}
+
+	public function session(?Session $session = null): Session
+	{
+		if (null !== $session) {
+			$this->_session = $session;
+		}
+
+		return $this->_session;
 	}
 
 	public function total(): int
@@ -256,6 +267,14 @@ class Tab extends Entity
 	public function listPaymentOptions()
 	{
 		$remainder = $this->getRemainder();
+
+		if ($l = $this->session()->id_location) {
+			$where = ' AND m.id_location = ' . (int)$l;
+		}
+		else {
+			$where = '';
+		}
+
 		return DB::getInstance()->getGrouped(POS::sql('SELECT id, *,
 			CASE
 				WHEN max IS NOT NULL AND max > 0 AND paid >= max THEN 0 -- We cannot use this payment method, we paid the max allowed amount with it
@@ -267,7 +286,7 @@ class Tab extends Entity
 				INNER JOIN @PREFIX_products_methods pm ON pm.method = m.id
 				INNER JOIN @PREFIX_tabs_items i ON i.product = pm.product AND i.tab = :id
 				LEFT JOIN @PREFIX_tabs_payments AS pt ON pt.tab = i.tab AND m.id = pt.method
-				WHERE m.enabled = 1
+				WHERE m.enabled = 1 ' . $where . '
 				GROUP BY m.id
 			);'), ['id' => $this->id, 'left' => $remainder]);
 	}

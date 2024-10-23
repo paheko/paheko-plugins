@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="Caisse — Configuration"}
 
-{include file="./manage/_nav.tpl" current="config"}
+{include file="./manage/_nav.tpl" current="config" subcurrent="config"}
 
 {form_errors}
 

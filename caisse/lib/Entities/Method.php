@@ -15,6 +15,7 @@ class Method extends Entity
 	const TABLE = POS::TABLES_PREFIX . 'methods';
 
 	protected ?int $id;
+	protected ?int $id_location = null;
 	protected string $name = '';
 	protected int $type = self::TYPE_TRACKED;
 	protected ?int $min = null;

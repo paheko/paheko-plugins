@@ -27,6 +27,7 @@ class Session extends Entity
 	const TABLE = POS::TABLES_PREFIX . 'sessions';
 
 	protected ?int $id;
+	protected ?int $id_location = null;
 	protected \DateTime $opened;
 	protected ?\DateTime $closed;
 	protected string $open_user;

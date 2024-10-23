@@ -18,6 +18,7 @@ if (null !== qg('id')) {
 	}
 
 	$current_pos_session = Sessions::get($tab->session);
+	$tab->session($current_pos_session);
 }
 elseif (qg('session')) {
 	$current_pos_session = Sessions::get((int)qg('session'));
