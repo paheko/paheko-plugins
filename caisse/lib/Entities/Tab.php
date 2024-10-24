@@ -8,6 +8,7 @@ use Paheko\UserException;
 use Paheko\Plugin\Caisse\POS;
 use Paheko\Plugin\Caisse\Products;
 use Paheko\Plugin\Caisse\Tabs;
+use Paheko\Plugin\Caisse\Sessions;
 use Paheko\Entity;
 use Paheko\Utils;
 use Paheko\ValidationException;
@@ -46,6 +47,9 @@ class Tab extends Entity
 	{
 		if (null !== $session) {
 			$this->_session = $session;
+		}
+		elseif (null === $this->_session) {
+			$this->_session = Sessions::get($this->session);
 		}
 
 		return $this->_session;
