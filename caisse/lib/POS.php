@@ -249,16 +249,19 @@ class POS
 
 		$errors_only = $errors_only ? 'AND account IS NULL' : '';
 
+		// This is a complex query, beware!
+		// First we aggregate all sold tab items, and payments
+		// then we add (UNION ALL) all error amounts
 		$sql = 'SELECT
 			NULL AS id,
 			\'Avancé\' AS type,
 			NULL AS status,
 			\'Session de caisse n°\' || s.id AS label,
-			strftime(\'%d/%m/%Y\', s.closed) AS date,
+			strftime(\'%%d/%%m/%%Y\', s.closed) AS date,
 			NULL AS notes,
 			\'POS-SESSION-\' || s.id AS reference,
 			NULL AS line_id,
-			lines.account,
+			lines.account AS account,
 			-- Flip debit/credit if negative
 			CASE
 				WHEN SUM(lines.debit) < 0 THEN ABS(SUM(lines.debit))
@@ -288,15 +291,65 @@ class POS
 				) AS lines
 				ON lines.session = s.id
 			WHERE s.closed IS NOT NULL
-				AND date(s.closed) >= date(?) AND date(s.closed) <= date(?)
-				' . $errors_only . '
+				AND s.error_amount = 0
+				AND date(s.closed) >= date(:start) AND date(s.closed) <= date(:end)
+				%s
 			GROUP BY s.id, lines.account, lines.reference
 			HAVING (SUM(lines.debit) != 0 OR SUM(lines.credit) != 0)
-			ORDER BY s.id, lines.account, lines.reference;';
+			UNION ALL
+			-- Add error amounts to product/charge account
+			SELECT NULL AS id,
+			\'Avancé\' AS type,
+			NULL AS status,
+			\'Session de caisse n°\' || s.id AS label,
+			strftime(\'%%d/%%m/%%Y\', s.closed) AS date,
+			NULL AS notes,
+			\'POS-SESSION-\' || s.id AS reference,
+			NULL AS line_id,
+			CASE WHEN error_amount < 0 THEN :error_debit_account ELSE :error_credit_account END AS account,
+			CASE WHEN error_amount > 0 THEN ABS(error_amount) ELSE 0 END AS credit,
+			CASE WHEN error_amount < 0 THEN ABS(error_amount) ELSE 0 END AS debit,
+			NULL AS line_reference,
+			\'Erreur de caisse\' AS line_label,
+			0 AS reconciled,
+			s.id AS sid
+			FROM @PREFIX_sessions AS s
+			WHERE s.closed IS NOT NULL
+				AND s.error_amount != 0
+				AND date(s.closed) >= date(:start) AND date(s.closed) <= date(:end)
+				%1$s
+			UNION ALL
+			-- Add error amounts to cash account
+			SELECT NULL AS id,
+			\'Avancé\' AS type,
+			NULL AS status,
+			\'Session de caisse n°\' || s.id AS label,
+			strftime(\'%%d/%%m/%%Y\', s.closed) AS date,
+			NULL AS notes,
+			\'POS-SESSION-\' || s.id AS reference,
+			NULL AS line_id,
+			(SELECT m.account FROM @PREFIX_methods AS m WHERE m.type = 1 AND m.enabled = 1
+				AND (CASE WHEN s.id_location IS NULL THEN m.id_location IS NULL ELSE m.id_location = s.id_location END) LIMIT 1) AS account,
+			CASE WHEN error_amount < 0 THEN ABS(error_amount) ELSE 0 END AS credit,
+			CASE WHEN error_amount > 0 THEN ABS(error_amount) ELSE 0 END AS debit,
+			NULL AS line_reference,
+			\'Erreur de caisse\' AS line_label,
+			0 AS reconciled,
+			s.id AS sid
+			FROM @PREFIX_sessions AS s
+			WHERE s.closed IS NOT NULL
+				AND s.error_amount != 0
+				AND date(s.closed) >= date(:start) AND date(s.closed) <= date(:end)
+				%1$s
+			ORDER BY sid, account, line_reference;';
 
+		$sql = sprintf($sql, $errors_only);
 		$sql = POS::sql($sql);
 
-		return $db->iterate($sql, $start, $end);
+		$error_debit_account = '658';
+		$error_credit_account = '758';
+
+		return $db->iterate($sql, compact('start', 'end', 'error_debit_account', 'error_credit_account'));
 	}
 
 	static public function exportSessionsCSV(\DateTime $start, \DateTime $end, bool $localized_header = false)
