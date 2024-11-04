@@ -41,4 +41,8 @@
 	</p>
 </form>
 
+<p class="help">
+	Note : il est possible d'activer la synchronisation automatique de la caisse lors de chaque clôture de caisse dans la {link href="../config.php" label="configuration"}.
+</p>
+
 {include file="_foot.tpl"}

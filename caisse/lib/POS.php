@@ -252,6 +252,7 @@ class POS
 		// This is a complex query, beware!
 		// First we aggregate all sold tab items, and payments
 		// then we add (UNION ALL) all error amounts
+		// we default to using the first cash account for the session location
 		$sql = 'SELECT
 			NULL AS id,
 			\'Avancé\' AS type,
