@@ -8,11 +8,12 @@
 		<dl>
 			{input type="date" label="Date de début" name="start" required=true default=$start}
 			{input type="date" label="Date de fin" name="end" required=true default=$end}
+			<dt>Format</dt>
+			{input type="radio" name="format" value="ods" label="LibreOffice" default="ods"}
+			{input type="radio" name="format" value="csv" label="CSV"}
+			{input type="radio" name="format" value="xlsx" label="Excel"}
 		</dl>
 	</fieldset>
-	<p class="help">
-		Cet export peut ensuite {link href="!acc/years/import.php" label="être importé dans la comptabilité"} en sélectionnant le format «&nbsp;Complet groupé (comptabilité d'engagement)&nbsp;».
-	</p>
 	<p class="submit">
 		{button name="export" label="Créer un export CSV correspondant à ces dates" shape="right" type="submit" class="main"}
 	</p>

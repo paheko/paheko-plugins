@@ -2,6 +2,7 @@
 
 namespace Paheko\Plugin\Caisse;
 
+use Paheko\CSV;
 use Paheko\DB;
 use Paheko\DynamicList;
 use Paheko\UserException;
@@ -164,10 +165,10 @@ class POS
 			$error = abs($transaction->getLinesDebitSum()) - $transaction->getLinesCreditSum();
 			if ($error != 0) {
 				if ($error > 0) {
-					$line = Line::create($accounts['758']->id, abs($error), 0, 'Erreur de caisse');
+					$line = Line::create($accounts['758']->id, abs($error), 0, 'Erreur de caisse inconnue');
 				}
 				else {
-					$line = Line::create($accounts['658']->id, 0, abs($error), 'Erreur de caisse');
+					$line = Line::create($accounts['658']->id, 0, abs($error), 'Erreur de caisse inconnue');
 				}
 
 				$transaction->addLine($line);
@@ -353,37 +354,22 @@ class POS
 		return $db->iterate($sql, compact('start', 'end', 'error_debit_account', 'error_credit_account'));
 	}
 
-	static public function exportSessionsCSV(\DateTime $start, \DateTime $end, bool $localized_header = false)
+	static public function exportSessionsCSV(string $format, \DateTime $start, \DateTime $end, bool $localized_header = false)
 	{
 		$name = sprintf('Export caisse compta - %s à %s', $start->format('d-m-Y'), $end->format('d-m-Y'));
 
-		header('Content-type: application/csv');
-		header(sprintf('Content-Disposition: attachment; filename="%s.csv"', $name));
-
-		$fp = fopen('php://output', 'w');
-
 		if ($localized_header) {
-			fputcsv($fp, ['Numéro d\'écriture', 'Type', 'Statut', 'Libellé', 'Date', 'Remarques', 'Numéro pièce comptable',
-				'Numéro ligne', 'Compte', 'Crédit', 'Débit', 'Référence ligne', 'Libellé ligne', 'Rapprochement']);
+			$header = ['Numéro d\'écriture', 'Type', 'Statut', 'Libellé', 'Date', 'Remarques', 'Numéro pièce comptable',
+				'Numéro ligne', 'Compte', 'Crédit', 'Débit', 'Référence ligne', 'Libellé ligne', 'Rapprochement'];
 		}
 		else {
-			fputcsv($fp, ['id', 'type', 'status', 'label', 'date', 'notes', 'reference',
-				'line_id', 'account', 'credit', 'debit', 'line_reference', 'line_label', 'reconciled']);
+			$header = ['id', 'type', 'status', 'label', 'date', 'notes', 'reference',
+				'line_id', 'account', 'credit', 'debit', 'line_reference', 'line_label', 'reconciled'];
 		}
 
-		$id = null;
+		CSV::export($format, $name, self::iterateSessions($start, $end), $header, function (&$row) {
+			static $id = null;
 
-		$money = function (int $value): string {
-			if (!$value) {
-				return '0';
-			}
-
-			$decimals = substr($value, -2);
-			$digits = substr($value, 0, -2) ?: '0';
-			return $digits . ',' . $decimals;
-		};
-
-		foreach (self::iterateSessions($start, $end) as $row) {
 			if (null !== $id && $row->sid === $id) {
 				$row->type = $row->status = $row->label = $row->date = $row->reference = null;
 			}
@@ -392,14 +378,11 @@ class POS
 				$id = $row->sid;
 			}
 
-			$row->credit = $money($row->credit);
-			$row->debit = $money($row->debit);
+			$row->credit = Utils::money_format($row->credit);
+			$row->debit = Utils::money_format($row->debit);
 
 			unset($row->sid);
-			fputcsv($fp, (array) $row);
-		}
-
-		fclose($fp);
+		});
 	}
 
 }
