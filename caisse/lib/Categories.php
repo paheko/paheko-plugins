@@ -71,7 +71,7 @@ class Categories
 			WHERE strftime(\'%Y\', i.added) = ? AND i.price > 0
 			GROUP BY strftime(\'%m\', i.added), i.category_name
 			UNION ALL
-			SELECT \'Total\' AS name, CAST(strftime(\'%m\', i.added) AS INT) AS month, SUM(i.qty * i.price) / 100
+			SELECT \'Total\' AS name, CAST(strftime(\'%m\', i.added) AS INT) AS month, SUM(i.total) / 100
 			FROM @PREFIX_tabs_items i
 			WHERE strftime(\'%Y\', i.added) = ? AND i.price > 0
 			GROUP BY strftime(\'%m\', i.added)

@@ -164,6 +164,9 @@ class POS
 			// In some rare cases, the product may have disappeared (WTF?!), we consider it to be an error
 			$error = abs($transaction->getLinesDebitSum()) - $transaction->getLinesCreditSum();
 			if ($error != 0) {
+				// FIXME: this shouldn't happen, or we should understand what's going on here
+				throw new \LogicException(sprintf('Cannot create POS session #%d: debit (%d) != credit (%d)', $transaction->reference, $transaction->getLinesDebitSum(), $transaction->getLinesCreditSum()));
+
 				if ($error > 0) {
 					$line = Line::create($accounts['758']->id, abs($error), 0, 'Erreur de caisse inconnue');
 				}
@@ -281,7 +284,7 @@ class POS
 			s.id AS sid
 			FROM @PREFIX_sessions s
 			INNER JOIN (
-				SELECT session, account, SUM(price * qty) AS credit, 0 AS debit, NULL AS reference
+				SELECT session, account, SUM(total) AS credit, 0 AS debit, NULL AS reference
 				FROM @PREFIX_tabs_items ti
 				INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
 				GROUP BY t.session, account
