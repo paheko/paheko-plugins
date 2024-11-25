@@ -10,10 +10,13 @@
 		{exportmenu right=true}
 	</aside>
 
-	{if $logged_user.id && !$filters.id_user && !$filters.id_task}
+	{if $logged_user.id && (!$filters.id_user || $filters.self) && !$filters.id_task}
 	<ul class="sub">
-		<li {if !$filters.except}class="current"{/if}>{link href=$self_url_no_qs label="Tous les membres"}</li>
+		<li {if !$filters}class="current"{/if}>{link href=$self_url_no_qs label="Tous les membres"}</li>
+		{if $logged_user.id}
 		<li {if $filters.except}class="current"{/if}>{link href="?except" label="Sauf moi-même"}</li>
+		<li {if $filters.self}class="current"{/if}>{link href="?self" label="Uniquement moi-même"}</li>
+		{/if}
 	</ul>
 	{elseif isset($subtitle)}
 	<ul class="sub">

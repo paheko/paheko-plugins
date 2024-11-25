@@ -18,7 +18,7 @@ $title = 'Suivi';
 $subtitle = null;
 $is_admin = $session->canAccess($session::SECTION_USERS, $session::ACCESS_WRITE);
 
-if (!$is_admin) {
+if (!$is_admin || isset($_GET['self'])) {
 	$user_id = Session::getUserId();
 
 	if (!$user_id) {
@@ -26,6 +26,7 @@ if (!$is_admin) {
 	}
 
 	$filters['id_user'] = $user_id;
+	$filters['self'] = true;
 }
 elseif ($id = (int)($_GET['id_user'] ?? 0)) {
 	$filters['id_user'] = $id;
