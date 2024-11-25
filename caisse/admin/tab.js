@@ -197,20 +197,26 @@ if (q) {
 		var code = q.value.replace(/\s/, '');
 
 		// Try to match barcodes
-		if (code.match(/^\d+$/)) {
+		if (code.match(/^\d{4,}$/)) {
 			search = q.value;
+			var count = 0;
+			var item = null;
 
 			document.querySelectorAll('.products section button').forEach((elm) => {
 				var found = elm.hasAttribute('data-code') && elm.dataset.code.includes(search);
 
-				if (found && code.length === 13) {
-					elm.click();
-					return;
+				if (found) {
+					count++;
 				}
 
 				g.toggle(elm, found);
 				elm.hidden = !found;
+				item = elm;
 			});
+
+			if (count === 1 && item) {
+				item.click()
+			}
 		}
 		else {
 			document.querySelectorAll('.products section button h3').forEach((elm) => {
