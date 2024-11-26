@@ -63,5 +63,11 @@ if (version_compare($old_version, '1.0.1', '<')) {
 	$db->commitSchemaUpdate();
 }
 
+if (version_compare($old_version, '1.1.0', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec('ALTER TABLE plugin_taima_tasks ADD COLUMN id_project INTEGER NULL;');
+	$db->commitSchemaUpdate();
+}
+
 $plugin->registerSignal('menu.item', [Tracking::class, 'menuItem']);
 $plugin->registerSignal('home.button', [Tracking::class, 'homeButton']);

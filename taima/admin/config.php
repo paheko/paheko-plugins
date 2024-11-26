@@ -7,6 +7,7 @@ use Paheko\Entities\Accounting\Account;
 use Paheko\Plugin\Taima\Entities\Task;
 use Paheko\Plugin\Taima\Tracking;
 
+use Paheko\Accounting\Projects;
 use Paheko\Utils;
 use KD2\DB\EntityManager as EM;
 
@@ -40,7 +41,8 @@ $tpl->assign('account_targets', Account::TYPE_VOLUNTEERING_EXPENSE);
 
 if (qg('edit')) {
 	$task = EM::findOneById(Task::class, (int) qg('edit'));
-	$tpl->assign(compact('task'));
+	$projects = Projects::listAssoc();
+	$tpl->assign(compact('task', 'projects'));
 	$tpl->display(__DIR__ . '/../templates/config_edit.tpl');
 }
 elseif (qg('delete')) {

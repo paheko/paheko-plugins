@@ -495,6 +495,9 @@ class Tracking
 			'id_task' => [
 				'select' => 't.id',
 			],
+			'id_project' => [
+				'select' => 't.id_project',
+			],
 		];
 
 		$tables = 'plugin_taima_entries e
@@ -537,7 +540,7 @@ class Tracking
 		$t = Transactions::create([
 			'date' => $date,
 			'label' => 'Valorisation du bénévolat',
-			'notes' => 'Écriture créée par Tāima, extension de suivi du temps',
+			'notes' => 'Écriture créée par l\'extension de suivi du temps',
 			'type' => Transaction::TYPE_ADVANCED,
 			'id_year' => $year->id(),
 			'reference' => 'VALORISATION-TAIMA',
@@ -548,7 +551,7 @@ class Tracking
 		$report = self::getFinancialReport($year, $start, $end);
 
 		foreach ($report->iterate() as $row) {
-			if (!$row->id_account) {
+			if (!$row->id_account || !$row->total) {
 				continue;
 			}
 
@@ -556,6 +559,7 @@ class Tracking
 			$line->debit = $row->total;
 			$line->id_account = $row->id_account;
 			$line->label = sprintf('%s (%d heures à %s / h)', $row->label, $row->hours, Utils::money_format($row->value));
+			$line->id_project = $row->id_project;
 
 			$t->addLine($line);
 		}

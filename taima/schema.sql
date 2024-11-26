@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS plugin_taima_tasks (
 	id INTEGER NOT NULL PRIMARY KEY,
 	label TEXT NOT NULL,
 	value INTEGER NULL,
-	account TEXT NULL
+	account TEXT NULL,
+	id_project INTEGER NULL
 );
 
 CREATE TABLE IF NOT EXISTS plugin_taima_entries (
