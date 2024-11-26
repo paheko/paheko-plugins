@@ -8,7 +8,7 @@
 	{/if}
 	</aside>
 
-	{linkbutton href="session_open.php" shape="right" label="Ouvrir la caisse" class="main"}
+	{linkbutton href="session_open.php" shape="right" label="Ouvrir une session de caisse" class="main"}
 </nav>
 
 {include file="common/dynamic_list_head.tpl"}
