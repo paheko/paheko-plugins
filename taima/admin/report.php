@@ -4,6 +4,7 @@ namespace Paheko\Plugin\Taima;
 
 use Paheko\Plugin\Taima\Tracking;
 use Paheko\Accounting\Years;
+use Paheko\Entity;
 use Paheko\Utils;
 use Paheko\UserException;
 use Paheko\Users\Session;
@@ -35,8 +36,8 @@ elseif (count($years) == 1) {
 }
 
 if ($year) {
-	$start = qg('start') ? Utils::get_datetime(qg('start')) : ($year->start_date ?? null);
-	$end = qg('end') ? Utils::get_datetime(qg('end')) : ($year->end_date ?? null);
+	$start = qg('start') ? Entity::filterUserDateValue(qg('start')) : ($year->start_date ?? null);
+	$end = qg('end') ? Entity::filterUserDateValue(qg('end')) : ($year->end_date ?? null);
 
 	if ($start) {
 		$start = Date::createFromInterface($start);
