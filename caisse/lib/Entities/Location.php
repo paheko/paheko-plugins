@@ -28,6 +28,10 @@ class Location extends Entity
 			throw new ValidationException('Ce lieu ne peut être supprimé car il est utilisé dans des sessions de caisse.');
 		}
 
+		if ($db->test(POS::TABLES_PREFIX . 'methods', 'id_location = ?', $this->id)) {
+			throw new ValidationException('Ce lieu ne peut être supprimé car des moyens de paiement y sont liés.');
+		}
+
 		return parent::delete();
 	}
 }
