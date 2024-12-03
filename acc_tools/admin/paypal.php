@@ -56,6 +56,7 @@ $form->runIf('load', function() {
 
 	$group_fees = (bool) f('group_fees');
 
+	/*
 	$columns = [
 		'date'        => 'Date',
 		'name'        => 'Nom',
@@ -68,27 +69,65 @@ $form->runIf('load', function() {
 		'ref'         => 'Numéro de transaction',
 		'invoice_ref' => 'Numéro de facture',
 		'client_ref'  => 'Numéro de client',
-		'object'      => 'Objet',
+		'subject'     => 'Objet',
 		'from'        => 'De l\'adresse email',
 		'to'          => 'À l\'adresse email',
 		'currency'    => 'Devise',
+	];*/
+
+	// ﻿"Date","Time","TimeZone","Name","Type","Status","Currency","Gross","Fee","Net","From Email Address","To Email Address","Transaction ID","Shipping Address","Address Status","Item Title","Item ID","Shipping and Handling Amount","Insurance Amount","Sales Tax","Option 1 Name","Option 1 Value","Option 2 Name","Option 2 Value","Reference Txn ID","Invoice Number","Custom Number","Quantity","Receipt ID","Balance","Address Line 1","Address Line 2/District/Neighborhood","Town/City","State/Province/Region/County/Territory/Prefecture/Republic","Zip/Postal Code","Country","Contact Phone Number","Subject","Note","Country Code","Balance Impact"
+
+	$columns = [
+		'date'        => 'Date',
+		'name'        => 'Name',
+		'type'        => 'Type',
+		'fee'         => 'Fee',
+		'net'         => 'Net',
+		'gross'       => 'Gross',
+		'label'       => 'Item Title',
+		'notes'       => 'Note',
+		'ref'         => 'Transaction ID',
+		'invoice_ref' => 'Invoice Number',
+		'client_ref'  => 'Custom Number',
+		'subject'     => 'Subject',
+		'from'        => 'From Email Address',
+		'to'          => 'To Email Address',
+		'currency'    => 'Currency',
+	];
+
+	$mandatory_columns = [
+		'date',
+		'name',
+		'fee',
+		'net',
+		'gross',
+		'currency',
+		'type',
+		'ref',
 	];
 
 	// Création du CSV de sortie
 	$fp = fopen('php://temp', 'w+');
 	$fees_sum = 0;
-	$notes_keys = ['object', 'invoice_ref', 'client_ref', 'notes', 'name', 'from', 'to'];
+	$notes_keys = ['subject', 'invoice_ref', 'client_ref', 'notes', 'name', 'from', 'to'];
 	$label_keys = ['label', 'name', 'type'];
+
+	$types = [
+		'Express Checkout Payment' => 'Paiement Paypal Express',
+		'General Withdrawal' => 'Virement standard',
+	];
 
 	fputcsv($fp, ['Date', 'Libellé', 'Compte de débit', 'Compte de crédit', 'Montant', 'Référence paiement', 'Remarques']);
 
-	foreach (CSV::import($_FILES['csv']['tmp_name'], $columns, array_keys($columns)) as $row) {
+	foreach (CSV::import($_FILES['csv']['tmp_name'], $columns, $mandatory_columns) as $row) {
 		$row = (object)$row;
 
 		// Ignore non-euro
 		if ($row->currency !== 'EUR') {
 			continue;
 		}
+
+		$row->type= strtr($row->type, $types);
 
 		// Not sure what is this about
 		if (preg_match('/Suspension de compte pour autorisation en cours|Annulation de suspension de compte standard/i', $row->type)) {

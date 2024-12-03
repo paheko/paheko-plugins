@@ -6,9 +6,14 @@
 
 <div class="block help">
 	<h4>Comment récupérer le fichier CSV de PayPal ?</h4>
-	<p>Rendez-vous sur le site de <a href="https://www.paypal.com/reports/dlog" target="_blank">PayPal</a>. Menu "Activité", puis "Tous les rapports". Dans cette page cliquez sur l'onglet "Activités", puis "Rapports d'activité".</p>
-	<p>Dans "Type de transaction" indiquez "Impact sur le solde", dans "Format" indiquez "CSV". Sélectionnez la période désirée et cliquez sur "Créer le rapport".</p>
-	<p>Patientez ensuite et téléchargez le fichier CSV sur votre ordinateur. Vous pourrez ensuite utiliser ce fichier CSV ci-dessous.</p>
+	<ul>
+		<li>Connectez-vous sur le site de Paypal</li>
+		<li>Cliquez ici : {linkbutton href="https://www.paypal.com/reports/dlog" target="_blank" label="Créer un rapport personnalisé"}<br /><small>(Sinon, aller dans le menu "Activité" &rarr; "Tous les rapports" &rarr; "Activités" &rarr; "Rapports d'activité")</small></li>
+		<li>Indiquez "Impact sur le solde" pour "Type de transaction"</li>
+		<li>Indiquez "CSV" pour le "Format"</li>
+		<li>Sélectionnez la période désirée et cliquez sur "Créer le rapport"</li>
+	</ul>
+	<p>Patientez ensuite, et téléchargez le fichier CSV sur votre ordinateur. Vous pourrez ensuite utiliser ce fichier CSV ci-dessous.</p>
 </div>
 
 <form method="post" action="" enctype="multipart/form-data" data-disable-progress="1">
