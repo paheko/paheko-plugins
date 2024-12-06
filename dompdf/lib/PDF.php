@@ -104,14 +104,29 @@ class PDF
 		return $dompdf;
 	}
 
-	static public function create(Signal $signal): void
+	static protected function render(string $html)
 	{
 		$dompdf = self::DomPDF();
 
-		$dompdf->loadHtml(file_get_contents($signal->getIn('source')));
+		// Detect landscape output
+		// see https://github.com/dompdf/dompdf/issues/3562
+		if (strpos($html, 'data-prefer-landscape') !== false) {
+			$dompdf->setPaper('A4', 'landscape');
+		}
+
+		$dompdf->loadHtml($html);
 
 		// Render the HTML as PDF
 		$dompdf->render();
+		return $dompdf;
+	}
+
+	static public function create(Signal $signal): void
+	{
+
+		$html = file_get_contents($signal->getIn('source'));
+
+		$dompdf = self::render($html);
 
 		file_put_contents($signal->getIn('target'), $dompdf->output());
 		$signal->stop();
@@ -120,12 +135,7 @@ class PDF
 
 	static public function stream(Signal $signal): void
 	{
-		$dompdf = self::DomPDF();
-
-		$dompdf->loadHtml($signal->getIn('string'));
-
-		// Render the HTML as PDF
-		$dompdf->render();
+		$dompdf = self::render($signal->getIn('string'));
 
 		echo $dompdf->output();
 
