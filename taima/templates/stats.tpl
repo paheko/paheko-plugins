@@ -3,12 +3,12 @@
 {include file="./_nav.tpl" current="stats"}
 
 <nav class="tabs">
-	{if !$filters_uri}
-		<aside>
+	<aside>
+		{if !$filters_uri}
 			{linkbutton shape="search" href="#" id="filterFormButton" label="Filtrer par dates" onclick="var a = $('#filterForm'); a.disabled = false; g.toggle(a, true); this.remove(); var a = $('#compareFormButton'); a ? a.remove() : null; return false;"}
-			{exportmenu table=true right=true}
-		</aside>
-	{/if}
+		{/if}
+		{exportmenu table=true right=true}
+	</aside>
 
 	<ul class="sub">
 		<li{if $period == 'week'} class="current"{/if}><a href="?period=week&group={$group}&{$filters_uri}">Par semaine</a></li>
