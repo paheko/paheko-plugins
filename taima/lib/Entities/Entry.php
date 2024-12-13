@@ -76,10 +76,10 @@ class Entry extends Entity
 			return;
 		}
 
-		if (preg_match('/^(\d+)[h:](\d+)$/', $duration, $match)) {
+		if (preg_match('/^(\d+)[h:](\d*)$/', $duration, $match)) {
 			$minutes = $match[1] * 60 + $match[2];
 		}
-		elseif (preg_match('/^(\d+)(?:[.,](\d+))?$/', $duration, $match)) {
+		elseif (preg_match('/^(\d+)(?:[.,](\d*))?$/', $duration, $match)) {
 			$minutes = $match[1] * 60;
 
 			if (!empty($match[2])) {
