@@ -1,9 +1,10 @@
 <?php
 
-namespace Perso;
+namespace Paheko\Plugin\PIM;
 
 use Paheko\Plugin\PIM\Entities\Contact;
 use DateTime;
+use KD2\DB\EntityManager as EM;
 
 class Contacts
 {
@@ -30,7 +31,7 @@ class Contacts
 		return $this->getBirthdaysForPeriod($start, $end);
 	}
 
-	public function getBirthdaysForPeriod(Date $start, Date $end): array
+	public function getBirthdaysForPeriod(DateTime $start, DateTime $end): array
 	{
 		$sql = 'SELECT * FROM @TABLE
 			WHERE id_user = ?
@@ -42,7 +43,7 @@ class Contacts
 
 		$out = [];
 
-		foreach (EM::getInstance(Contact::class)->iterate($sql, $start, $end) as $row) {
+		foreach (EM::getInstance(Contact::class)->iterate($sql, $this->id_user, $start, $end) as $row) {
 			$out[$row->birthday->format('Y-m-d')] = $row;
 		}
 

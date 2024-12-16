@@ -36,7 +36,7 @@ class Contact extends Entity
 
 		$r = parent::save($selfcheck);
 
-		ChangeTracker::record('contact', $this->uri, $exists ? ChangeTracker::MODIFIED : ChangeTracker::ADDED);
+		ChangeTracker::record($this->id_user, 'contact', $this->uri, $exists ? ChangeTracker::MODIFIED : ChangeTracker::ADDED);
 		return $r;
 	}
 
@@ -44,7 +44,7 @@ class Contact extends Entity
 	{
 		$id = $this->id();
 		$r = parent::delete();
-		ChangeTracker::record('contact', $this->uri, ChangeTracker::DELETED);
+		ChangeTracker::record($this->id_user, 'contact', $this->uri, ChangeTracker::DELETED);
 		return $r;
 	}
 

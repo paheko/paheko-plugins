@@ -28,10 +28,15 @@ class Event extends Entity
 
 	const TITLE_REPLACE = ['->' => '→', '<-' => '←'];
 
+	const SL_TEXT = '75%, 30%';
+	const SL_RUNNING = '50%, 90%';
+	const SL_ALL_DAY = '50%, 75%';
+
 	public function selfCheck(): void
 	{
 		parent::selfCheck();
 
+		$this->assert(isset($this->title) && strlen(trim($this->title)), 'Le titre doit être renseigné.');
 		$this->assert($this->date_end >= $this->date, 'La date de fin ne peut se situer avant la date de début');
 	}
 
@@ -54,14 +59,14 @@ class Event extends Entity
 
 		// Si la catégorie change on déplace de calendrier en fait, affectons un nouveau URI
 		if ($this->isModified('id_category')) {
-			ChangesTracker::record('event', $this->uri, ChangeTracker::DELETED);
+			ChangesTracker::record($this->id_user, 'event', $this->uri, ChangeTracker::DELETED);
 			$this->set('uri', md5(random_bytes(16)));
 			$exists = false;
 		}
 
 		$r = parent::save($selfcheck);
 
-		ChangesTracker::record('event', $this->uri, $exists ? ChangeTracker::MODIFIED : ChangeTracker::ADDED);
+		ChangesTracker::record($this->id_user, 'event', $this->uri, $exists ? ChangeTracker::MODIFIED : ChangeTracker::ADDED);
 		return $r;
 	}
 
@@ -69,7 +74,27 @@ class Event extends Entity
 	{
 		$id = $this->id();
 		$r = parent::delete();
-		ChangesTracker::record('event', $this->uri, ChangeTracker::DELETED);
+		ChangesTracker::record($this->id_user, 'event', $this->uri, ChangeTracker::DELETED);
 		return $r;
+	}
+
+	public function isRunning(): bool
+	{
+		return $this->date_end->format('Ymd') > $this->date->format('Ymd');
+	}
+
+	public function getClass(): string
+	{
+		$class = '';
+
+		if ($this->isRunning()) {
+			$class .= ' running';
+		}
+
+		if ($this->all_day) {
+			$class .= ' all_day';
+		}
+
+		return $class;
 	}
 }

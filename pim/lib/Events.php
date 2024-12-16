@@ -4,9 +4,12 @@ namespace Paheko\Plugin\PIM;
 
 use Paheko\Plugin\PIM\Entities\Event;
 use Paheko\Plugin\PIM\Entities\Event_Category;
+use Paheko\DB;
 use DateTime;
 use DateTimezone;
 use Sabre\VObject;
+
+use KD2\DB\EntityManager as EM;
 
 class Events
 {
@@ -94,8 +97,8 @@ class Events
 		$start->setTime(0, 0, 0);
 		$end->setTime(23, 59, 59);
 
-		$query = 'SELECT * FROM @TABLE WHERE
-			id_user = ?
+		$sql = 'SELECT * FROM @TABLE
+			WHERE id_user = :id_user
 			AND (
 				(date >= :start AND date <= :end)
 				OR (date_end >= :start AND date_end <= :end)
@@ -104,6 +107,7 @@ class Events
 
 		$days = [];
 		$id_user = $this->id_user;
+		$em = EM::getInstance(Event::class);
 
 		foreach ($em->iterate($sql, compact('id_user', 'start', 'end')) as $row) {
 			if ($row->date < $start) {
@@ -150,6 +154,88 @@ class Events
 		unset($events);
 
 		return $days;
+	}
+
+	public function getCalendar(int $y, int $m)
+	{
+		$period = Calendar::getMonth($y, $m);
+		$events = $this->getEventsForPeriod(reset($period), end($period));
+		$contacts = new Contacts($this->id_user);
+		$birthdays = $contacts->getBirthdaysForPeriod(reset($period), end($period));
+		$today = date('Y-m-d');
+		$colors = DB::getInstance()->getAssoc('SELECT id, color FROM plugin_pim_events_categories WHERE id_user = ?;', $this->id_user);
+
+		$rows = [];
+		$week = [];
+
+		foreach ($period as $day) {
+			$item = new \stdClass;
+			$item->date_ymd = $day->format('Y-m-d');
+			$item->date = $day;
+			$item->same_month = $item->date->format('m') == $m;
+			$item->holiday = Calendar::isPublicHoliday($item->date);
+			$item->today = $today === $item->date_ymd;
+			$item->saint = Calendar::getLocalSaint($day->format('m'), $day->format('d'));
+			$item->class = '';
+
+			if ($item->holiday) {
+				$item->class .= ' holiday';
+			}
+
+			if ($item->today) {
+				$item->class .= ' today';
+			}
+
+			if (!$item->same_month) {
+				$item->class .= ' other_month';
+			}
+
+			$item->events = [];
+
+			foreach ($events[$item->date_ymd] ?? [] as $e) {
+				$running = $e->isRunning();
+				$starts = '';
+				$ends = '';
+
+				if ($running && $e->date->format('Hi') !== '0000' && $e->date->format('Y-m-d') === $day) {
+					$starts = $e->date->format('H:i');
+				}
+				elseif (!$running && !$e->all_day && $e->date_end->format('Y-m-d') === $day) {
+					$starts = $e->date->format('H:i');
+				}
+
+				if ($running && $e->date_end->format('Hi') != '0000' && $e->date_end->format('Ymd') == $c->format('Ymd')) {
+					$ends = $e->date_end->format('H:i');
+				}
+
+				$item->events[] = [
+					'class'  => $e->getClass(),
+					'style'  => isset($colors[$e->id_category]) ? sprintf('--category-hue: %d', $colors[$e->id_category]) : '',
+					'url'    => 'event.php?id=' . $e->id,
+					'title'  => $e->title,
+					'prefix' => $prefix,
+					'suffix' => $suffix,
+				];
+			}
+
+			foreach ($birthdays[$item->date_ymd] ?? [] as $contact) {
+				$item->events[] = [
+					'class' => 'birthday',
+					'url' => 'contacts/?id=' . $contact->id,
+					'title' => $contact->getName(),
+					'subtitle' => sprintf('(%d ans)', $contact->getAgeAtDate($item->date)),
+				];
+			}
+
+			$week[] = $item;
+
+			if (count($week) === 7) {
+				$rows[] = $week;
+				$week = [];
+			}
+		}
+
+		return $rows;
 	}
 
 	public function getDateFromUserEntry(string $str, bool $all_day = false, ?string $tz = null): DateTime

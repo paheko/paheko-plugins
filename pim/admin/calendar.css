@@ -1,0 +1,159 @@
+body {
+	height: 100vh;
+	overflow: hidden;
+}
+
+main {
+	min-height: calc(100% - 2em);
+	display: flex;
+	flex-direction: column;
+}
+
+.months {
+	display: flex;
+}
+
+.months a {
+	width: 15%;
+	display: inline-flex;
+	justify-content: center;
+}
+
+.months a.current {
+	font-weight: bold;
+	width: calc(100% - 2em);
+	font-size: 1.3em;
+	flex-grow: 1;
+}
+
+table.calendar {
+	border-collapse: collapse;
+	width: 100%;
+	border: none;
+	height: 80%;
+	flex-grow: 1;
+}
+
+table.calendar thead th {
+	text-align: center;
+	opacity: .5;
+	border: none;
+}
+
+table.calendar td, table.calendar th {
+	padding: 0.5em;
+	border: 1px solid #ccc;
+	width: 14.2%;
+	vertical-align: top;
+}
+
+table.calendar.weeks-4 tbody tr {
+	height: 25%;
+}
+
+table.calendar.weeks-5 tbody tr {
+	height: 20%;
+}
+
+table.calendar.weeks-6 tbody tr {
+	height: 17%;
+}
+
+table.calendar th {
+	height: 1em;
+	font-size: 0.9em;
+}
+
+table.calendar h3 {
+	font-size: 1em;
+	text-align: center;
+	border-bottom: 1px solid #ddd;
+}
+
+table.calendar h3 a {
+	color: #000;
+	display: block;
+	text-decoration: none;
+}
+table.calendar td.holiday h3 a {
+	background: url("cross.png") no-repeat center center;
+}
+table.calendar td h3 a:hover {
+	background-color: #eee;
+}
+
+table.calendar td.today {
+	outline: 1px inset #666;
+	background: #eee;
+}
+
+table.calendar td.selected {
+	background: #ddd;
+}
+
+table.calendar td.otherMonth h3 a {
+	color: #999;
+}
+
+table.calendar td ul {
+	list-style-type: none;
+	font-size: 12px;
+}
+
+table.calendar td ul li {
+	clear: left;
+	padding: 1px;
+}
+
+table.calendar td ul li.birthday {
+	background: url("bday.png") no-repeat 0px center;
+	padding-left: 20px;
+}
+table.calendar td ul li.birthday em {
+	display: block;
+	color: #666;
+}
+
+table.calendar td ul li.running {
+	opacity: 0.8;
+	text-align: center;
+	background: #eee;
+	border-bottom: 1px solid #ccc;
+}
+
+table.calendar td ul li.allDay {
+	text-align: center;
+	border-bottom: 1px solid #ccc;
+}
+
+table.calendar td ul b {
+	color: #666;
+	font-weight: normal;
+	margin-right: 0.2em;
+	white-space: nowrap;
+}
+
+table.calendar td ul i {
+	vertical-align: super;
+	font-size: .8em;
+	margin-left: -.2em;
+	margin-right: .5em;
+	color: #999;
+	background: rgba(255, 255, 255, 0.7);
+	padding: 1px 3px;
+	border-radius: 1em;
+}
+
+table.calendar td ul li a {
+	color: inherit;
+}
+
+table.calendar td ul a:hover {
+	color: red;
+}
+
+table.calendar li.holiday {
+	color: #fff;
+	text-align: center;
+	background: #999;
+}

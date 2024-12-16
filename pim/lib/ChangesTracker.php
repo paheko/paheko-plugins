@@ -12,7 +12,7 @@ class ChangesTracker
 
 	const TABLE = 'plugin_pim_changes';
 
-	public function record(string $entity, string $uri, int $type)
+	public function record(int $id_user, string $entity, string $uri, int $type)
 	{
 		$db = DB::getInstance();
 
@@ -21,14 +21,20 @@ class ChangesTracker
 		}
 
 		// Only keep the last change
-		$db->delete(self::TABLE, 'uri = ? AND entity = ?', $uri, $entity);
+		$db->delete(self::TABLE, 'id_user = ? AND uri = ? AND entity = ?', $id_user, $uri, $entity);
 
-		return $db->insert(self::TABLE, compact('uri', 'type', 'entity'));
+		return $db->insert(self::TABLE, compact('id_user', 'uri', 'type', 'entity'));
 	}
 
-	public function listChangesSince(string $entity, \DateTime $date)
+	public function listChangesSince(int $id_user, string $entity, \DateTime $date)
 	{
 		$db = DB::getInstance();
-		return $db->get(sprintf('SELECT uri, type FROM %s WHERE entity = ? AND timestamp >= ? ORDER BY timestamp DESC;', self::TABLE), $entity, $date);
+		return $db->get(sprintf('SELECT uri, type FROM %s
+			WHERE id_user = ? AND entity = ? AND timestamp >= ?
+			ORDER BY timestamp DESC;', self::TABLE),
+			$id_user,
+			$entity,
+			$date
+		);
 	}
 }
