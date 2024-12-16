@@ -12,7 +12,7 @@ class Event_Category extends Entity
 	protected int $id_user;
 	protected string $title;
 	protected int $default_reminder = 0;
-	protected ?string $color;
+	protected ?int $color;
 	protected bool $is_default = false;
 
 	public function save(bool $selfcheck = true): bool

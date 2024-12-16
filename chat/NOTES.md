@@ -43,6 +43,12 @@
 * API simple pour qu'un bot puisse poster des messages
 * Bridge IRC
 * Pouvoir choisir son avatar
+* Ajout bouton "ouvrir une discussion privée par chat" sur la fiche d'un membre
+* Pouvoir exclure quelqu'un d'une discussion
+* Pouvoir muter quelqu'un
+* Pouvoir restreindre un canal à une catégorie de membres
+* Pouvoir masquer la liste des participants d'une discussion
+* Masquer par défaut la liste des participants pour un utilisateur anonyme
 
 ## Ce qui n'est pas prévu
 

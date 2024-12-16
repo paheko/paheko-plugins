@@ -1,20 +1,15 @@
-{include file="_head.tpl" title="Agenda" current="plugin_pim" hide_title=true plugin_css=['calendar.css']}
+{include file="_head.tpl" title="Agenda" current="plugin_pim" hide_title=true plugin_css=['calendar.css'] layout="calendar"}
 
-<nav class="tabs">
-	<aside>
-	</aside>
-
-	<div class="months">
-		{linkbutton label=$prev_year shape="left" href="?y=%d&m=%d"|args:$prev_year:$month}
-		{linkbutton label=$prev|strftime:'%B' shape="left" href=$prev|strftime:'?y=%Y&m=%m'}
-		{linkbutton label=$date|strftime:"%B %Y" href="./" class="current" title="Retourner à aujourd'hui"}
-		{linkbutton label=$next|strftime:'%B' shape="right" href=$next|strftime:'?y=%Y&m=%m' class="right"}
-		{linkbutton label=$next_year shape="right" href="?y=%d&m=%d"|args:$next_year:$month class="right"}
-		{linkbutton shape="menu" label="Catégories" href="categories/"}
-		{linkbutton shape="users" label="Contacts" href="contacts/"}
-		{linkbutton shape="plus" label="Nouvel événement" href="edit.php"}
-	</div>
-</nav>
+<div class="months">
+	{linkbutton label=$prev_year shape="left" href="?y=%d&m=%d"|args:$prev_year:$month}
+	{linkbutton label=$prev|strftime:'%B' shape="left" href=$prev|strftime:'?y=%Y&m=%m'}
+	{linkbutton label=$date|strftime:"%B %Y" href="./" class="current" title="Retourner à aujourd'hui"}
+	{linkbutton label=$next|strftime:'%B' shape="right" href=$next|strftime:'?y=%Y&m=%m' class="right"}
+	{linkbutton label=$next_year shape="right" href="?y=%d&m=%d"|args:$next_year:$month class="right"}
+	{linkbutton shape="menu" label="Catégories" href="categories/" target="_dialog"}
+	{linkbutton shape="users" label="Contacts" href="contacts/"}
+	{linkbutton shape="plus" label="Nouvel événement" href="edit.php" target="_dialog"}
+</div>
 
 <table class="calendar weeks-{$calendar|count}">
 	<thead>

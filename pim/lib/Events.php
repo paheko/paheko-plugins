@@ -298,6 +298,16 @@ class Events
 		return array($begin, $end);
 	}
 
+	public function listCategories(): array
+	{
+		return EM::getInstance(Event_Category::class)->all('SELECT * FROM @TABLE WHERE id_user = ? ORDER BY title COLLATE U_NOCASE;', $this->id_user);
+	}
+
+	public function getCategory(int $id): ?Event_Category
+	{
+		return EM::findOne(Event_Category::class, 'SELECT * FROM @TABLE WHERE id_user = ? AND id = ? ORDER BY title COLLATE U_NOCASE;', $this->id_user, $id);
+	}
+
 	public function listChangesForCategory($category, $timestamp)
 	{
 		$db = DB::getInstance();

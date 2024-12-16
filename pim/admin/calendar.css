@@ -1,9 +1,9 @@
-body {
+body.calendar {
 	height: 100vh;
 	overflow: hidden;
 }
 
-main {
+body.calendar main {
 	min-height: calc(100% - 2em);
 	display: flex;
 	flex-direction: column;
@@ -153,7 +153,11 @@ table.calendar td ul a:hover {
 }
 
 table.calendar li.holiday {
-	color: #fff;
+	color: #666;
 	text-align: center;
-	background: #999;
+	background: #ddd;
+}
+
+table.categories .color {
+	background: hsl(var(--hue), 50%, 75%);
 }
