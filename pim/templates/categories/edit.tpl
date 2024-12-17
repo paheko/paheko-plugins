@@ -1,5 +1,7 @@
 {include file="_head.tpl" current="plugin_pim" hide_title=true plugin_css=['calendar.css']}
 
+{form_errors}
+
 <form method="post" action="" class="edit-category">
 <fieldset>
 	<legend>{$title}</legend>

@@ -75,9 +75,11 @@ table.calendar h3 a {
 	display: block;
 	text-decoration: none;
 }
-table.calendar td.holiday h3 a {
+
+table.calendar td.holiday h3 {
 	background: url("cross.png") no-repeat center center;
 }
+
 table.calendar td h3 a:hover {
 	background-color: #eee;
 }
@@ -109,6 +111,7 @@ table.calendar td ul li.birthday {
 	background: url("bday.png") no-repeat 0px center;
 	padding-left: 20px;
 }
+
 table.calendar td ul li.birthday em {
 	display: block;
 	color: #666;
@@ -117,11 +120,10 @@ table.calendar td ul li.birthday em {
 table.calendar td ul li.running {
 	opacity: 0.8;
 	text-align: center;
-	background: #eee;
 	border-bottom: 1px solid #ccc;
 }
 
-table.calendar td ul li.allDay {
+table.calendar td ul li.all_day {
 	text-align: center;
 	border-bottom: 1px solid #ccc;
 }
@@ -155,7 +157,18 @@ table.calendar td ul a:hover {
 table.calendar li.holiday {
 	color: #666;
 	text-align: center;
-	background: #ddd;
+}
+
+table.calendar li.all_day {
+	background: hsl(var(--hue), 50%, 75%);
+}
+
+table.calendar li.running {
+	background: hsl(var(--hue), 50%, 90%);
+}
+
+table.calendar li.other {
+	color: hsl(var(--hue), 75%, 30%);
 }
 
 table.categories .color {

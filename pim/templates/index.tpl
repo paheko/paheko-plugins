@@ -36,7 +36,7 @@
 						{foreach from=$day.events item="event"}
 						<li class="{$event.class}" style="{$event.style}">
 							{if $event.starts}<b>{$event.starts}</b>{/if}
-							<a href="{$event.url}">{$event.title}</a>
+							{link href=$event.url target=$event.target label=$event.title}
 							{if $event.ends}<b>⇢ {$event.ends}</b>{/if}
 							{if $event.subtitle}<em>{$event.subtitle}</em>{/if}
 						</li>
@@ -49,6 +49,6 @@
 	</tbody>
 </table>
 
-<script type="text/javascript" src="../static/agenda.js?2019"></script>
+<script type="text/javascript" src="calendar.js"></script>
 
 {include file="_foot.tpl"}

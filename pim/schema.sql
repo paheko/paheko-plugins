@@ -32,7 +32,7 @@ CREATE INDEX IF NOT EXISTS plugin_pim_events_categories_user ON plugin_pim_event
 CREATE TABLE IF NOT EXISTS plugin_pim_events (
 	id INTEGER PRIMARY KEY NOT NULL,
 	id_user INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-	id_category INTEGER NULL REFERENCES events_categories (id) ON DELETE SET NULL,
+	id_category INTEGER NULL REFERENCES plugin_pim_events_categories (id) ON DELETE SET NULL,
 	uri TEXT NOT NULL,
 	title TEXT NOT NULL,
 	date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP CHECK (date = datetime(date)),

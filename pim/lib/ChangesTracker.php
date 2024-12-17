@@ -12,7 +12,7 @@ class ChangesTracker
 
 	const TABLE = 'plugin_pim_changes';
 
-	public function record(int $id_user, string $entity, string $uri, int $type)
+	static public function record(int $id_user, string $entity, string $uri, int $type)
 	{
 		$db = DB::getInstance();
 
@@ -26,7 +26,7 @@ class ChangesTracker
 		return $db->insert(self::TABLE, compact('id_user', 'uri', 'type', 'entity'));
 	}
 
-	public function listChangesSince(int $id_user, string $entity, \DateTime $date)
+	static public function listChangesSince(int $id_user, string $entity, \DateTime $date)
 	{
 		$db = DB::getInstance();
 		return $db->get(sprintf('SELECT uri, type FROM %s

@@ -17,17 +17,6 @@ class Events
 	const RUNNING = '50%, 90%';
 	const ALL_DAY = '50%, 75%';
 
-	const TIMEZONES = [
-		'Australia/Adelaide',
-		'Australia/Hobart',
-		'Australia/Melbourne',
-		'Australia/Perth',
-		'Australia/Sydney',
-		'Europe/Paris',
-		'Pacific/Auckland',
-		'UTC'
-	];
-
 	protected int $id_user;
 
 	public function __construct(int $id_user)
@@ -59,7 +48,7 @@ class Events
 	}
 
 	// Renvoie la TZ la plus commune sur les 10 derniers événements
-	public function getCurrentTimezone(): ?string
+	public function getDefaultTimezone(): ?string
 	{
 		return DB::getInstance()->firstColumn('SELECT timezone,
 			COUNT(*) AS nb FROM (SELECT timezone FROM plugin_pim_events WHERE id_user = ? ORDER BY date DESC LIMIT 10)
@@ -128,11 +117,7 @@ class Events
 			while ($s->format('Ymd') <= $e->format('Ymd')) {
 				$key = $s->format('Y-m-d');
 
-				if (!isset($days[$key]))
-				{
-					$days[$key] = array();
-				}
-
+				$days[$key] ??= [];
 				$days[$key][] = $row;
 
 				$s->modify('+1 day');
@@ -152,6 +137,7 @@ class Events
 		}
 
 		unset($events);
+
 
 		return $days;
 	}
@@ -197,24 +183,25 @@ class Events
 				$starts = '';
 				$ends = '';
 
-				if ($running && $e->date->format('Hi') !== '0000' && $e->date->format('Y-m-d') === $day) {
+				if ($running && $e->date->format('Hi') !== '0000' && $e->date->format('Y-m-d') === $item->date_ymd) {
 					$starts = $e->date->format('H:i');
 				}
-				elseif (!$running && !$e->all_day && $e->date_end->format('Y-m-d') === $day) {
+				elseif (!$running && !$e->all_day && $e->date_end->format('Y-m-d') === $item->date_ymd) {
 					$starts = $e->date->format('H:i');
 				}
 
-				if ($running && $e->date_end->format('Hi') != '0000' && $e->date_end->format('Ymd') == $c->format('Ymd')) {
+				if ($running && $e->date_end->format('Hi') != '0000' && $e->date_end->format('Y-m-d') == $item->date_ymd) {
 					$ends = $e->date_end->format('H:i');
 				}
 
 				$item->events[] = [
 					'class'  => $e->getClass(),
-					'style'  => isset($colors[$e->id_category]) ? sprintf('--category-hue: %d', $colors[$e->id_category]) : '',
-					'url'    => 'event.php?id=' . $e->id,
+					'style'  => isset($colors[$e->id_category]) ? sprintf('--hue: %d', $colors[$e->id_category]) : '',
+					'url'    => 'edit.php?id=' . $e->id,
+					'target' => '_dialog',
 					'title'  => $e->title,
-					'prefix' => $prefix,
-					'suffix' => $suffix,
+					'starts' => $starts,
+					'ends'   => $ends,
 				];
 			}
 
