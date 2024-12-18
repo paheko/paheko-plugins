@@ -19,6 +19,8 @@ use KD2\Graphics\SVG\Bar_Data_Set;
 use KD2\Graphics\SVG\Plot;
 use KD2\Graphics\SVG\Plot_Data;
 
+use KD2\ErrorManager;
+
 class POS
 {
 	const TABLES_PREFIX = 'plugin_pos_';
@@ -165,7 +167,7 @@ class POS
 			$error = abs($transaction->getLinesDebitSum()) - $transaction->getLinesCreditSum();
 			if ($error != 0) {
 				// FIXME: this shouldn't happen, or we should understand what's going on here
-				throw new \LogicException(sprintf('Cannot create POS session #%d: debit (%d) != credit (%d)', $transaction->reference, $transaction->getLinesDebitSum(), $transaction->getLinesCreditSum()));
+				ErrorManager::reportExceptionSilent(new \LogicException(sprintf('Missing accounts for %s: debit (%d) != credit (%d)', $transaction->reference, $transaction->getLinesDebitSum(), $transaction->getLinesCreditSum())));
 
 				if ($error > 0) {
 					$line = Line::create($accounts['758']->id, abs($error), 0, 'Erreur de caisse inconnue');
