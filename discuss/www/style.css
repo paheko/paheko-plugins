@@ -1,0 +1,108 @@
+body {
+	font-family: sans-serif;
+}
+.error {
+	color: red;
+}
+.confirm {
+	color: darkgreen;
+}
+h1 {
+	margin: 0;
+}
+nav {
+	padding: 1em;
+	margin: 0 0 1em 0;
+	border-bottom: .1em #999 solid;
+}
+fieldset {
+	border: 1px solid #999;
+}
+input {
+	padding: .2em;
+}
+dl dt {
+	font-weight: bold;
+}
+dl dd {
+	margin: .5em 1em;
+}
+
+h1 {
+	margin: 0;
+	font-size: 1.2em;
+	text-align: center;
+}
+body > nav, body > form nav {
+	padding: 1em;
+	margin: 0 0 1em 0;
+	border-bottom: .1em #999 solid;
+	text-align: center;
+}
+pre {
+	overflow: auto;
+}
+pre i {
+	color: #666;
+	background: #eee;
+}
+h2, h3, h4 {
+	margin: 0;
+}
+.threads {
+	border-collapse: collapse;
+	margin: 1em auto;
+}
+.threads th, .threads td {
+	text-align: left;
+	padding: .4rem .8rem;
+}
+.threads tr:nth-child(even) {
+	background: #eee;
+}
+.pages {
+	text-align: center;
+	font-size: 1.2em;
+}
+.pages a {
+	padding: .3rem .5rem;
+	background: #eee;
+	display: inline-block;
+	margin: .3rem;
+	color: #666;
+}
+.pages a strong {
+	color: darkred;
+}
+.msg {
+	max-width: 60rem;
+	margin: 1em auto;
+}
+.msg header {
+	border: .2em solid #ccc;
+	padding: 1em;
+	border-radius: 1em;
+}
+.msg header h3, .msg header h4 {
+	font-size: 1em;
+	font-weight: normal;
+}
+.msg pre {
+	margin: 1em;
+}
+input {
+	padding: .3rem;
+}
+span.hl {
+	background: yellow;
+	padding: .2rem;
+	font-weight: bold;
+}
+.msg.moderator {
+	background: #dfd;
+	border-radius: 1em;
+}
+.msg.moderator header {
+	border-color: #6c6;
+	background: #cfc;
+}

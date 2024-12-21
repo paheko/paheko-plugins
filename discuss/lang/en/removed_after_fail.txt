@@ -1,0 +1,7 @@
+One of the recipients of the list %list_address% has been unsubscribed after failing.
+
+Subscriber address: %failed_address%
+Reason: %failed_reason%
+Diagnostic: %failed_diagnostic%
+
+Please find the error message attached.

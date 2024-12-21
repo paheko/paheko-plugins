@@ -1,0 +1,14 @@
+Subject: You have been unsubscribed from %list_address%
+
+You have been unsubscribed from the list %list_address%.
+
+Your email address rejected our messages more than %max_bounce_limit% times.
+
+As a result, the list have automatically removed your from recipients.
+
+You will no longer receive our messages.
+
+If you wish to receive our messages again, please subscribe again by sending
+a message to %list_subscribe%
+
+Have a nice day!

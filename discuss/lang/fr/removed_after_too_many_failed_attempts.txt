@@ -1,0 +1,14 @@
+Subject: Vous avez été désinscrit de %list_address%
+
+Vous avez été désinscrit de la liste %list_address%.
+
+Votre adresse e-mail a rejeté nos messages plus de %max_bounce_limit% fois.
+
+De ce fait, la liste vous a automatiquement désinscrit.
+
+Vous ne recevrez plus nos messages.
+
+Pour recevoir à nouveau nos messages, merci de vous réinscrire en envoyant
+un message à %list_subscribe%.
+
+Bonne journée !
