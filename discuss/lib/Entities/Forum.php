@@ -756,45 +756,18 @@ class Forum extends Entity
 
 		$msg->setBody($body);
 
-		// Get domain for DMARC checks
-		$real_from = \KD2\SMTP::extractEmailAddresses($from);
-		$real_from = current($real_from);
-		$domain = substr($real_from, strrpos($real_from, '@')+1);
+		// Always rewrite the From address, to make sure we don't have issues with DMARC/SPF
+		$msg->setHeader('From', sprintf('"%s via %s" <%s>', str_replace('@', ' at ', $real_from), $list['name'], $list_address));
+		$msg->setHeader('Sender', $list_address);
+		$msg->setHeader('X-Original-List-Sender', $real_from);
 
-		// Fetch DMARC policy
-		$st = self::PDO()->prepare('SELECT dmarc_reject FROM lists_domains_policies WHERE domain = ? AND last_update >= NOW() - INTERVAL 1 MONTH;');
-		$st->execute([$domain]);
-		$reject = $st->fetchColumn();
-
-		// this will be either "1" or "0" if it comes from mysql, false if not found
-		if ($reject === false)
+		// Public mailing list
+		if ($list['status'] != self::STATUS_MODERATORS)
 		{
-			$dmarc = dns_get_record('_dmarc.' . $domain, DNS_TXT);
+			$reply_to = $list_address . ', ' . $real_from;
 
-			if (!empty($dmarc[0]['txt']) && preg_match('/;\s*p=(?:reject|quarantine)/i', $dmarc[0]['txt']))
-			{
-				$reject = true;
-			}
-
-			$st = self::PDO()->prepare('REPLACE INTO lists_domains_policies (domain, last_update, dmarc_reject) VALUES (?, NOW(), ?);');
-			$st->execute([$domain, (int)$reject]);
-		}
-
-		// If sender policy is to reject, then we need to rewrite the from header
-		if ($reject)
-		{
-			$msg->setHeader('From', sprintf('"%s via %s" <%s>', str_replace('@', ' at ', $real_from), $list['name'], $list_address));
-			$msg->setHeader('Sender', $list_address);
-			$msg->setHeader('X-Original-List-Sender', $real_from);
-
-			// Public mailing list
-			if ($list['status'] != self::STATUS_MODERATORS)
-			{
-				$reply_to = $list_address . ', ' . $real_from;
-
-				$msg->removeHeader('Reply-To');
-				$msg->setHeader('Reply-To', $reply_to);
-			}
+			$msg->removeHeader('Reply-To');
+			$msg->setHeader('Reply-To', $reply_to);
 		}
 
 		$st = self::PDO()->prepare('SELECT address, id FROM lists_members WHERE list_id = ?

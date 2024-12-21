@@ -117,9 +117,3 @@ END;
 CREATE TRIGGER IF NOT EXISTS plugin_discuss_search_add_thread AFTER INSERT ON plugin_discuss_threads BEGIN
 	INSERT INTO plugin_discuss_search VALUES NULL, NEW.id, NEW.subject, NULL;
 END;
-
-CREATE TABLE IF NOT EXISTS plugin_discuss_domains_policies (
-	domain TEXT NOT NULL PRIMARY KEY,
-	last_update  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	dmarc_reject INTEGER NOT NULL
-);
