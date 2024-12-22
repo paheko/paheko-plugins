@@ -29,4 +29,6 @@ class Forums
 		$query = preg_quote($query, '/');
 		return preg_replace('/' . $query . '(?![^"]*">)/ui', '<mark>\\0</mark>', $text);
 	}
+
+
 }

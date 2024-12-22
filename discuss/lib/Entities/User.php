@@ -10,40 +10,33 @@ class User extends Entity
 {
 	const TABLE = 'plugin_discuss_users';
 
-	/**
-	 * Don't send any e-mail (forum mode)
-	 */
-	const SUBSCRIPTION_NONE = 0;
-
-	/**
-	 * Stop sending e-mails, after address has bounced
-	 */
-	const SUBSCRIPTION_DISABLED = -1;
-
-	/**
-	 * Send each message
-	 */
-	const SUBSCRIPTION_ALL = 1;
-
-	// TODO:
-	//const SUBSCRIPTION_DIGEST = 2;
-
-	const MODERATOR = 0x01 << 1;
-	const BANNED = 0x01 << 2;
-
 	protected ?int $id;
-	protected string $email;
+	protected ?int $id_user;
+	protected int $id_forum;
+	protected ?string $email;
 	protected ?string $name = null;
 	protected ?string $password = null;
-	protected int $status = 0;
-	protected int $subscription = 0;
+	protected bool $is_moderator = false;
+	protected bool $is_banned = false;
+	protected bool $subscribed = false;
 	protected int $stats_posts = 0;
 	protected int $stats_bounced = 0;
 	protected DateTime $created;
 	protected ?DateTime $last_post;
+	protected bool $has_avatar = false;
+	protected ?string $pgp_key = null;
 
 	public function isModerator(): bool
 	{
 		return $this->status & self::MODERATOR;
+	}
+
+	public function email(): ?string
+	{
+		if ($this->id_user) {
+			return $this->user()->email();
+		}
+
+		return $this->email;
 	}
 }

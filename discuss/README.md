@@ -48,8 +48,9 @@ Cette extension est issue du travail effectué depuis plus 2010 Narragoon, un an
 
 ## Configuration avancée
 
-`DISCUSS_DOMAINS`: liste de noms de domaines disponibles pour créer une nouvelle liste
-`DISCUSS_SEPARATOR` : séparateur de commande dans l'adresse email (défaut : `+`)
+* `Paheko\Plugin\Discuss\DOMAINS` (array): liste de noms de domaines disponibles pour créer une nouvelle liste
+* `Paheko\Plugin\Discuss\SEPARATOR` (string) : séparateur de commande dans l'adresse email (défaut : `+`)
+* `Paheko\Plugin\Discuss\WEBHOOK_PASSWORD` (string) : mot de passe pour l'authentification pour le webhook de réception de message
 
 ## Signaux
 
@@ -63,32 +64,5 @@ En cas de modification de l'adresse, les signaux `delete` et `create` sont appel
 
 Il est possible de configurer votre serveur mail pour appeler un webhook quand un message est reçu sur une adresse e-mail.
 
-### Exemple : Exim
+Il faut configurer la constante `Paheko\Plugin\Discuss\WEBHOOK_PASSWORD` et envoyer le corps des messages vers l'URL `https://webhook:password@example.org/p/discuss/receive.php?to=listname@example.org`.
 
-Router:
-
-```
-webhook_router:
-  driver = accept
-  domains = example.org
-  local_parts = myaddress : otherlist
-  transport = webhook_transport
-```
-
-Transport:
-
-```
-webhook_transport:
-  driver = pipe
-  command = /home/mail/webhook.php
-  message_prefix =
-  return_fail_output
-  log_fail_output
-  log_defer_output
-  temp_errors = 75
-  timeout = 60s
-```
-
-Script dans `/home/mail/webhook.php`:
-
-```

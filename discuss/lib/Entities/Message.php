@@ -17,7 +17,6 @@ class Message extends Entity
 	protected ?int $parent_id;
 	protected int $level;
 	protected string $message_id;
-	protected ?string $in_reply_to;
 	protected DateTime $date;
 	protected ?int $user_id;
 	protected ?string $from_name;
@@ -39,22 +38,6 @@ class Message extends Entity
 	{
 		return EM::getInstance(Attachment::class)->findOne('SELECT id, message_id, name, mime, NULL as content FROM @TABLE WHERE id = ?;',
 			$id);
-	}
-
-	public function isFromModerator(): bool
-	{
-		static $list = null;
-
-		if (null === $list) {
-			$db = EntityManager::getInstance(self::class)->db();
-			$list = $db->getAssoc('SELECT id, email FROM users WHERE status & ?;', User::MODERATOR);
-		}
-
-		if ($this->user_id) {
-			return array_key_exists($this->user_id, $list);
-		}
-
-		return in_array($this->from_email, $list);
 	}
 
 
@@ -82,5 +65,20 @@ class Message extends Entity
 			return trim(str_replace($match[0], '', $from));
 		else
 			return $from;
+	}
+
+	public function name(): ?string
+	{
+		if ($user = $this->user()) {
+			return $user->name();
+		}
+		elseif ($this->from_name) {
+			return $this->from_name;
+		}
+		elseif (!$this->from_email) {
+			return str_replace('@', ' at ', $this->from_email);
+		}
+
+		return null;
 	}
 }

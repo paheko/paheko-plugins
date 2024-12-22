@@ -27,14 +27,15 @@ CREATE TABLE IF NOT EXISTS plugin_discuss_users (
 	id_forum INTEGER NOT NULL REFERENCES plugin_discuss_forums (id) ON DELETE CASCADE,
 	email TEXT NULL,
 	name TEXT NULL,
-	status INTEGER NOT NULL DEFAULT 0,
-	subscription INTEGER NOT NULL DEFAULT 0,
+	is_moderator INTEGER NOT NULL DEFAULT 0,
+	is_banned INTEGER NOT NULL DEFAULT 0,
+	subscribed INTEGER NOT NULL DEFAULT 0,
+	has_avatar INTEGER NOT NULL DEFAULT 0,
+	pgp_key TEXT NULL,
 	stats_posts INTEGER NOT NULL DEFAULT 0,
 	stats_bounced INTEGER NOT NULL DEFAULT 0,
 	created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP CHECK (created = datetime(created)),
 	last_post TEXT NULL CHECK (last_post IS NULL OR last_post = datetime(last_post)),
-	has_avatar INTEGER NOT NULL DEFAULT 0,
-	pgp_key TEXT NULL,
 	CHECK (id_user IS NOT NULL OR email IS NOT NULL)
 );
 
@@ -46,7 +47,10 @@ CREATE TABLE IF NOT EXISTS plugin_discuss_threads (
 	uri TEXT NOT NULL,
 	subject TEXT NOT NULL,
 	last_update TEXT NULL,
-	status INTEGER NOT NULL DEFAULT 0,
+	is_sticky INTEGER NOT NULL DEFAULT 0,
+	is_closed INTEGER NOT NULL DEFAULT 0,
+	is_solved INTEGER NOT NULL DEFAULT 0, -- 1 if thread is solved
+	is_managed_by INTEGER NULL REFERENCES plugin_discuss_users(id) ON DELETE SET NULL, -- If the thread is managed by someone
 	replies_count INTEGER NOT NULL DEFAULT 0
 );
 
@@ -59,15 +63,15 @@ CREATE TABLE IF NOT EXISTS plugin_discuss_messages (
 	id_parent INTEGER NULL REFERENCES plugin_discuss_messages (id) ON DELETE SET NULL,
 	level INTEGER NOT NULL DEFAULT 0,
 	message_id TEXT NOT NULL,
-	in_reply_to TEXT NULL,
 	date TEXT NOT NULL CHECK (date = datetime(date)),
-	id_user INTEGER NOT NULL REFERENCES id_forum INTEGER NOT NULL REFERENCES plugin_discuss_forums (id),users(id) ON DELETE SET NULL,
+	id_user INTEGER NULL REFERENCES plugin_discuss_users(id) ON DELETE SET NULL,
 	from_name TEXT NULL,
 	from_email TEXT NULL,
 	content TEXT NOT NULL,
 	has_attachments INTEGER NOT NULL DEFAULT 0,
 	deleted_attachments TEXT NULL,
-	status INTEGER NOT NULL DEFAULT 0
+	is_censored INTEGER NOT NULL DEFAULT 0,
+	is_from_moderator INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS messages_parent ON messages (id_parent);
@@ -76,11 +80,11 @@ CREATE INDEX IF NOT EXISTS messages_user_id ON messages (id_user);
 CREATE INDEX IF NOT EXISTS messages_email ON messages (from_email);
 
 CREATE TRIGGER IF NOT EXISTS plugin_discuss_messages_add AFTER INSERT ON plugin_discuss_messages BEGIN
-	UPDATE plugin_discuss_threads SET replies = replies + 1 WHERE id = NEW.thread_id;
+	UPDATE plugin_discuss_threads SET replies_count = replies_count + 1, last_update = NEW.date WHERE id = NEW.id_thread;
 END;
 
 CREATE TRIGGER IF NOT EXISTS plugin_discuss_messages_delete AFTER DELETE ON plugin_discuss_messages BEGIN
-	UPDATE plugin_discuss_threads SET replies = replies - 1 WHERE id = OLD.thread_id;
+	UPDATE plugin_discuss_threads SET replies_count = replies_count - 1 WHERE id = OLD.id_thread;
 END;
 
 CREATE VIRTUAL TABLE IF NOT EXISTS plugin_discuss_search USING fts4

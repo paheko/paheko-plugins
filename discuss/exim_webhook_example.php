@@ -16,7 +16,7 @@ stream_set_blocking(STDIN, false);
 $message = file('php://stdin');
 
 // Ignore first non-headers lines, eg. "From email@domain.tld Date"
-foreach ($message as $k=>$line) {
+foreach ($message as $k => $line) {
 	if (preg_match('/^[^\s:]+:/', $line)) {
 		break;
 	}
@@ -43,11 +43,13 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, $message);
 $response = curl_exec($ch);
 
 if ($e = curl_error($ch)) {
+	curl_close($ch);
 	printf("Webhook temporarily unavailable: %s\r\n", $e);
 	exit(75);
 }
 
 $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
 
 if ($code != 204) {
 	printf("Webhook failed (%d): %s\r\n", $code, $response);
