@@ -24,6 +24,9 @@ class Message extends Entity
 	protected string $content;
 	protected bool $has_attachments;
 	protected ?array $deleted_attachments;
+	protected bool $is_censored;
+	protected bool $is_from_moderator;
+	protected bool $is_internal;
 
 	const HIDDEN = 0x01 << 1;
 

@@ -71,7 +71,8 @@ CREATE TABLE IF NOT EXISTS plugin_discuss_messages (
 	has_attachments INTEGER NOT NULL DEFAULT 0,
 	deleted_attachments TEXT NULL,
 	is_censored INTEGER NOT NULL DEFAULT 0,
-	is_from_moderator INTEGER NOT NULL DEFAULT 0
+	is_from_moderator INTEGER NOT NULL DEFAULT 0,
+	is_internal INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS messages_parent ON messages (id_parent);
