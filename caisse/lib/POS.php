@@ -298,7 +298,6 @@ class POS
 				) AS lines
 				ON lines.session = s.id
 			WHERE s.closed IS NOT NULL
-				AND s.error_amount = 0
 				AND date(s.closed) >= date(:start) AND date(s.closed) <= date(:end)
 				%s
 			GROUP BY s.id, lines.account, lines.reference
