@@ -13,8 +13,6 @@ use KD2\DB\EntityManager as EM;
 
 use function Paheko\{f, qg};
 
-$session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
-
 $csrf_key = 'plugin_taima_config';
 $url = Utils::plugin_url(['query' => '', 'file' => 'config.php']);
 
