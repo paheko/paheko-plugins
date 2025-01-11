@@ -252,12 +252,12 @@ $('.products ul li a').forEach((elm) => {
 
 		if (!elm.dataset.cat) {
 			g.toggle('.products section', true);
-			history.replaceState( {} , 'foo', window.location.href.replace(/&cat=\d+|$/, ''));
+			history.replaceState( {} , 'foo', window.location.href.replace(/&cat=[^&]+|$/, ''));
 		}
 		else {
 			g.toggle('.products section', false);
 			g.toggle('.products section[data-cat="' + elm.dataset.cat + '"]', true);
-			history.replaceState( {} , 'foo', window.location.href.replace(/&cat=\d+|$/, '&cat=' + elm.dataset.cat));
+			history.replaceState( {} , 'foo', window.location.href.replace(/&cat=[^&]+|$/, '&cat=' + elm.dataset.cat));
 		}
 		return false;
 	};

@@ -19,29 +19,34 @@ class TabItem extends Entity
 	protected ?int $id;
 	protected int $tab;
 	protected \DateTime $added;
-	protected ?int $product;
+	protected ?int $product = null;
 	protected int $qty;
 	protected int $price;
-	protected ?int $weight;
+	protected ?int $weight = null;
 	protected int $total;
 	protected string $name;
 	protected string $category_name;
-	protected ?string $description;
-	protected ?string $account;
+	protected ?string $description = null;
+	protected ?string $account = null;
 	protected int $type;
-	protected int $pricing;
+	protected int $pricing = self::PRICING_QTY;
+
+	protected ?int $id_service = null;
+	protected ?int $id_fee = null;
+	protected ?int $id_subscription = null;
 
 	protected ?Product $_product = null;
 
 	const TYPE_PRODUCT = 0;
 	const TYPE_PAYOFF = 1;
+	const TYPE_SUBSCRIPTION = 2;
 
 	const PRICING_QTY = 0;
 	const PRICING_QTY_WEIGHT = 1;
 
 	public function selfCheck(): void
 	{
-		$this->assert(in_array($this->type, [self::TYPE_PAYOFF, self::TYPE_PRODUCT], true));
+		$this->assert(in_array($this->type, [self::TYPE_PAYOFF, self::TYPE_PRODUCT, self::TYPE_SUBSCRIPTION], true));
 		$this->assert(in_array($this->pricing, [self::PRICING_QTY, self::PRICING_QTY_WEIGHT], true));
 	}
 

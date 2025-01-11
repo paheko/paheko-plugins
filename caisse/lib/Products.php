@@ -4,13 +4,69 @@ namespace Paheko\Plugin\Caisse;
 
 use Paheko\DB;
 use Paheko\DynamicList;
+use Paheko\Services\Services;
 use KD2\DB\EntityManager as EM;
 
 class Products
 {
-	static public function listBuyableByCategory(): array
+	static public function listBuyableByCategory(bool $enable_services, ?int $id_user = null): array
 	{
 		$db = DB::getInstance();
+
+		$list = [];
+		$list_single_fees = [
+			'id'       => 's_all',
+			'name'     => 'Activités',
+			'products' => [],
+		];
+
+		// Prepend list of services
+		if ($enable_services) {
+			$services = Services::listGroupedWithFees($id_user, 1);
+
+			foreach ($services as $service) {
+				$service_products = [];
+
+				foreach ($service->fees as $fee) {
+					if (!$fee->id_account) {
+						continue;
+					}
+
+					$service_products[] = [
+						'id' => 'fee_' . $fee->id,
+						'name' => $fee->label,
+						'price' => $fee->user_amount ?? $fee->amount,
+						'qty' => 1,
+					];
+				}
+
+				$count = count($service_products);
+
+				if (!$count) {
+					continue;
+				}
+
+				if ($count === 1) {
+					if ($service_products[0]['name'] !== $service->label) {
+						$service_products[0]['name'] = $service->label . ' — ' . $service_products[0]['name'];
+					}
+
+					$list_single_fees['products'][] = $service_products[0];
+				}
+				else {
+					$list['s_' . $service->id] = [
+						'id'       => 's_' . $service->id,
+						'name'     => $service->label,
+						'products' => $service_products,
+					];
+				}
+			}
+
+			if (count($list_single_fees['products'])) {
+				$list = ['s_all' => $list_single_fees] + $list;
+			}
+		}
+
 		$sql = POS::sql('SELECT p.*, c.name AS category_name, c.id AS category_id
 			FROM @PREFIX_products p
 			INNER JOIN @PREFIX_products_methods pm ON pm.product = p.id
@@ -19,8 +75,6 @@ class Products
 			WHERE p.archived = 0
 			GROUP BY p.id
 			ORDER BY category_name COLLATE U_NOCASE, name COLLATE U_NOCASE;');
-
-		$list = [];
 
 		foreach ($db->iterate($sql) as $product) {
 			$cat = $product->category_id;

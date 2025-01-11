@@ -62,7 +62,18 @@ elseif (null !== qg('new')) {
 }
 elseif ($tab) {
 	if (!empty($_POST['add_item'])) {
-		$tab->addItem((int)key($_POST['add_item']), current($_POST['add_item']));
+		$id = key($_POST['add_item']);
+		$price = current($_POST['add_item']);
+
+		if (substr($id, 0, 4) === 'fee_') {
+			$tab->addSubscriptionItem((int) substr($id, 4), (int) $price);
+		}
+		else {
+			$tab->addItem((int) $id);
+		}
+		reload();
+	}
+	elseif (!empty($_POST['add_item']) && substr($_POST['add_item'], 0, 4) === 'fee_') {
 		reload();
 	}
 	elseif (!empty($_GET['add_debt'])) {
@@ -120,7 +131,7 @@ $tabs = Tabs::listForSession($current_pos_session->id);
 $tpl->assign('pos_session', $current_pos_session);
 $tpl->assign('tab_id', $tab ? $tab->id : null);
 
-$tpl->assign('products_categories', Products::listBuyableByCategory());
+$tpl->assign('products_categories', Products::listBuyableByCategory($plugin->getConfig('show_services'), $tab->user_id ?? null));
 $tpl->assign('has_weight', Products::checkUserWeightIsRequired());
 $tpl->assign('tabs', $tabs);
 

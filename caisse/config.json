@@ -2,5 +2,6 @@
 	"allow_custom_user_name": false,
 	"send_email_when_closing": null,
 	"auto_close_tabs": true,
-	"auto_sync": true
+	"auto_sync": true,
+	"show_services": true
 }

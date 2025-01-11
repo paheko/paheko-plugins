@@ -2,15 +2,17 @@
 
 namespace Paheko\Plugin\Caisse\Entities;
 
-use Paheko\DB;
-use Paheko\UserException;
-
 use Paheko\Plugin\Caisse\POS;
 use Paheko\Plugin\Caisse\Products;
 use Paheko\Plugin\Caisse\Tabs;
 use Paheko\Plugin\Caisse\Sessions;
+
+use Paheko\Accounting\Accounts;
+use Paheko\DB;
 use Paheko\Entity;
+use Paheko\Services\Fees;
 use Paheko\Utils;
+use Paheko\UserException;
 use Paheko\ValidationException;
 
 use KD2\DB\EntityManager as EM;
@@ -30,9 +32,6 @@ class Tab extends Entity
 
 	const PAYMENT_STATUS_DEBT = 0;
 	const PAYMENT_STATUS_PAID = 1;
-
-	const ITEM_TYPE_PRODUCT = 0;
-	const ITEM_TYPE_PAYOFF = 1;
 
 	protected ?Session $_session = null;
 
@@ -86,7 +85,39 @@ class Tab extends Entity
 		$this->addItem($id);
 	}
 
-	public function addItem(int $id, string $user_weight = null, int $price = null, int $type = self::ITEM_TYPE_PRODUCT)
+	public function addSubscriptionItem(int $id, int $amount)
+	{
+		$fee = Fees::get($id);
+
+		if (!$fee) {
+			throw new UserException('Ce tarif n\'existe pas');
+		}
+
+		if (!$fee->id_account) {
+			throw new UserException('Ce tarif n\'est pas lié à la comptabilité');
+		}
+
+		$account_code = Accounts::getCodeFromId($fee->id_account);
+
+		$service = $fee->service();
+
+		$item = new TabItem;
+		$item->importForm([
+			'tab'           => $this->id,
+			'product'       => null,
+			'qty'           => 1,
+			'price'         => $amount,
+			'name'          => $fee->label,
+			'category_name' => $service->label,
+			'account'       => $account_code,
+			'type'          => TabItem::TYPE_SUBSCRIPTION,
+			'id_service'    => $fee->id_service,
+			'id_fee'        => $fee->id,
+		]);
+		$item->save();
+	}
+
+	public function addItem(int $id, string $user_weight = null, int $price = null, int $type = TabItem::TYPE_PRODUCT)
 	{
 		if ($this->closed) {
 			throw new UserException('Cette note est close, impossible de modifier la note.');
@@ -366,7 +397,7 @@ class Tab extends Entity
 			$product_id = $product->id();
 		}
 
-		$this->addItem($product_id, null, $amount, self::ITEM_TYPE_PAYOFF);
+		$this->addItem($product_id, null, $amount, TabItem::TYPE_PAYOFF);
 	}
 
 	public function addUserDebt(): void

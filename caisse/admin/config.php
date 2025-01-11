@@ -13,6 +13,7 @@ $form->runIf('save', function () use ($plugin) {
 	$plugin->setConfigProperty('send_email_when_closing', trim(f('send_email_when_closing') ?: '') ?: null);
 	$plugin->setConfigProperty('auto_close_tabs', (bool)f('auto_close_tabs'));
 	$plugin->setConfigProperty('accounting_year_id', intval(f('accounting_year_id')) ?: null);
+	$plugin->setConfigProperty('show_services', boolval($_POST['show_services'] ?? false));
 	$plugin->save();
 }, $csrf_key, PLUGIN_ADMIN_URL . 'config.php?ok');
 

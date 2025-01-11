@@ -124,7 +124,9 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_items (
 	description TEXT NULL,
 	account TEXT NULL,
 	type INTEGER NOT NULL DEFAULT 0,
-	pricing INTEGER NOT NULL DEFAULT 0
+	pricing INTEGER NOT NULL DEFAULT 0,
+	id_service INTEGER NULL REFERENCES services (id) ON DELETE SET NULL,
+	id_fee INTEGER NULL REFERENCES services_fees (id) ON DELETE SET NULL
 );
 
 CREATE INDEX IF NOT EXISTS @PREFIX_tabs_items_tab ON @PREFIX_tabs_items (tab);

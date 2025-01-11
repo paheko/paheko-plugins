@@ -8,6 +8,7 @@ use Paheko\DynamicList;
 use Paheko\Users\DynamicFields;
 
 use Paheko\Plugin\Caisse\Entities\Tab;
+use Paheko\Plugin\Caisse\Entities\TabItem;
 use KD2\DB\EntityManager as EM;
 
 class Tabs
@@ -125,7 +126,7 @@ class Tabs
 			FROM @PREFIX_tabs_items p %s
 			WHERE p.type = %d %s;',
 			$join,
-			Tab::ITEM_TYPE_PAYOFF,
+			TabItem::TYPE_PAYOFF,
 			$where
 		));
 
@@ -161,7 +162,7 @@ class Tabs
 			WHERE p.status = %d
 			GROUP BY t.user_id, t.name)';
 
-		$tables = POS::sql(sprintf($tables, Tab::ITEM_TYPE_PAYOFF, Tab::PAYMENT_STATUS_DEBT));
+		$tables = POS::sql(sprintf($tables, TabItem::TYPE_PAYOFF, Tab::PAYMENT_STATUS_DEBT));
 
 		$list = new DynamicList($columns, $tables, 'amount > 0');
 		$list->orderBy('date', true);
@@ -204,7 +205,7 @@ class Tabs
 			WHERE ti.type = %d
 			GROUP BY t.id)';
 
-		$tables = POS::sql(sprintf($tables, Tab::PAYMENT_STATUS_DEBT, Tab::ITEM_TYPE_PAYOFF));
+		$tables = POS::sql(sprintf($tables, Tab::PAYMENT_STATUS_DEBT, TabItem::TYPE_PAYOFF));
 		$conditions = '1';
 
 		if ($user_id) {
