@@ -3,6 +3,7 @@
 namespace Paheko;
 use Paheko\Plugin\Caisse\Categories;
 use Paheko\Plugin\Caisse\Products;
+use Paheko\Services\Services;
 
 require __DIR__ . '/../_inc.php';
 
@@ -42,8 +43,9 @@ else {
 
 	$methods = $product->listPaymentMethods();
 	$categories = Categories::listAssoc();
+	$fees = Services::listGroupedWithFeesForSelect(false);
 
-	$tpl->assign(compact('methods', 'categories'));
+	$tpl->assign(compact('methods', 'categories', 'fees'));
 
 	$tpl->display(PLUGIN_ROOT . '/templates/manage/products/edit.tpl');
 }

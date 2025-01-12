@@ -124,6 +124,7 @@ class Tab extends Entity
 			'account'       => $product->category_account,
 			'type'          => $type,
 			'pricing'       => $pricing,
+			'id_fee'        => $product->id_fee,
 		]);
 		$item->save();
 	}
