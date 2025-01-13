@@ -20,12 +20,21 @@
 			<legend>Lier à une activité</legend>
 			<dl>
 				{input type="select_groups" name="id_fee" source=$product default_empty="— Ne pas lier —" options=$fees label="Tarif"}
+				<dd class="help">
+					Sélectionner un tarif d'activité ici pour générer une inscription à ce tarif lors de la clôture de la caisse.
+				</dd>
 			</dl>
-			<p class="help">
-				Sélectionner un tarif d'activité ici pour générer une inscription à ce tarif lors de la clôture de la caisse.<br />
-				Si la note de caisse n'est pas liée à un membre existant, il faudra déjà créer le membre pour pouvoir clôturer la caisse.<br />
-				Le compte configuré dans le tarif ne sera pas utilisé.
-			</p>
+		</fieldset>
+
+		<div class="fee-only alert block">
+			<p><strong>Attention&nbsp;:</strong></p>
+			<ul>
+				<li>si la note de caisse n'est pas liée à un membre existant, il faudra déjà créer le membre pour pouvoir clôturer la caisse&nbsp;;</li>
+				<li>le compte de la catégorie de produits sera utilisé pour la comptabilité&nbsp;;</li>
+				<li>l'inscription ne sera enregistrée qu'à la clôture de la caisse&nbsp;;</li>
+				<li>l'inscription ne sera pas liée à une écriture comptable&nbsp;;</li>
+				<li>il ne sera pas possible d'encaisser plusieurs adhésions sur la même note de caisse.</li>
+			</ul>
 		</fieldset>
 
 		<fieldset class="fee-hidden">
@@ -97,6 +106,7 @@ c.onchange = checkWeightRequired;
 
 var fee = $('#f_id_fee');
 function changeFee() {
+	g.toggle('.fee-only', fee.value ? true : false);
 	g.toggle('.fee-hidden', fee.value ? false : true);
 }
 changeFee();
