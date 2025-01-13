@@ -6,6 +6,19 @@
 </p>
 {/if}
 
+{if count($missing_users)}
+	<div class="error block">
+		<h3>Notes sans membres</h3>
+		<p>Les notes suivantes comportent des inscriptions à des activités, mais aucun membre lié&nbsp;:</p>
+		<ul>
+			{foreach from=$missing_users item="id"}
+			<li>{link href="tab.php?id=%d"|args:$id label="Note n°%d"|args:$id}</li>
+			{/foreach}
+		</ul>
+		<p>Merci d'associer ces notes à des membres pour pouvoir clôturer la caisse.</p>
+	</div>
+{/if}
+
 <form method="post" action="" data-focus="1">
 
 <h2 class="ruler">1. Vérifier la caisse</h2>

@@ -75,15 +75,18 @@ class Tabs
 		$sql = sprintf('SELECT u.id, %s AS number, %s AS email, %s AS name
 			FROM users u
 			WHERE %s
-			ORDER BY name COLLATE U_NOCASE LIMIT 0, 5;', $number_field, $email_field, $id_field, $sql);
+			ORDER BY name COLLATE U_NOCASE LIMIT 0, 20;', $number_field, $email_field, $id_field, $sql);
 
 		return $db->iterate($sql, $q);
 	}
 
-	static public function searchUserWithServices(string $q): \Generator
+	static public function searchUserWithServices(string $q): array
 	{
 		$db = DB::getInstance();
-		foreach (self::searchUser($q) as $u) {
+		$users = self::searchUser($q);
+		$out = [];
+
+		foreach ($users as $u) {
 			$u->services = $db->get('SELECT
 					s.label,
 					su.expiry_date,
@@ -97,8 +100,10 @@ class Tabs
 				INNER JOIN services s ON su.id_service = s.id
 				WHERE s.end_date IS NULL OR s.end_date >= date()
 				ORDER BY status DESC, s.label COLLATE U_NOCASE;', (int) $u->id);
-			yield $u;
+			$out[] = $u;
 		}
+
+		return $out;
 	}
 
 	static public function getUnpaidDebtAmount(?int $user_id = null): int

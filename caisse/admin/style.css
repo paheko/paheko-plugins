@@ -226,73 +226,13 @@
 	border-width: 1px;
 }
 
-#user_rename {
-	position: fixed;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	top: 0;
-	background: rgba(0, 0, 0, 0.7);
-	padding: 1em;
-	z-index: 10000;
-	text-align: center;
+.user_rename_list th {
+	font-weight: bold;
 }
 
-#user_rename_list {
-	display: flex;
-	flex-direction: column;
-	align-items: stretch;
-	justify-content: stretch;
-	margin: .5rem auto;
-	max-width: 40rem;
-}
-
-#user_rename_list button {
-	background: #ddd;
-	padding: .5rem;
-	border: .1rem solid #ccc;
-	border-radius: .5rem;
-	text-align: left;
-	box-shadow: none;
-	margin: .2rem;
-}
-
-#user_rename_list button:hover, #user_rename_list button:focus {
-	background-color: #ffd;
-	border-color: darkorange;
-	cursor: pointer;
-}
-
-#user_rename_list button:focus {
-	box-shadow: 0px 0px 5px 5px orange;
-}
-
-#user_rename_list button:hover h3 {
-	color: darkred;
-	text-decoration: underline;
-}
-
-
-#user_rename_list button h4 {
-	font-weight: normal;
-	color: #666;
+.user_rename_list td.subscriptions {
 	font-size: .9em;
-}
-
-#user_rename_list button p {
-	margin-top: .3rem;
-}
-
-#user_rename_list button h5 {
-	float: right;
-	border: .1rem solid #999;
-	padding: .5rem;
-	border-radius: .5rem;
-	background: #fff;
-}
-
-#user_rename input {
-	font-size: 2em;
+	color: #666;
 }
 
 @media screen and (max-width: 800px) {
