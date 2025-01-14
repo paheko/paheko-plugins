@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_products (
 	weight INTEGER NULL,
 	image TEXT NULL,
 	code TEXT NULL,
-	archived INTEGER NOT NULL DEFAULT 0
+	archived INTEGER NOT NULL DEFAULT 0,
+	id_fee INTEGER NULL REFERENCES services_fees (id) ON DELETE SET NULL
 );
 
 CREATE INDEX IF NOT EXISTS @PREFIX_products_category ON @PREFIX_products (category);
@@ -124,7 +125,9 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_items (
 	description TEXT NULL,
 	account TEXT NULL,
 	type INTEGER NOT NULL DEFAULT 0,
-	pricing INTEGER NOT NULL DEFAULT 0
+	pricing INTEGER NOT NULL DEFAULT 0,
+	id_fee INTEGER NULL REFERENCES services_fees (id) ON DELETE SET NULL,
+	id_subscription INTEGER NULL REFERENCES services_users (id) ON DELETE SET NULL
 );
 
 CREATE INDEX IF NOT EXISTS @PREFIX_tabs_items_tab ON @PREFIX_tabs_items (tab);
