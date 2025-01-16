@@ -35,7 +35,7 @@
 				<li>l'inscription ne sera pas liée à une écriture comptable&nbsp;;</li>
 				<li>il ne sera pas possible d'encaisser plusieurs adhésions sur la même note de caisse.</li>
 			</ul>
-		</fieldset>
+		</div>
 
 		<fieldset class="fee-hidden">
 			<legend>Poids</legend>
@@ -106,8 +106,8 @@ c.onchange = checkWeightRequired;
 
 var fee = $('#f_id_fee');
 function changeFee() {
-	g.toggle('.fee-only', fee.value ? true : false);
-	g.toggle('.fee-hidden', fee.value ? false : true);
+	g.toggle('.fee-only', !!fee.value);
+	g.toggle('.fee-hidden', !fee.value);
 }
 changeFee();
 fee.onchange = changeFee;
