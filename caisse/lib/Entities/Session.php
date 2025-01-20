@@ -261,11 +261,6 @@ class Session extends Entity
 			ORDER BY p.date;'), $this->id, Method::TYPE_TRACKED);
 	}
 
-	public function listMissingUsers()
-	{
-		return DB::getInstance()->get(POS::sql('SELECT * FROM @PREFIX_tabs WHERE user_id IS NULL AND session = ?;'), $this->id);
-	}
-
 	public function export(bool $details = false, int $print = 0)
 	{
 		$tpl = Template::getInstance();
@@ -277,7 +272,6 @@ class Session extends Entity
 		$tpl->assign('totals_products', $this->listCountsByProduct());
 		$tpl->assign('total_payments', $this->getPaymentsTotal());
 		$tpl->assign('total_sales', $this->getItemsTotal());
-		$tpl->assign('missing_users_tabs', $this->listMissingUsers());
 
 		$tpl->assign('title', sprintf('Session de caisse n°%d du %s', $this->id, Utils::date_fr($this->opened)));
 
