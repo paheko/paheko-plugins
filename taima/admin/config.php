@@ -13,6 +13,10 @@ use KD2\DB\EntityManager as EM;
 
 use function Paheko\{f, qg};
 
+if ($plugin->needUpgrade()) {
+	$plugin->upgrade();
+}
+
 $csrf_key = 'plugin_taima_config';
 $url = Utils::plugin_url(['query' => '', 'file' => 'config.php']);
 
@@ -35,12 +39,13 @@ $form->runIf('delete', function () {
 
 
 $tpl->assign(compact('csrf_key'));
-$tpl->assign('account_targets', Account::TYPE_VOLUNTEERING_EXPENSE);
+$tpl->assign('account_types', Account::TYPE_VOLUNTEERING_EXPENSE);
 
 if (qg('edit')) {
 	$task = EM::findOneById(Task::class, (int) qg('edit'));
 	$projects = Projects::listAssoc();
-	$tpl->assign(compact('task', 'projects'));
+	$account = $task->account ? [$task->account => $task->account] : null;
+	$tpl->assign(compact('task', 'projects', 'account'));
 	$tpl->display(__DIR__ . '/../templates/config_edit.tpl');
 }
 elseif (qg('delete')) {
