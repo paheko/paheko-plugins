@@ -124,13 +124,13 @@ class Session extends Entity
 		$db->preparedQuery(POS::sql(sprintf('UPDATE @PREFIX_products SET stock = -(SELECT SUM(ti.qty) %s) + stock WHERE stock IS NOT NULL AND id IN (SELECT DISTINCT ti.product %1$s);', $select)));
 
 		// Create subscriptions
-		$sql = POS::sql('SELECT ti.id, t.user_id, ti.id_fee, ti.total
+		$sql = POS::sql('SELECT ti.id, t.user_id, ti.id_fee, ti.total, ti.qty
 			FROM @PREFIX_tabs_items ti
 			INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
 			WHERE ti.id_fee IS NOT NULL AND session = ?;');
 
 		foreach ($db->iterate($sql, $this->id) as $row) {
-			$su = Services_User::createFromFee($row->id_fee, $row->user_id, $row->total, true);
+			$su = Services_User::createFromFee($row->id_fee, $row->user_id, $row->total, true, $row->qty);
 			$su->save();
 			$db->update(TabItem::TABLE, ['id_subscription' => $su->id()], 'id = ' . (int)$row->id);
 		}
