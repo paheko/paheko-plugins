@@ -254,12 +254,12 @@ class Channel extends Entity
 	public function uploadRecording(User $user, string $key): Message
 	{
 		$name = sprintf('recording_%s_%s.opus', date('Y-m-d.His'), bin2hex(random_bytes(4)));
-		return self::uploadFile($user, $key, $name);
+		return self::uploadFile($user, $key, null, $name);
 	}
 
 	public function uploadFile(User $user, string $key, ?string $name = null): Message
 	{
-		$file = Files::upload($this->storage_root(), $key, $name);
+		$file = Files::upload($this->storage_root(), $key, null, $name);
 
 		try {
 			$now = time();
