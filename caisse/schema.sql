@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs (
 	id INTEGER NOT NULL PRIMARY KEY,
 	session INTEGER NOT NULL REFERENCES @PREFIX_sessions (id) ON DELETE CASCADE,
 	name TEXT NULL,
-	user_id INTEGER NULL,
+	user_id INTEGER NULL REFERENCES users (id) ON DELETE SET NULL,
 	opened TEXT NOT NULL DEFAULT (datetime('now','localtime')),
 	closed TEXT NULL -- If NULL it is still open
 );
