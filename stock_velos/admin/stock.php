@@ -9,12 +9,12 @@ $en_vente = $a_demonter = $autres = array();
 
 foreach ($stock as $num=>$prix)
 {
-    if ($prix == $velos::A_DEMONTER)
-        $a_demonter[] = $num;
-    elseif ($prix > 0)
-        $en_vente[$num] = $prix;
-    elseif ($prix !== false)
-        $autres[] = $num;
+	if ($prix == $velos::A_DEMONTER)
+		$a_demonter[] = $num;
+	elseif ($prix > 0)
+		$en_vente[$num] = $prix;
+	elseif ($prix !== false)
+		$autres[] = $num;
 }
 
 $valeur = $velos->getValeurStock();

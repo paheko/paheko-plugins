@@ -9,11 +9,11 @@ require_once __DIR__ . '/_inc.php';
 $csrf_key = 'ajout_velo';
 
 $form->runIf('save', function () {
-    $velo = new Velo;
-    $velo->importForm();
-    $velo->save();
+	$velo = new Velo;
+	$velo->importForm();
+	$velo->save();
 
-    utils::redirect(utils::plugin_url(['query' => 'id=' . $velo->id]));
+	utils::redirect(utils::plugin_url(['query' => 'id=' . $velo->id]));
 }, $csrf_key);
 
 $tpl->assign('velo', null);

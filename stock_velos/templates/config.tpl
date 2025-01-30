@@ -7,9 +7,9 @@
 <form method="post" action="">
 
 {if isset($_GET.ok)}
-    <p class="block confirm">
-        La configuration a été enregistrée.
-    </p>
+	<p class="block confirm">
+		La configuration a été enregistrée.
+	</p>
 {/if}
 
 <fieldset>
