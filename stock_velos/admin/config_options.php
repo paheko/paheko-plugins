@@ -19,7 +19,7 @@ if (!$field) {
 }
 
 $form->runIf('save', function () use ($plugin, $field) {
-	$list = $_POST[$field['name']] ?? '';
+	$list = $_POST[$field->name] ?? '';
 	$list = preg_replace("!\r?\n|\r|\n{2,}!", "\n", trim($list));
 	$list = explode("\n", $list);
 	$list = array_map('trim', $list);
@@ -27,13 +27,13 @@ $form->runIf('save', function () use ($plugin, $field) {
 	$list = array_values($list);
 
 	$defaults = (array) ($plugin->getConfig('defaults') ?? []);
-	$defaults[$field['name']] = $list;
+	$defaults[$field->name] = $list;
 	$plugin->setConfigProperty('defaults', $defaults);
 	$plugin->save();
 	Utils::closeFrameIfDialog();
 }, $csrf_key);
 
-$options = implode("\n", $field['options']);
+$options = implode("\n", $field->options);
 $tpl->assign(compact('field', 'csrf_key', 'options'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/config_options.tpl');

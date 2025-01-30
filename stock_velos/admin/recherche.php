@@ -10,7 +10,7 @@ $fields = array(
 	'modele'         =>  'Marque et modèle',
 	'source_details' =>  'Détails sur la source',
 	'details_sortie' =>  'Détails sur la sortie',
-	'raison_sortie'  =>  'Raison de sortie',
+	'raison_sortie'  =>  'Motif de sortie',
 	'notes'          =>  'Notes et remarques',
 	'bicycode'       =>  'Bicycode',
 );

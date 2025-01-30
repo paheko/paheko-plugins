@@ -195,3 +195,7 @@ section.stock article h3 {
 	font-weight: normal;
 	margin-bottom: 1em;
 }
+
+figure.graph {
+	text-align: center;
+}
