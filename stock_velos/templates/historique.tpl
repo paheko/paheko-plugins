@@ -16,6 +16,7 @@
             <td>{if empty($row.prix)}--{elseif $row.prix < 0}à&nbsp;démonter{else}{$row.prix} €{/if}</td>
             <td>{$row.date_sortie|date_short}</td>
             <td>{$row.raison_sortie}</td>
+            <td class="actions"></td>
         </tr>
     {/foreach}
     </tbody>

@@ -292,6 +292,10 @@ class Velos
                 'label' => 'Notes',
                 'export' => true,
             ],
+            'poids' => [
+                'label' => 'poids',
+                'export' => true,
+            ],
         ];
 
         $tables = 'plugin_stock_velos';

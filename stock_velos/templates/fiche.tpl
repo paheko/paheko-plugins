@@ -32,10 +32,12 @@
             <dt>Sorti</dt>
         </dl>
         {/if}
+        {if $velo.etiquette}
         <dl class="etiq">
             <dt>Étiquette</dt>
             <dd>{$velo.etiquette|escape}</dd>
         </dl>
+        {/if}
         {if $velo.prix > 0}
         <dl class="etiq">
             <dt>Prix</dt>
