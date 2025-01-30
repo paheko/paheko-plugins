@@ -54,7 +54,7 @@
         <li>Encaisser le paiement</li>
         <li>Remettre un exemplaire à l'acheteur</li>
     </ol>
-    <p><a href="{plugin_url}">Retour à la gestion des vélos</a></p>
+    <p><a href="./">Retour à la gestion des vélos</a></p>
 </header>
 
 <section class="vente">

@@ -6,7 +6,7 @@
 
     {foreach from=$list->iterate() item="row"}
         <tr>
-            <th class="num"><a href="{plugin_url query=1}id={$row.id}">{$row.id}</a></th>
+            <th class="num"><a href="fiche.php?id={$row.id}">{$row.id}</a></th>
             <td>{$row.etiquette}</td>
             <td>{$row.type}</td>
             <td>{$row.roues}</td>

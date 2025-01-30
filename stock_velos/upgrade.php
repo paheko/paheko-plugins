@@ -12,3 +12,24 @@ $db = DB::getInstance();
 if (version_compare($old_version, '4.2.0', '<')) {
 	$db->exec('ALTER TABLE plugin_stock_velos ADD COLUMN poids INTEGER NULL; CREATE INDEX IF NOT EXISTS prv_poids ON plugin_stock_velos (poids);');
 }
+
+if (version_compare($old_version, '4.3.0', '<')) {
+	$defaults = [
+		'type' => $plugin->getConfig('types'),
+		'taille' => $plugin->getConfig('tailles'),
+		'source' => $plugin->getConfig('sources'),
+		'genre' => $plugin->getConfig('genres'),
+		'raison_sortie' => $plugin->getConfig('raisons_sortie'),
+		'source_details' => $plugin->getConfig('sources_details'),
+	];
+
+	$defaults = array_filter($defaults);
+	$plugin->setConfigProperty('defaults', $defaults);
+
+	$plugin->setConfigProperty('types', null);
+	$plugin->setConfigProperty('tailles', null);
+	$plugin->setConfigProperty('sources', null);
+	$plugin->setConfigProperty('genres', null);
+	$plugin->setConfigProperty('raisons_sortie', null);
+	$plugin->setConfigProperty('sources_details', null);
+}

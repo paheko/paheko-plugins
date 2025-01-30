@@ -26,7 +26,8 @@ $form->runIf('save', function () use ($velo) {
     utils::redirect(utils::plugin_url(['query' => 'id=' . $velo->id]));
 }, $csrf_key);
 
-$tpl->assign('defaults', $velos->getDefaults($plugin));
+$tpl->assign('fields', $velos->getFields($plugin));
+$tpl->assign('abaques', $velos::ABAQUES);
 
 $tpl->assign('now', new \DateTime);
 $tpl->assign('velo', $velo);

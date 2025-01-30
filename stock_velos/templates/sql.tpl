@@ -41,7 +41,7 @@
             <tr>
             {foreach from=$row item="value" key="name"}
                 {if $name == 'id'}
-                    <th class="num"><a href="{plugin_url query=1}id={$value|escape}">{$value|escape}</a></th>
+                    <th class="num"><a href="fiche.php?id={$value|escape}">{$value|escape}</a></th>
                 {elseif is_null($value)}
                     <td>NULL</td>
                 {elseif substr($name, 0, 4) == 'date'}

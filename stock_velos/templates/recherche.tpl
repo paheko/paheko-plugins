@@ -3,7 +3,7 @@
 {include file="./_nav.tpl" current="recherche"}
 
 <ul class="sub_actions">
-    <li><a href="{plugin_url file="sql.php"}">Recherche SQL</a></li>
+    <li><a href="sql.php">Recherche SQL</a></li>
 </ul>
 
 <form method="get" action="{$self_url}">
@@ -50,8 +50,8 @@
         <tbody>
         {foreach from=$liste item="velo"}
             <tr>
-                <th class="num"><a href="{plugin_url query=1}id={$velo.id}">{$velo.id}</a></th>
-                <td class="num">{if is_null($velo.date_sortie)}<a href="{plugin_url query=1}id={$velo.id}">{$velo.etiquette}</a>{else}[{$velo.raison_sortie}]{/if}</td>
+                <th class="num"><a href="fiche.php?id={$velo.id}">{$velo.id}</a></th>
+                <td class="num">{if is_null($velo.date_sortie)}<a href="fiche.php?id={$velo.id}">{$velo.etiquette}</a>{else}[{$velo.raison_sortie}]{/if}</td>
                 <td>{$velo->$current_field}</td>
                 <td>{$velo.type}</td>
                 <td>{$velo.roues}</td>

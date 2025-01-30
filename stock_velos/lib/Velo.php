@@ -18,18 +18,18 @@ class Velo extends Entity
 	protected ?int $etiquette = null;
 	protected ?string $bicycode = null;
 
-	protected string $source;
-	protected ?string $source_details;
+	protected string $source = '';
+	protected ?string $source_details = null;
 
-	protected ?string $type;
-	protected ?string $roues;
-	protected ?string $genre;
-	protected ?string $couleur;
-	protected ?string $modele;
+	protected ?string $type = null;
+	protected ?string $roues = null;
+	protected ?string $genre = null;
+	protected ?string $couleur = null;
+	protected ?string $modele = null;
 	protected ?float $prix = null;
 
 	protected Date $date_entree;
-	protected ?string $etat_entree;
+	protected ?string $etat_entree = null;
 
 	protected ?Date $date_sortie = null;
 	protected ?string $raison_sortie = null;
@@ -53,13 +53,10 @@ class Velo extends Entity
 
 			$velo = $db->firstColumn('SELECT raison_sortie FROM plugin_stock_velos WHERE id = '.(int)$this->source_details.';');
 
-			if (!$velo || $velo != 'Vendu') {
+			if (!$velo || $velo !== 'Vendu') {
 				throw new UserException("Le vélo indiqué pour le rachat n'existe pas ou n'a pas été vendu.");
 			}
 		}
-
-		$this->assert(trim($this->etiquette) !== '', "Le numéro d'étiquette est obligatoire.");
-		$this->assert(trim($this->source) !== '', "La source du vélo est obligatoire.");
 
 		if (!$this->exists()) {
 			$this->assert(!$db->test('plugin_stock_velos', 'date_sortie IS NULL AND etiquette = ?', (int)$this->etiquette), "Ce numéro d'étiquette est déjà attribué à un autre vélo en stock.");

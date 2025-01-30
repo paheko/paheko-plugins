@@ -34,7 +34,7 @@
         <li>Payer le rachat</li>
         <li>Remettre un exemplaire à l'adhérent</li>
     </ol>
-    <p><a href="{plugin_url}">Retour à la gestion des vélos</a></p>
+    <p><a href="./">Retour à la gestion des vélos</a></p>
 </header>
 
 <section class="vente">

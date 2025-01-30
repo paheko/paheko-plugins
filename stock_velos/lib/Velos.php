@@ -23,6 +23,11 @@ class Velos
 
     protected $max_etiquettes = 1000;
 
+    const ABAQUES = [
+        'Enfant' => '10',
+        'Adulte' => '12.5',
+    ];
+
     protected $columns_order = array(
         'id',
         'etiquette',
@@ -38,8 +43,28 @@ class Velos
         'statut',
     );
 
+    const FIELDS = [
+        'etiquette'      => 'Numéro étiquette',
+        'bicycode'       => 'Bicycode',
+        'prix'           => 'Prix du vélo',
+        'notes'          => 'Notes',
+        'source'         => 'Provenance du vélo',
+        'source_details' => 'Détails sur la provenance',
+        'type'           => 'Type du vélo (VTT, ville, etc.)',
+        'roues'          => 'Taille (26", 700, etc.)',
+        'genre'          => 'Genre (Homme, Mixte, etc.)',
+        'couleur'        => 'Couleur',
+        'modele'         => 'Marque et modèle',
+        'poids'          => 'Poids',
+        'date_entree'    => 'Date d\'entrée dans le stock',
+        'etat_entree'    => 'État à l\'entrée dans le stock',
+        'date_sortie'    => 'Date de sortie du stock',
+        'raison_sortie'  => 'Raison de sortie',
+        'details_sortie' => 'Détails de sortie',
+    ];
+
     const DEFAULTS = [
-        'types' => [
+        'type' => [
             'Course',
             'Mi-course',
             'Randonneuse',
@@ -51,13 +76,13 @@ class Velos
             'BMX',
             'Autre',
         ],
-        'genres' => [
+        'genre' => [
             'Diamant',
             'Mixte',
             'Enfant/Diamant',
             'Enfant/Mixte',
         ],
-        'tailles' => [
+        'roues' => [
             '700C',
             '650B',
             '26"',
@@ -66,38 +91,54 @@ class Velos
             '16"',
             'Autre',
         ],
-        'sources' => [
+        'source' => [
             'Achat',
             'Don',
             'Rachat',
             'Récupération',
             'Partenariat',
         ],
-        'raisons_sortie' => [
+        'raison_sortie' => [
             'Démonté',
             'Vendu',
             'Vendu en bourse',
             'Jeté',
         ],
-        'sources_details' => [
+        'source_details' => [
             'Déchetterie',
             'Copropriété',
         ],
     ];
 
-    public function getDefaults(Plugin $plugin): array
+    public function getFields(Plugin $plugin): array
     {
-        $defaults = self::DEFAULTS;
+        static $exclude_require = ['details_sortie', 'raison_sortie', 'date_sortie'];
+        $statuses = (array)($plugin->getConfig('fields') ?? []);
+        $defaults = (array)($plugin->getConfig('defaults') ?? []);
+        $out = [];
 
-        foreach ($defaults as $name => $values) {
-            if ($values = $plugin->getConfig($name)) {
-                $defaults[$name] = $values;
+        foreach (self::FIELDS as $name => $label) {
+            $status = $statuses[$name] ?? 1;
+
+            $out[$name] = [
+                'name'        => $name,
+                'label'       => $label,
+                'required'    => $status === 2,
+                'enabled'     => $status > 0,
+                'status'      => $status,
+                'can_require' => !in_array($name, $exclude_require),
+                'has_options' => false,
+                'options'     => null,
+            ];
+
+            if (isset(self::DEFAULTS[$name])) {
+                $o = $defaults[$name] ?? self::DEFAULTS[$name];
+                $out[$name]['has_options'] = true;
+                $out[$name]['options'] = array_combine($o, $o);
             }
-
-            $defaults[$name] = array_combine($defaults[$name], $defaults[$name]);
         }
 
-        return $defaults;
+        return $out;
     }
 
     public function addVelosDemontes(int $nb, string $source, string $source_details)

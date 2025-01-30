@@ -5,8 +5,8 @@
 <section class="fiche">
     <nav>
         <ul class="sub_actions">
-            <li class="fiche"><a href="{plugin_url file="fiche.php" query=1}id={$velo.id|escape}">Voir la fiche de ce vélo</a></li>
-            <li class="modifier"><a href="{plugin_url file="modifier.php" query=1}id={$velo.id|escape}">Modifier la fiche de ce vélo</a></li>
+            <li class="fiche"><a href="fiche.php?id={$velo.id|escape}">Voir la fiche de ce vélo</a></li>
+            <li class="modifier"><a href="modifier.php?id={$velo.id|escape}">Modifier la fiche de ce vélo</a></li>
         </ul>
     </nav>
 

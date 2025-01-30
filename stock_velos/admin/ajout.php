@@ -18,7 +18,8 @@ $form->runIf('save', function () {
 
 $tpl->assign('velo', null);
 
-$tpl->assign('defaults', $velos->getDefaults($plugin));
+$tpl->assign('fields', $velos->getFields($plugin));
+$tpl->assign('abaques', $velos::ABAQUES);
 
 $tpl->assign('libre', $velos->getEtiquetteLibre());
 
