@@ -133,3 +133,9 @@ if (version_compare($old_version, '0.8.6', '<')) {
 	$db->commitSchemaUpdate();
 	$db->toggleForeignKeys(true);
 }
+
+if (version_compare($old_version, '0.8.7', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.7.sql')));
+	$db->commitSchemaUpdate();
+}

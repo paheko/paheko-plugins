@@ -131,6 +131,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_items (
 );
 
 CREATE INDEX IF NOT EXISTS @PREFIX_tabs_items_tab ON @PREFIX_tabs_items (tab);
+-- Used in saisie_poids module
+CREATE INDEX IF NOT EXISTS @PREFIX_tabs_items_weight ON plugin_pos_tabs_items(product, weight);
 
 CREATE TABLE IF NOT EXISTS @PREFIX_tabs_payments (
 	-- Payments for a tab

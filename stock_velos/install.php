@@ -54,5 +54,7 @@ $db->exec(<<<EOF
 	CREATE INDEX IF NOT EXISTS prv_date_entree ON plugin_stock_velos (date_entree);
 	CREATE INDEX IF NOT EXISTS prv_date_sortie ON plugin_stock_velos (date_sortie);
 	CREATE INDEX IF NOT EXISTS prv_poids ON plugin_stock_velos (poids);
+	CREATE INDEX IF NOT EXISTS prv_poids2 ON plugin_stock_velos(raison_sortie, poids);
+	CREATE INDEX IF NOT EXISTS prv_poids3 ON plugin_stock_velos(source, poids);
 EOF
 );

@@ -11,12 +11,12 @@
 		<li>{link href="graphs.php" label="Graphiques"}</li>
 	</ul>
 	<ul class="sub">
-		<li{if $period === 'year'} class="current"{/if}>{link href="?period=year&type=%s"|args:$type label="Par année"}</li>
-		<li{if $period === 'quarter'} class="current"{/if}>{link href="?period=quarter&type=%s"|args:$type label="Par trimestre"}</li>
-	</ul>
-	<ul class="sub">
 		<li{if $type === 'entry'} class="current"{/if}>{link href="?period=%s&type=entry"|args:$period label="Entrées"}</li>
 		<li{if $type === 'exit'} class="current"{/if}>{link href="?period=%s&type=exit"|args:$period label="Sorties"}</li>
+	</ul>
+	<ul class="sub">
+		<li{if $period === 'year'} class="current"{/if}>{link href="?period=year&type=%s"|args:$type label="Par année"}</li>
+		<li{if $period === 'quarter'} class="current"{/if}>{link href="?period=quarter&type=%s"|args:$type label="Par trimestre"}</li>
 	</ul>
 </nav>
 

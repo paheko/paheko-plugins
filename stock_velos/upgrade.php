@@ -33,3 +33,10 @@ if (version_compare($old_version, '4.3.0', '<')) {
 	$plugin->setConfigProperty('raisons_sortie', null);
 	$plugin->setConfigProperty('sources_details', null);
 }
+
+if (version_compare($old_version, '4.3.1', '<')) {
+	$db->exec('
+		CREATE INDEX IF NOT EXISTS prv_poids2 ON plugin_stock_velos(raison_sortie, poids);
+		CREATE INDEX IF NOT EXISTS prv_poids3 ON plugin_stock_velos(source, poids);
+	');
+}
