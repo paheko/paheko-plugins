@@ -25,6 +25,11 @@
 	background: #000;
 	color: #fff;
 }
+.items table .number {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	font-feature-settings: "tnum";
+}
 table tfoot {
 	border-top: 4px solid #666;
 }
@@ -54,21 +59,25 @@ p {
 	<table class="list">
 		<thead>
 			<th>Dénomination</th>
-			<td>Qté</td>
-			<td>Prix</td>
-			<td>Total</td>
+			<td class="number">Poids</td>
+			<td class="number">Qté</td>
+			<td class="number">Prix</td>
+			<td class="number">Total</td>
 		</thead>
 		<tbody>
 		{{#foreach from=$items}}
 			<tr>
 				<th>{{$name}}</th>
-				<td>{{$qty}}</td>
-				<td>{{$price|raw|money_currency:false}}</td>
-				<td>{{$total|raw|money_currency:false}}</td>
+				<td class="number">
+					{{$weight|weight:false:true}}
+				</td>
+				<td class="number">{{$qty}}</td>
+				<td class="number">{{$price|raw|money_currency:false}}</td>
+				<td class="number">{{$total|raw|money_currency:false}}</td>
 			</tr>
 			{{if $description}}
 			<tr>
-				<td colspan="4">
+				<td colspan="5">
 					{{$description|escape|nl2br}}
 				</td>
 			</tr>
@@ -78,22 +87,22 @@ p {
 		<tfoot>
 			<tr>
 				<th>TVA</th>
-				<td colspan="3"><em>Association exonérée des impôts commerciaux</em></td>
+				<td colspan="4"><em>Association exonérée des impôts commerciaux</em></td>
 			</tr>
 			<tr>
-				<th colspan="3"><strong>{{if $tab.total < 0}}Total dû{{else}}Total{{/if}}</strong></th>
-				<td><strong>{{$tab.total|raw|money_currency:false}}</strong></td>
+				<th colspan="4"><strong>{{if $tab.total < 0}}Total dû{{else}}Total{{/if}}</strong></th>
+				<td class="number"><strong>{{$tab.total|raw|money_currency:false}}</strong></td>
 			</tr>
 			{{#foreach from=$payments}}
 			<tr>
 				<th>Règlement&nbsp;: {{$method_name}}</th>
-				<td colspan="2">{{if $reference}}<em>Réf. {{$reference}}</em>{{/if}}</td>
-				<td>{{$amount|raw|money_currency:false}}</td>
+				<td colspan="3">{{if $reference}}<em>Réf. {{$reference}}</em>{{/if}}</td>
+				<td class="number">{{$amount|raw|money_currency:false}}</td>
 			</tr>
 			{{/foreach}}
 			<tr>
-				<th colspan="3">{{if $tab.total < 0}}Reste à régler{{else}}Reste à payer{{/if}}</th>
-				<td>{{$remainder_after|raw|money_currency:false}}</td>
+				<th colspan="4">{{if $tab.total < 0}}Reste à régler{{else}}Reste à payer{{/if}}</th>
+				<td class="number">{{$remainder_after|raw|money_currency:false}}</td>
 			</tr>
 		</tfoot>
 	</table>
