@@ -366,23 +366,10 @@ class Velos
 		return DB::getInstance()->firstColumn('SELECT COUNT(*) FROM plugin_stock_velos WHERE date_sortie IS NOT NULL;');
 	}
 
-	public function listEtiquettes()
+	public function listStock()
 	{
-		$etiquettes = array();
-
-		for ($i = 1; $i <= $this->max_etiquettes; $i++)
-		{
-			$etiquettes[$i] = false;
-		}
-
 		$db = DB::getInstance();
-
-		foreach ($db->iterate('SELECT etiquette, prix FROM plugin_stock_velos WHERE date_sortie IS NULL;') as $row)
-		{
-			$etiquettes[$row->etiquette] = (float) $row->prix;
-		}
-
-		return $etiquettes;
+		return $db->get('SELECT id, etiquette, prix FROM plugin_stock_velos WHERE date_sortie IS NULL;');
 	}
 
 	public function getValeurStock()
@@ -392,15 +379,11 @@ class Velos
 
 	public function getEtiquetteLibre()
 	{
-		$etiquettes = $this->listEtiquettes();
-
-		foreach ($etiquettes as $num=>$stock)
-		{
-			if ($stock === false)
-				return $num;
-		}
-
-		return false;
+		return DB::getInstance()->firstColumn('SELECT COALESCE(MIN(a.etiquette) + 1, 1)
+			FROM plugin_stock_velos a
+			LEFT JOIN plugin_stock_velos b ON b.etiquette = a.etiquette + 1 AND b.date_sortie IS NULL
+			WHERE b.etiquette IS NULL
+			AND a.date_sortie IS NULL;');
 	}
 
 	public function getIdFromEtiquette($etiquette)
