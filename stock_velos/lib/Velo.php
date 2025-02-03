@@ -44,10 +44,6 @@ class Velo extends Entity
 
 		$this->assert(null === $this->date_sortie || $this->date_sortie >= $this->date_entree, 'La date de sortie ne peut pas être antérieure à la date d\'entrée.');
 
-		if ($this->date_sortie && $this->raison_sortie == 'Vendu') {
-			$this->assert(trim($this->details_sortie) !== '' && filter_var($this->details_sortie, FILTER_VALIDATE_INT), "Il est obligatoire de donner le numéro de membre auquel le vélo à été vendu.");
-		}
-
 		if ($this->source == 'Rachat') {
 			$this->assert(!empty($this->source_details), "Pour le rachat il est obligatoire de fournir un numéro unique de vélo.");
 
@@ -119,14 +115,9 @@ class Velo extends Entity
 
 	public function sell(string $num_adherent, string $prix): void
 	{
-		if (!filter_var($num_adherent, FILTER_VALIDATE_INT))
-		{
-			throw new UserException('Numéro d\'adhérent non valide.');
-		}
-
 		$this->import([
 			'raison_sortie' => 'Vendu',
-			'details_sortie' => (int) $num_adherent,
+			'details_sortie' => (int) $num_adherent ?: null,
 			'date_sortie' => date('d/m/Y'),
 			'prix' => (float) $prix,
 		]);

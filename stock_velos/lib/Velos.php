@@ -122,7 +122,7 @@ class Velos
 			return $this->fields;
 		}
 
-		static $exclude_require = ['details_sortie', 'raison_sortie', 'date_sortie'];
+		static $exclude_require = ['raison_sortie', 'date_sortie'];
 		$statuses = (array)($this->plugin->getConfig('fields') ?? []);
 		$defaults = (array)($this->plugin->getConfig('defaults') ?? []);
 		$out = [];

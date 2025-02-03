@@ -65,12 +65,11 @@
 	<fieldset>
 		<legend>Informations sur la vente</legend>
 		<dl>
-			<dt><label for="f_prix">Prix</label></dt>
-			<dd><input type="text" id="f_prix" name="prix" size="5" maxlength="3" value="{$prix|escape}" /> €</dd>
-			<dt><label for="f_etat">État du vélo</label></dt>
-			<dd><textarea name="etat" id="f_etat" cols="70" rows="5">{$etat}</textarea></dd>
-			<dt><label for="f_adherent">Numéro de l'adhérent</label></dt>
-			<dd><input type="number" id="f_adherent" name="adherent" size="5" required="required" /></dd>
+			{input type="number" label="Prix" name="prix" default=$prix}
+			{input type="textarea" name="etat" label="État du vélo" cols=70 rows=5 default=$etat required=false}
+			{if $fields.details_sortie.enabled}
+			{input type="number" size=5 name="adherent" label="Numéro de l'adhérent" required=$fields.details_sortie.required}
+			{/if}
 		</dl>
 	</fieldset>
 

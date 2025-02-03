@@ -23,7 +23,7 @@ $form->runIf('save', function () use ($velo) {
 	$velo->importForm();
 	$velo->save();
 
-	utils::redirect(utils::plugin_url(['query' => 'id=' . $velo->id]));
+	utils::redirect(utils::plugin_url() . 'fiche.php?id=' . $velo->id());
 }, $csrf_key);
 
 $tpl->assign('fields', $velos->getFields($plugin));

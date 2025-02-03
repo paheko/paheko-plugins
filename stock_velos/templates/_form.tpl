@@ -19,7 +19,7 @@
 			{input type="text" name="bicycode" label="Bicycode" source=$velo required=$fields.bicycode.required}
 		{/if}
 		{if $fields.prix.enabled}
-			{input type="money" label="Prix du vélo" name="prix" required=$fields.prix.required min="-1" step="1" source=$velo}
+			{input type="number" size=4 label="Prix du vélo" name="prix" required=$fields.prix.required min="-1" step="1" source=$velo}
 			<dd>
 				<input type="button" onclick="document.getElementById('f_prix').value='-1';" value="Vélo à démonter" />
 				<input type="button" onclick="document.getElementById('f_prix').value='0';" value="Pas en vente" />
