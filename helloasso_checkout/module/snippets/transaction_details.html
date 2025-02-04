@@ -1,0 +1,28 @@
+{{#sql select='config' tables='plugins' where='name = "helloasso_checkout"' limit=1 assign='helloasso_data'}}{{/sql}}
+
+{{if $helloasso_data.config}}
+	{{:assign helloasso_config=$helloasso_data.config|json_decode }}
+	{{:assign account_ids=$helloasso_config.account|keys }}
+	{{#foreach from=$transaction_lines item='transaction_line'}}
+		{{if $transaction_line.id_account == $account_ids.0 }}
+			<section class="transaction-details-container">
+				<article>
+					<h3 class="ruler">{{$module.label}}</h3>
+					{{:assign url="/p/helloasso_checkout/checkout.php?transaction_id=%d"|args:$transaction.id}}
+					{{if $_GET.created !== null}}
+						<script>
+							window.onload = () => {
+								document.getElementById('helloasso-btn').click();
+							}
+						</script>
+					{{else}}
+						{{:assign url="%s&status=new"|args:$url}}
+					{{/if}}
+					<p class="actions-center">
+						{{:linkbutton id="helloasso-btn" href=$url target="_dialog" label="Déclencher un paiement" shape="eye"}}
+					</p>
+				</article>
+			</section>
+		{{/if}}
+	{{/foreach}}
+{{/if}}

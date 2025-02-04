@@ -1,0 +1,20 @@
+{
+  "name": "lg33/paheko-plugins",
+  "description": "Paheko plugins with additional helloasso_checkout plugin",
+  "keywords": [
+    "Paheko",
+    "HelloAsso"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Louis Gaillard",
+      "homepage": "https://lgaillard.fr/"
+    }
+  ],
+  "type": "library",
+  "require": {
+    "php": ">=7.3",
+    "lg33/wp-paheko": "^1.3"
+  }
+}
