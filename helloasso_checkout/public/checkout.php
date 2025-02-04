@@ -19,7 +19,7 @@ $tpl->assign('qr_code_src', 'https://api.qrserver.com/v1/create-qr-code/?size=20
 $account = (array) $plugin->getConfig('account');
 $accountId = array_keys($account)[0];
 
-if ($status == 'new') {
+if ($status == 'scan') {
     $totalAmount = $transaction->sum();
 
     $checkout = API::getInstance()->createCheckout($totalAmount, $transaction->label, "transaction_id=$transaction->id");
@@ -34,7 +34,7 @@ if ($status == 'new') {
 
     $tpl->assign('checkout_url', $checkout->url);
     $tpl->assign('hide_title', true);
-} else {
+} else if ($status != 'new') {
     $checkout_id = intval($transaction->getPaymentReference());
 
     if ($checkout_id == null) {

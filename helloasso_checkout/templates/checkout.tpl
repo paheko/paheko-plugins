@@ -18,10 +18,11 @@
 	{else}
 		<h2>Cliquez sur le QR code pour générer le lien de paiement HelloAsso :</h2>
 		<br>
-		<a href="?_dialog&transaction_id={$_GET.transaction_id}&status=new"><img src="{$qr_code_src}&data=example" style="opacity: 0.25" /></a>
+		<a href="?_dialog&transaction_id={$_GET.transaction_id}&status=scan"><img src="{$qr_code_src}&data=example" style="opacity: 0.25" /></a>
 	{/if}
 </div>
 
+{if isset($checkout_url)}
 <script>
 const url = "{$checkout_url}";
 {literal}
@@ -29,6 +30,6 @@ $('#copy').onclick = () => navigator.clipboard.writeText(url);
 $('#share').onclick = () => navigator.share({url});
 {/literal}
 </script>
-
+{/if}
 
 {include file="_foot.tpl"}

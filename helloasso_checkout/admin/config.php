@@ -30,8 +30,6 @@ $form->runIf('save', function () use ($plugin, &$client_id, &$client_secret, &$s
 		$client_secret = f('client_secret');
 
 		API::getInstance()->register($client_id, $client_secret);
-
-		Extensions::toggle('helloasso_checkout_snippets', true);
 	}
 
 	Utils::redirect(PLUGIN_ADMIN_URL);

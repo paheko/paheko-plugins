@@ -10,7 +10,7 @@ Utils::deleteRecursive(ROOT . '/modules/helloasso_checkout_snippets');
 recursive_copy(__DIR__ . '/module', ROOT . '/modules/helloasso_checkout_snippets');
 
 $ext = Extensions::get('helloasso_checkout_snippets');
-$ext->enable();
+if($ext) $ext->enable();
 
 function recursive_copy($src, $dst)
 {
