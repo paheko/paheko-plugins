@@ -22,7 +22,7 @@
 	<fieldset>
 		<legend>Paramètres</legend>
 		<dl>
-			{input required=true name="account" multiple=false target="!acc/charts/accounts/selector.php?targets=1:2:3&chart=1" type="list" label="Compte HelloAsso" default=$account help="Compte correspondant au solde HelloAsso en attente (versé mensuellement sur votre compte courant)."}
+			{input required=true name="account" multiple=false target="!acc/charts/accounts/selector.php?targets=1:2:3&chart=1" type="list" label="Compte HelloAsso (à créer dans la catégorie Attente d'encaissement)" default=$account help="Compte correspondant au solde HelloAsso en attente (versé mensuellement sur votre compte courant)."}
 			{input type="checkbox" name="sandbox" value=true label="Mode sandbox" default=$sandbox help="Permet d'utiliser api.helloasso-sandbox.com (au lieu de api.helloasso.com) pour tester les paiements pour de faux"}
 		</dl>
 	</fieldset>

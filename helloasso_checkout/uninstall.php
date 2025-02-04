@@ -2,9 +2,10 @@
 
 namespace Paheko;
 
+use Paheko\Entities\Module;
+
 $plugin->unregisterSignal('cron');
 
 $ext = Extensions::get('helloasso_checkout_snippets');
 if($ext) $ext->disable();
-
-Utils::deleteRecursive(ROOT . '/modules/helloasso_checkout_snippets');
+@unlink(ROOT . DIRECTORY_SEPARATOR . Module::ROOT . DIRECTORY_SEPARATOR . 'helloasso_checkout_snippets');
