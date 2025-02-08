@@ -1,0 +1,9 @@
+table.list td.photo {
+	width: 70px;
+	text-align: center;
+}
+
+table.list td.photo img {
+	max-width: 56px;
+	border-radius: 10%;
+}

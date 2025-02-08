@@ -15,7 +15,7 @@
 		<dl>
 			{input type="textarea" name="desc" label="Description" source=$event cols=30 rows=5}
 			{input type="text" name="location" label="Adresse" source=$event}
-			<dd>{linkbutton href="#" label="Ouvrir l'adresse sur une carte"}</dd>
+			<dd>{linkbutton href="#" label="Ouvrir l'adresse sur une carte"}{*FIXME*}</dd>
 			{input type="number" min=0 required=true name="reminder" label="Rappel" suffix=" minutes avant" source=$event}
 		</dl>
 	</fieldset>
