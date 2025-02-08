@@ -29,37 +29,29 @@ class Events
 		return sprintf('hsl(%d, %s)', $h, $sl);
 	}
 
-	static public function findTimezoneName($offset = null)
-	{
-		if (null !== $offset)
-		{
-			foreach (self::TIMEZONES as $tz)
-			{
-				$d = new DateTime('now', new DateTimezone($tz));
-
-				if ($d->getOffset() / 60 == $offset)
-				{
-					return $tz;
-				}
-			}
-		}
-
-		return new date_default_timezone_get();
-	}
-
 	// Renvoie la TZ la plus commune sur les 10 derniers événements
-	public function getDefaultTimezone(): ?string
+	public function getDefaultTimezone(): string
 	{
-		return DB::getInstance()->firstColumn('SELECT timezone,
-			COUNT(*) AS nb FROM (SELECT timezone FROM plugin_pim_events WHERE id_user = ? ORDER BY date DESC LIMIT 10)
+		$tz = DB::getInstance()->firstColumn('SELECT timezone,
+			COUNT(*) AS nb FROM (SELECT timezone FROM plugin_pim_events WHERE id_user = ? ORDER BY start DESC LIMIT 10)
 			GROUP BY timezone
 			ORDER BY nb DESC LIMIT 1;', $this->id_user);
+
+		if (!$tz) {
+			$tz = date_default_timezone_get();
+		}
+
+		if (!$tz) {
+			$tz = 'Europe/Paris';
+		}
+
+		return $tz;
 	}
 
 	public function getDefaultCategory()
 	{
 		$db = DB::getInstance();
-		return $db->firstColumn('SELECT id FROM plugin_pim_events_categories WHERE id_user = ? is_default = 1 LIMIT 1;', $this->id_user);
+		return $db->firstColumn('SELECT id FROM plugin_pim_events_categories WHERE id_user = ? ORDER BY is_default DESC LIMIT 1;', $this->id_user) ?: null;
 	}
 
 	public function setDefaultCategory(int $id): void
@@ -89,28 +81,28 @@ class Events
 		$sql = 'SELECT * FROM @TABLE
 			WHERE id_user = :id_user
 			AND (
-				(date >= :start AND date <= :end)
-				OR (date_end >= :start AND date_end <= :end)
+				(start >= :start AND start <= :end)
+				OR (end >= :start AND end <= :end)
 			)
-			ORDER BY date, date_end;';
+			ORDER BY start, end;';
 
 		$days = [];
 		$id_user = $this->id_user;
 		$em = EM::getInstance(Event::class);
 
 		foreach ($em->iterate($sql, compact('id_user', 'start', 'end')) as $row) {
-			if ($row->date < $start) {
+			if ($row->start < $start) {
 				$s = clone $start;
 			}
 			else {
-				$s = clone $row->date;
+				$s = clone $row->start;
 			}
 
-			if ($row->date_end > $end) {
+			if ($row->end > $end) {
 				$e = $end;
 			}
 			else {
-				$e = $row->date_end;
+				$e = $row->end;
 			}
 
 			// Add events to array of days
@@ -129,10 +121,10 @@ class Events
 		foreach ($days as $key => &$events) {
 			usort($events, function($a, $b)
 			{
-				if ($a->date == $b->date)
+				if ($a->start == $b->start)
 					return 0;
 
-				return ($a->date < $b->date) ? -1 : 1;
+				return ($a->start < $b->start) ? -1 : 1;
 			});
 		}
 
@@ -183,15 +175,15 @@ class Events
 				$starts = '';
 				$ends = '';
 
-				if ($running && $e->date->format('Hi') !== '0000' && $e->date->format('Y-m-d') === $item->date_ymd) {
-					$starts = $e->date->format('H:i');
+				if ($running && $e->start->format('Hi') !== '0000' && $e->start->format('Y-m-d') === $item->date_ymd) {
+					$starts = $e->start->format('H:i');
 				}
-				elseif (!$running && !$e->all_day && $e->date_end->format('Y-m-d') === $item->date_ymd) {
-					$starts = $e->date->format('H:i');
+				elseif (!$running && !$e->all_day && $e->end->format('Y-m-d') === $item->date_ymd) {
+					$starts = $e->start->format('H:i');
 				}
 
-				if ($running && $e->date_end->format('Hi') != '0000' && $e->date_end->format('Y-m-d') == $item->date_ymd) {
-					$ends = $e->date_end->format('H:i');
+				if ($running && $e->end->format('Hi') != '0000' && $e->end->format('Y-m-d') == $item->date_ymd) {
+					$ends = $e->end->format('H:i');
 				}
 
 				$item->events[] = [
@@ -255,36 +247,6 @@ class Events
 		return $date;
 	}
 
-	public function extractTimeFromTitle(&$str, DateTime $date, DateTime $date_end)
-	{
-		$str = trim($str);
-		if (!preg_match('!^(\d+)\s*[h:.](?:\s*(\d+))?(?:\s*-\s*(\d+)[h:.](?:\s*(\d+))?)?\s+!i', $str, $match)) {
-			return false;
-		}
-
-		$begin = array('h' => (int) $match[1], 'm' => 0);
-		$end = array('h' => (int) $match[1] + 1, 'm' => 0);
-
-		if ($date_end->format('Ymd') != $date->format('Ymd')) {
-			$end['h'] = 0;
-		}
-
-		if (!empty($match[2])) {
-			$begin['m'] = (int) $match[2];
-		}
-
-		if (!empty($match[3])) {
-			$end['h'] = (int) $match[3];
-
-			if (!empty($match[4]))
-				$end['m'] = (int) $match[4];
-		}
-
-		$str = substr($str, strlen($match[0]));
-
-		return array($begin, $end);
-	}
-
 	public function listCategories(): array
 	{
 		return EM::getInstance(Event_Category::class)->all('SELECT * FROM @TABLE WHERE id_user = ? ORDER BY title COLLATE U_NOCASE;', $this->id_user);
@@ -310,14 +272,14 @@ class Events
 	{
 		$data = $this->unserializeEvent($data);
 
-		$tz = $data->date->getTimezone()->getName();
+		$tz = $data->start->getTimezone()->getName();
 
 		if ($tz == 'UTC')
 		{
 			$tz = $this->getCurrentTimezone();
 		}
 
-		return $this->add($data->title, $data->date, $data->date_end, $data->all_day, $data->desc, (int)$category, $data->reminder, $data->location, $uri, $tz);
+		return $this->add($data->title, $data->start, $data->end, $data->all_day, $data->desc, (int)$category, $data->reminder, $data->location, $uri, $tz);
 	}
 
 	public function unserializeEvent($data)
@@ -330,15 +292,15 @@ class Events
 			sscanf($obj->VEVENT->VALARM->TRIGGER, '-PT%dM', $reminder);
 		}
 
-		$date = $obj->VEVENT->DTSTART->getDateTime();
-		$date_end = $obj->VEVENT->DTEND->getDateTime();
+		$start = $obj->VEVENT->DTSTART->getDateTime();
+		$end = $obj->VEVENT->DTEND->getDateTime();
 
 		if (!$obj->VEVENT->DTSTART->hasTime())
 		{
 			$all_day = true;
-			$date->setTime(0, 0, 0);
-			$date_end = $date_end->modify('-1 day');
-			$date_end->setTime(23, 59, 59);
+			$start->setTime(0, 0, 0);
+			$end = $end->modify('-1 day');
+			$end->setTime(23, 59, 59);
 		}
 		else
 		{
@@ -347,8 +309,8 @@ class Events
 
 		return (object) [
 			'title'    => (string) $obj->VEVENT->SUMMARY,
-			'date'     => $date,
-			'date_end' => $date_end,
+			'start'    => $start,
+			'end'      => $end,
 			'desc'     => (string) $obj->VEVENT->DESCRIPTION,
 			'reminder' => (int) $reminder,
 			'all_day'  => (int) $all_day,

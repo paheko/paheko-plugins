@@ -3,7 +3,9 @@
 namespace Paheko\Plugin\PIM\Entities;
 
 use Paheko\Plugin\PIM\ChangesTracker;
+use Paheko\Plugin\PIM\Events;
 use Paheko\Entity;
+use Paheko\UserException;
 use DateTime;
 
 class Event extends Entity
@@ -15,8 +17,8 @@ class Event extends Entity
 	protected ?int $id_category;
 	protected string $uri;
 	protected string $title;
-	protected DateTime $date;
-	protected DateTime $date_end;
+	protected DateTime $start;
+	protected DateTime $end;
 	protected bool $all_day;
 	protected string $timezone;
 	protected ?string $desc;
@@ -37,19 +39,19 @@ class Event extends Entity
 		parent::selfCheck();
 
 		$this->assert(isset($this->title) && strlen(trim($this->title)), 'Le titre doit être renseigné.');
-		$this->assert($this->date_end >= $this->date, 'La date de fin ne peut se situer avant la date de début');
+		$this->assert($this->end >= $this->start, 'La date de fin ne peut se situer avant la date de début');
 	}
 
 	public function importForm(?array $source = null)
 	{
 		$source ??= $_POST;
 
-		if (isset($source['date']) && isset($source['date_time'])) {
-			$source['date'] = $source['date'] . ' ' . $source['date_time'];
+		if (isset($source['start']) && isset($source['start_time'])) {
+			$source['start'] = $source['start'] . ' ' . $source['start_time'];
 		}
 
-		if (isset($source['date_end']) && isset($source['date_end_time'])) {
-			$source['date_end'] = $source['date_end'] . ' ' . $source['date_end_time'];
+		if (isset($source['end']) && isset($source['end_time'])) {
+			$source['end'] = $source['end'] . ' ' . $source['end_time'];
 		}
 
 		if (isset($source['all_day_present'])) {
@@ -68,8 +70,8 @@ class Event extends Entity
 		}
 
 		if ($this->all_day) {
-			$this->date->setTime(0, 0, 0);
-			$this->date_end->setTime(0, 0, 0);
+			$this->start->setTime(0, 0, 0);
+			$this->end->setTime(0, 0, 0);
 		}
 
 		if ($this->isModified('title')) {
@@ -103,7 +105,7 @@ class Event extends Entity
 
 	public function isRunning(): bool
 	{
-		return $this->date_end->format('Ymd') > $this->date->format('Ymd');
+		return $this->end->format('Ymd') > $this->start->format('Ymd');
 	}
 
 	public function getClass(): string
@@ -121,60 +123,117 @@ class Event extends Entity
 		return $class;
 	}
 
-	public function populateFromQueryString(array $qs)
+	public function populateFromQueryString(Events $events, array $qs)
 	{
-		$tz = Agenda::findTimezoneName($qs['offset'] ?? null);
+		$tz = $qs['tz'] ?? null;
 
-		if ($tz) {
-			$this->set('timezone', $tz);
+		if (!empty($tz)
+			&& in_array($tz, \DateTimeZone::listIdentifiers(), true)) {
+		}
+		else {
+			$tz = $events->getDefaultTimezone();
 		}
 
-		$date = DateTime::createFromFormat('Y-m-d', $_GET['start'], new \DateTimezone($tz));
-		$date_end = DateTime::createFromFormat('Y-m-d', $_GET['end'], new \DateTimezone($tz));
+		$this->set('timezone', $tz);
+		$tz = new \DateTimezone($tz);
 
-		if ($title = ($qs['title'] ?? null)) {
-			// Find location between parenthesis in title
-			if (preg_match('/\b\((.+)\)\b/', $title, $match)) {
-				$this->set('location', trim($match[1]) ?: null);
-				$title = trim(str_replace($match[0], '', $title));
-			}
+		if (!empty($qs['start'])) {
+			$start = $this->filterUserDateValue($qs['start']);
+			$end = $this->filterUserDateValue($qs['end']);
+		}
 
-			$date = !empty($_POST['date']) ? trim($_POST['date']) : $date->format('d/m/Y');
-			$date_end = !empty($_POST['date_end']) ? trim($_POST['date_end']) : $date_end->format('d/m/Y');
-			$location = null;
-			$category = $default_category;
+		$start ??= new \DateTime;
+		$end ??= new \DateTime;
 
-			if (!empty($_POST['category'])) {
-				$category = $_POST['category'];
-			}
-			// Recherche du nom de catégorie dans le titre
-			elseif (preg_match('/\b#(.+)\b/', $title, $match)) {
-				foreach ($cats as $cat) {
-					if (!strcasecmp($match[1], $cat->title)) {
-						$category = $cat->id;
-						$title = trim(str_replace($match[0], '', $title));
-						break;
-					}
+		$title = $qs['title'] ?? '';
+		$location = null;
+
+		// Find location between parenthesis in title
+		if (preg_match('/\b\((.+)\)\b/', $title, $match)) {
+			$location = trim($match[1]) ?: null;
+			$title = trim(str_replace($match[0], '', $title));
+		}
+
+		$category_id = null;
+
+		if (!empty($qs['category'])) {
+			$category_id = (int) $qs['category'];
+		}
+		// Recherche du nom de catégorie dans le titre
+		elseif (preg_match('/\b#(.+)\b/', $title, $match)) {
+			foreach ($events->listCategories() as $cat) {
+				if (!strcasecmp($match[1], $cat->title)) {
+					$category_id = $cat->id;
+					$title = trim(str_replace($match[0], '', $title));
+					break;
 				}
 			}
-
-
-			$date = $a->getDateFromUserEntry($date, false, $tz);
-			$date_end = $a->getDateFromUserEntry($date_end, false, $tz);
-
-			$all_day = ($date == $date_end && $date->format('Hi') == '0000') ? true : false;
-
-			if (list($b, $e) = $a->extractTimeFromTitle($title, $date, $date_end))
-			{
-				$all_day = false;
-				$date->setTime($b['h'], $b['m'], 0);
-				$date_end->setTime($e['h'], $e['m'], 0);
-			}
-
-			$reminder = ($all_day || $date->format('Hi') == '0000') ? 0 : $cats[$category]->default_reminder;
-
-			$a->add($title, $date, $date_end, $all_day, null, $category, $reminder, $location);
-			Utils::redirect('agenda/?y='.$date->format('Y').'&m='.$date->format('m'));
 		}
+
+		if (!$category_id) {
+			$category_id = $events->getDefaultCategory();
+		}
+
+		if (!$category_id) {
+			throw new UserException('There is no category defined');
+		}
+
+		$category = $events->getCategory($category_id);
+
+		if (!$category) {
+			throw new UserException('Invalid or unknown category');
+		}
+
+		$start->setTimezone($tz);
+		$end->setTimezone($tz);
+
+		$title = $this->setTimeFromTitle($title, $start, $end);
+		$all_day = false;
+		$reminder = 0;
+
+		if ($start->format('Ymd') === $end->format('Ymd')
+			&& $start->format('Hi') === '0000') {
+			$all_day = true;
+		}
+		elseif ($start->format('Hi') === '0000'
+			&& $end->format('Hi') === '0000') {
+			$all_day = true;
+		}
+
+		if (!$all_day) {
+			$reminder = $category->default_reminder;
+		}
+
+		$category = $category->id;
+		$this->import(compact('all_day', 'start', 'end', 'reminder', 'title', 'category'));
+	}
+
+	protected function setTimeFromTitle(string $str, DateTime $start, DateTime $end): string
+	{
+		$str = trim($str);
+
+		if (!preg_match('!^(\d+)\s*[h:.](?:\s*(\d+))?(?:\s*-\s*(\d+)[h:.](?:\s*(\d+))?)?\s+!i', $str, $match)) {
+			return $str;
+		}
+
+		$start_h = (int) $match[1];
+		$start_m = (int) ($match[2] ?? 0);
+		$end_h = $start_h+1;
+		$end_m = 0;
+
+		if ($end->format('Ymd') !== $start->format('Ymd')) {
+			$end_h = 0;
+		}
+
+		if (!empty($match[3])) {
+			$end_h = (int) $match[3];
+			$end_m = (int) ($match[4] ?? 0);
+		}
+
+		$str = substr($str, strlen($match[0]));
+
+		$start->setTime($start_h, $start_m, 0, 0);
+		$end->setTime($end_h, $end_m, 0, 0);
+		return $str;
 	}
 }

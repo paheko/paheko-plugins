@@ -17,16 +17,19 @@
 <fieldset>
 	<legend>Dates</legend>
 	<dl>
-		{input type="datetime" name="date" source=$event required=true label="Début" default=$start}
-		{input type="datetime" name="date_end" source=$event required=false label="Fin" default=$end}
+		{input type="datetime" name="start" source=$event required=true label="Début"}
+		{input type="datetime" name="end" source=$event required=false label="Fin"}
 		{input type="checkbox" name="all_day" value=1 source=$event label="Toute la journée"}
-		{input type="select_groups" name="timezone" required=true source=$event label="Fuseau horaire" options=$timezones default=$default_tz}
+		{input type="select_groups" name="timezone" required=true source=$event label="Fuseau horaire" options=$timezones}
 	</dl>
 </fieldset>
+
+{if $event->exists()}
 <p class="actions">
 	{linkbutton shape="plus" href="edit.php?copy=%d"|args:$event.id label="Dupliquer"}
 	{linkbutton shape="delete" href="delete.php?id=%d"|args:$event.id label="Supprimer"}
 </p>
+{/if}
 
 <p class="submit">
 	{csrf_field key=$csrf_key}

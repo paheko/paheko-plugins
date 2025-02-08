@@ -4,8 +4,8 @@ function addEvent(date, date_end)
 
 	if (typeof r == "string")
 	{
-		var offset = -(new Date).getTimezoneOffset();
-		var url = "./event_new.php?start="+date+"&end=" + date_end + "&offset=+"+encodeURIComponent(offset)+"&title="+encodeURIComponent(r);
+		var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		var url = "./edit.php?start="+date+"&end=" + date_end + "&tz=+"+encodeURIComponent(tz)+"&title="+encodeURIComponent(r);
 
 
 		location.href = url;
@@ -154,7 +154,7 @@ window.addEventListener('drop', (e) => {
 				continue;
 			}
 
-			var url = location.href.replace(/[^\/]*$/, '') + 'event_new.php';
+			var url = location.href.replace(/[^\/]*$/, '') + 'edit.php';
 			var body = new FormData;
 			body.append('import', 1);
 			body.append('file', f);
