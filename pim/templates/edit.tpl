@@ -23,7 +23,7 @@
 <fieldset>
 	<legend>{$title}</legend>
 	<dl>
-		{input type="select" name="id_category" label="Catégorie" options=$categories_assoc required=true}
+		{input type="select" name="id_category" label="Catégorie" options=$categories_assoc default_empty="— Aucune —"}
 		{input type="text" name="title" label="Titre" source=$event required=true}
 	</dl>
 </fieldset>
@@ -45,25 +45,30 @@
 </p>
 </form>
 
-{*
 <script type="text/javascript">
-var categories = '.json_encode($cats).';
-var hsl_sl = "'.Agenda::ALL_DAY.'";
+var categories = {$categories_colors|escape:'json'};
 
+{literal}
 window.addEventListener("load", function () {
-	var cat_select = document.getElementById("f_category");
+	var cat_select = document.getElementById("f_id_category");
 	var cat_id = cat_select.value;
 	var pr = document.createElement("span");
 	pr.id = "cat_preview";
-	pr.style.backgroundColor = "hsl(" + categories[cat_id].color + ", " + hsl_sl + ")";
+	pr.style = '--hue: ' + (categories[cat_id] ?? '');
 
-	cat_select.parentNode.insertBefore(pr, cat_select);
+	cat_select.parentNode.appendChild(pr);
 
 	cat_select.addEventListener("change", function() {
-		document.getElementById("cat_preview").style.backgroundColor = "hsl(" + categories[this.value].color + ", " + hsl_sl + ")";
+		var h = categories[this.value] ?? null;
+
+		if (!h) {
+			h = '';
+		}
+
+		pr.style = '--hue: ' + h;
 	}, false);
 }, false);
+{/literal}
 </script>
-*}
 
 {include file="_foot.tpl"}

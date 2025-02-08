@@ -174,3 +174,14 @@ table.calendar li.other {
 table.categories .color {
 	background: hsl(var(--hue), 50%, 75%);
 }
+
+#cat_preview {
+	display: inline-block;
+	width: 2em;
+	height: 2em;
+	border-radius: 100%;
+	border: 1px solid #999;
+	vertical-align: middle;
+	margin-left: 1em;
+	background: hsl(var(--hue), 50%, 75%);
+}

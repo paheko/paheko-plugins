@@ -57,9 +57,11 @@ $title = $event->exists() ? 'Modifier un événement' : 'Nouvel événement';
 
 $categories = $events->listCategories();
 $categories_assoc = [];
+$categories_colors = [];
 
 foreach ($categories as $cat) {
 	$categories_assoc[$cat->id] = $cat->title;
+	$categories_colors[$cat->id] = $cat->color;
 }
 
 $event->timezone ??= $events->getDefaultTimezone();
@@ -67,7 +69,8 @@ $event->start ??= new \DateTime('+1 hour');
 $event->end ??= new \DateTime('+2 hour');
 
 $timezones = TimeZones::listGroupedByContinent();
+$sl = Events::ALL_DAY;
 
-$tpl->assign(compact('event', 'csrf_key', 'title', 'categories', 'categories_assoc', 'timezones'));
+$tpl->assign(compact('event', 'csrf_key', 'title', 'categories_assoc', 'categories_colors', 'timezones', 'sl'));
 
 $tpl->display(__DIR__ . '/../templates/edit.tpl');
