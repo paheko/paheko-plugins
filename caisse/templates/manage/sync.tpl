@@ -16,8 +16,8 @@
 		Une recette de {$line.credit|money_currency|raw} sur la <a href="../session.php?id={$line.sid}">session n°{$line.sid}</a> n'a pas de compte associé.
 	{/if}
 	<br />
-	Normalement si cette erreur survient c'est qu'une catégorie de produit ou un moyen de paiement a été configuré sans compte associé.
-	Dans ce cas le montant a été comptabilisé comme une erreur de caisse.<br />
+	Cette erreur survient quand une catégorie de produit ou un moyen de paiement n'a pas de compte associé en comptabilité.
+	Le montant a donc été comptabilisé comme une erreur de caisse (758 produit divers ou 658 charge divers).<br />
 	{linkbutton href="!acc/search.php?qt=POS-SESSION-%d&year=%d"|args:$line.sid,$year.id label="Voir l'écriture" shape="search"}
 </p>
 {/foreach}

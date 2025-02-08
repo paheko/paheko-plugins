@@ -31,9 +31,6 @@ class Tab extends Entity
 	const PAYMENT_STATUS_DEBT = 0;
 	const PAYMENT_STATUS_PAID = 1;
 
-	const ITEM_TYPE_PRODUCT = 0;
-	const ITEM_TYPE_PAYOFF = 1;
-
 	protected ?Session $_session = null;
 
 	public function load(array $data): self
@@ -86,7 +83,7 @@ class Tab extends Entity
 		$this->addItem($id);
 	}
 
-	public function addItem(int $id, string $user_weight = null, int $price = null, int $type = self::ITEM_TYPE_PRODUCT)
+	public function addItem(int $id, string $user_weight = null, int $price = null, int $type = TabItem::TYPE_PRODUCT)
 	{
 		if ($this->closed) {
 			throw new UserException('Cette note est close, impossible de modifier la note.');
@@ -127,6 +124,7 @@ class Tab extends Entity
 			'account'       => $product->category_account,
 			'type'          => $type,
 			'pricing'       => $pricing,
+			'id_fee'        => $product->id_fee,
 		]);
 		$item->save();
 	}
@@ -366,7 +364,7 @@ class Tab extends Entity
 			$product_id = $product->id();
 		}
 
-		$this->addItem($product_id, null, $amount, self::ITEM_TYPE_PAYOFF);
+		$this->addItem($product_id, null, $amount, TabItem::TYPE_PAYOFF);
 	}
 
 	public function addUserDebt(): void

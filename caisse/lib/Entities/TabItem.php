@@ -19,17 +19,20 @@ class TabItem extends Entity
 	protected ?int $id;
 	protected int $tab;
 	protected \DateTime $added;
-	protected ?int $product;
+	protected ?int $product = null;
 	protected int $qty;
 	protected int $price;
-	protected ?int $weight;
+	protected ?int $weight = null;
 	protected int $total;
 	protected string $name;
 	protected string $category_name;
-	protected ?string $description;
-	protected ?string $account;
+	protected ?string $description = null;
+	protected ?string $account = null;
 	protected int $type;
-	protected int $pricing;
+	protected int $pricing = self::PRICING_QTY;
+
+	protected ?int $id_fee = null;
+	protected ?int $id_subscription = null;
 
 	protected ?Product $_product = null;
 

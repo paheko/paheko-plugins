@@ -200,7 +200,8 @@ class Notifications
 				return 'Fichier supprimé définitivement.';
 			case 'entity.Users\User.modify.after':
 				$user = $signal->getIn('entity');
-				$out = "Fiche du membre : ". $user->url() . "\n\n";
+				$out = "Fiche du membre : ". $user->url() . "\n";
+				$out .= "Nom : ". $user->name() . "\n\n";
 				$a = $user->asDetailsArray();
 				$b = $signal->getIn('modified_properties');
 

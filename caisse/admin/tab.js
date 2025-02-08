@@ -23,106 +23,16 @@ if (!document.querySelector('.pos')) {
 	throw 'Not in a tab';
 }
 
-var fr = document.querySelector('button[name="rename"]');
-
-var ur = $('#user_rename');
-var ur_input = $('#user_rename input[type=text]')[0];
-var ur_id = $('[name="rename_id"]')[0];
-var ur_list = $('#user_rename_list');
-var ur_list_template = '';
-var ur_timeout = null;
-var ur_current = null;
-var ur_keydown = null;
-
-if (fr) {
-	fr.onclick = function(e) {
-		g.toggle(' #user_rename', true);
-		ur_input.focus();
-		ur_input.select();
-
-		var ur_keydown = window.addEventListener('keydown', navigateUserRename);
-		return false;
-	}
+function renameTabUser(id, name) {
+	var form = document.querySelector('form input[name="rename_id"]').form;
+	form.rename_id.value = id;
+	form.rename_name.value = name;
+	form.submit();
 }
 
-ur.onclick = (e) => {
-	if (e.target === ur) closeUserRename();
-};
-
-function closeUserRename () {
-	window.removeEventListener('keydown', ur_keydown);
-	g.toggle(' #user_rename', false);
-	ur_input.value = '';
-	$('#user_rename_list').innerHTML = '';
+document.querySelector('#tab_user_rename').onclick = () => {
+	g.openFrameDialog('./user_search.php?_dialog');
 	return false;
-}
-
-function selectUserRename (id, name) {
-	closeUserRename();
-	ur_id.value = id;
-	ur_input.value = name;
-	ur_input.form.submit();
-	return false;
-}
-
-function navigateUserRename(e) {
-	if (e.key === 'Escape') {
-		closeUserRename();
-		return false;
-	}
-
-	if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') {
-		return true;
-	}
-
-	var first = ur_list.querySelector('button');
-
-	if (!first) {
-		return true;
-	}
-
-	var last = ur_list.querySelector('button:last-child');
-
-	if (e.key === 'ArrowDown') {
-		ur_current = ur_current ? ur_current.nextElementSibling : first;
-	}
-	else {
-		ur_current = ur_current ? ur_current.previousElementSibling : last;
-	}
-
-	if (ur_current) {
-		ur_current.focus();
-	}
-	else {
-		ur_input.focus();
-		ur_input.select();
-	}
-
-	e.preventDefault();
-	return false;
-}
-
-function completeUserName(list) {
-	var v = ur_input.value.replace(/^\s+|\s+$/g, '');
-
-	if (!v.match(/^\d+$/) && v.length < 3) {
-		return false;
-	}
-
-	fetch(g.admin_url + 'p/caisse/user_search.php?q=' + encodeURIComponent(v))
-		.then(response => response.text())
-		.then(list => {
-			ur_list.innerHTML = list;
-			ur_list.querySelectorAll('button').forEach(btn => btn.onclick = (e) => {
-				selectUserRename(btn.dataset.id, btn.dataset.name);
-			});
-		});
-}
-
-ur_input.onkeyup = (e) => {
-	window.clearTimeout(ur_timeout);
-	ur_timeout = window.setTimeout(completeUserName, 200);
-	return true;
 };
 
 document.querySelectorAll('input[name*="change_qty"], button[name*="change_price"], button[name*="change_weight"]').forEach((elm) => {

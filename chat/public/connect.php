@@ -22,7 +22,7 @@ if (!$channel) {
 	throw new ValidationException('No valid channel provided', 404);
 }
 
-ob_end_clean();
+@ob_end_clean();
 
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');

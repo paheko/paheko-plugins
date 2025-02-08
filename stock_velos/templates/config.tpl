@@ -2,23 +2,50 @@
 
 {include file="./_nav.tpl" current="config"}
 
+{form_errors}
+
 <form method="post" action="">
 
-<fieldset>
-	<legend>Options possibles</legend>
-	<p class="help">
-		Indiquer une valeur par ligne.
+{if isset($_GET.ok)}
+	<p class="block confirm">
+		La configuration a été enregistrée.
 	</p>
-	<dl>
-		{input type="textarea" name="sources" label="Provenances" default=$defaults.sources required=true cols=30 rows=10}
-		{input type="textarea" name="sources_details" label="Détail de la provenance des vélos" default=$defaults.sources_details required=true cols=30 rows=10 help="Il sera toujours possible de saisir un texte libre, ces options seront juste proposées par défaut."}
-		{input type="textarea" name="raisons_sortie" label="Raisons de sortie de vélo" default=$defaults.raisons_sortie required=true cols=30 rows=10}
-		{input type="textarea" name="types" label="Types de vélos" default=$defaults.types required=true cols=30 rows=10}
-		{input type="textarea" name="tailles" label="Tailles des roues" default=$defaults.tailles required=true cols=30 rows=10}
-		{input type="textarea" name="genres" label="Genres des vélos" default=$defaults.genres required=true cols=30 rows=10}
-	</dl>
-</fieldset>
+{/if}
 
+<fieldset>
+	<legend>Informations de chaque vélo</legend>
+	<p class="help">
+		Indiquer ici quels champs doivent être utilisés lors de l'enregistrement d'un vélo.
+	</p>
+	<table class="list">
+		<thead>
+			<tr>
+				<td>Activé</td>
+				<td>Obligatoire</td>
+				<th>Nom</th>
+				<td></td>
+			</tr>
+		</thead>
+		<tbody>
+		{foreach from=$fields item="field"}
+			<tr class="{if !$field.enabled}disabled{/if}">
+				<td>{input type="checkbox" name="enabled[%s]"|args:$field.name value=1 default=$field.enabled}</td>
+				<td>
+					{if $field.can_require}
+						{input type="checkbox" name="required[%s]"|args:$field.name value=1 default=$field.required}
+					{/if}
+				</td>
+				<td>{$field.label}</td>
+				<td class="actions">
+					{if $field.has_options}
+						{linkbutton shape="edit" href="config_options.php?field=%s"|args:$field.name label="Modifier les options" target="_dialog"}
+					{/if}
+				</td>
+			</tr>
+		{/foreach}
+		</tbody>
+	</table>
+</fieldset>
 
 <p class="submit">
 	{csrf_field key=$csrf_key}

@@ -56,44 +56,52 @@ $form->runIf('load', function() {
 
 	$group_fees = (bool) f('group_fees');
 
-	/*
-	$columns = [
-		'date'        => 'Date',
-		'name'        => 'Nom',
-		'type'        => 'Type',
-		'fee'         => 'Commission',
-		'net'         => 'Net',
-		'gross'       => 'Avant commission',
-		'label'       => 'Titre de l\'objet',
-		'notes'       => 'Remarque',
-		'ref'         => 'Numéro de transaction',
-		'invoice_ref' => 'Numéro de facture',
-		'client_ref'  => 'Numéro de client',
-		'subject'     => 'Objet',
-		'from'        => 'De l\'adresse email',
-		'to'          => 'À l\'adresse email',
-		'currency'    => 'Devise',
-	];*/
+	$fp = fopen($_FILES['csv']['tmp_name'], 'r');
+	$first_line = fgets($fp, 4096);
+	fclose($fp);
 
-	// ﻿"Date","Time","TimeZone","Name","Type","Status","Currency","Gross","Fee","Net","From Email Address","To Email Address","Transaction ID","Shipping Address","Address Status","Item Title","Item ID","Shipping and Handling Amount","Insurance Amount","Sales Tax","Option 1 Name","Option 1 Value","Option 2 Name","Option 2 Value","Reference Txn ID","Invoice Number","Custom Number","Quantity","Receipt ID","Balance","Address Line 1","Address Line 2/District/Neighborhood","Town/City","State/Province/Region/County/Territory/Prefecture/Republic","Zip/Postal Code","Country","Contact Phone Number","Subject","Note","Country Code","Balance Impact"
+	// Sometimes the file is in French, sometimes it is in English…
+	// fuck off paypal
+	if (stristr($first_line, 'Commission')) {
+		$columns = [
+			'date'        => 'Date',
+			'name'        => 'Nom',
+			'type'        => 'Type',
+			'fee'         => 'Commission',
+			'net'         => 'Net',
+			'gross'       => 'Avant commission',
+			'label'       => 'Titre de l\'objet',
+			'notes'       => 'Remarque',
+			'ref'         => 'Numéro de transaction',
+			'invoice_ref' => 'Numéro de facture',
+			'client_ref'  => 'Numéro de client',
+			'subject'     => 'Objet',
+			'from'        => 'De l\'adresse email',
+			'to'          => 'À l\'adresse email',
+			'currency'    => 'Devise',
+		];
+	}
+	else {
+		// ﻿"Date","Time","TimeZone","Name","Type","Status","Currency","Gross","Fee","Net","From Email Address","To Email Address","Transaction ID","Shipping Address","Address Status","Item Title","Item ID","Shipping and Handling Amount","Insurance Amount","Sales Tax","Option 1 Name","Option 1 Value","Option 2 Name","Option 2 Value","Reference Txn ID","Invoice Number","Custom Number","Quantity","Receipt ID","Balance","Address Line 1","Address Line 2/District/Neighborhood","Town/City","State/Province/Region/County/Territory/Prefecture/Republic","Zip/Postal Code","Country","Contact Phone Number","Subject","Note","Country Code","Balance Impact"
 
-	$columns = [
-		'date'        => 'Date',
-		'name'        => 'Name',
-		'type'        => 'Type',
-		'fee'         => 'Fee',
-		'net'         => 'Net',
-		'gross'       => 'Gross',
-		'label'       => 'Item Title',
-		'notes'       => 'Note',
-		'ref'         => 'Transaction ID',
-		'invoice_ref' => 'Invoice Number',
-		'client_ref'  => 'Custom Number',
-		'subject'     => 'Subject',
-		'from'        => 'From Email Address',
-		'to'          => 'To Email Address',
-		'currency'    => 'Currency',
-	];
+		$columns = [
+			'date'        => 'Date',
+			'name'        => 'Name',
+			'type'        => 'Type',
+			'fee'         => 'Fee',
+			'net'         => 'Net',
+			'gross'       => 'Gross',
+			'label'       => 'Item Title',
+			'notes'       => 'Note',
+			'ref'         => 'Transaction ID',
+			'invoice_ref' => 'Invoice Number',
+			'client_ref'  => 'Custom Number',
+			'subject'     => 'Subject',
+			'from'        => 'From Email Address',
+			'to'          => 'To Email Address',
+			'currency'    => 'Currency',
+		];
+	}
 
 	$mandatory_columns = [
 		'date',

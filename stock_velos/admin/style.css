@@ -1,197 +1,201 @@
 .header h1 {
-    background: no-repeat right top;
-    background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" id="img" stroke="none" viewBox="0 0 16 16"  fill="darkred" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4 4.5a.5.5 0 0 1 .5-.5H6a.5.5 0 0 1 0 1v.5h4.14l.386-1.158A.5.5 0 0 1 11 4h1a.5.5 0 0 1 0 1h-.64l-.311.935.807 1.29a3 3 0 1 1-.848.53l-.508-.812-2.076 3.322A.5.5 0 0 1 8 10.5H5.959a3 3 0 1 1-1.815-3.274L5 5.856V5h-.5a.5.5 0 0 1-.5-.5zm1.5 2.443l-.508.814c.5.444.85 1.054.967 1.743h1.139L5.5 6.943zM8 9.057L9.598 6.5H6.402L8 9.057zM4.937 9.5a1.997 1.997 0 0 0-.487-.877l-.548.877h1.035zM3.603 8.092A2 2 0 1 0 4.937 10.5H3a.5.5 0 0 1-.424-.765l1.027-1.643zm7.947.53a2 2 0 1 0 .848-.53l1.026 1.643a.5.5 0 1 1-.848.53L11.55 8.623z"/></svg>');
-    background-size: 2em 100%;
+	background: no-repeat right top;
+	background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" id="img" stroke="none" viewBox="0 0 16 16"  fill="darkred" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4 4.5a.5.5 0 0 1 .5-.5H6a.5.5 0 0 1 0 1v.5h4.14l.386-1.158A.5.5 0 0 1 11 4h1a.5.5 0 0 1 0 1h-.64l-.311.935.807 1.29a3 3 0 1 1-.848.53l-.508-.812-2.076 3.322A.5.5 0 0 1 8 10.5H5.959a3 3 0 1 1-1.815-3.274L5 5.856V5h-.5a.5.5 0 0 1-.5-.5zm1.5 2.443l-.508.814c.5.444.85 1.054.967 1.743h1.139L5.5 6.943zM8 9.057L9.598 6.5H6.402L8 9.057zM4.937 9.5a1.997 1.997 0 0 0-.487-.877l-.548.877h1.035zM3.603 8.092A2 2 0 1 0 4.937 10.5H3a.5.5 0 0 1-.424-.765l1.027-1.643zm7.947.53a2 2 0 1 0 .848-.53l1.026 1.643a.5.5 0 1 1-.848.53L11.55 8.623z"/></svg>');
+	background-size: 2em 100%;
 }
 
 .fastFind fieldset {
-    width: 45%;
-    display: table-cell;
-    margin: 0 1em;
+	width: 45%;
+	display: table-cell;
+	margin: 0 1em;
 }
 
 .fastFind {
-    margin-bottom: 1em;
+	margin-bottom: 1em;
 }
 
 section article {
-    margin-bottom: 1em;
+	margin-bottom: 1em;
 }
 
 ul.sub_actions li {
-    display: inline;
+	display: inline;
 }
 
 ul.sub_actions a {
-    display: inline-block;
-    border-radius: .5em;
-    margin: 0 .2em;
-    border: .1em solid #ccc;
-    background: #eee;
-    padding: .5em;
+	display: inline-block;
+	border-radius: .5em;
+	margin: 0 .2em;
+	border: .1em solid #ccc;
+	background: #eee;
+	padding: .5em;
 }
 
 .etiquettes p a {
-    display: inline-block;
-    width: 2em;
-    padding: 0.2em;
-    text-align: center;
-    margin: 0.2em;
-    font-size: 1.2em;
-    border-radius: .5em;
+	display: inline-block;
+	width: 2em;
+	padding: 0.2em;
+	text-align: center;
+	margin: 0.2em;
+	font-size: 1.2em;
+	border-radius: .5em;
 }
 
 .etiquettes .en_stock {
-    color: darkgreen;
-    background: #cfc;
+	color: darkgreen;
+	background: #cfc;
 }
 
 .etiquettes .libre {
-    color: #ccc;
+	color: #ccc;
 }
 
 .etiquettes .a_demonter {
-    color: darkred;
-    background: #fcc;
+	color: darkred;
+	background: #fcc;
 }
 
 .etiquettes .en_vente {
-    color: darkblue;
-    background: #ccf;
+	color: darkblue;
+	background: #ccf;
 }
 
 .etiquettes .en_vente i {
-    font-size: 10pt;
-    font-weight: normal;
-    font-style: normal;
-    color: #666;
-    display: inline-block;
-    width: 100%;
+	font-size: 10pt;
+	font-weight: normal;
+	font-style: normal;
+	color: #666;
+	display: inline-block;
+	width: 100%;
 }
 
 .fiche .velo {
-    display: flex;
+	display: flex;
 }
 
 .fiche .velo dl {
-    margin: 0.5em;
-    background: #ddd;
-    color: #000;
-    border-radius: .5em;
-    text-align: center;
-    padding: 0.3em;
-    width: 8em;
-    min-height: 3em;
+	margin: 0.5em;
+	background: #ddd;
+	color: #000;
+	border-radius: .5em;
+	text-align: center;
+	padding: 0.3em;
+	width: 8em;
+	min-height: 3em;
 }
 
 .fiche .velo .num dt {
-    font-size: 8pt;
+	font-size: 8pt;
 }
 
 .fiche .velo .num dd {
-    font-size: 1.7em;
-    font-weight: bold;
+	font-size: 1.7em;
+	font-weight: bold;
 }
 
 .fiche .velo dl.etiq {
-    color: #fff;
-    padding: 5px;
-    background: no-repeat center center url("etiquette.svg");
-    background-size: contain;
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    text-shadow: 0px 0px 5px #000;
-    border-radius: 0;
+	color: #fff;
+	padding: 5px;
+	background: no-repeat center center url("etiquette.svg");
+	background-size: contain;
+	border: none;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	text-shadow: 0px 0px 5px #000;
+	border-radius: 0;
 }
 
 .fiche .velo .etiq dt {
-    line-height: .9em;
-    font-size: 8pt;
-    display: block;
-    width: 100%;
+	line-height: .9em;
+	font-size: 8pt;
+	display: block;
+	width: 100%;
 }
 
 .fiche .velo .etiq dd {
-    font-size: 24pt;
-    font-weight: bold;
-    line-height: .9em;
+	font-size: 24pt;
+	font-weight: bold;
+	line-height: .9em;
 }
 
 .fiche .velo .etat dt {
-    padding-top: 0.5em;
-    font-size: 1.3em;
+	padding-top: 0.5em;
+	font-size: 1.3em;
 }
 
 .fiche .velo_desc {
-    clear: left;
+	clear: left;
 }
 
 .fiche .velo_desc, .fiche .velo_entree, .fiche .velo_sortie {
-    margin: 0.2em;
-    border: 1px solid rgba(255, 128, 0, 0.5);
-    background: rgba(255, 255, 255, 0.5);
-    padding: 0.3em;
-    width: 50%;
+	margin: 0.2em;
+	border: 1px solid rgba(255, 128, 0, 0.5);
+	background: rgba(255, 255, 255, 0.5);
+	padding: 0.3em;
+	width: 50%;
 }
 
 .fiche .velo_desc dl dt {
-    display: inline-block;
-    width: 45%;
-    text-align: right;
-    margin-right: 1em;
+	display: inline-block;
+	width: 45%;
+	text-align: right;
+	margin-right: 1em;
 }
 
 .fiche .velo_desc dl dd {
-    display: inline;
+	display: inline;
 }
 
 .fiche .velo_entree dt, .fiche .velo_sortie dt {
-    font-weight: bold;
+	font-weight: bold;
 }
 
 .fiche .velo_entree dd, .fiche .velo_sortie dd {
-    margin: 0.2em 0.5em;
+	margin: 0.2em 0.5em;
 }
 
 .fiche .etat.sortie {
-    color: #666;
-    background: #eee;
-    border: 3px solid #666;
+	color: #666;
+	background: #eee;
+	border: 3px solid #666;
 }
 
 .fiche .etat.stock {
-    color: #060;
-    background: #efe;
-    border: 3px solid #060;
+	color: #060;
+	background: #efe;
+	border: 3px solid #060;
 }
 
 .fiche .etat.demonter {
-    color: #600;
-    background: #fee;
-    border: 3px solid #600;
+	color: #600;
+	background: #fee;
+	border: 3px solid #600;
 }
 
 form.sql pre.help {
-    float: right;
-    width: 30em;
-    overflow: auto;
-    font-size: .7em;
-    border: .1em solid #ccc;
+	float: right;
+	width: 30em;
+	overflow: auto;
+	font-size: .7em;
+	border: .1em solid #ccc;
 }
 
 section.stock {
-    text-align: center;
-    max-width: 60em;
+	text-align: center;
+	max-width: 60em;
 }
 
 section.stock article {
-    margin-bottom: 2em;
+	margin-bottom: 2em;
 }
 
 section.stock article h3 {
-    font-weight: normal;
-    margin-bottom: 1em;
+	font-weight: normal;
+	margin-bottom: 1em;
+}
+
+figure.graph {
+	text-align: center;
 }

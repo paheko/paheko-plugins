@@ -39,6 +39,11 @@
 
 {if $tab_id}
 
+<form method="post" action="">
+	<input type="hidden" name="rename_id" />
+	<input type="hidden" name="rename_name" />
+</form>
+
 <section class="pos">
 	<section class="tab">
 		<header>
@@ -68,7 +73,7 @@
 				{elseif !$current_tab.closed}
 					{button type="submit" name="close" label="Clore la note" accesskey="C" shape="lock" disabled="disabled" title="La note ne peut être close, elle n'est pas soldée."}
 				{/if}
-					{button type="button" name="rename" label="Renommer" accesskey="R" shape="edit"}
+					{button type="button" label="Renommer" accesskey="R" shape="edit" id="tab_user_rename"}
 				</form>
 			</div>
 
@@ -254,19 +259,6 @@
 	{/if}
 </section>
 {/if}
-
-{if $tab_id}
-<div id="user_rename" class="hidden">
-	<form method="post" action="{$self_url}">
-		<input type="hidden" name="rename_id" value="" />
-		<input type="text" name="rename_name" placeholder="Chercher un membre…" value="{$current_tab.name}" />
-	</form>
-	<div id="user_rename_list">
-	</div>
-</div>
-
-{/if}
-
 
 {* For testing barcode detection on browser
 	<script src="https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@0.9.15/dist/index.js"></script>

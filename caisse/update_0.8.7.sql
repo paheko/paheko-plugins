@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS @PREFIX_tabs_items_weight ON plugin_pos_tabs_items(product, weight);

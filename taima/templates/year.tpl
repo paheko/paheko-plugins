@@ -17,7 +17,7 @@
 		<tbody>
 			{foreach from=$months item="row"}
 			<tr>
-				<th>{$row.date|taima_date:'MMMM YYYY'}</th>
+				<th>{$row.date|taima_date:'MMMM yyyy'}</th>
 				<td>
 					{size_meter total=$target['month']*60 value=$row.duration text=$row.duration|taima_minutes}
 				</td>
@@ -44,7 +44,7 @@
 			{foreach from=$weeks item="row"}
 			<tr>
 				<th><a href="./?day={$row.first|date:'Y-m-d'}">{$row.year} — S{$row.week}</a></th>
-				<td>{$row.first|taima_date:'d MMMM YYYY'} — {$row.last|taima_date:'d MMMM YYYY'}</td>
+				<td>{$row.first|taima_date:'d MMMM yyyy'} — {$row.last|taima_date:'d MMMM yyyy'}</td>
 				<td>
 					{size_meter total=$target['week']*60 value=$row.duration text=$row.duration|taima_minutes}
 				</td>

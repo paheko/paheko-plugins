@@ -19,9 +19,15 @@ use KD2\Graphics\SVG\Bar_Data_Set;
 use KD2\Graphics\SVG\Plot;
 use KD2\Graphics\SVG\Plot_Data;
 
+use KD2\ErrorManager;
+
 class POS
 {
 	const TABLES_PREFIX = 'plugin_pos_';
+
+	// FIXME: change for 678/778
+	const ERROR_DEBIT_ACCOUNT = '658';
+	const ERROR_CREDIT_ACCOUNT = '758';
 
 	static public function sql(string $query): string
 	{
@@ -143,15 +149,15 @@ class POS
 			throw new UserException('Des moyens de paiement n\'ont pas de compte associé. Merci de les associer à des comptes du plan comptable pour pouvoir procéder à la synchronisation.');
 		}
 
-		$accounts_codes = $db->getAssoc(self::sql('SELECT account, account FROM @PREFIX_categories UNION ALL SELECT account, account FROM @PREFIX_methods;'));
-		$accounts_codes['758'] = '758'; // Erreurs de caisse
-		$accounts_codes['658'] = '658';
-		$accounts = (new Accounts($year->id_chart))->listForCodes($accounts_codes);
+		$accounts = $year->accounts();
+		$accounts_ids = [];
+		$accounts_ids[self::ERROR_CREDIT_ACCOUNT] = $accounts->getIdFromCode(self::ERROR_CREDIT_ACCOUNT);
+		$accounts_ids[self::ERROR_DEBIT_ACCOUNT] = $accounts->getIdFromCode(self::ERROR_DEBIT_ACCOUNT);
 
-		$diff = array_diff_key($accounts_codes, $accounts);
-
-		if (count($diff)) {
-			throw new UserException('Les comptes suivants n\'existent pas dans le plan comptable de l\'exercice sélectionné, merci de bien vouloir les créer : ' . implode(', ', $diff));
+		foreach ($accounts_ids as $code => $id) {
+			if (!$id) {
+				throw new UserException(sprintf('Le compte "%s" n\'existe pas dans le plan comptable. Merci de le créer.', $code));
+			}
 		}
 
 		$exists = $db->getAssoc('SELECT reference, id FROM acc_transactions WHERE id_year = ? AND reference LIKE \'POS-SESSION-%\';', $year->id);
@@ -160,18 +166,17 @@ class POS
 		$row = null;
 		$count = 0;
 
-		$save_transaction = function ($transaction) use ($attach, &$count, $accounts) {
-			// In some rare cases, the product may have disappeared (WTF?!), we consider it to be an error
+		$save_transaction = function ($transaction) use ($attach, &$count, $accounts_ids) {
+			// In some rare cases, the account / product may have disappeared (WTF?!), we consider it to be an error
 			$error = abs($transaction->getLinesDebitSum()) - $transaction->getLinesCreditSum();
 			if ($error != 0) {
-				// FIXME: this shouldn't happen, or we should understand what's going on here
-				throw new \LogicException(sprintf('Cannot create POS session #%d: debit (%d) != credit (%d)', $transaction->reference, $transaction->getLinesDebitSum(), $transaction->getLinesCreditSum()));
+				ErrorManager::reportExceptionSilent(new \LogicException(sprintf('Missing accounts for %s: debit (%d) != credit (%d)', $transaction->reference, $transaction->getLinesDebitSum(), $transaction->getLinesCreditSum())));
 
 				if ($error > 0) {
-					$line = Line::create($accounts['758']->id, abs($error), 0, 'Erreur de caisse inconnue');
+					$line = Line::create($accounts_ids[self::ERROR_CREDIT_ACCOUNT], abs($error), 0, 'Erreur de caisse : moyen de paiement ou produit sans compte associé');
 				}
 				else {
-					$line = Line::create($accounts['658']->id, 0, abs($error), 'Erreur de caisse inconnue');
+					$line = Line::create($accounts_ids[self::ERROR_DEBIT_ACCOUNT], 0, abs($error), 'Erreur de caisse inconnue : moyen de paiement ou produit sans compte associé');
 				}
 
 				$transaction->addLine($line);
@@ -199,14 +204,21 @@ class POS
 				continue;
 			}
 
-			// Skip lines with no account, they will be treated like errors
+			// No account? This means there was no account set for the payment method / product
+			// when the session was done
+			// We still allow the transaction to be created, but it will be accounted as an error.
 			if (empty($row->account)) {
 				continue;
 			}
 
-			if (empty($accounts[$row->account]->id)) {
-				throw new \LogicException($row->account . ': this account has not been found?');
+			$accounts_ids[$row->account] ??= $accounts->getIdFromCode($row->account);
+
+			if (!$accounts_ids[$row->account]) {
+				throw new UserException(sprintf('Le compte "%s" n\'existe pas dans le plan comptable de cet exercice. Merci de le créer.', $row->account));
 			}
+
+			$label = $row->line_label;
+			$account_id = $accounts_ids[$row->account];
 
 			unset($row->id);
 			unset($row->status);
@@ -230,11 +242,11 @@ class POS
 
 			// In case there are debit and credit on the same account, create two lines
 			if ($row->debit && $row->credit) {
-				$transaction->addLine(Line::create($accounts[$row->account]->id, $row->credit, 0, $row->line_label, $row->line_reference));
-				$transaction->addLine(Line::create($accounts[$row->account]->id, 0, $row->debit, $row->line_label, $row->line_reference));
+				$transaction->addLine(Line::create($account_id, $row->credit, 0, $label, $row->line_reference));
+				$transaction->addLine(Line::create($account_id, 0, $row->debit, $label, $row->line_reference));
 			}
 			else {
-				$transaction->addLine(Line::create($accounts[$row->account]->id, $row->credit, $row->debit, $row->line_label, $row->line_reference));
+				$transaction->addLine(Line::create($account_id, $row->credit, $row->debit, $label, $row->line_reference));
 			}
 		}
 
@@ -296,7 +308,6 @@ class POS
 				) AS lines
 				ON lines.session = s.id
 			WHERE s.closed IS NOT NULL
-				AND s.error_amount = 0
 				AND date(s.closed) >= date(:start) AND date(s.closed) <= date(:end)
 				%s
 			GROUP BY s.id, lines.account, lines.reference
@@ -351,8 +362,8 @@ class POS
 		$sql = sprintf($sql, $errors_only);
 		$sql = POS::sql($sql);
 
-		$error_debit_account = '658';
-		$error_credit_account = '758';
+		$error_debit_account = self::ERROR_DEBIT_ACCOUNT;
+		$error_credit_account = self::ERROR_CREDIT_ACCOUNT;
 
 		return $db->iterate($sql, compact('start', 'end', 'error_debit_account', 'error_credit_account'));
 	}

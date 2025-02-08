@@ -119,3 +119,23 @@ if (version_compare($old_version, '0.8.4', '<')) {
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.4.sql')));
 	$db->commitSchemaUpdate();
 }
+
+if (version_compare($old_version, '0.8.5', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.5.sql')));
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.8.6', '<')) {
+	$db->beginSchemaUpdate();
+	$db->toggleForeignKeys(false);
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.6.sql')));
+	$db->commitSchemaUpdate();
+	$db->toggleForeignKeys(true);
+}
+
+if (version_compare($old_version, '0.8.7', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.7.sql')));
+	$db->commitSchemaUpdate();
+}

@@ -3,28 +3,35 @@
 namespace Paheko;
 
 use Paheko\Plugin\Stock_Velos\Velos;
+use Paheko\Users\Session;
 
 require_once __DIR__ . '/_inc.php';
 
+Session::getInstance()->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
+
 $csrf_key = 'velo_config';
 
-$form->runIf('save', function () use ($plugin) {
-	foreach (Velos::DEFAULTS as $name => $values) {
-		$list = $_POST[$name] ?? '';
-		$list = preg_replace("!\r?\n|\r|\n{2,}!", "\n", trim($list));
-		$list = explode("\n", $list);
-		$list = array_map('trim', $list);
-		$list = array_filter($list);
-		$list = array_values($list);
-		$plugin->setConfigProperty($name, $list);
+$fields = $velos->getFields($plugin);
+
+$form->runIf('save', function () use ($plugin, $fields) {
+	$status = [];
+
+	foreach ($fields as $name => $field) {
+		if (!empty($_POST['enabled'][$name]) && !empty($_POST['required'][$name])) {
+			$status[$name] = 2;
+		}
+		elseif (!empty($_POST['enabled'][$name])) {
+			$status[$name] = 1;
+		}
+		else {
+			$status[$name] = 0;
+		}
 	}
 
+	$plugin->setConfigProperty('fields', $status);
 	$plugin->save();
-}, $csrf_key, PLUGIN_ADMIN_URL);
+}, $csrf_key, '?ok');
 
-$defaults = $velos->getDefaults($plugin);
-$defaults = array_map(fn ($a) => implode("\n", $a), $defaults);
-
-$tpl->assign(compact('defaults', 'csrf_key'));
+$tpl->assign(compact('fields', 'csrf_key'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/config.tpl');

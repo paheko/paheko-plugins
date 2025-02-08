@@ -11,6 +11,7 @@ use Paheko\UserException;
 use Paheko\Utils;
 use Paheko\Users\Users;
 use Paheko\Users\DynamicFields;
+use Paheko\Services\Services_User;
 
 use const Paheko\PLUGIN_ROOT;
 
@@ -46,12 +47,26 @@ class Session extends Entity
 		return EntityManager::findOne(Tab::class, 'SELECT * FROM @TABLE WHERE closed IS NULL ORDER BY opened DESC LIMIT 1;');
 	}
 
+	public function listTabIdsWithFeesButNoUser(): array
+	{
+		return DB::getInstance()->getAssoc(POS::sql('SELECT DISTINCT t.id, t.id
+			FROM @PREFIX_tabs t
+			INNER JOIN @PREFIX_tabs_items ti ON ti.tab = t.id
+			WHERE t.session = ? AND t.user_id IS NULL AND ti.id_fee IS NOT NULL;'), $this->id());
+	}
+
 	public function close(string $user_name, int $amount, ?bool $confirm_error, array $payments)
 	{
 		$db = DB::getInstance();
 
 		if ($this->hasOpenNotes()) {
 			throw new UserException('Il y a des notes qui ne sont pas clôturées.');
+		}
+
+		$missing = $this->listTabIdsWithFeesButNoUser();
+
+		if (count($missing)) {
+			throw new UserException(sprintf("Les notes suivantes comportent une inscription à une activité mais ne sont pas liées à un membre : %s\nMerci de créer une fiche membre et associer la note au membre.", implode(', ', $missing)));
 		}
 
 		$payments = array_map(function ($a) { return (int) $a; }, $payments);
@@ -107,6 +122,23 @@ class Session extends Entity
 			WHERE ti.product = @PREFIX_products.id
 			AND t.session = %d', $this->id);
 		$db->preparedQuery(POS::sql(sprintf('UPDATE @PREFIX_products SET stock = -(SELECT SUM(ti.qty) %s) + stock WHERE stock IS NOT NULL AND id IN (SELECT DISTINCT ti.product %1$s);', $select)));
+
+		// Create subscriptions
+		$sql = POS::sql('SELECT ti.tab, ti.id, t.user_id, ti.id_fee, ti.total, ti.qty
+			FROM @PREFIX_tabs_items ti
+			INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
+			WHERE ti.id_fee IS NOT NULL AND session = ?;');
+
+		foreach ($db->iterate($sql, $this->id) as $row) {
+			try {
+				$su = Services_User::createFromFee($row->id_fee, $row->user_id, $row->total, true, $row->qty);
+				$su->save();
+				$db->update(TabItem::TABLE, ['id_subscription' => $su->id()], 'id = ' . (int)$row->id);
+			}
+			catch (UserException $e) {
+				throw new UserException(sprintf('Note n°%d : %s', $row->tab, $e->getMessage()));
+			}
+		}
 
 		$db->commit();
 	}
@@ -234,11 +266,6 @@ class Session extends Entity
 			ORDER BY p.date;'), $this->id, Method::TYPE_TRACKED);
 	}
 
-	public function listMissingUsers()
-	{
-		return DB::getInstance()->get(POS::sql('SELECT * FROM @PREFIX_tabs WHERE user_id IS NULL AND session = ?;'), $this->id);
-	}
-
 	public function export(bool $details = false, int $print = 0)
 	{
 		$tpl = Template::getInstance();
@@ -250,7 +277,6 @@ class Session extends Entity
 		$tpl->assign('totals_products', $this->listCountsByProduct());
 		$tpl->assign('total_payments', $this->getPaymentsTotal());
 		$tpl->assign('total_sales', $this->getItemsTotal());
-		$tpl->assign('missing_users_tabs', $this->listMissingUsers());
 
 		$tpl->assign('title', sprintf('Session de caisse n°%d du %s', $this->id, Utils::date_fr($this->opened)));
 

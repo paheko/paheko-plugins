@@ -13,12 +13,14 @@
 		<li{if $current === 'year'} class="current"{/if}><a href="year.php">Mon résumé</a></li>
 	{/if}
 		<li{if $current === 'all'} class="current"{/if}><a href="all.php">Suivi</a></li>
-{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_WRITE)}
+	{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_WRITE)}
 		<li{if $current === 'stats'} class="current"{/if}><a href="stats.php">Statistiques</a></li>
-{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
-		<li{if $current === 'report'} class="current"{/if}><a href="report.php">Valoriser</a></li>
-{/if}
+		{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
+			<li{if $current === 'report'} class="current"{/if}><a href="report.php">Valoriser</a></li>
+		{/if}
+	{/if}
+	{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
 		<li{if $current === 'config'} class="current"{/if}><a href="config.php">Configuration</a></li>
-{/if}
+	{/if}
 	</ul>
 </nav>

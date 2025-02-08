@@ -77,13 +77,13 @@ class Entry extends Entity
 		}
 
 		if (preg_match('/^(\d+)[h:](\d*)$/', $duration, $match)) {
-			$minutes = $match[1] * 60 + $match[2];
+			$minutes = (int) $match[1] * 60 + (int) $match[2];
 		}
 		elseif (preg_match('/^(\d+)(?:[.,](\d*))?$/', $duration, $match)) {
-			$minutes = $match[1] * 60;
+			$minutes = (int) $match[1] * 60;
 
 			if (!empty($match[2])) {
-				$minutes += 60 * ($match[2] / 100);
+				$minutes += 60 * ((int) $match[2] / 100);
 			}
 		}
 		else {

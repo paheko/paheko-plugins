@@ -2,7 +2,7 @@
 
 {form_errors}
 
-<form method="post" action="{$self_url}" data-focus="1">
+<form method="post" action="{$self_url}">
 	<aside class="secondary">
 		<fieldset>
 			<legend>Moyens de paiement</legend>
@@ -17,6 +17,27 @@
 		</fieldset>
 
 		<fieldset>
+			<legend>Lier à une activité</legend>
+			<dl>
+				{input type="select_groups" name="id_fee" source=$product default_empty="— Ne pas lier —" options=$fees label="Tarif"}
+				<dd class="help">
+					Sélectionner un tarif d'activité ici pour générer une inscription à ce tarif lors de la clôture de la caisse.
+				</dd>
+			</dl>
+		</fieldset>
+
+		<div class="fee-only alert block">
+			<p><strong>Attention&nbsp;:</strong></p>
+			<ul>
+				<li>si la note de caisse n'est pas liée à un membre existant, il faudra déjà créer le membre pour pouvoir clôturer la caisse&nbsp;;</li>
+				<li>le compte de la catégorie de produits sera utilisé pour la comptabilité&nbsp;;</li>
+				<li>l'inscription ne sera enregistrée qu'à la clôture de la caisse&nbsp;;</li>
+				<li>l'inscription ne sera pas liée à une écriture comptable&nbsp;;</li>
+				<li>il ne sera pas possible d'encaisser plusieurs adhésions sur la même note de caisse.</li>
+			</ul>
+		</div>
+
+		<fieldset class="fee-hidden">
 			<legend>Poids</legend>
 			<dl>
 				<?php
@@ -48,8 +69,12 @@
 			{input type="number" name="qty" label="Quantité" help="Quantité par défaut quand le produit est ajouté à une note" source=$product required=true}
 			{input type="text" name="code" label="Numéro de code barre" required=false source=$product help="Si ce champ est rempli avec le code barre à 13 chiffres du produit, il sera possible d'utiliser ce code barre pour retrouver un produit lors de l'encaissement. Cela permet également d'utiliser une douchette."}
 			<?=$product->getSVGBarcode();?>
+		</dl>
+		<dl class="fee-hidden">
 			{input type="number" name="stock" label="Stock" help="Nombre de produits dans le stock à cet instant. Celui-ci sera décrémenté à chaque clôture de caisse. Ne modifier que si vous faites un inventaire. Laisser vide pour les produits non-stockables (adhésions, services, etc.)." source=$product}
 			{input type="money" name="purchase_price" label="Prix d'achat unitaire" source=$product required=false help="Indiquer ici le prix d'achat, si le produit a été acheté. Ce prix est utilisé pour calculer la valeur du stock lors de l'inventaire."}
+		</dl>
+		<dl>
 			<dt>Archivage</dt>
 			{input type="checkbox" name="archived" label="Produit archivé" source=$product value=1}
 			<dd class="help">Si coché, ce produit ne sera plus proposé à la vente.</dd>
@@ -78,6 +103,14 @@ function checkWeightRequired() {
 
 checkWeightRequired();
 c.onchange = checkWeightRequired;
+
+var fee = $('#f_id_fee');
+function changeFee() {
+	g.toggle('.fee-only', !!fee.value);
+	g.toggle('.fee-hidden', !fee.value);
+}
+changeFee();
+fee.onchange = changeFee;
 </script>
 {/literal}
 

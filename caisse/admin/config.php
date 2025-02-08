@@ -6,8 +6,6 @@ use Paheko\Accounting\Years;
 
 require_once __DIR__ . '/_inc.php';
 
-$session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
-
 $csrf_key = 'caisse_config';
 
 $form->runIf('save', function () use ($plugin) {

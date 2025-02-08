@@ -27,6 +27,8 @@ class Product extends Entity
 	protected ?string $code = null;
 	protected bool $archived = false;
 
+	protected ?int $id_fee = null;
+
 	const WEIGHT_DISABLED = null;
 	const WEIGHT_REQUIRED = -1;
 	const WEIGHT_BASED_PRICE = -2;

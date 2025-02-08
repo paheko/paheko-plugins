@@ -7,7 +7,7 @@
 		<legend>Modifier une catégorie</legend>
 		<dl>
 			{input type="text" name="label" required=true label="Libellé" source=$task}
-			{input type="text" name="account" label="Code du compte d'emploi" required=false help="Compte qui sera utilisé pour reporter l'utilisation du temps bénévole dans le bilan comptable. Généralement c'est le compte 864." source=$task}
+			{input type="list" required=false name="account" label="Compte d'emploi" default=$account target="!acc/charts/accounts/selector.php?types=7&key=code" multiple=false help="Compte qui sera utilisé pour reporter l'utilisation du temps bénévole dans le bilan comptable. Généralement c'est le compte 864."}
 			{input type="money" name="value" required=false label="Valorisation d'une heure" help="Inscrire ici la valeur d'une heure de temps pour le bilan comptable" source=$task}
 			{if count($projects)}
 				{input type="select" name="id_project" required=false label="Projet analytique" source=$task options=$projects default_empty="— Aucun —"}

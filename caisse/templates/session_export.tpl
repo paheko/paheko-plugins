@@ -89,38 +89,6 @@
 	{/if}
 </p>
 
-{if count($missing_users_tabs) && !$print}
-<div class="noprint">
-	<h2 class="ruler">Membres non inscrits</h2>
-
-	<table class="list">
-		<thead>
-			<tr>
-				<td>Note</td>
-				<td>Nom</td>
-				<td></td>
-			</tr>
-		</thead>
-		<tbody>
-			{foreach from=$missing_users_tabs item="tab"}
-			<tr>
-				<th>{$tab.id}</th>
-				<td>
-					{$tab.name}
-				</td>
-				<td class="actions">
-					<form method="post" action="{$admin_url}users/new.php">
-						<input type="hidden" name="{$id_field}" value="{$tab.name}" />
-						<input type="submit" value="Inscrire ce membre" />
-					</form>
-				</td>
-			</tr>
-			{/foreach}
-		</tbody>
-	</table>
-</div>
-{/if}
-
 <h2 class="ruler">Ventes par catégorie</h2>
 
 <table class="list">
@@ -252,8 +220,6 @@
 	</tbody>
 </table>
 
-{if $details}
-
 <h2 class="ruler">Liste des notes</h2>
 
 <table class="list">
@@ -279,6 +245,9 @@
 				{$tab.total|raw|money_currency:false}
 			</td>
 			<td class="actions">
+				{if $tab.user_id}
+					{linkbutton shape="user" label="Fiche membre" href="!users/details.php?id=%d"|args:$tab.user_id class="noprint"}
+				{/if}
 				{linkbutton shape="menu" label="Détails" href="tab.php?id=%d"|args:$tab.id class="noprint"}
 			</td>
 		</tr>
@@ -293,6 +262,8 @@
 		</tr>
 	</tfoot>
 </table>
+
+{if $details}
 
 {foreach from=$tabs item="tab"}
 

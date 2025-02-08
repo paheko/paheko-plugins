@@ -12,12 +12,12 @@ class Category extends Entity
 	const TABLE = POS::TABLES_PREFIX . 'categories';
 
 	protected ?int $id;
-	protected string $name = '';
+	protected string $name;
 	protected ?string $account = null;
 
 	public function selfCheck(): void
 	{
-		$this->assert(trim($this->name) !== '', 'Le nom ne peut rester vide.');
+		$this->assert(isset($this->name) && trim($this->name) !== '', 'Le nom ne peut rester vide.');
 	}
 
 	public function importForm(?array $source = null): void
