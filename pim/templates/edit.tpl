@@ -23,7 +23,7 @@
 <fieldset>
 	<legend>{$title}</legend>
 	<dl>
-		{input type="select" name="id_category" label="Catégorie" options=$categories_assoc default_empty="— Aucune —"}
+		{input type="select" name="id_category" label="Catégorie" options=$categories_assoc default_empty="— Aucune —" source=$event}
 		{input type="text" name="title" label="Titre" source=$event required=true}
 	</dl>
 </fieldset>
@@ -46,29 +46,9 @@
 </form>
 
 <script type="text/javascript">
-var categories = {$categories_colors|escape:'json'};
-
-{literal}
-window.addEventListener("load", function () {
-	var cat_select = document.getElementById("f_id_category");
-	var cat_id = cat_select.value;
-	var pr = document.createElement("span");
-	pr.id = "cat_preview";
-	pr.style = '--hue: ' + (categories[cat_id] ?? '');
-
-	cat_select.parentNode.appendChild(pr);
-
-	cat_select.addEventListener("change", function() {
-		var h = categories[this.value] ?? null;
-
-		if (!h) {
-			h = '';
-		}
-
-		pr.style = '--hue: ' + h;
-	}, false);
-}, false);
-{/literal}
+var categories = {$categories_export|escape:'json'};
 </script>
+
+<script type="text/javascript" src="event_edit.js"></script>
 
 {include file="_foot.tpl"}

@@ -56,21 +56,24 @@ $form->runIf('save', function () use ($event) {
 $title = $event->exists() ? 'Modifier un événement' : 'Nouvel événement';
 
 $categories = $events->listCategories();
+$categories_export = [];
 $categories_assoc = [];
-$categories_colors = [];
 
 foreach ($categories as $cat) {
 	$categories_assoc[$cat->id] = $cat->title;
-	$categories_colors[$cat->id] = $cat->color;
+	$categories_export[$cat->id] = $cat->asArray();
 }
 
 $event->timezone ??= $events->getDefaultTimezone();
 $event->start ??= new \DateTime('+1 hour');
 $event->end ??= new \DateTime('+2 hour');
 
-$timezones = TimeZones::listGroupedByContinent();
-$sl = Events::ALL_DAY;
+$default_cat = $events->getDefaultCategory();
+$event->id_category = $default_cat;
+$event->reminder = $categories_export[$default_cat]->default_reminder ?? 0;
 
-$tpl->assign(compact('event', 'csrf_key', 'title', 'categories_assoc', 'categories_colors', 'timezones', 'sl'));
+$timezones = TimeZones::listGroupedByContinent();
+
+$tpl->assign(compact('event', 'csrf_key', 'title', 'categories_assoc', 'categories_export', 'timezones'));
 
 $tpl->display(__DIR__ . '/../templates/edit.tpl');

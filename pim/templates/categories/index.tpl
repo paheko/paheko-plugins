@@ -17,7 +17,7 @@
 			<th style="--hue: {$cat.color}">{$cat.title}</th>
 			<td>{if $cat.is_default}(par défaut){/if}</td>
 			<td class="actions">
-				{if $cat.is_default}{linkbutton href="?set_default=%d"|args:$cat.id label="Par défaut" shape="check"}{/if}
+				{if !$cat.is_default}{linkbutton href="?set_default=%d"|args:$cat.id label="Par défaut" shape="check"}{/if}
 				{linkbutton href="delete.php?id=%d"|args:$cat.id label="Supprimer" shape="delete"}
 				{linkbutton href="edit.php?id=%d"|args:$cat.id label="Modifier" shape="edit"}
 			</td>

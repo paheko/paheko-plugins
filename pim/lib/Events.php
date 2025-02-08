@@ -59,8 +59,8 @@ class Events
 		$db = DB::getInstance();
 
 		$id = (int)$id;
-		$db->update('plugin_pim_events_categories', ['is_default' => 0], sprintf('id != %d AND id_user = ?', $id, $this->id_user));
-		$db->update('plugin_pim_events_categories', ['is_default' => 1], sprintf('id = %d AND id_user = ?', $id, $this->id_user));
+		$db->update('plugin_pim_events_categories', ['is_default' => 0], sprintf('id != %d AND id_user = %d', $id, $this->id_user));
+		$db->update('plugin_pim_events_categories', ['is_default' => 1], sprintf('id = %d AND id_user = %d', $id, $this->id_user));
 	}
 
 	public function get(int $id): ?Event

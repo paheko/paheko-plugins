@@ -1,15 +1,9 @@
 function addEvent(date, date_end)
 {
-	var r = window.prompt("Heure et titre de l\'événement ?\nExemple : 17h30-18h00 RDV Bureau #Travail (5 rue de l'Adresse, 21000 Dijon)");
+	var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+	var url = "./edit.php?start="+date+"&end=" + date_end + "&tz=+"+encodeURIComponent(tz);
 
-	if (typeof r == "string")
-	{
-		var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-		var url = "./edit.php?start="+date+"&end=" + date_end + "&tz=+"+encodeURIComponent(tz)+"&title="+encodeURIComponent(r);
-
-		g.openFrameDialog(url + '&_dialog');
-	}
-
+	g.openFrameDialog(url + '&_dialog');
 	return false;
 }
 
