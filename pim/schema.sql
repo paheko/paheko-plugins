@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS plugin_pim_contacts (
 	last_name TEXT NULL,
 	title TEXT NULL,
 	mobile_phone TEXT NULL,
+	address TEXT NULL,
 	phone TEXT NULL,
 	email TEXT NULL,
 	web TEXT NULL,

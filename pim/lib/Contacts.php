@@ -88,4 +88,14 @@ class Contacts
 		});
 		return $list;
 	}
+
+	public function exportAll(bool $archived = false): void
+	{
+		header('Content-Type: text/vcard; charset=utf-8', true);
+		header('Content-Disposition: download; filename="export.vcf"', true);
+
+		foreach ($this->listAll($archived) as $contact) {
+			echo $contact->getVCard();
+		}
+	}
 }

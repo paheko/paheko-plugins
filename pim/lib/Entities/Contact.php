@@ -12,6 +12,7 @@ use KD2\Graphics\Image;
 use DateTime;
 
 use const Paheko\WWW_URL;
+use Sabre\VObject;
 
 class Contact extends Entity
 {
@@ -122,6 +123,18 @@ class Contact extends Entity
 		return $url;
 	}
 
+	public function getPhotoBase64(): ?string
+	{
+		$photo = $this->getPhotoFile();
+
+		if (!$photo) {
+			return null;
+		}
+
+		return 'data:image/jpeg;base64,' . base64_encode($photo->fetch());
+	}
+
+
 	public function importForm(?array $source = null)
 	{
 		$source ??= $_POST;
@@ -151,5 +164,38 @@ class Contact extends Entity
 	public function getMapURL(): string
 	{
 		return 'https://www.openstreetmap.org/search?query=' . rawurlencode($this->address);
+	}
+
+	public function getVCard(): string
+	{
+		$data = [
+			'N'     => [$this->name, $this->first_name, $this->title],
+			'NOTE'  => $this->notes,
+			'BDAY'  => $this->birthday,
+			'PHOTO' => $this->getPhotoBase64(),
+			'URL'   => $this->web,
+			'EMAIL' => $this->email,
+			'UID'   => $this->uri,
+			'ADR;TYPE=HOME' => $this->address,
+			'TEL;TYPE=CELL' => $this->mobile_phone,
+			'TEL;TYPE=HOME' => $this->phone,
+		];
+
+		$data = array_filter($data);
+
+		if ($this->raw) {
+			$vcard = VObject\Reader::read($this->raw);
+
+			foreach ($data as $name => $value) {
+				$vcard->remove($name);
+				$vcard->add($name, $value);
+			}
+		}
+		else {
+			$vcard = new VObject\Component\VCard($data);
+		}
+
+		$vcard = $vcard->convert(VObject\Document::VCARD30);
+		return $vcard->serialize();
 	}
 }
