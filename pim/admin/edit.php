@@ -44,14 +44,14 @@ $form->runIf('import', function () use ($event) {
 	$event->populateFromVCalendarUpload('file');
 	$event->save();
 
-	Utils::redirect(sprintf('./?y=%d&m=%d', $event->start->format('Y'), $event->start->format('m')));
+	Utils::reloadParentFrame(sprintf('./?y=%d&m=%d', $event->start->format('Y'), $event->start->format('m')));
 });
 
 $form->runIf('save', function () use ($event) {
 	$event->importForm();
 	$event->save();
 
-	Utils::redirect(sprintf('./?y=%d&m=%d', $event->start->format('Y'), $event->start->format('m')));
+	Utils::reloadParentFrame(sprintf('./?y=%d&m=%d', $event->start->format('Y'), $event->start->format('m')));
 }, $csrf_key);
 
 $title = $event->exists() ? 'Modifier un événement' : 'Nouvel événement';

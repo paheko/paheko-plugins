@@ -2,18 +2,32 @@
 
 {form_errors}
 
-<form method="post" action="" data-focus="2">
+<form method="post" action="" data-focus="#f_title">
+<aside class="secondary">
+	{if $event->exists()}
+	<p class="actions">
+		{linkbutton shape="plus" href="edit.php?copy=%d"|args:$event.id label="Dupliquer"}
+		{linkbutton shape="delete" href="delete.php?id=%d"|args:$event.id label="Supprimer"}
+	</p>
+	{/if}
+
+	<fieldset>
+		<dl>
+			{input type="textarea" name="desc" label="Description" source=$event cols=30 rows=5}
+			{input type="text" name="location" label="Adresse" source=$event}
+			<dd>{linkbutton href="#" label="Ouvrir l'adresse sur une carte"}</dd>
+			{input type="number" min=0 required=true name="reminder" label="Rappel" suffix=" minutes avant" source=$event}
+		</dl>
+	</fieldset>
+</aside>
 <fieldset>
 	<legend>{$title}</legend>
 	<dl>
 		{input type="select" name="id_category" label="Catégorie" options=$categories_assoc required=true}
 		{input type="text" name="title" label="Titre" source=$event required=true}
-		{input type="textarea" name="desc" label="Description" source=$event cols=50 rows=6}
-		{input type="text" name="location" label="Adresse" source=$event}
-		<dd>{linkbutton href="#" label="Ouvrir l'adresse sur une carte"}</dd>
-		{input type="number" min=0 required=true name="reminder" label="Rappel" suffix=" minutes avant" source=$event}
 	</dl>
 </fieldset>
+
 <fieldset>
 	<legend>Dates</legend>
 	<dl>
@@ -24,12 +38,6 @@
 	</dl>
 </fieldset>
 
-{if $event->exists()}
-<p class="actions">
-	{linkbutton shape="plus" href="edit.php?copy=%d"|args:$event.id label="Dupliquer"}
-	{linkbutton shape="delete" href="delete.php?id=%d"|args:$event.id label="Supprimer"}
-</p>
-{/if}
 
 <p class="submit">
 	{csrf_field key=$csrf_key}

@@ -7,8 +7,7 @@ function addEvent(date, date_end)
 		var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 		var url = "./edit.php?start="+date+"&end=" + date_end + "&tz=+"+encodeURIComponent(tz)+"&title="+encodeURIComponent(r);
 
-
-		location.href = url;
+		g.openFrameDialog(url + '&_dialog');
 	}
 
 	return false;
