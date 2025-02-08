@@ -35,7 +35,6 @@ else {
 
 $csrf_key = 'pim_event_edit';
 
-
 $form->runIf('import', function () use ($event) {
 	if ($event->exists()) {
 		throw new UserException('Invalid request', 400);

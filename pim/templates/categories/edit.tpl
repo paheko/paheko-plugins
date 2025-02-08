@@ -8,7 +8,7 @@
 	<dl>
 		{input type="text" name="title" label="Titre" required=true source=$cat}
 		{input type="number" name="reminder" label="Rappel par défaut" required=true source=$cat default=15 suffix="minutes avant l'événement" size=3}
-		{input type="number" min="0" max="360" name="color" label="Couleur" required=true source=$cat}
+		{input type="hue" name="color" label="Couleur" required=true source=$cat data-saturation="50%" data-lightness="75%"}
 	</dl>
 </fieldset>
 <p class="submit">
