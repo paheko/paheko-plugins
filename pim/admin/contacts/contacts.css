@@ -34,7 +34,16 @@ section.contacts article > a {
 	text-decoration: inherit;
 	width: calc(100% - 2em);
 	padding: 1em;
-	height: 9em;
+	padding-bottom: 0;
+    max-width: 200px;
+    height: 10em;
+}
+
+section.contacts article > a h2 {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 
 section.contacts article > a:hover {

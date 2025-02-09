@@ -29,7 +29,7 @@ Cette extension permet d'avoir de multiples agendas et un carnet d'adresse pour 
 - Nom, prénom, numéros de téléphone, adresse, email, site web, adresse postale, notes, date d'anniversaire
 - Photo du contact
 - Archivage des anciens contacts
-- Impression de carnet d'adresse
+- Impression de carnet d'adresse en PDF
 - Export de tous les contacts au format VCard (`.vcf`)
 - Import de contacts au format VCard
 
