@@ -68,6 +68,11 @@ class Events
 		return EM::findOneById(Event::class, $id);
 	}
 
+	public function getFromURI(string $uri): ?Event
+	{
+		return EM::findOneBy(Event::class, 'uri = ?', $uri);
+	}
+
 	public function listForCategory(int $id): array
 	{
 		return EM::getInstance()->all('SELECT * FROM @TABLE WHERE id_user = ? AND id_category = ?;', $this->id_user, $id);

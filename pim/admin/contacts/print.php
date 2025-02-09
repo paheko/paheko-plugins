@@ -2,11 +2,13 @@
 
 namespace Paheko\Plugin\PIM;
 
-require_once __DIR__ . '/../_inc.php';
+use Paheko\Users\Session;
 
-$c = new Contacts($user_id);
+require __DIR__ . '/../_inc.php';
 
-$list = $c->listAll(false);
+$contacts = new Contacts(Session::getUserId());
+
+$list = $contacts->listAll(false);
 
 $tpl->assign(compact('list'));
 

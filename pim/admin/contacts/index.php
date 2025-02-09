@@ -2,9 +2,11 @@
 
 namespace Paheko\Plugin\PIM;
 
+use Paheko\Users\Session;
+
 require __DIR__ . '/../_inc.php';
 
-$contacts = new Contacts($user_id);
+$contacts = new Contacts(Session::getUserId());
 
 $archived = isset($_GET['archived']);
 $list = $contacts->getList($archived);

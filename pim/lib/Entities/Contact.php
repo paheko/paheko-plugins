@@ -166,7 +166,7 @@ class Contact extends Entity
 		return 'https://www.openstreetmap.org/search?query=' . rawurlencode($this->address);
 	}
 
-	public function getVCard(): string
+	public function serialize(): string
 	{
 		$data = [
 			'N'     => [$this->name, $this->first_name, $this->title],
@@ -197,5 +197,10 @@ class Contact extends Entity
 
 		$vcard = $vcard->convert(VObject\Document::VCARD30);
 		return $vcard->serialize();
+	}
+
+	public function etag(): string
+	{
+		return md5($this->uri . $this->updated->getTimestamp());
 	}
 }

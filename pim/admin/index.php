@@ -1,10 +1,11 @@
 <?php
 
 namespace Paheko\Plugin\PIM;
+use Paheko\Users\Session;
 
 require __DIR__ . '/_inc.php';
 
-$events = new Events($user_id);
+$events = new Events(Session::getUserId());
 
 $y = intval($_GET['y'] ?? 0) ?: date('Y');
 $m = intval($_GET['m'] ?? 0) ?: date('m');

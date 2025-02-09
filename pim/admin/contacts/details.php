@@ -4,10 +4,11 @@ namespace Paheko\Plugin\PIM;
 
 use Paheko\UserException;
 use Paheko\Plugin\PIM\Entities\Contact;
+use Paheko\Users\Session;
 
 require __DIR__ . '/../_inc.php';
 
-$contacts = new Contacts($user_id);
+$contacts = new Contacts(Session::getUserId());
 
 $id = intval($_GET['id'] ?? 0);
 $contact = $contacts->get($id);

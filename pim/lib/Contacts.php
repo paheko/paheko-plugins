@@ -23,6 +23,11 @@ class Contacts
 		return EM::findOneById(Contact::class, $id);
 	}
 
+	public function getFromURI(string $uri): ?Contact
+	{
+		return EM::findOne(Contact::class, 'SELECT * FROM @TABLE WHERE uri = ?;', $uri);
+	}
+
 	public function getUpcomingBirthdays(int $days = 15): array
 	{
 		$db = DB::getInstance();
@@ -91,11 +96,13 @@ class Contacts
 
 	public function exportAll(bool $archived = false): void
 	{
+		PIM::enableDependencies();
+
 		header('Content-Type: text/vcard; charset=utf-8', true);
 		header('Content-Disposition: download; filename="export.vcf"', true);
 
 		foreach ($this->listAll($archived) as $contact) {
-			echo $contact->getVCard();
+			echo $contact->serialize();
 		}
 	}
 }

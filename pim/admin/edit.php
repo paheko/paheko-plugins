@@ -7,10 +7,11 @@ use Paheko\UserException;
 use Paheko\Utils;
 use Paheko\Plugin\PIM\Entities\Event;
 use KD2\I18N\TimeZones;
+use Paheko\Users\Session;
 
 require __DIR__ . '/_inc.php';
 
-$events = new Events($user_id);
+$events = new Events(Session::getUserId());
 
 $id = intval($_GET['copy'] ?? ($_GET['id'] ?? 0));
 

@@ -236,4 +236,42 @@ class Event extends Entity
 		$end->setTime($end_h, $end_m, 0, 0);
 		return $str;
 	}
+
+	public function serialize(): string
+	{
+		$event = [
+			'VEVENT' => [
+				'SUMMARY'            => $row->title,
+				'DESCRIPTION'        => $row->desc,
+				'LOCATION'           => $row->location,
+				//RRULE // FIXME
+				'UID'                => $row->uri,
+			]
+		];
+
+		if ($row->all_day)
+		{
+			$event['VEVENT']['DTSTART;VALUE=DATE'] = $row->date->format('Ymd');
+			$row->date_end->modify('+1 day');
+			$event['VEVENT']['DTEND;VALUE=DATE'] = $row->date_end->format('Ymd');
+		}
+		else
+		{
+			$event['VEVENT']['DTSTART'] = $row->date;
+			$event['VEVENT']['DTEND'] = $row->date_end;
+		}
+
+		if ($row->reminder)
+		{
+			$event['VEVENT']['VALARM'] = [
+				'TRIGGER'     => sprintf('-PT%dM', $row->reminder),
+				'ACTION'      => 'DISPLAY',
+				'DESCRIPTION' => $row->title,
+			];
+		}
+
+		$event = new VObject\Component\VCalendar($event);
+
+		return $event->serialize();
+	}
 }

@@ -1,9 +1,10 @@
 <?php
 
 namespace Paheko\Plugin\PIM;
+use Paheko\Users\Session;
 
-require_once __DIR__ . '/../_inc.php';
+require __DIR__ . '/../_inc.php';
 
-$c = new Contacts($user_id);
+$contacts = new Contacts(Session::getUserId());
 
-$c->exportAll();
+$contacts->exportAll();

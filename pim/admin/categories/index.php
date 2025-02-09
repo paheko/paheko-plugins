@@ -2,9 +2,11 @@
 
 namespace Paheko\Plugin\PIM;
 
+use Paheko\Users\Session;
+
 require __DIR__ . '/../_inc.php';
 
-$events = new Events($user_id);
+$events = new Events(Session::getUserId());
 
 if (!empty($_GET['set_default'])) {
 	$events->setDefaultCategory((int) $_GET['set_default']);

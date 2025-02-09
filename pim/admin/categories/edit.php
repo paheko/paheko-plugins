@@ -4,10 +4,11 @@ namespace Paheko\Plugin\PIM;
 
 use Paheko\UserException;
 use Paheko\Plugin\PIM\Entities\Event_Category;
+use Paheko\Users\Session;
 
 require __DIR__ . '/../_inc.php';
 
-$events = new Events($user_id);
+$events = new Events(Session::getUserId());
 
 if ($id = intval($_GET['id'] ?? 0)) {
 	$cat = $events->getCategory($id);
