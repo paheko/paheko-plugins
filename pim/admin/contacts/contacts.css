@@ -1,0 +1,59 @@
+section.contacts figure {
+}
+
+.avatar img {
+	max-width: 100px;
+	border-radius: 10%;
+}
+
+section.contacts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(12.5em, 1fr) );
+	gap: 1em;
+	justify-content: center;
+	align-items: center;
+}
+
+section.contacts article {
+	background: rgba(var(--gMainColor), 0.1);
+	border-radius: .5em;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	overflow: hidden;
+}
+
+section.contacts article > a {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	color: inherit;
+	text-decoration: inherit;
+	width: calc(100% - 2em);
+	padding: 1em;
+	height: 9em;
+}
+
+section.contacts article > a:hover {
+	background: rgba(var(--gSecondColor), 0.2);
+}
+
+section.contacts .actions {
+	font-size: .8em;
+	text-align: center;
+	float: none;
+	margin: 0;
+	padding: .5em;
+}
+
+section.contacts h4 {
+	font-weight: normal;
+	font-size: .9em;
+}
+
+section.contacts h2 {
+	font-size: 1.2em;
+}
