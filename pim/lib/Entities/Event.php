@@ -174,14 +174,12 @@ class Event extends Entity
 			$category_id = $events->getDefaultCategory();
 		}
 
-		if (!$category_id) {
-			throw new UserException('There is no category defined');
-		}
+		if ($category_id) {
+			$category = $events->getCategory($category_id);
 
-		$category = $events->getCategory($category_id);
-
-		if (!$category) {
-			throw new UserException('Invalid or unknown category');
+			if (!$category) {
+				throw new UserException('Invalid or unknown category');
+			}
 		}
 
 		$start->setTimezone($tz);
@@ -201,10 +199,10 @@ class Event extends Entity
 		}
 
 		if (!$all_day) {
-			$reminder = $category->default_reminder;
+			$reminder = $category->default_reminder ?? 15;
 		}
 
-		$category = $category->id;
+		$category = $category->id ?? null;
 		$this->import(compact('all_day', 'start', 'end', 'reminder', 'title', 'category'));
 	}
 

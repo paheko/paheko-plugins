@@ -19,7 +19,7 @@ if ($id) {
 	$event = $events->get($id);
 
 	if (!$event) {
-		throw new UserException('Événment introuvable');
+		throw new UserException('Événement introuvable');
 	}
 
 	if (!empty($_GET['copy'])) {
@@ -27,10 +27,7 @@ if ($id) {
 	}
 }
 else {
-	$event = new Event;
-	$event->id_user = $user_id;
-	$event->id_category = $events->getDefaultCategory();
-
+	$event = $events->create();
 	$event->populateFromQueryString($events, $_GET);
 }
 

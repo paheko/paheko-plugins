@@ -63,6 +63,14 @@ class Events
 		$db->update('plugin_pim_events_categories', ['is_default' => 1], sprintf('id = %d AND id_user = %d', $id, $this->id_user));
 	}
 
+	public function create(): Event
+	{
+		$event = new Event;
+		$event->id_user = $this->id_user;
+		$event->id_category = $this->getDefaultCategory();
+		return $event;
+	}
+
 	public function get(int $id): ?Event
 	{
 		return EM::findOneById(Event::class, $id);

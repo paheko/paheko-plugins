@@ -98,6 +98,6 @@ $server->addPlugin(new \Sabre\DAV\Sync\Plugin);
 $server->addPlugin(new \Sabre\DAVACL\Plugin);
 
 // Support for html frontend
-$server->addPlugin(new \Sabre\DAV\Browser\Plugin);
+$server->addPlugin(new \Sabre\DAV\Browser\Plugin(false));
 
 $server->exec();
