@@ -3,7 +3,6 @@
 namespace Paheko\Plugin\PIM;
 
 use Paheko\UserException;
-use Paheko\Plugin\PIM\Entities\Event_Category;
 use Paheko\Users\Session;
 
 require __DIR__ . '/../../_inc.php';
@@ -18,8 +17,7 @@ if ($id = intval($_GET['id'] ?? 0)) {
 	}
 }
 else {
-	$cat = new Event_Category;
-	$cat->id_user = $user_id;
+	$cat = $events->createCategory();
 }
 
 $csrf_key = 'pim_category_edit';

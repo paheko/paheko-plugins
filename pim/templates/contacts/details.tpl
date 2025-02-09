@@ -17,7 +17,7 @@
 
 <dl class="describe">
 	<dt>Identité</dt>
-	<dd>{$title} {if $contact.context} ({$contact.context}){/if}</dd>
+	<dd>{$title} {if $contact.title} ({$contact.title}){/if}</dd>
 
 	{if $contact->hasPhoto()}
 		<dt>Photo</dt>

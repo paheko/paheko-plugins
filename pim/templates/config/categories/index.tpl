@@ -2,8 +2,9 @@
 
 <nav class="tabs">
 	<aside>
-		{linkbutton href="edit.php" label="Nouvelle catégorie" shape="download"}
-		{linkbutton href="?export=all" label="Exporter tout" shape="plus" target="_dialog"}
+		{linkbutton href="../../upload.php" label="Importer" shape="import" target="_dialog"}
+		{linkbutton href="?export=all" label="Exporter tout" shape="download"}
+		{linkbutton href="edit.php" label="Nouvelle catégorie" shape="plus" target="_dialog"}
 	</aside>
 	<ul>
 		<li><a href="../../">Agenda</a></li>

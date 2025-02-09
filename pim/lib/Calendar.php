@@ -96,7 +96,13 @@ class Calendar
 
 	static public function getNZPublicHolidays($year)
 	{
-		$holidays = [];
+		static $holidays = [];
+
+		if (isset($holidays[$year])) {
+			return $holidays[$year];
+		}
+
+		$holidays[$year] = [];
 
 		// Décalage des dates, un jour férié qui tombe un weekend est reporté
 		foreach (self::NZ_HOLIDAYS as $date => $name)
@@ -132,11 +138,11 @@ class Calendar
 
 			if ($datetime->format('m-d') != $date)
 			{
-				$holidays[$datetime->format('m-d')] = $name;
+				$holidays[$year][$datetime->format('m-d')] = $name;
 			}
 			else
 			{
-				$holidays[$date] = $name;
+				$holidays[$year][$date] = $name;
 			}
 		}
 
@@ -147,28 +153,34 @@ class Calendar
 		$easter_friday = clone $easter;
 		$easter_friday->modify('-2 days');
 
-		$holidays[$easter_friday->format('m-d')] = 'Good Friday';
+		$holidays[$year][$easter_friday->format('m-d')] = 'Good Friday';
 
 		$easter_monday = clone $easter;
 		$easter_monday->modify('+1 day');
 
-		$holidays[$easter_monday->format('m-d')] = 'Easter Monday';
+		$holidays[$year][$easter_monday->format('m-d')] = 'Easter Monday';
 
 		$day = strtotime(sprintf('first monday %d-06', $year));
-		$holidays[date('m-d', $day)] = 'Queens Birthday';
+		$holidays[$year][date('m-d', $day)] = 'Queens Birthday';
 
 		$day = strtotime(sprintf('fourth monday %d-10', $year));
-		$holidays[date('m-d', $day)] = 'Labour Day';
+		$holidays[$year][date('m-d', $day)] = 'Labour Day';
 
 		$day = strtotime(sprintf('first monday %d-01-29', $year));
-		$holidays[date('m-d', $day)] = 'Auckland Anniversary';
+		$holidays[$year][date('m-d', $day)] = 'Auckland Anniversary';
 
-		return $holidays;
+		return $holidays[$year];
 	}
 
 	static public function getFRPublicHolidays($year)
 	{
-		$holidays = self::FR_HOLIDAYS;
+		static $holidays = [];
+
+		if (isset($holidays[$year])) {
+			return $holidays[$year];
+		}
+
+		$holidays[$year] = self::FR_HOLIDAYS;
 
 		// Jours variables
 		$easter = new DateTime(date('Y') . '-03-21');
@@ -177,19 +189,19 @@ class Calendar
 		$a = clone $easter;
 		$a->modify('+39 days'); // Jeudi de l'ascension
 
-		$holidays[$a->format('m-d')] = 'Jeudi de l\'ascension';
+		$holidays[$year][$a->format('m-d')] = 'Jeudi de l\'ascension';
 
 		$a = clone $easter;
 		$a->modify('+50 days'); // lundi de pentecôte
 
-		$holidays[$a->format('m-d')] = 'Lundi de pentecôte';
+		$holidays[$year][$a->format('m-d')] = 'Lundi de pentecôte';
 
 		$a = clone $easter;
 		$a->modify('+1 day'); // lundi de pâques
 
-		$holidays[$a->format('m-d')] = 'Lundi de pâques';
+		$holidays[$year][$a->format('m-d')] = 'Lundi de pâques';
 
-		return $holidays;
+		return $holidays[$year];
 	}
 
 	static public function isPublicHoliday(DateTime $date)
@@ -201,9 +213,9 @@ class Calendar
 			return $fr[$date->format('m-d')];
 		}
 
+		//FIXME: use user country for holidays
 		return false;
 
-		// FIXME: use user country
 		$nz = self::getNZPublicHolidays($date->format('Y'));
 
 		if (isset($nz[$date->format('m-d')]))

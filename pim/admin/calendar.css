@@ -9,8 +9,15 @@ body.calendar main {
 	flex-direction: column;
 }
 
-.months {
+body.calendar .tabs {
+	display: flex;
+	flex-direction: row-reverse;
+	flex-wrap: wrap;
+}
+
+nav.tabs .months {
 	max-width: unset;
+	flex: 1 1;
 }
 
 .months a {
