@@ -6,7 +6,7 @@
 	{include file="common/dynamic_list_head.tpl"}
 	{foreach from=$list->iterate() item="row"}
 		<tr>
-			<td class="photo"><a href="details.php?id={$row.id}" target="_dialog"><img src="{$row.photo}" alt="Photo" /></a></td>
+			<td class="avatar{if $row.has_photo} photo{/if}"><a href="details.php?id={$row.id}" target="_dialog"><img src="{$row.photo}" alt="Photo" /></a></td>
 			<td>{$row.first_name}</td>
 			<td>{$row.last_name}</td>
 			<td>{$row.title}</td>

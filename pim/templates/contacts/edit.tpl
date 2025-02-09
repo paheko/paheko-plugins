@@ -2,7 +2,18 @@
 
 {form_errors}
 
-<form method="post" action="" data-focus="1" enctype="multipart/form-data">
+<form method="post" action="" data-focus="#f_first_name" enctype="multipart/form-data">
+<aside class="secondary">
+	<fieldset>
+		<dl>
+		{input type="checkbox" name="archived" label="Archivé" source=$contact value=1}
+		{input type="textarea" name="notes" label="Notes" source=$contact required=false}
+		{input type="date" name="birthday" label="Date de naissance" source=$contact required=false}
+		{input type="file" name="photo" label="Photo" help="Laisser vide pour ne pas changer la photo." accept="image"}
+		</dl>
+	</fieldset>
+</aside>
+
 <fieldset>
 	<legend>{$title}</legend>
 	<dl>
@@ -14,10 +25,6 @@
 		{input type="textarea" rows=3 name="address" label="Adresse postale" source=$contact required=false}
 		{input type="email" name="email" label="Adresse e-mail" source=$contact required=false}
 		{input type="url" name="web" label="Adresse du site web" source=$contact required=false}
-		{input type="textarea" name="notes" label="Notes" source=$contact required=false}
-		{input type="date" name="birthday" label="Date de naissance" source=$contact required=false}
-		{input type="file" name="photo" label="Photo" help="Laisser vide pour ne pas changer la photo." accept="image"}
-		{input type="checkbox" name="archived" label="Archivé" source=$contact value=1}
 	</dl>
 </fieldset>
 

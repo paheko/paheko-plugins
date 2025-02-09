@@ -7,3 +7,9 @@ if ($plugin->needUpgrade()) {
 }
 
 PIM::verifyAccess();
+
+spl_autoload_register(function (string $name) {
+	if (strpos($name, 'Sabre') !== false) {
+		PIM::enableDependencies();
+	}
+});

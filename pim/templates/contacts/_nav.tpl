@@ -1,6 +1,7 @@
 <nav class="tabs">
 	<aside>
 		{linkbutton shape="print" label="Imprimer" href="print.php"}
+		{linkbutton shape="import" label="Import" href="upload.php"}
 		{linkbutton shape="export" label="Export" href="export.php"}
 		{linkbutton shape="plus" label="Nouveau contact" href="edit.php"}
 	</aside>

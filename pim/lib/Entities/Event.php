@@ -4,7 +4,6 @@ namespace Paheko\Plugin\PIM\Entities;
 
 use Paheko\Plugin\PIM\ChangesTracker;
 use Paheko\Plugin\PIM\Events;
-use Paheko\Plugin\PIM\PIM;
 use Paheko\Entity;
 use Paheko\UserException;
 use DateTime;
@@ -273,8 +272,6 @@ class Event extends Entity
 
 	public function exportVEvent(): string
 	{
-		PIM::enableDependencies();
-
 		$obj = new VObject\Component\VCalendar($this->exportVEventArray());
 		return $obj->serialize();
 	}
@@ -282,7 +279,6 @@ class Event extends Entity
 	public function importVEvent($obj)
 	{
 		if (is_string($obj)) {
-			PIM::enableDependencies();
 			$obj = VObject\Reader::read($obj)->VEVENT;
 		}
 

@@ -301,8 +301,6 @@ class Events
 			throw new ValidationException('Invalid file: not a VCalendar');
 		}
 
-		PIM::enableDependencies();
-
 		// Handle multiple VCalendar in the same file
 		$data = preg_split("/\r?\nEND:VCALENDAR\r?\nBEGIN:VCALENDAR\r?\n/", $data);
 
@@ -346,8 +344,6 @@ class Events
 
 	protected function export(Event_Category $cat): string
 	{
-		PIM::enableDependencies();
-
 		$vcal = new VObject\Component\VCalendar([
 			'X-WR-NAME' => $cat->title,
 			'X-APPLE-CALENDAR-COLOR' => Utils::hsl2rgb($cat->color, 50, 75),

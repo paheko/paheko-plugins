@@ -12,10 +12,14 @@ CREATE TABLE IF NOT EXISTS plugin_pim_contacts (
 	web TEXT NULL,
 	notes TEXT NULL,
 	birthday TEXT NULL CHECK (birthday IS NULL OR birthday = date(birthday)),
-	photo TEXT NULL,
 	raw TEXT NULL,
 	updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP CHECK (updated = datetime(updated)),
 	archived INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS plugin_pim_contacts_photos (
+	id INTEGER PRIMARY KEY NOT NULL REFERENCES plugin_pim_contacts(id) ON DELETE CASCADE,
+	photo BLOB NOT NULL
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS plugin_pim_contacts_uri ON plugin_pim_contacts (id_user, uri);

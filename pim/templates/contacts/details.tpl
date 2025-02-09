@@ -9,15 +9,19 @@
 <p class="actions">
 	{linkbutton href="edit.php?id=%d"|args:$contact.id label="Modifier" shape="edit" target="_dialog"}
 	{linkbutton href="delete.php?id=%d"|args:$contact.id label="Supprimer" shape="delete" target="_dialog"}
+	<br />
+
+	<small>Fiche mise à jour :
+	{$contact.updated|date_short:true}</small>
 </p>
 
 <dl class="describe">
 	<dt>Identité</dt>
 	<dd>{$title} {if $contact.context} ({$contact.context}){/if}</dd>
 
-	{if $contact.photo}
+	{if $contact->hasPhoto()}
 		<dt>Photo</dt>
-		<dd><img src="{$contact->getPhotoURL(true)}" class="photo" alt="" /></dd>
+		<dd><img src="{$contact->getPhotoURL()}" class="photo" alt="" /></dd>
 	{/if}
 
 	{if $contact.mobile_phone}
@@ -60,5 +64,7 @@
 		<dd>{$contact.birthday|date_format:'%e %B'}</dd>
 	{/if}
 </dl>
+
+<div style="clear:both"></div>
 
 {include file="_foot.tpl"}

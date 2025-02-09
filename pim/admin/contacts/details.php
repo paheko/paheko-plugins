@@ -17,6 +17,11 @@ if (!$contact) {
 	throw new UserException('Contact inconnu');
 }
 
+if (($_GET['return'] ?? null) === 'photo') {
+	$contact->servePhoto();
+	return;
+}
+
 $title = $contact->getFullName();
 
 $tpl->assign(compact('contact', 'title'));

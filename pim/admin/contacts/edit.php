@@ -4,7 +4,6 @@ namespace Paheko\Plugin\PIM;
 
 use Paheko\UserException;
 use Paheko\Utils;
-use Paheko\Plugin\PIM\Entities\Contact;
 use Paheko\Users\Session;
 
 require __DIR__ . '/../_inc.php';
@@ -19,8 +18,7 @@ if ($id = intval($_GET['id'] ?? 0)) {
 	}
 }
 else {
-	$contact = new Contact;
-	$contact->id_user = $user_id;
+	$contact = $contacts->create();
 }
 
 $csrf_key = 'pim_contact_edit';
@@ -29,7 +27,7 @@ $form->runIf('save', function () use ($contact, $plugin) {
 	$contact->importForm();
 
 	if (!empty($_FILES['photo']['name'])) {
-		$contact->uploadPhoto($plugin->storage_root(), $_FILES['photo']);
+		$contact->uploadPhoto($_FILES['photo']);
 	}
 
 	$contact->save();
