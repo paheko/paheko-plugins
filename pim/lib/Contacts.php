@@ -68,7 +68,9 @@ class Contacts
 
 	public function listAll(bool $archived = false): array
 	{
-		return EM::getInstance(Contact::class)->all('SELECT * FROM @TABLE WHERE archived = ? ORDER BY first_name || \' \' || last_name COLLATE U_NOCASE;', $archived);
+		return EM::getInstance(Contact::class)->all('SELECT * FROM @TABLE WHERE archived = ?
+			ORDER BY COALESCE(first_name, \'\') || COALESCE(last_name, \'\') COLLATE U_NOCASE;',
+			$archived);
 	}
 
 	public function getList(bool $archived = false): DynamicList
@@ -82,17 +84,17 @@ class Contacts
 			'first_name' => [
 				'label' => 'Prénom',
 				'select' => 'c.first_name',
-				'order' => 'c.first_name || \' \' || c.last_name COLLATE U_NOCASE %s',
+				'order' => 'COALESCE(c.first_name, \'\') || COALESCE(c.last_name, \'\') COLLATE U_NOCASE %s',
 			],
 			'last_name' => [
 				'label' => 'Nom',
 				'select' => 'c.last_name',
-				'order' => 'c.last_name || \' \' || c.first_name COLLATE U_NOCASE %s',
+				'order' => 'COALESCE(c.first_name, \'\') || COALESCE(c.last_name, \'\') COLLATE U_NOCASE %s',
 			],
 			'title' => [
 				'label' => 'Contexte',
 				'select' => 'c.title',
-				'order' => 'c.title || c.first_name || \' \' || c.last_name COLLATE U_NOCASE %s',
+				'order' => 'COALESCE(c.title, \'\') || COALESCE(c.first_name, \'\') || COALESCE(c.last_name, \'\') COLLATE U_NOCASE %s',
 			],
 			'id' => ['select' => 'c.id'],
 			'uri' => ['select' => 'c.uri'],

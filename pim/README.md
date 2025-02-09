@@ -31,6 +31,7 @@ Cette extension permet d'avoir de multiples agendas et un carnet d'adresse pour 
 - Archivage des anciens contacts
 - Impression de carnet d'adresse
 - Export de tous les contacts au format VCard (`.vcf`)
+- Import de contacts au format VCard
 
 ## Support CalDAV/CardDAV expérimental
 
