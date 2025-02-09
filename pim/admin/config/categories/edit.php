@@ -6,7 +6,7 @@ use Paheko\UserException;
 use Paheko\Plugin\PIM\Entities\Event_Category;
 use Paheko\Users\Session;
 
-require __DIR__ . '/../_inc.php';
+require __DIR__ . '/../../_inc.php';
 
 $events = new Events(Session::getUserId());
 
@@ -33,4 +33,4 @@ $title = $cat->exists() ? 'Modifier une catégorie' : 'Nouvelle catégorie';
 
 $tpl->assign(compact('cat', 'csrf_key', 'title'));
 
-$tpl->display(__DIR__ . '/../../templates/categories/edit.tpl');
+$tpl->display(__DIR__ . '/../../../templates/config/categories/edit.tpl');

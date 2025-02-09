@@ -21,7 +21,8 @@ Cette extension permet d'avoir de multiples agendas et un carnet d'adresse pour 
 - Reconnaissance automatique des heures dans le titre de l'événement
 - Affichage des jours fériés
 - Navigation par mois et année
-- Import de fichier `.ics`
+- Import de fichier iCalendar (`.ics`), par événement (`VEVENT`), ou par agenda (`VCALENDAR`)
+- Export d'agenda au format iCalendar
 
 ## Contacts
 
@@ -29,7 +30,7 @@ Cette extension permet d'avoir de multiples agendas et un carnet d'adresse pour 
 - Photo du contact
 - Archivage des anciens contacts
 - Impression de carnet d'adresse
-- Export VCard (`.vcf`)
+- Export de tous les contacts au format VCard (`.vcf`)
 
 ## Support CalDAV/CardDAV expérimental
 

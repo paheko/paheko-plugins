@@ -5,7 +5,7 @@ namespace Paheko\Plugin\PIM;
 use Paheko\UserException;
 use Paheko\Users\Session;
 
-require __DIR__ . '/../_inc.php';
+require __DIR__ . '/../../_inc.php';
 
 $events = new Events(Session::getUserId());
 
@@ -29,4 +29,4 @@ $form->runIf('delete', function () use ($cat) {
 
 $tpl->assign(compact('cat', 'csrf_key'));
 
-$tpl->display(__DIR__ . '/../../templates/categories/delete.tpl');
+$tpl->display(__DIR__ . '/../../../templates/config/categories/delete.tpl');

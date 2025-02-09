@@ -18,7 +18,7 @@
 	<ul>
 		<li class="current"><a href="./">Agenda</a></li>
 		<li><a href="contacts/">Contacts</a></li>
-		<li><a href="config/">Configuration</a></li>
+		<li><a href="config/categories/">Configuration</a></li>
 	</ul>
 </nav>
 

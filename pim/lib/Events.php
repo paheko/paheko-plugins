@@ -336,11 +336,53 @@ class Events
 			foreach ($v->VEVENT as $vevent) {
 				$event = $this->create();
 				$event->id_category = $cat_id;
-				$event->importVCalendar($vevent);
+				$event->importVEvent($vevent);
 				$event->save();
 			}
 		}
 
 		$db->commit();
+	}
+
+	protected function export(Event_Category $cat): string
+	{
+		PIM::enableDependencies();
+
+		$vcal = new VObject\Component\VCalendar([
+			'X-WR-NAME' => $cat->title,
+			'X-APPLE-CALENDAR-COLOR' => Utils::hsl2rgb($cat->color, 50, 75),
+		]);
+
+		$em = EM::getInstance(Event::class);
+
+		foreach ($em->iterate('SELECT * FROM @TABLE WHERE id_category = ?;', $cat->id) as $event) {
+			$vcal->add('VEVENT', $event->exportVEventArray());
+		}
+
+		return $vcal->serialize();
+	}
+
+	public function exportCategory(int $id): void
+	{
+		$cat = $this->getCategory($id);
+
+		if (!$cat) {
+			return;
+		}
+
+		header('Content-Type: text/calendar; charset=utf-8');
+		header(sprintf('Content-Disposition: download; filename="%s.ics"', $cat->title), true);
+
+		echo $this->export($cat);
+	}
+
+	public function exportAll(): void
+	{
+		header('Content-Type: text/calendar; charset=utf-8');
+		header(sprintf('Content-Disposition: download; filename="%s.ics"', 'export_all'), true);
+
+		foreach ($this->listCategories() as $cat) {
+			echo $this->export($cat);
+		}
 	}
 }

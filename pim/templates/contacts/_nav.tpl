@@ -5,7 +5,12 @@
 		{linkbutton shape="plus" label="Nouveau contact" href="edit.php"}
 	</aside>
 	<ul>
-		<li {if $archived === false} class="current"{/if}><a href="./">Contacts</a></li>
+		<li><a href="../">Agenda</a></li>
+		<li class="current"><a href="./">Contacts</a></li>
+		<li><a href="../config/categories/">Configuration</a></li>
+	</ul>
+	<ul class="sub">
+		<li {if $archived === false} class="current"{/if}><a href="./">Contacts actuels</a></li>
 		<li {if $archived === true} class="current"{/if}><a href="./?archived">Contacts archivés</a></li>
 	</ul>
 </nav>

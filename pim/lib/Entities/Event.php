@@ -4,9 +4,12 @@ namespace Paheko\Plugin\PIM\Entities;
 
 use Paheko\Plugin\PIM\ChangesTracker;
 use Paheko\Plugin\PIM\Events;
+use Paheko\Plugin\PIM\PIM;
 use Paheko\Entity;
 use Paheko\UserException;
 use DateTime;
+
+use Sabre\VObject;
 
 class Event extends Entity
 {
@@ -235,47 +238,51 @@ class Event extends Entity
 		return $str;
 	}
 
-	public function exportVCalendar(): string
+	public function exportVEventArray(): array
 	{
-		$event = [
-			'VEVENT' => [
-				'SUMMARY'            => $row->title,
-				'DESCRIPTION'        => $row->desc,
-				'LOCATION'           => $row->location,
-				//RRULE // FIXME
-				'UID'                => $row->uri,
-			]
+		$vevent = [
+			'SUMMARY'       => $this->title,
+			'DESCRIPTION'   => $this->desc,
+			'LOCATION'      => $this->location,
+			//RRULE // FIXME
+			'UID'           => $this->uri,
+			'LAST-MODIFIED' => $this->updated,
 		];
 
-		if ($row->all_day)
-		{
-			$event['VEVENT']['DTSTART;VALUE=DATE'] = $row->date->format('Ymd');
-			$row->date_end->modify('+1 day');
-			$event['VEVENT']['DTEND;VALUE=DATE'] = $row->date_end->format('Ymd');
+		if ($this->all_day) {
+			$vevent['DTSTART;VALUE=DATE'] = $this->start->format('Ymd');
+			$end = clone $this->end;
+			$end->modify('+1 day');
+			$vevent['DTEND;VALUE=DATE'] = $end->format('Ymd');
 		}
-		else
-		{
-			$event['VEVENT']['DTSTART'] = $row->date;
-			$event['VEVENT']['DTEND'] = $row->date_end;
+		else {
+			$vevent['DTSTART'] = $this->start;
+			$vevent['DTEND'] = $this->end;
 		}
 
-		if ($row->reminder)
-		{
-			$event['VEVENT']['VALARM'] = [
-				'TRIGGER'     => sprintf('-PT%dM', $row->reminder),
+		if ($this->reminder) {
+			$vevent['VALARM'] = [
+				'TRIGGER'     => sprintf('-PT%dM', $this->reminder),
 				'ACTION'      => 'DISPLAY',
-				'DESCRIPTION' => $row->title,
+				'DESCRIPTION' => $this->title,
 			];
 		}
 
-		$event = new VObject\Component\VCalendar($event);
-
-		return $event->serialize();
+		return $vevent;
 	}
 
-	public function importVCalendar($obj)
+	public function exportVEvent(): string
+	{
+		PIM::enableDependencies();
+
+		$obj = new VObject\Component\VCalendar($this->exportVEventArray());
+		return $obj->serialize();
+	}
+
+	public function importVEvent($obj)
 	{
 		if (is_string($obj)) {
+			PIM::enableDependencies();
 			$obj = VObject\Reader::read($obj)->VEVENT;
 		}
 
