@@ -208,3 +208,36 @@ input.auto-animation, select.auto-animation {
 	box-shadow: 0px 0px 10px 3px darkorange;
 	transition: .5s;
 }
+
+@media handheld, screen and (max-width: 700px) {
+	table.calendar, table.calendar tr, table.calendar td, table.calendar th {
+		display: flex;
+		flex-direction: column;
+		width: unset;
+	}
+
+	table.calendar td, table.calendar th {
+		margin-bottom: .5em;
+		border: none;
+	}
+
+	table.calendar tr {
+		border: 1px solid #ccc;
+		margin: 1em .2em;
+	}
+
+	table.calendar thead {
+		display: none;
+	}
+
+	body.calendar {
+		height: auto;
+		overflow: auto;
+	}
+}
+
+@media handheld, screen and (max-width: 980px) {
+	body.calendar .tabs {
+		flex-direction: column;
+	}
+}

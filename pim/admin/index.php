@@ -7,6 +7,15 @@ require __DIR__ . '/_inc.php';
 
 $events = new Events(Session::getUserId());
 
+if (!$events->getDefaultCategory()) {
+	$c = $events->createCategory();
+	$c->title = 'Personnel';
+	$c->color = 120;
+	$c->default_reminder = 15;
+	$c->is_default = true;
+	$c->save();
+}
+
 $y = intval($_GET['y'] ?? 0) ?: date('Y');
 $m = intval($_GET['m'] ?? 0) ?: date('m');
 

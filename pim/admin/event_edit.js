@@ -74,8 +74,8 @@ t.oninput = () => {
 	var v = t.value;
 
 	// Extract time from title
-	if (match = t.value.match(/^([12]\d)(?:[:h.](\d+))?(?:->?(\d+)[:h.](\d+)?)?\s+/i)) {
-		t.value = t.value.substr(match[0].length);
+	if (match = v.match(/^([12]\d?)(?:[:h.](\d*))?(?:->?(\d+)[:h.](\d+)?)?\s+/i)) {
+		t.value = v.substr(match[0].length);
 		start_time.value = formatTime(match[1], match[2] ?? 0);
 
 		if (match[3] ?? null) {
