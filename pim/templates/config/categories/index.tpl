@@ -19,7 +19,7 @@
 
 	{foreach from=$list item="cat"}
 		<tr>
-			<td class="color" style="--hue: {$cat.color}"></td>
+			<td class="color"><span class="cat_color" style="--hue: {$cat.color}"></span></td>
 			<th style="--hue: {$cat.color}">{$cat.title}</th>
 			<td>{if $cat.is_default}(par défaut){/if}</td>
 			<td class="actions">

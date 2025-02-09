@@ -29,4 +29,4 @@ $form->runIf('delete', function () use ($event) {
 
 $tpl->assign(compact('event', 'csrf_key'));
 
-$tpl->display(__DIR__ . '/../templates/cdelete.tpl');
+$tpl->display(__DIR__ . '/../templates/delete.tpl');

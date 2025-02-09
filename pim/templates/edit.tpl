@@ -23,7 +23,7 @@
 <fieldset>
 	<legend>{$title}</legend>
 	<dl>
-		{input type="select" name="id_category" label="Catégorie" options=$categories_assoc default_empty="— Aucune —" source=$event}
+		{input type="select" name="id_category" label="Catégorie" options=$categories_assoc required=true source=$event}
 		{input type="text" name="title" label="Titre" source=$event required=true}
 	</dl>
 </fieldset>

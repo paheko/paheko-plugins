@@ -178,19 +178,22 @@ table.calendar li.other {
 	color: hsl(var(--hue), 75%, 30%);
 }
 
-table.categories .color {
-	background: hsl(var(--hue), 50%, 75%);
+table.categories td.color {
+	width: 2em;
 }
 
-#cat_preview {
+.cat_color {
 	display: inline-block;
 	width: 2em;
 	height: 2em;
 	border-radius: 100%;
 	border: 1px solid #999;
 	vertical-align: middle;
-	margin-left: 1em;
 	background: hsl(var(--hue), 50%, 75%);
+}
+
+select + .cat_color {
+	margin-left: 1em;
 }
 
 input.auto-animation, select.auto-animation {

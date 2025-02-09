@@ -6,7 +6,7 @@ var loc = $('#f_location');
 var id_category = $('#f_id_category');
 
 var pr = document.createElement("span");
-pr.id = "cat_preview";
+pr.className = "cat_color";
 id_category.parentNode.appendChild(pr);
 
 function selectCategory() {

@@ -1,7 +1,7 @@
 # Agenda et contacts
 
-**ATTENTION :** Cette extension est développée à titre bénévole.
-Merci de ne pas vous attendre à une quelconque évolution de cette extension.
+**ATTENTION :** Cette extension est développée à titre bénévole pour mes besoins personnels.
+Merci de ne pas vous attendre à voir des évolutions de cette extension.
 
 Cette extension permet d'avoir de multiples agendas et un carnet d'adresse pour chaque membre de l'association.
 

@@ -54,8 +54,8 @@ $event->start ??= new \DateTime('+1 hour');
 $event->end ??= new \DateTime('+2 hour');
 
 $default_cat = $events->getDefaultCategory();
-$event->id_category = $default_cat;
-$event->reminder = $categories_export[$default_cat]->default_reminder ?? 0;
+$event->id_category ??= $default_cat;
+$event->reminder ??= $categories_export[$default_cat]->default_reminder ?? 0;
 
 $timezones = TimeZones::listGroupedByContinent();
 
