@@ -10,20 +10,27 @@ body.calendar main {
 }
 
 .months {
-	display: flex;
+	max-width: unset;
 }
 
 .months a {
-	width: 15%;
 	display: inline-flex;
 	justify-content: center;
 }
 
+.months a.year {
+	width: 4rem;
+}
+
+.months a.month {
+	width: 7rem;
+}
+
 .months a.current {
 	font-weight: bold;
-	width: calc(100% - 2em);
 	font-size: 1.3em;
-	flex-grow: 1;
+	width: 12rem;
+	padding: .1rem;
 }
 
 table.calendar {

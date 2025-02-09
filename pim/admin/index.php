@@ -22,7 +22,8 @@ $next_year = $date->format('Y') + 1;
 $month = $date->format('m');
 
 $calendar = $events->getCalendar($y, $m);
+$upload_url = $plugin->url('admin/upload.php');
 
-$tpl->assign(compact('calendar', 'date', 'prev', 'next', 'prev_year', 'next_year', 'month'));
+$tpl->assign(compact('calendar', 'date', 'prev', 'next', 'prev_year', 'next_year', 'month', 'upload_url'));
 
 $tpl->display(__DIR__ . '/../templates/index.tpl');

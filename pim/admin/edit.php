@@ -2,10 +2,8 @@
 
 namespace Paheko\Plugin\PIM;
 
-use Paheko\Config;
 use Paheko\UserException;
 use Paheko\Utils;
-use Paheko\Plugin\PIM\Entities\Event;
 use KD2\I18N\TimeZones;
 use Paheko\Users\Session;
 
@@ -32,17 +30,6 @@ else {
 }
 
 $csrf_key = 'pim_event_edit';
-
-$form->runIf('import', function () use ($event) {
-	if ($event->exists()) {
-		throw new UserException('Invalid request', 400);
-	}
-
-	$event->populateFromVCalendarUpload('file');
-	$event->save();
-
-	Utils::reloadParentFrame(sprintf('./?y=%d&m=%d', $event->start->format('Y'), $event->start->format('m')));
-});
 
 $form->runIf('save', function () use ($event) {
 	$event->importForm();

@@ -235,7 +235,7 @@ class Event extends Entity
 		return $str;
 	}
 
-	public function serialize(): string
+	public function exportVCalendar(): string
 	{
 		$event = [
 			'VEVENT' => [
@@ -271,5 +271,48 @@ class Event extends Entity
 		$event = new VObject\Component\VCalendar($event);
 
 		return $event->serialize();
+	}
+
+	public function importVCalendar($obj)
+	{
+		if (is_string($obj)) {
+			$obj = VObject\Reader::read($obj)->VEVENT;
+		}
+
+		$reminder = 0;
+
+		if (!empty($obj->VALARM)) {
+			sscanf($obj->VALARM->TRIGGER, '-PT%dM', $reminder);
+		}
+
+		$start = $obj->DTSTART->getDateTime();
+		$end = $obj->DTEND->getDateTime();
+
+		// In VEVENT, when event is for a full day, the end date is the next day
+		if (!$obj->DTSTART->hasTime()) {
+			$all_day = true;
+			$start->setTime(0, 0, 0);
+			$end->setTime(0, 0, 0);
+			$end = $end->modify('-1 day');
+		}
+		else {
+			$all_day = false;
+		}
+
+		if ($start > $end) {
+			$end = clone $start;
+			$end = $end->modify('+1 hour');
+		}
+
+		$this->import([
+			'title'    => (string) $obj->SUMMARY,
+			'start'    => $start,
+			'end'      => $end,
+			'desc'     => (string) $obj->DESCRIPTION,
+			'reminder' => (int) $reminder,
+			'all_day'  => (int) $all_day,
+			'location' => (string) $obj->LOCATION,
+			'timezone' => (string) $start->getTimezone()->getName(),
+		]);
 	}
 }

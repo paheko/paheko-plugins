@@ -5,6 +5,8 @@ namespace Paheko\Plugin\PIM;
 use Paheko\Plugin\PIM\Entities\Event;
 use Paheko\Plugin\PIM\Entities\Event_Category;
 use Paheko\DB;
+use Paheko\Utils;
+use Paheko\ValidationException;
 use DateTime;
 use DateTimezone;
 use Sabre\VObject;
@@ -69,6 +71,13 @@ class Events
 		$event->id_user = $this->id_user;
 		$event->id_category = $this->getDefaultCategory();
 		return $event;
+	}
+
+	public function createCategory(): Event_Category
+	{
+		$c = new Event_Category;
+		$c->id_user = $this->id_user;
+		return $c;
 	}
 
 	public function get(int $id): ?Event
@@ -281,53 +290,57 @@ class Events
 
 	}
 
-	public function addFromVCalendar($data, $category, $uri = null)
+	public function importFile(string $path)
 	{
-		$data = $this->unserializeEvent($data);
-
-		$tz = $data->start->getTimezone()->getName();
-
-		if ($tz == 'UTC')
-		{
-			$tz = $this->getCurrentTimezone();
-		}
-
-		return $this->add($data->title, $data->start, $data->end, $data->all_day, $data->desc, (int)$category, $data->reminder, $data->location, $uri, $tz);
+		return $this->import(file_get_contents($path));
 	}
 
-	public function unserializeEvent($data)
+	public function import(string $data)
 	{
-		$obj = VObject\Reader::read($data);
-		$reminder = 0;
-
-		if ($obj->VEVENT->VALARM)
-		{
-			sscanf($obj->VEVENT->VALARM->TRIGGER, '-PT%dM', $reminder);
+		if (!preg_match('/^BEGIN:VCALENDAR/', $data)) {
+			throw new ValidationException('Invalid file: not a VCalendar');
 		}
 
-		$start = $obj->VEVENT->DTSTART->getDateTime();
-		$end = $obj->VEVENT->DTEND->getDateTime();
+		PIM::enableDependencies();
 
-		if (!$obj->VEVENT->DTSTART->hasTime())
-		{
-			$all_day = true;
-			$start->setTime(0, 0, 0);
-			$end = $end->modify('-1 day');
-			$end->setTime(23, 59, 59);
-		}
-		else
-		{
-			$all_day = false;
+		// Handle multiple VCalendar in the same file
+		$data = preg_split("/\r?\nEND:VCALENDAR\r?\nBEGIN:VCALENDAR\r?\n/", $data);
+
+		$db = DB::getInstance();
+		$db->begin();
+
+		foreach ($data as $i => $item) {
+			$item = trim($item);
+			$item = preg_replace('/^BEGIN:VCALENDAR\s*|\s*END:VCALENDAR$/', '', $item);
+			$item = "BEGIN:VCALENDAR\r\n" . $item . "\r\nEND:VCALENDAR";
+
+			$v = VObject\Reader::read($item);
+
+			if (isset($v->{'X-WR-NAME'})) {
+				$cat = $this->createCategory();
+				$cat->title = $v->{'X-WR-NAME'}->getValue();
+
+				if (isset($v->{'X-APPLE-CALENDAR-COLOR'})) {
+					$hex = $v->{'X-APPLE-CALENDAR-COLOR'}->getValue();
+					$color = Utils::rgbToHsv($hex)[0] ?? 0;
+					$cat->color = intval($color);
+				}
+
+				$cat->save();
+				$cat_id = $cat->id;
+			}
+			else {
+				$cat_id = $this->getDefaultCategory();
+			}
+
+			foreach ($v->VEVENT as $vevent) {
+				$event = $this->create();
+				$event->id_category = $cat_id;
+				$event->importVCalendar($vevent);
+				$event->save();
+			}
 		}
 
-		return (object) [
-			'title'    => (string) $obj->VEVENT->SUMMARY,
-			'start'    => $start,
-			'end'      => $end,
-			'desc'     => (string) $obj->VEVENT->DESCRIPTION,
-			'reminder' => (int) $reminder,
-			'all_day'  => (int) $all_day,
-			'location' => $obj->VEVENT->LOCATION,
-		];
+		$db->commit();
 	}
 }

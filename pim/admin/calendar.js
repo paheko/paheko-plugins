@@ -89,7 +89,7 @@ agenda.onmouseup = function (e) {
 		addEvent(selectedCells[0].getAttribute("data-date"), selectedCells[selectedCells.length - 1].getAttribute("data-date"));
 	}
 
-	selectedCells.forEach(function (cell) {
+	agenda.querySelectorAll('td').forEach(function (cell) {
 		cell.classList.remove("selected");
 	})
 	selectedCells = [];
