@@ -3,22 +3,21 @@
 {include file="./_nav.tpl"}
 
 {if $list->count()}
-	{include file="common/dynamic_list_head.tpl"}
+	<section class="contacts">
 	{foreach from=$list->iterate() item="row"}
-		<tr>
-			<td class="avatar{if $row.has_photo} photo{/if}"><a href="details.php?id={$row.id}" target="_dialog"><img src="{$row.photo}" alt="Photo" /></a></td>
-			<td>{$row.first_name}</td>
-			<td>{$row.last_name}</td>
-			<td>{$row.title}</td>
-			<td class="actions">
-				{linkbutton href="details.php?id=%d"|args:$row.id label="Contact" shape="user" target="_dialog"}
+		<article>
+			<a href="details.php?id={$row.id}" target="_dialog">
+				<figure class="avatar{if $row.has_photo} photo{/if}"><img src="{$row.photo}" alt="Photo" /></figure>
+				<h2>{$row.first_name} {$row.last_name}</h2>
+				<h4>{$row.title}</h4>
+			</a>
+			<p class="actions">
 				{linkbutton href="edit.php?id=%d"|args:$row.id label="Modifier" shape="edit" target="_dialog"}
 				{linkbutton href="delete.php?id=%d"|args:$row.id label="Supprimer" shape="delete" target="_dialog"}
-			</td>
-		</tr>
+			</p>
+		</article>
 	{/foreach}
-	</tbody>
-	</table>
+	</section>
 {else}
 	<p class="block alert">Aucun contact à afficher ici.</p>
 {/if}
