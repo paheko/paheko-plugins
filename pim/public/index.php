@@ -23,6 +23,9 @@ PIM::enableDependencies();
 
 class PIMSession extends Session
 {
+	// This is required, or the instance returned will be Session, not PIMSession
+	static protected $_instance = null;
+
 	// Use a different session name so that someone cannot access the admin
 	// with a cookie stolen from the WebDAV client
 	protected $cookie_name = 'pkopim';
