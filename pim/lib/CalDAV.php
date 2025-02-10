@@ -8,6 +8,8 @@ use Sabre\CalDAV\Backend\AbstractBackend;
 use Sabre\CalDAV\Backend\SyncSupport;
 use Sabre\VObject;
 
+use Paheko\Utils;
+
 class CalDAV extends AbstractBackend implements SyncSupport
 {
 	protected Events $events;
@@ -19,7 +21,7 @@ class CalDAV extends AbstractBackend implements SyncSupport
 
 	function log($msg)
 	{
-		//file_put_contents(__DIR__ . '/../../dav.log', sprintf('[%s] %s' . PHP_EOL, date('d/m/Y H:i:s'), $msg), FILE_APPEND);
+		//file_put_contents(__DIR__ . '/dav.log', sprintf('[%s] %s' . PHP_EOL, date('d/m/Y H:i:s'), $msg), FILE_APPEND);
 	}
 
 	/**
@@ -50,24 +52,22 @@ class CalDAV extends AbstractBackend implements SyncSupport
 		$this->log('List calendars: ' . $principalUri);
 
 		$calendars = [];
-		foreach ($this->events->listCategories() as $row)
-		{
+		foreach ($this->events->listCategories() as $row) {
 			$calendars[] = [
 				'id'           => $row->id,
-				'uri'          => $row->id . '-' . preg_replace('/[^\w]/', '_', $row->title),
-				'{DAV:}displayname' => $row->title,
+				'uri'          => $row->id . '-' . strtolower(Utils::transliterateToAscii($row->title)),
 				'principaluri' => $principalUri,
+				'{DAV:}displayname' => $row->title,
+				'{http://apple.com/ns/ical/}calendar-color' => Utils::hsl2rgb($row->color, 50, 75),
 				'{' . Sabre_CalDAV\Plugin::NS_CALDAV . '}supported-calendar-component-set' => new Sabre_CalDAV\Xml\Property\SupportedCalendarComponentSet(['VEVENT']),
 				// Ignore sync tokens for now!
 				//'{' . Sabre_CalDAV\Plugin::NS_CALENDARSERVER . '}getctag'                  => 'http://sabre.io/ns/sync/1',
 				//'{http://sabredav.org/ns}sync-token'                                 => '1',
-				'{http://apple.com/ns/ical/}calendar-color' => utils::hsl2rgb($row->color, 50, 75),
 			];
 
 		}
 
 		return $calendars;
-
 	}
 
 	/**
@@ -131,9 +131,10 @@ class CalDAV extends AbstractBackend implements SyncSupport
 
 		foreach ($this->events->listForCategory($calendarId) as $event)
 		{
-			$data = $event->serialize();
+			$data = $event->exportVCalendar();
 
 			$result[] = [
+				'id'           => $event->id,
 				'uri'          => $event->uri,
 				'etag'         => sprintf('"%s"', $event->etag()),
 				'calendarid'   => $calendarId,
@@ -172,16 +173,17 @@ class CalDAV extends AbstractBackend implements SyncSupport
 			return null;
 		}
 
-		$data = $event->serialize();
+		$data = $event->exportVCalendar();
 
 		$this->log($event->title);
-		$this->log(print_r($event->date, true));
-		$this->log('updated: ' . $event->updated);
+		$this->log(print_r($event->start, true));
 
 		return [
+			'id'           => $event->id,
 			'uri'          => $event->uri,
 			'etag'         => sprintf('"%s"', $event->etag()),
 			'calendarid'   => $calendarId,
+			'size'         => strlen($data),
 			'calendardata' => $data,
 			'lastmodified' => $event->updated,
 		];
@@ -206,7 +208,13 @@ class CalDAV extends AbstractBackend implements SyncSupport
 	{
 		$this->log('create ' . $objectUri);
 
-		$event = $this->events->createFromVCalendar($calendarData, $calendarId, $objectUri);
+		$id = intval(strtok($calendarId, '-'));
+		strtok('');
+
+		$event = $this->events->create();
+		$event->importVEvent($calendarData);
+		$event->uri = $objectUri;
+		$event->id_category = $id;
 		$event->save();
 
 		return sprintf('"%s"', $event->etag());
@@ -235,17 +243,7 @@ class CalDAV extends AbstractBackend implements SyncSupport
 			return null;
 		}
 
-		$event->importVCalendar($calendarData);
-
-		// Not sure what this does??
-		if ($data->date->getTimezone()->getName() == 'UTC')
-		{
-			$event = $this->events->get($objectUri);
-			$tz = $event->timezone;
-			$data->date->setTimeZone(new \DateTimeZone($tz));
-			$data->date_end->setTimeZone(new \DateTimeZone($tz));
-		}
-
+		$event->importVEvent($calendarData);
 		$event->save();
 
 		return sprintf('"%s"', $event->etag());

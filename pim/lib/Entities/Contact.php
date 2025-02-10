@@ -38,11 +38,20 @@ class Contact extends Entity
 	protected ?string $_photo = null;
 	protected bool $_has_photo;
 
+	public function selfCheck(): void
+	{
+		parent::selfCheck();
+
+		$this->assert(isset($this->first_name) && strlen(trim($this->first_name)), 'Le prénom doit être renseigné.');
+		$this->assert(strlen($this->uri) && strlen($this->uri) < 255, 'Invalid URI');
+		$this->assert(is_null($this->raw) || strlen($this->raw) <= 1024*50, 'Raw event data is too large');
+	}
+
 	public function save(bool $selfcheck = true): bool
 	{
 		$exists = $this->exists();
 
-		if (!$exists) {
+		if (!$exists && !isset($this->uri)) {
 			$this->set('uri', md5(random_bytes(16)));
 		}
 
@@ -215,7 +224,7 @@ class Contact extends Entity
 	public function importVCard($obj): void
 	{
 		if (is_string($obj)) {
-			$obj = VObject\Reader::read($vcard)->VCARD;
+			$obj = VObject\Reader::read($obj);
 		}
 
 		if (!empty($obj->PHOTO)) {
@@ -241,12 +250,12 @@ class Contact extends Entity
 			'first_name'   => $name[1] ?? null,
 			'mobile_phone' => ($tel = $obj->getByType('TEL', 'cell')) ? str_replace('tel:', '', $tel->getValue()) : null,
 			'phone'        => ($tel = $obj->getByType('TEL', 'home')) ? str_replace('tel:', '', $tel->getValue()) : null,
-			'address'      => $obj->ADR ? trim(str_replace([';', "\r\n", "\n", "\\n"], "\n", $obj->ADR->getValue())) : null,
+			'address'      => $obj->ADR ? trim(str_replace([';', "\r\n", "\n", "\\n", "\,"], "\n", $obj->ADR->getValue())) : null,
 			'email'        => $obj->EMAIL ? $obj->EMAIL->getValue() : null,
 			'web'          => $obj->URL ? $obj->URL->getValue() : null,
 			'birthday'     => $obj->BDAY ? $obj->BDAY->getDateTime() : null,
 			'title'        => $obj->TITLE ? $obj->TITLE->getValue() : null,
-			'notes'        => $obj->NOTES ? trim(str_replace([';', "\r\n", "\n", "\\n"], "\n", $obj->NOTES->getValue())) : null,
+			'notes'        => $obj->NOTES ? trim(str_replace([';', "\r\n", "\n", "\\n", "\,"], "\n", $obj->NOTES->getValue())) : null,
 		]);
 	}
 

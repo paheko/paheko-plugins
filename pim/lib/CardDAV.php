@@ -23,32 +23,6 @@ class CardDAV extends AbstractBackend implements SyncSupport
 		//file_put_contents(__DIR__ . '/../../dav.log', sprintf('[%s] CARDDAV: %s' . PHP_EOL, date('d/m/Y H:i:s'), $msg), FILE_APPEND);
 	}
 
-
-	protected function unserializeContact($data, &$photo = null)
-	{
-		$obj = VObject\Reader::read($data);
-
-		if (!empty($obj->PHOTO))
-		{
-			//$photo = (string) $obj->PHOTO;
-		}
-
-		$name = explode(';', (string)$obj->N);
-
-		return (object) [
-			'nom'          => $name[0],
-			'prenom'       => $name[1],
-			'gsm'          => str_replace('tel:', '', $obj->getByType('TEL', 'cell')),
-			'fixe'         => str_replace('tel:', '', $obj->getByType('TEL', 'home')),
-			'adresse'      => trim(implode("\n", explode(";", $obj->ADR))),
-			'email'        => $obj->EMAIL,
-			'site_web'     => $obj->URL,
-			'anniversaire' => $obj->BDAY ? $obj->BDAY->getDateTime() : null,
-			'contexte'     => $obj->TITLE,
-			'archived'     => false,
-		];
-	}
-
 	function getAddressBooksForUser($principalUri)
 	{
 		$synctoken = 0;
@@ -57,13 +31,13 @@ class CardDAV extends AbstractBackend implements SyncSupport
 		$this->log('Return list of address books');
 
 		$addressBooks[] = [
-			'id'                                                          => 1,
-			'uri'                                                         => 'contacts',
-			'principaluri'                                                => $principalUri,
-			'{DAV:}displayname'                                           => 'Contacts',
-			'{' . Sabre_CardDAV\Plugin::NS_CARDDAV . '}addressbook-description' => 'Mes contacts',
-			'{http://calendarserver.org/ns/}getctag'                      => $synctoken,
-			'{http://sabredav.org/ns}sync-token'                          => $synctoken,
+			'id'                                     => 1,
+			'uri'                                    => 'contacts',
+			'principaluri'                           => $principalUri,
+			'{DAV:}displayname'                      => 'Contacts',
+			'{http://calendarserver.org/ns/}getctag' => $synctoken,
+			'{http://sabredav.org/ns}sync-token'     => $synctoken,
+			//'{' . Sabre_CardDAV\Plugin::NS_CARDDAV . '}addressbook-description' => 'Mes contacts',
 		];
 
 		return $addressBooks;
@@ -141,12 +115,11 @@ class CardDAV extends AbstractBackend implements SyncSupport
 
 		foreach ($this->contacts->listAll() as $contact)
 		{
-			$card = $contact->serialize();
 			$result[] = [
-				'etag'         => '"' . $contact->etag() . '"',
+				'etag'         => sprintf('"%s"', $contact->etag()),
 				'lastmodified' => $contact->updated,
 				'uri'          => $contact->uri,
-				'carddata'     => $card,
+				'carddata'     => $contact->exportVCard(),
 			];
 		}
 
@@ -174,12 +147,11 @@ class CardDAV extends AbstractBackend implements SyncSupport
 		}
 
 		return [
-			'etag'         => '"' . $contact->etag() . '"',
+			'etag'         => sprintf('"%s"', $contact->etag()),
 			'lastmodified' => $contact->updated,
 			'uri'          => $contact->uri,
-			'carddata'     => $contact->serialize(),
+			'carddata'     => $contact->exportVCard(),
 		];
-
 	}
 
 	/**
@@ -198,8 +170,7 @@ class CardDAV extends AbstractBackend implements SyncSupport
 	{
 		$all = [];
 
-		foreach ($uris as $uri)
-		{
+		foreach ($uris as $uri) {
 			$all[] = $this->getCard($addressBookId, $uri);
 		}
 
@@ -233,13 +204,15 @@ class CardDAV extends AbstractBackend implements SyncSupport
 	 */
 	function createCard($addressBookId, $cardUri, $cardData)
 	{
-		$contact = $this->contacts->createFromVCard($cardData);
+		$contact = $this->contacts->create();
+		$contact->importVCard($cardData);
+		$contact->uri = $cardUri;
 
 		$this->log(sprintf('Create contact %s: %s', $cardUri, print_r($contact->asArray(), true)));
 
 		$contact->save();
 
-		return '"' . $contact->etag() . '"';
+		return sprintf('"%s"', $contact->etag());
 	}
 
 	/**
@@ -275,11 +248,10 @@ class CardDAV extends AbstractBackend implements SyncSupport
 			return false;
 		}
 
-		$contact->importVCard($cardDat);
+		$contact->importVCard($cardData);
+		$contact->save();
 
 		$this->log('Update contact: ' . print_r($contact->asArray(), true));
-
-		$contact->save();
 
 		return sprintf('"%s"', $contact->etag());
 	}

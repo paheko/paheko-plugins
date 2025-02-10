@@ -87,12 +87,12 @@ class Events
 
 	public function getFromURI(string $uri): ?Event
 	{
-		return EM::findOneBy(Event::class, 'uri = ?', $uri);
+		return EM::findOne(Event::class, 'SELECT * FROM @TABLE WHERE uri = ?;', $uri);
 	}
 
 	public function listForCategory(int $id): array
 	{
-		return EM::getInstance()->all('SELECT * FROM @TABLE WHERE id_user = ? AND id_category = ?;', $this->id_user, $id);
+		return EM::getInstance(Event::class)->all('SELECT * FROM @TABLE WHERE id_user = ? AND id_category = ?;', $this->id_user, $id);
 	}
 
 	public function getEventsForPeriod(DateTime $start, DateTime $end): array

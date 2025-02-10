@@ -9,6 +9,7 @@ Cette extension permet d'avoir de multiples agendas et un carnet d'adresse pour 
 
 - Chaque membre dispose de ses agendas et son carnet d'adresse
 - Quand un membre est supprimé, ses agendas, événements et contacts sont supprimés
+- Synchronisation avec des clients CalDAV/CardDAV (mobile, Vivaldi, Thunderbird, etc.)
 
 ## Agenda
 
@@ -23,6 +24,26 @@ Cette extension permet d'avoir de multiples agendas et un carnet d'adresse pour 
 - Navigation par mois et année
 - Import de fichier iCalendar (`.ics`), par événement (`VEVENT`), ou par agenda (`VCALENDAR`)
 - Export d'agenda au format iCalendar
+
+### Reconnaissance automatique des heures dans le titre de l'événement
+
+Quand on est dans le champ "Titre" d'un événement, on peut y entrer l'heure de début et de fin de l'événement, elles seronts automatiquement reconnues.
+
+Exemple, si on entre le titre suivant :
+
+```
+17h-19h30 Théâtre
+```
+
+L'heure de début et de fin de l'événement seront automatiquement renseignées pour être `17h` et `19h30`. Les heures seront ôtées du titre qui sera donc juste "Théâtre".
+
+Exemples d'autres combinaisons :
+
+```
+5.30-12.45 Travail
+12h Repas
+11:30-13 RDV
+```
 
 ## Contacts
 
@@ -44,3 +65,14 @@ https://adresse.association/p/pim/
 Cette fonctionnalité est expérimentale, et des données peuvent être corrompues ou supprimées suite à des bugs !
 
 Elle peut aussi être supprimée à tout moment.
+
+### Limitations
+
+L'implémentation CardDAV/CalDAV est limitée :
+
+* Il n'est pas possible de créer un autre carnet d'adresse
+* Il n'est pas possible de supprimer le carnet d'adresse par défaut
+* Il n'est pas possible de modifier les métadonnées du carnet d'adresse par défaut (son nom restera "Contacts")
+* Il n'est pas possible de créer un nouvel agenda (mais ça reste possible depuis l'interface web)
+* Il n'est pas possible de supprimer un agenda (mais ça reste possible depuis l'interface web)
+* Les photos des contacts n'apparaissent pas dans Thunderbird ([bug de Thunderbird](https://bugzilla.mozilla.org/show_bug.cgi?id=1947052))

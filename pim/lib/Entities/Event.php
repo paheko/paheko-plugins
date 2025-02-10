@@ -16,18 +16,17 @@ class Event extends Entity
 
 	protected ?int $id = null;
 	protected int $id_user;
-	protected ?int $id_category;
+	protected int $id_category;
 	protected string $uri;
 	protected string $title;
 	protected DateTime $start;
 	protected DateTime $end;
 	protected bool $all_day;
 	protected string $timezone;
-	protected ?string $desc;
-	protected ?string $location;
+	protected ?string $desc = null;
+	protected ?string $location = null;
 	protected int $reminder = 0;
-	protected int $reminder_status = 0;
-	protected ?string $raw;
+	protected ?string $raw = null;
 	protected DateTime $updated;
 
 	const TITLE_REPLACE = ['->' => '→', '<-' => '←'];
@@ -42,6 +41,9 @@ class Event extends Entity
 
 		$this->assert(isset($this->title) && strlen(trim($this->title)), 'Le titre doit être renseigné.');
 		$this->assert($this->end >= $this->start, 'La date de fin ne peut se situer avant la date de début');
+		$this->assert(strlen($this->uri) && strlen($this->uri) < 255, 'Invalid URI');
+		$this->assert(is_null($this->raw) || strlen($this->raw) <= 1024*50, 'Raw event data is too large');
+		$this->assert($this->reminder >= 0, 'Reminder cannot be negative');
 	}
 
 	public function importForm(?array $source = null)
@@ -67,7 +69,7 @@ class Event extends Entity
 	{
 		$exists = $this->exists();
 
-		if (!$exists) {
+		if (!$exists && !isset($this->uri)) {
 			$this->set('uri', md5(random_bytes(16)));
 		}
 
@@ -80,8 +82,8 @@ class Event extends Entity
 			$this->set('title', strtr($this->title, self::TITLE_REPLACE));
 		}
 
-		// Si la catégorie change on déplace de calendrier en fait, affectons un nouveau URI
-		if ($this->isModified('id_category')) {
+		// Si la catégorie change on déplace de calendrier en fait, affectons un nouvel URI
+		if ($this->isModified('id_category') && $exists) {
 			ChangesTracker::record($this->id_user, 'event', $this->uri, ChangesTracker::DELETED);
 			$this->set('uri', md5(random_bytes(16)));
 			$exists = false;
@@ -137,7 +139,6 @@ class Event extends Entity
 		}
 
 		$this->set('timezone', $tz);
-		$tz = new \DateTimezone($tz);
 
 		if (!empty($qs['start'])) {
 			$start = $this->filterUserDateValue($qs['start']);
@@ -183,9 +184,6 @@ class Event extends Entity
 				throw new UserException('Invalid or unknown category');
 			}
 		}
-
-		$start->setTimezone($tz);
-		$end->setTimezone($tz);
 
 		$title = $this->setTimeFromTitle($title, $start, $end);
 		$all_day = false;
@@ -270,9 +268,9 @@ class Event extends Entity
 		return $vevent;
 	}
 
-	public function exportVEvent(): string
+	public function exportVCalendar(): string
 	{
-		$obj = new VObject\Component\VCalendar($this->exportVEventArray());
+		$obj = new VObject\Component\VCalendar(['VEVENT' => $this->exportVEventArray()]);
 		return $obj->serialize();
 	}
 
@@ -317,5 +315,10 @@ class Event extends Entity
 			'location' => (string) $obj->LOCATION,
 			'timezone' => (string) $start->getTimezone()->getName(),
 		]);
+	}
+
+	public function etag(): string
+	{
+		return md5($this->uri . $this->updated->getTimestamp());
 	}
 }

@@ -50,7 +50,6 @@ CREATE TABLE IF NOT EXISTS plugin_pim_events (
 	desc TEXT NULL,
 	location TEXT NULL,
 	reminder INTEGER NOT NULL DEFAULT 0,
-	reminder_status INTEGER NOT NULL DEFAULT 0,
 	raw TEXT NULL,
 	updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP CHECK (updated = datetime(updated))
 );
