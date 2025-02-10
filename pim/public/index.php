@@ -86,6 +86,8 @@ if (!$user->id) {
 	throw new UserException('Seuls les membres peuvent accéder à cette extension', 403);
 }
 
+$_SERVER['REMOTE_USER'] = $user->id();
+
 $authBackend = new \Sabre\DAV\Auth\Backend\BasicCallBack(fn () => true);
 
 // CalDAV/CardDAV do require principal, and it's easier to fake it
@@ -107,7 +109,6 @@ CREATE TABLE groupmembers (
 
 $st = $pdo->prepare('INSERT INTO principals VALUES (1, ?, ?, ?);');
 $st->execute(['principals/' . $user->id(), $user->email(), $user->name()]);
-$_SERVER['REMOTE_USER'] = $user->id();
 
 $principalBackend = new \Sabre\DAVACL\PrincipalBackend\PDO($pdo);
 
