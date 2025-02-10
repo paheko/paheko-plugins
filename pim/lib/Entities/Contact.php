@@ -42,7 +42,6 @@ class Contact extends Entity
 	{
 		parent::selfCheck();
 
-		$this->assert(isset($this->first_name) && strlen(trim($this->first_name)), 'Le prénom doit être renseigné.');
 		$this->assert(strlen($this->uri) && strlen($this->uri) < 255, 'Invalid URI');
 		$this->assert(is_null($this->raw) || strlen($this->raw) <= 1024*50, 'Raw event data is too large');
 	}
