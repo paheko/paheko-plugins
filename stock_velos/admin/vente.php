@@ -22,7 +22,7 @@ if (!empty($velo->date_sortie))
 $csrf_key = 'vente_velo_'.$velo->id;
 
 $form->runIf('sell', function () use ($velo) {
-	$velo->sell(f('adherent'), f('prix'));
+	$velo->sell(f('adherent') ?: null, f('prix'));
 
 	utils::redirect(utils::plugin_url([
 		'file' => 'vente_ok.php',

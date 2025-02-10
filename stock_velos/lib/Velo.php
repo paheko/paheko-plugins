@@ -113,7 +113,7 @@ class Velo extends Entity
 		return $new;
 	}
 
-	public function sell(string $num_adherent, string $prix): void
+	public function sell(?string $num_adherent, string $prix): void
 	{
 		$this->import([
 			'raison_sortie' => 'Vendu',
