@@ -148,9 +148,7 @@ $server->addPlugin(new \Sabre\DAV\Sync\Plugin);
 // ACL plugin
 $server->addPlugin(new \Sabre\DAVACL\Plugin);
 
-if (\Paheko\SHOW_ERRORS) {
-	// Debug frontend
-	$server->addPlugin(new \Sabre\DAV\Browser\Plugin(false));
-}
+// Debug frontend
+$server->addPlugin(new \Sabre\DAV\Browser\Plugin(false));
 
 $server->start();
