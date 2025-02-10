@@ -86,7 +86,10 @@ if (!$user->id) {
 	throw new UserException('Seuls les membres peuvent accéder à cette extension', 403);
 }
 
+// Sabre/DAV expects to find logged-user name in PHP_AUTH_USER
 $_SERVER['REMOTE_USER'] = $user->id();
+$_SERVER['PHP_AUTH_USER'] = $user->id();
+$_SERVER['PHP_AUTH_PW'] = '*secret*';
 
 $authBackend = new \Sabre\DAV\Auth\Backend\BasicCallBack(fn () => true);
 
