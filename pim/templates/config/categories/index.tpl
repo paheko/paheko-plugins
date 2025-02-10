@@ -1,15 +1,14 @@
-{include file="_head.tpl" title="Catégories de l'agenda" current="plugin_pim" hide_title=true plugin_css=['calendar.css']}
+{include file="_head.tpl" title="Configuration" current="plugin_pim" hide_title=true plugin_css=['calendar.css']}
 
 <nav class="tabs">
 	<aside>
-		{linkbutton href="../../upload.php" label="Importer" shape="import" target="_dialog"}
 		{linkbutton href="?export=all" label="Exporter tout" shape="download"}
 		{linkbutton href="edit.php" label="Nouvelle catégorie" shape="plus" target="_dialog"}
 	</aside>
 	<ul>
 		<li><a href="../../">Agenda</a></li>
 		<li><a href="../../contacts/">Contacts</a></li>
-		<li class="current"><a href="./">Configuration</a></li>
+		<li class="current"><a href="../">Configuration</a></li>
 	</ul>
 	<ul class="sub">
 		<li class="current"><a href="./">Catégories de l'agenda</a></li>

@@ -311,7 +311,7 @@ class Event extends Entity
 			'end'      => $end,
 			'desc'     => (string) $obj->DESCRIPTION,
 			'reminder' => (int) $reminder,
-			'all_day'  => (int) $all_day,
+			'all_day'  => $all_day,
 			'location' => (string) $obj->LOCATION,
 			'timezone' => (string) $start->getTimezone()->getName(),
 		]);
