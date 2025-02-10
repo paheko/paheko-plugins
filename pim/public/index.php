@@ -107,6 +107,7 @@ CREATE TABLE groupmembers (
 
 $st = $pdo->prepare('INSERT INTO principals VALUES (1, ?, ?, ?);');
 $st->execute(['principals/' . $user->id(), $user->email(), $user->name()]);
+$_SERVER['REMOTE_USER'] = $user->id();
 
 $principalBackend = new \Sabre\DAVACL\PrincipalBackend\PDO($pdo);
 
