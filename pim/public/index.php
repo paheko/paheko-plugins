@@ -3,7 +3,7 @@
 namespace Paheko\Plugin\PIM;
 
 use Paheko\UserException;
-use Paheko\Users\Session;
+use Paheko\Users\Users;
 use PDO;
 use KD2\ErrorManager;
 
@@ -20,16 +20,6 @@ elseif ($_SERVER['REQUEST_URI'] == '/.well-known/carddav')
 }*/
 
 PIM::enableDependencies();
-
-class PIMSession extends Session
-{
-	// This is required, or the instance returned will be Session, not PIMSession
-	static protected $_instance = null;
-
-	// Use a different session name so that someone cannot access the admin
-	// with a cookie stolen from the WebDAV client
-	protected $cookie_name = 'pkopim';
-}
 
 class PIMServer extends \Sabre\DAV\Server
 {
@@ -75,22 +65,26 @@ class PIMServer extends \Sabre\DAV\Server
 	}
 }
 
-$session = PIMSession::getInstance();
-
-if (!$session->isLogged()) {
-	if (empty($_SERVER['PHP_AUTH_USER'])
-		|| empty($_SERVER['PHP_AUTH_PW'])
-		|| !$session->login($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'])
-	) {
-		header('WWW-Authenticate: Basic realm="Please login"', true);
-		header('HTTP/1.0 401 Unauthorized', true);
-		exit;
-	}
+if (empty($_SERVER['PHP_AUTH_USER'])
+	|| empty($_SERVER['PHP_AUTH_PW'])) {
+	$message = 'Please login';
+}
+elseif ($user = Users::getWithLoginAndPassword($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'])) {
+	$message = null;
+}
+else {
+	$message = 'Invalid login';
 }
 
-PIM::verifyAccess($session);
+if ($message !== null) {
+	header(sprintf('WWW-Authenticate: Basic realm="%s"', $message), true);
+	header('HTTP/1.0 401 Unauthorized', true);
+	return;
+}
 
-$user = $session->user();
+if (!$user->id) {
+	throw new UserException('Seuls les membres peuvent accéder à cette extension', 403);
+}
 
 $authBackend = new \Sabre\DAV\Auth\Backend\BasicCallBack(fn () => true);
 
