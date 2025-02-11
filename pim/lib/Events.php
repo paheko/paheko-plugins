@@ -175,7 +175,7 @@ class Events
 			$item->same_month = $item->date->format('m') == $m;
 			$item->holiday = Calendar::isPublicHoliday($item->date);
 			$item->today = $today === $item->date_ymd;
-			$item->saint = Calendar::getLocalSaint($day->format('m'), $day->format('d'));
+			$item->observance = Calendar::getLocalObservance($day->format('m'), $day->format('d'));
 			$item->class = '';
 
 			if ($item->holiday) {

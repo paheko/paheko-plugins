@@ -40,7 +40,7 @@
 			<tr>
 				{foreach from=$week item="day"}
 				<td class="{$day.class}" data-date="{$day.date|strftime:'%Y-%m-%d'}">
-					<h3 title="{$day.saint}">{$day.date|strftime:'%d'}</h3>
+					<h3 title="{$day.observance}">{$day.date|strftime:'%d'}</h3>
 					<ul>
 						{if $day.holiday}
 							<li class="holiday">{$day.holiday}</li>
