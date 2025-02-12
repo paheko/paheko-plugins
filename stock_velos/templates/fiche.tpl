@@ -75,6 +75,10 @@
 			<dd>{$velo.roues|escape}</dd>
 		</dl>
 		<dl>
+			<dt>Taille du cadre</dt>
+			<dd>{$velo.taille|escape}</dd>
+		</dl>
+		<dl>
 			<dt>Genre de cadre</dt>
 			<dd>{$velo.genre|escape}</dd>
 		</dl>

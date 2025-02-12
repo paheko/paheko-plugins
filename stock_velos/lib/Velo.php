@@ -23,6 +23,7 @@ class Velo extends Entity
 
 	protected ?string $type = null;
 	protected ?string $roues = null;
+	protected ?string $taille = null;
 	protected ?string $genre = null;
 	protected ?string $couleur = null;
 	protected ?string $modele = null;
@@ -103,6 +104,7 @@ class Velo extends Entity
 			'type'          =>  $this->type,
 			'genre'         =>  $this->genre,
 			'roues'         =>  $this->roues,
+			'taille'        =>  $this->taille,
 			'couleur'       =>  $this->couleur,
 			'modele'        =>  $this->modele,
 			'date_entree'   =>  date('Y-m-d'),

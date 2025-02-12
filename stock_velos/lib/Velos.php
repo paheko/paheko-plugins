@@ -29,21 +29,6 @@ class Velos
 		'Adulte' => '12.5',
 	];
 
-	protected $columns_order = array(
-		'id',
-		'etiquette',
-		'date_entree',
-		'date_sortie',
-		'raison_sortie',
-		'couleur',
-		'modele',
-		'type',
-		'roues',
-		'genre',
-		'prix',
-		'statut',
-	);
-
 	const FIELDS = [
 		'etiquette'      => 'Numéro étiquette',
 		'bicycode'       => 'Bicycode',
@@ -52,7 +37,8 @@ class Velos
 		'source'         => 'Provenance du vélo',
 		'source_details' => 'Détails sur la provenance',
 		'type'           => 'Type du vélo (VTT, ville, etc.)',
-		'roues'          => 'Taille (26", 700, etc.)',
+		'roues'          => 'Taille des roues (26", 700, etc.)',
+		'taille'         => 'Taille du cadre (48, 50, XS, S, etc.)',
 		'genre'          => 'Genre (Homme, Mixte, etc.)',
 		'couleur'        => 'Couleur',
 		'modele'         => 'Marque et modèle',
@@ -90,6 +76,14 @@ class Velos
 			'24"',
 			'20"',
 			'16"',
+			'Autre',
+		],
+		'taille' => [
+			'XS',
+			'S',
+			'M',
+			'L',
+			'XL',
 			'Autre',
 		],
 		'source' => [

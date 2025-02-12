@@ -59,6 +59,9 @@
 	{if $fields.roues.enabled}
 		{input type="select" name="roues" required=$fields.roues.required label="Taille" options=$fields.roues.options source=$velo}
 	{/if}
+	{if $fields.taille.enabled}
+		{input type="select" name="taille" required=$fields.taille.required label="Taille du cadre" options=$fields.taille.options source=$velo}
+	{/if}
 	{if $fields.genre.enabled}
 		{input type="select" name="genre" required=$fields.genre.required label="Genre de cadre" options=$fields.genre.options source=$velo}
 	{/if}
