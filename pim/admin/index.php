@@ -6,14 +6,10 @@ use Paheko\Users\Session;
 require __DIR__ . '/_inc.php';
 
 $events = new Events(Session::getUserId());
+$is_new = false;
 
 if (!$events->getDefaultCategory()) {
-	$c = $events->createCategory();
-	$c->title = 'Personnel';
-	$c->color = 120;
-	$c->default_reminder = 15;
-	$c->is_default = true;
-	$c->save();
+	$is_new = true;
 }
 
 $y = intval($_GET['y'] ?? 0) ?: date('Y');
@@ -33,6 +29,6 @@ $month = $date->format('m');
 $calendar = $events->getCalendar($y, $m);
 $upload_url = $plugin->url('admin/upload.php');
 
-$tpl->assign(compact('calendar', 'date', 'prev', 'next', 'prev_year', 'next_year', 'month', 'upload_url'));
+$tpl->assign(compact('calendar', 'date', 'prev', 'next', 'prev_year', 'next_year', 'month', 'upload_url', 'is_new'));
 
 $tpl->display(__DIR__ . '/../templates/index.tpl');

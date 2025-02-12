@@ -50,7 +50,7 @@ class Events
 		return $tz;
 	}
 
-	public function getDefaultCategory()
+	public function getDefaultCategory(): ?int
 	{
 		$db = DB::getInstance();
 		return $db->firstColumn('SELECT id FROM plugin_pim_events_categories WHERE id_user = ? ORDER BY is_default DESC LIMIT 1;', $this->id_user) ?: null;
@@ -63,6 +63,28 @@ class Events
 		$id = (int)$id;
 		$db->update('plugin_pim_events_categories', ['is_default' => 0], sprintf('id != %d AND id_user = %d', $id, $this->id_user));
 		$db->update('plugin_pim_events_categories', ['is_default' => 1], sprintf('id = %d AND id_user = %d', $id, $this->id_user));
+	}
+
+	public function setDefaultCategoryIfMissing(): void
+	{
+		if ($this->getDefaultCategory()) {
+			return;
+		}
+
+		$db = DB::getInstance();
+		$id = $db->firstColumn('SELECT id FROM plugin_pim_events_categories WHERE id_user = ? LIMIT 1;', $this->id_user);
+
+		if ($id) {
+			$events->setDefaultCategory($id);
+		}
+		else {
+			$c = $this->createCategory();
+			$c->title = 'Personnel';
+			$c->color = 120;
+			$c->default_reminder = 15;
+			$c->is_default = true;
+			$c->save();
+		}
 	}
 
 	public function create(): Event

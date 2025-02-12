@@ -22,6 +22,13 @@
 	</ul>
 </nav>
 
+{if $is_new}
+<div class="alert block">
+	<h3>Bienvenue dans votre agenda !</h3>
+	<p>Cet agenda n'est visible <strong>que par vous-même</strong>, personne d'autre dans l'association n'y a accès.</p>
+	<p>Il n'est pas possible de créer un agenda partagé.</p>
+</div>
+{/if}
 
 <table class="calendar weeks-{$calendar|count}">
 	<thead>

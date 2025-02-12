@@ -11,6 +11,8 @@ require __DIR__ . '/_inc.php';
 
 $events = new Events(Session::getUserId());
 
+$events->setDefaultCategoryIfMissing();
+
 $id = intval($_GET['copy'] ?? ($_GET['id'] ?? 0));
 
 if ($id) {

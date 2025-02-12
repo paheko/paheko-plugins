@@ -21,9 +21,12 @@ if (!empty($_GET['export'])) {
 
 if (!empty($_GET['set_default'])) {
 	$events->setDefaultCategory((int) $_GET['set_default']);
+	Utils::redirect('./');
 }
 
+$events->setDefaultCategoryIfMissing();
 $list = $events->listCategories();
+
 $tpl->assign(compact('list'));
 
 $tpl->display(__DIR__ . '/../../../templates/config/categories/index.tpl');
