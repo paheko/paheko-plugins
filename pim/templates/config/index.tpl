@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Catégories de l'agenda" current="plugin_pim" hide_title=true plugin_css=['calendar.css']}
+{include file="_head.tpl" title="Configuration" current="plugin_pim" hide_title=true plugin_css=['calendar.css']}
 
 <nav class="tabs">
 	<ul>
