@@ -27,6 +27,7 @@ $db->exec(<<<EOF
 
 		type TEXT, -- Type de vélo : Ville, VTT, VTC, etc.
 		roues TEXT, -- Taille des roues
+		taille TEXT, -- Taille du cadre
 		genre TEXT, -- homme, femme, mixte
 
 		couleur TEXT, -- Une ou plusieurs couleurs
@@ -49,6 +50,7 @@ $db->exec(<<<EOF
 	CREATE INDEX IF NOT EXISTS prv_etiquette ON plugin_stock_velos (etiquette);
 	CREATE INDEX IF NOT EXISTS prv_type ON plugin_stock_velos (type);
 	CREATE INDEX IF NOT EXISTS prv_roues ON plugin_stock_velos (roues);
+	CREATE INDEX IF NOT EXISTS prv_taille ON plugin_stock_velos (taille);
 	CREATE INDEX IF NOT EXISTS prv_genre ON plugin_stock_velos (genre);
 	CREATE INDEX IF NOT EXISTS prv_couleur ON plugin_stock_velos (couleur);
 	CREATE INDEX IF NOT EXISTS prv_date_entree ON plugin_stock_velos (date_entree);
