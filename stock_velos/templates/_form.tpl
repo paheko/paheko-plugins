@@ -35,7 +35,7 @@
 <fieldset>
 	<legend>Provenance</legend>
 	<dl>
-	{if $fields.notes.enabled}
+	{if $fields.source.enabled}
 		{input type="select" name="source" label="D'où provient le vélo ?" required=$fields.source.required options=$fields.source.options default="Don" source=$velo}
 	{/if}
 	{if $fields.source_details.enabled}

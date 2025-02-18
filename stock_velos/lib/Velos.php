@@ -255,7 +255,7 @@ class Velos
 		}
 
 		$list->setModifier(function (&$row) {
-			$row->date_entree = Entity::filterUserDateValue($row->date_entree, Date::class);
+			$row->date_entree = Entity::filterUserDateValue($row->date_entree ?? null, Date::class);
 		});
 		return $list;
 	}
