@@ -65,6 +65,12 @@ class Event extends Entity
 		parent::importForm($source);
 	}
 
+	public function __clone()
+	{
+		unset($this->uri);
+		parent::__clone();
+	}
+
 	public function save(bool $selfcheck = true): bool
 	{
 		$exists = $this->exists();
