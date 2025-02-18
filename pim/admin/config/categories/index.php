@@ -3,6 +3,7 @@
 namespace Paheko\Plugin\PIM;
 
 use Paheko\Users\Session;
+use Paheko\Utils;
 
 require __DIR__ . '/../../_inc.php';
 
