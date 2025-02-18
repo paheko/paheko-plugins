@@ -6,6 +6,15 @@ use Paheko\Users\Session;
 
 require __DIR__ . '/../_inc.php';
 
-$tpl->assign('dav_url', $plugin->url());
+$pim = new PIM(Session::getUserId());
+$dav = null;
+
+$form->runIf('generate', function () use ($pim, $plugin, &$dav) {
+	$dav = $pim->generateDAVCredentials($plugin);
+});
+
+$dav ??= $pim->getDAVCredentials($plugin);
+
+$tpl->assign(compact('dav'));
 
 $tpl->display(__DIR__ . '/../../templates/config/index.tpl');

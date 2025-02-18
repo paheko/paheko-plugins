@@ -2,14 +2,75 @@
 
 namespace Paheko\Plugin\PIM;
 
+use Paheko\Entities\Plugin;
+use Paheko\Entities\Users\User;
 use Paheko\Users\Session;
+use Paheko\DB;
 use Paheko\Utils;
+use Paheko\Users\Users;
 
 use const Paheko\SHARED_CACHE_ROOT;
 
 class PIM
 {
 	const VENDOR_ROOT = SHARED_CACHE_ROOT . '/sabre';
+
+	protected int $id_user;
+
+	public function __construct(int $id_user)
+	{
+		$this->id_user = $id_user;
+	}
+
+	public function getDAVCredentials(Plugin $plugin): ?array
+	{
+		if (DB::getInstance()->test('plugin_pim_credentials', 'id_user = ?', $this->id_user)) {
+			return [
+				'login' => $this->id_user,
+				'url'   => $plugin->url(),
+			];
+		}
+		else {
+			return null;
+		}
+	}
+
+	public function generateDAVCredentials(Plugin $plugin): array
+	{
+		$chars = ['-', '.', ':', '_', '!'];
+		$password = preg_replace('/[^0-9a-z]/i', '', base64_encode(random_bytes(7)));
+		$password = strtolower($password);
+		$pos = random_int(1, strlen($password));
+		$password = substr($password, 0, $pos) . $chars[array_rand($chars)] . substr($password, $pos);
+
+		DB::getInstance()->preparedQuery('REPLACE INTO plugin_pim_credentials (id_user, password) VALUES (?, ?);',
+			$this->id_user,
+			password_hash($password, PASSWORD_DEFAULT)
+		);
+
+		return [
+			'login'    => $this->id_user,
+			'password' => $password,
+			'url'      => $plugin->url(),
+		];
+	}
+
+	static public function login(string $login, string $password): ?User
+	{
+		$db = DB::getInstance();
+
+		$user_password = $db->firstColumn('SELECT password FROM plugin_pim_credentials WHERE id_user = ?;', (int) $login);
+
+		if (!$user_password) {
+			return null;
+		}
+
+		if (!password_verify($password, $user_password)) {
+			return null;
+		}
+
+		return Users::get((int)$login);
+	}
 
 	static public function verifyAccess(Session $session = null): void
 	{

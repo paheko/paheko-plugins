@@ -66,3 +66,8 @@ CREATE TABLE IF NOT EXISTS plugin_pim_changes (
 );
 
 CREATE INDEX IF NOT EXISTS plugin_pim_changes_table ON plugin_pim_changes (id_user, entity);
+
+CREATE TABLE IF NOT EXISTS plugin_pim_credentials (
+	id_user INTEGER NOT NULL PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+	password TEXT NOT NULL
+);
