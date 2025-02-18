@@ -6,9 +6,11 @@ use Paheko\Accounting\Years;
 use Paheko\Entities\Accounting\Transaction;
 use Paheko\Email\Emails;
 use Paheko\DB;
+use Paheko\Entity;
 use Paheko\Template;
 use Paheko\UserException;
 use Paheko\Utils;
+use Paheko\ValidationException;
 use Paheko\Users\Users;
 use Paheko\Users\DynamicFields;
 use Paheko\Services\Services_User;
@@ -17,8 +19,6 @@ use const Paheko\PLUGIN_ROOT;
 
 use Paheko\Plugin\Caisse\POS;
 use Paheko\Plugin\Caisse\Tabs;
-use Paheko\Entity;
-use Paheko\ValidationException;
 
 use KD2\Mail_Message;
 use KD2\DB\EntityManager;
@@ -132,6 +132,12 @@ class Session extends Entity
 		foreach ($db->iterate($sql, $this->id) as $row) {
 			try {
 				$su = Services_User::createFromFee($row->id_fee, $row->user_id, $row->total, true, $row->qty);
+
+				// Ignore duplicates
+				if ($su->isDuplicate()) {
+					continue;
+				}
+
 				$su->save();
 				$db->update(TabItem::TABLE, ['id_subscription' => $su->id()], 'id = ' . (int)$row->id);
 			}
