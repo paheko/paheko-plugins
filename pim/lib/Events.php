@@ -241,12 +241,13 @@ class Events
 				];
 			}
 
-			foreach ($birthdays[$item->date_ymd] ?? [] as $contact) {
+			foreach ($birthdays[$day->format('m-d')] ?? [] as $contact) {
 				$item->events[] = [
 					'class' => 'birthday',
-					'url' => 'contacts/?id=' . $contact->id,
-					'title' => $contact->getName(),
-					'subtitle' => sprintf('(%d ans)', $contact->getAgeAtDate($item->date)),
+					'url' => 'contacts/details.php?id=' . $contact->id,
+					'title' => $contact->getFullName(),
+					'subtitle' => sprintf('(%d ans)', $contact->getAge($item->date)),
+					'target' => '_dialog',
 				];
 			}
 

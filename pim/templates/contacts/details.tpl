@@ -58,10 +58,12 @@
 	{/if}
 
 	{if $contact.birthday}
-		<dt>Âge</dt>
-		<dd>{$contact->getAge()} ans</dd>
+		<dt>Date de naissance</dt>
+		<dd>{$contact.birthday|date_format:'%d/%m/%Y'}</dd>
 		<dt>Anniversaire</dt>
 		<dd>{$contact.birthday|date_format:'%e %B'}</dd>
+		<dt>Âge</dt>
+		<dd>{$contact->getAge()} ans</dd>
 	{/if}
 </dl>
 

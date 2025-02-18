@@ -170,14 +170,14 @@ class Contact extends Entity
 		return trim($this->first_name . '  ' . $this->last_name);
 	}
 
-	public function getAge(): ?int
+	public function getAge(?DateTime $date = null): ?int
 	{
 		if (!$this->birthday) {
 			return null;
 		}
 
-		$now = new DateTime;
-		return $this->birthday->diff($now)->y;
+		$date ??= new DateTime;
+		return $this->birthday->diff($date)->y;
 	}
 
 	public function getMapURL(): string

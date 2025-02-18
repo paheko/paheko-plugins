@@ -53,14 +53,18 @@ class Contacts
 			WHERE id_user = ?
 				AND archived = 0
 				AND birthday IS NOT NULL
-				AND birthday >= ?
-				AND birthday <= ?
+				AND SUBSTR(birthday, -5) >= ?
+				AND SUBSTR(birthday, -5) <= ?
 			ORDER BY birthday ASC;';
 
 		$out = [];
+		$start = $start->format('m-d');
+		$end = $end->format('m-d');
 
 		foreach (EM::getInstance(Contact::class)->iterate($sql, $this->id_user, $start, $end) as $row) {
-			$out[$row->birthday->format('Y-m-d')] = $row;
+			$day = $row->birthday->format('m-d');
+			$out[$day] ??= [];
+			$out[$day][] = $row;
 		}
 
 		return $out;
