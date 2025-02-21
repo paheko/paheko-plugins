@@ -47,6 +47,7 @@ class Calendar
 			8 => 'Journée internationale des Roms',
 			12 => 'Nuit de Youri Gagarine',
 			14 => 'Journée nationale du souvenir de la déportation',
+			15 => 'Steal something from work Day',
 			22 => 'Journée de la terre',
 			24 => 'Journée de commémoration du génocide arménien',
 			28 => 'Journée mondiale contre les accidents du travail',
