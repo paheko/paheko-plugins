@@ -80,6 +80,7 @@
 	{if !$event.applied}
 	<section class="products">
 		<input type="text" name="q" placeholder="Recherche rapide" autofocus />
+		{button shape="barcode" label="" title="Scanner un code barre" id="scanbarcode" class="hidden"}
 		<form method="post" action="">
 	<?php $category = null; ?>
 	{foreach from=$products_categories item="product"}
@@ -90,7 +91,7 @@
 			<h2 class="ruler">{$product.category_name}</h2>
 				<div>
 		{/if}
-		<button name="add[{$product.id}]" class="change" value="0">
+		<button name="add[{$product.id}]" class="change" value="0" data-code="{$product.code}">
 			<h3>{$product.name}</h3>
 			<h4>{$product.price|escape|money_currency}</h4>
 		</button>
@@ -127,5 +128,7 @@ $('#apply-changes').onsubmit = (e) => {
 };
 {/literal}
 </script>
+
+<script type="text/javascript" src="{$plugin_admin_url}product_search.js?{$version_hash}" async="async"></script>
 
 {include file="_foot.tpl"}

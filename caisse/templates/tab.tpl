@@ -260,11 +260,12 @@
 </section>
 {/if}
 
-{* For testing barcode detection on browser
+{* For testing barcode detection in browser
 	<script src="https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@0.9.15/dist/index.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@0.9.20/dist/index.js"></script>
 *}
 
-<script type="text/javascript" src="{$plugin_admin_url}tab.js?2024-08b" async="async"></script>
+<script type="text/javascript" src="{$plugin_admin_url}tab.js?{$version_hash}" async="async"></script>
+<script type="text/javascript" src="{$plugin_admin_url}product_search.js?{$version_hash}" async="async"></script>
 
 {include file="_foot.tpl"}
