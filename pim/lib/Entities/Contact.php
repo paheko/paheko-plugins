@@ -242,7 +242,14 @@ class Contact extends Entity
 			}
 		}
 
-		$name = explode(';', $obj->N->getValue());
+		$name = $obj->N ?? ($obj->FN ?? null);
+
+		// No name: no contact
+		if (!$name) {
+			return;
+		}
+
+		$name = explode(';', $name->getValue());
 
 		$this->import([
 			'last_name'    => $name[0] ?? null,
