@@ -21,7 +21,7 @@ class Event extends Entity
 	protected string $title;
 	protected DateTime $start;
 	protected DateTime $end;
-	protected bool $all_day;
+	protected bool $all_day = false;
 	protected string $timezone;
 	protected ?string $desc = null;
 	protected ?string $location = null;
@@ -259,8 +259,12 @@ class Event extends Entity
 			$vevent['DTEND;VALUE=DATE'] = $end->format('Ymd');
 		}
 		else {
-			$vevent['DTSTART'] = $this->start;
-			$vevent['DTEND'] = $this->end;
+			$tz = new \DateTimeZone($this->timezone);
+			$start = new \DateTime($this->start->format('Y-m-d H:i:s'), $tz);
+			$end = new \DateTime($this->end->format('Y-m-d H:i:s'), $tz);
+
+			$vevent['DTSTART'] = $start;
+			$vevent['DTEND'] = $end;
 		}
 
 		if ($this->reminder) {
