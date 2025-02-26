@@ -25,8 +25,9 @@ class Velos
 	protected ?array $fields;
 
 	const ABAQUES = [
-		'Enfant' => '10',
-		'Adulte' => '12.5',
+		'Enfant'      => '10',
+		'Adulte'      => '12.5',
+		'Trottinette' => '4',
 	];
 
 	const FIELDS = [
