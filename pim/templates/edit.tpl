@@ -31,9 +31,9 @@
 <fieldset>
 	<legend>Dates</legend>
 	<dl>
+		{input type="checkbox" name="all_day" value=1 source=$event label="Toute la journée"}
 		{input type="datetime" name="start" source=$event required=true label="Début"}
 		{input type="datetime" name="end" source=$event required=false label="Fin"}
-		{input type="checkbox" name="all_day" value=1 source=$event label="Toute la journée"}
 		{input type="select_groups" name="timezone" required=true source=$event label="Fuseau horaire" options=$timezones}
 	</dl>
 </fieldset>
