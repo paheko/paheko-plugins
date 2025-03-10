@@ -35,7 +35,7 @@ class Events
 	public function getDefaultTimezone(): string
 	{
 		$tz = DB::getInstance()->firstColumn('SELECT timezone,
-			COUNT(*) AS nb FROM (SELECT timezone FROM plugin_pim_events WHERE id_user = ? ORDER BY start DESC LIMIT 10)
+			COUNT(*) AS nb FROM (SELECT timezone FROM plugin_pim_events WHERE id_user = ? ORDER BY updated DESC LIMIT 10)
 			GROUP BY timezone
 			ORDER BY nb DESC LIMIT 1;', $this->id_user);
 
