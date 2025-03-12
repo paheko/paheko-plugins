@@ -105,7 +105,7 @@ t.oninput = () => {
 	var v = t.value;
 
 	// Extract time from title
-	if (match = v.match(/^([12]\d?)(?:[:h.](\d*))?(?:->?(\d+)[:h.](\d+)?)?\s+/i)) {
+	if (match = v.match(/^(\d{1,2})(?:[:h.](\d*))?(?:->?(\d+)[:h.](\d+)?)?\s+/i)) {
 		t.value = v.substr(match[0].length);
 		start_time.value = formatTime(match[1], match[2] ?? 0);
 
@@ -120,6 +120,7 @@ t.oninput = () => {
 		animateInput(end_time);
 		animateInput(all_day);
 		all_day.checked = false;
+		changeTime();
 	}
 	else if (t.value.match(/^-\s+/)) {
 		start_time.value = '00:00';
