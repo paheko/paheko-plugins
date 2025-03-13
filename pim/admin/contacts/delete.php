@@ -4,6 +4,7 @@ namespace Paheko\Plugin\PIM;
 
 use Paheko\UserException;
 use Paheko\Users\Session;
+use Paheko\Utils;
 
 require __DIR__ . '/../_inc.php';
 
