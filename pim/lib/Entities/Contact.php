@@ -44,6 +44,7 @@ class Contact extends Entity
 
 		$this->assert(strlen($this->uri) && strlen($this->uri) < 255, 'Invalid URI');
 		$this->assert(is_null($this->raw) || strlen($this->raw) <= 1024*50, 'Raw event data is too large');
+		$this->assert(is_null($this->first_name) || !strlen(trim($this->first_name)), 'Le prénom est obligatoire');
 	}
 
 	public function save(bool $selfcheck = true): bool
@@ -253,7 +254,7 @@ class Contact extends Entity
 
 		$this->import([
 			'last_name'    => $name[0] ?? null,
-			'first_name'   => $name[1] ?? null,
+			'first_name'   => $name[1] ?? ($name[0] ?? null),
 			'mobile_phone' => ($tel = $obj->getByType('TEL', 'cell')) ? str_replace('tel:', '', $tel->getValue()) : null,
 			'phone'        => ($tel = $obj->getByType('TEL', 'home')) ? str_replace('tel:', '', $tel->getValue()) : null,
 			'address'      => $obj->ADR ? trim(str_replace([';', "\r\n", "\n", "\\n", "\,"], "\n", $obj->ADR->getValue())) : null,
