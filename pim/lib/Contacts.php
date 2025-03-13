@@ -4,6 +4,7 @@ namespace Paheko\Plugin\PIM;
 
 use Paheko\Plugin\PIM\Entities\Contact;
 use Paheko\DynamicList;
+use Paheko\UserException;
 use DateTime;
 use KD2\DB\EntityManager as EM;
 use Sabre\VObject;
@@ -133,13 +134,18 @@ class Contacts
 
 	public function import(string $data, bool $archived = false): void
 	{
-		$v = new VObject\Splitter\VCard($data);
+		try {
+			$v = new VObject\Splitter\VCard($data);
 
-		while ($item = $v->getNext()) {
-			$contact = $this->create();
-			$contact->importVCard($item);
-			$contact->archived = $archived;
-			$contact->save();
+			while ($item = $v->getNext()) {
+				$contact = $this->create();
+				$contact->importVCard($item);
+				$contact->archived = $archived;
+				$contact->save();
+			}
+		}
+		catch (\Sabre\VObject\ParseException $e) {
+			throw new UserException('Le fichier n\'est pas un fichier VCard valide : ' . $e->getMessage(), 0, $e);
 		}
 	}
 
