@@ -44,7 +44,7 @@ class Contact extends Entity
 
 		$this->assert(strlen($this->uri) && strlen($this->uri) < 255, 'Invalid URI');
 		$this->assert(is_null($this->raw) || strlen($this->raw) <= 1024*50, 'Raw event data is too large');
-		$this->assert(is_null($this->first_name) || !strlen(trim($this->first_name)), 'Le prénom est obligatoire');
+		$this->assert(is_null($this->first_name) || strlen(trim($this->first_name)), 'Le prénom est obligatoire');
 	}
 
 	public function save(bool $selfcheck = true): bool
