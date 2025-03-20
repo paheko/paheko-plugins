@@ -93,7 +93,13 @@ rows.forEach((e) => {
 	};
 });
 
-document.querySelector('input').focus();
+q.focus();
+var a = document.querySelector('a[href*="users/new"]');
+
+a.addEventListener('click', () => {
+	a.href = a.href.replace(/&nom=.*$|$/, '&nom=' + encodeURIComponent(q.value));
+	return true;
+});
 </script>
 {/literal}
 
