@@ -135,7 +135,7 @@ class POS
 		return $plot->output();
 	}
 
-	static public function syncAccounting(?int $id_creator, Year $year, int $only_session_id = null): int
+	static public function syncAccounting(?int $id_creator, Year $year, ?int $only_session_id = null): int
 	{
 		$attach = true;
 		$db = DB::getInstance();

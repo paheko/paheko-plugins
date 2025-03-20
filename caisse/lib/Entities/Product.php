@@ -55,11 +55,9 @@ class Product extends Entity
 		return EM::getInstance(Method::class)->DB()->get($sql, $this->exists() ? $this->id() : null);
 	}
 
-	public function importForm(array $source = null)
+	public function importForm(?array $source = null)
 	{
-		if (null === $source) {
-			$source = $_POST;
-		}
+		$source ??= $_POST;
 
 		if (isset($source['price'])) {
 			$source['price'] = Utils::moneyToInteger($source['price']);

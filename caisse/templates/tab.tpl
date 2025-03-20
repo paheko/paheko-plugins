@@ -57,6 +57,10 @@
 				<h3>{$current_tab.name}</h3>
 			</div>
 
+			{if $missing_user}
+				<p class="alert block">Cette note doit être liée à un membre.</p>
+			{/if}
+
 			<div class="actions">
 				<form method="post">
 					<span class="id">Note #{$current_tab.id}</span>
