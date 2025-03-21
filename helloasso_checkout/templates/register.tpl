@@ -32,15 +32,14 @@
 
 		<p class="submit">
 			{csrf_field key=$csrf_key}
-			{if $status == 'checkout'}
+			{if $_GET.status == 'checkout'}
 				<a id="helloasso-btn" href={$checkout.url} target="_dialog" style="display: none"></a>
 				<input type="hidden" name="checkout_id" value={$checkout.id}></input>
 				<script src="./script.js"></script>
 				<button id="submit-btn" type="submit" style="display: none">
-
-				<script src="./script.js"></script>
+			{else}
+				{button type="submit" name="validate" label="Procéder au paiement" shape="right" class="main"}
 			{/if}
-			{button type="submit" name="validate" label="Procéder au paiement" shape="right" class="main"}
 		</p>
 	</form>
 

@@ -75,7 +75,7 @@ $form->runIf('validate', function () use ($tpl, $form, $user, $service, $selecte
     $tpl->assign('status', 'checkout');
 }, $csrf_key);
 
-if (isset($_POST['success'])) {
+$form->runIf('success', function () use ($user, $service, $selected_fee, $account) {
     $checkout_id = (int) $form('checkout_id');
 
     $checkout = API::getInstance()->getCheckout($checkout_id);
@@ -86,7 +86,7 @@ if (isset($_POST['success'])) {
 
         $users = [$user->id => Users::getName($user->id)];
         $service_user_form = [
-            'id_service' => $service_id,
+            'id_service' => $service->id,
             'id_fee' => $selected_fee->id,
             'amount' => $selected_fee->amount / 100,
             'create_payment' => 1,
@@ -97,11 +97,11 @@ if (isset($_POST['success'])) {
         ];
         Service_User::createFromForm($users, null, false, $service_user_form);
 
-        redirect($service_id, 'success', 2);
+        redirect($service->id, 'success', 2);
     } else {
-        redirect($service_id, 'canceled', 2);
+        redirect($service->id, 'canceled', 2);
     }
-}
+}, $csrf_key);
 
 if (isset($_POST['error'])) {
     redirect($service_id, 'error', 2);
