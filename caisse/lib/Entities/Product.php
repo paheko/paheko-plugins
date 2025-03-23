@@ -3,6 +3,7 @@
 namespace Paheko\Plugin\Caisse\Entities;
 
 use Paheko\Plugin\Caisse\POS;
+use Paheko\Plugin\Caisse\Stock;
 use Paheko\DB;
 use Paheko\DynamicList;
 use Paheko\Entity;
@@ -128,32 +129,8 @@ class Product extends Entity
 
 	public function getHistoryList(bool $only_events = false): DynamicList
 	{
-		$columns = [
-			'date' => [
-				'select' => 'h.date',
-				'label' => 'Date',
-			],
-			'type' => [
-				'select' => 'CASE
-					WHEN h.item THEN \'Vente\'
-					WHEN e.type = 0 THEN \'Événement\'
-					WHEN e.type = 1 THEN \'Inventaire\'
-					WHEN e.type = 2 THEN \'Réception commande\'
-					ELSE \'?\' END
-				',
-				'label' => 'Type',
-			],
-			'event_label' => [
-				'select' => 'e.label',
-				'label' => 'Événement',
-			],
-			'change' => [
-				'label' => 'Modification du stock',
-				'select' => '(CASE WHEN e.type = 1 THEN \'=\' WHEN h.change > 0 THEN \'+\' ELSE \'\' END) || CAST(h.change AS TEXT)',
-			],
-			'id_tab' => ['select' => 'ti.tab'],
-			'id_event' => ['select' => 'h.event'],
-		];
+		$columns = Stock::HISTORY_COLUMNS;
+		unset($columns['product_label']);
 
 		$conditions = 'h.product = ' . (int)$this->id();
 
@@ -165,7 +142,7 @@ class Product extends Entity
 			LEFT JOIN @PREFIX_stock_events e ON e.id = h.event AND e.applied = 1
 			LEFT JOIN @PREFIX_tabs_items ti ON ti.id = h.item';
 
-		$list = POS::DynamicList($columns, $tables, $conditions);
+		$list = new DynamicList($columns, POS::sql($tables), $conditions);
 		$list->orderBy('date', true);
 		return $list;
 	}

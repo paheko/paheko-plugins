@@ -1,17 +1,12 @@
-{include file="_head.tpl" title="Historique produit : %s"|args:$product.name}
+{include file="_head.tpl" title="Historique complet"}
 
-{include file="../_nav.tpl" current='history'}
-
-<nav class="tabs">
-	<ul class="sub">
-		<li class="title">Produit : {$product.name}</li>
-	</ul>
-</nav>
+{include file="../_nav.tpl" current='stock' subcurrent="history"}
 
 {include file="common/dynamic_list_head.tpl"}
 		{foreach from=$list->iterate() item="row"}
 			<tr>
 				<th>{$row.date|date}</th>
+				<td>{$row.product_label}</td>
 				<td>{$row.type}</td>
 				<td>{$row.event_label}</td>
 				<td class="num">

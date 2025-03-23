@@ -21,6 +21,10 @@
 	<aside>
 		{linkbutton href="edit.php?new" label="Nouveau moyen de paiement" shape="plus"}
 	</aside>
+	{elseif $current == 'stock' && $subcurrent === 'history'}
+	<aside>
+		{exportmenu right=true}
+	</aside>
 	{elseif $current == 'stock'}
 	<aside>
 		{linkbutton href="edit.php?new" label="Nouvel événement" shape="plus" target="_dialog"}
@@ -49,6 +53,7 @@
 	<ul class="sub">
 		<li {if $subcurrent === 'products'}class="current"{/if}><a href="./">Stock des produits</a></li>
 		<li {if $subcurrent === 'events'}class="current"{/if}><a href="events.php">Événéments de stock</a></li>
+		<li {if $subcurrent === 'history'}class="current"{/if}><a href="history.php">Historique complet</a></li>
 	</ul>
 	{elseif $current === 'config'}
 		<ul class="sub">
