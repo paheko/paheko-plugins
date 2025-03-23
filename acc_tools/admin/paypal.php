@@ -125,7 +125,7 @@ $form->runIf('load', function() {
 		'General Withdrawal' => 'Virement standard',
 	];
 
-	fputcsv($fp, ['Date', 'Libellé', 'Compte de débit', 'Compte de crédit', 'Montant', 'Référence paiement', 'Remarques']);
+	fputcsv($fp, ['Date', 'Libellé', 'Compte de débit', 'Compte de crédit', 'Montant', 'Référence paiement', 'Remarques'], ',', '"', '\\');
 
 	foreach (CSV::import($_FILES['csv']['tmp_name'], $columns, $mandatory_columns) as $row) {
 		$row = (object)$row;
@@ -167,17 +167,17 @@ $form->runIf('load', function() {
 		}
 
 		$amount = preg_replace('/[\s ]+/U', '', $row->gross);
-		fputcsv($fp, [$row->date, $label, '', '', $amount, $row->ref, $notes]);
+		fputcsv($fp, [$row->date, $label, '', '', $amount, $row->ref, $notes], ',', '"', '\\');
 
 		if ($fee && !$group_fees) {
 			if ($fees_sum) {
-				fputcsv($fp, [$row->date, 'Commission PayPal sur transaction', '', '', Utils::money_format($fee, ',', ''), $row->ref, '']);
+				fputcsv($fp, [$row->date, 'Commission PayPal sur transaction', '', '', Utils::money_format($fee, ',', ''), $row->ref, ''], ',', '"', '\\');
 			}
 		}
 	}
 
 	if ($fees_sum && $group_fees) {
-		fputcsv($fp, [$row->date, 'Commission PayPal sur transactions', '', '', Utils::money_format($fees_sum, ',', ''), '', '']);
+		fputcsv($fp, [$row->date, 'Commission PayPal sur transactions', '', '', Utils::money_format($fees_sum, ',', ''), '', ''], ',', '"', '\\');
 	}
 
 	header('Content-Type: text/csv; charset="utf-8"');

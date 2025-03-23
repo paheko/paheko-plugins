@@ -17,7 +17,7 @@ $csrf_key = 'acc_tools_affectation';
 $lines = [];
 
 $form->runIf('load', function () use ($csv) {
-	$csv->load($_FILES['file'] ?? []);
+	$csv->upload($_FILES['file'] ?? []);
 }, $csrf_key, Utils::getSelfURI());
 
 $form->runIf('cancel', function () use ($csv) {
