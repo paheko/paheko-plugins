@@ -43,7 +43,9 @@ class POS
 	{
 		$list = new DynamicList($columns, self::sql($tables), $conditions);
 		$list->setExportCallback(function (&$row) {
-			$row->sum = Utils::money_format($row->sum, '.', '');
+			if (isset($row->sum)) {
+				$row->sum = Utils::money_format($row->sum, '.', '');
+			}
 		});
 		$list->setPagesize(null);
 		return $list;

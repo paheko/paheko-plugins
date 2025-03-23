@@ -4,6 +4,15 @@
 		{linkbutton href="print.php" label="Fiche produits et tarifs" shape="print"}
 		{linkbutton href="edit.php?new" label="Nouveau produit" shape="plus" target="_dialog"}
 	</aside>
+	{elseif $current == 'history'}
+	<aside>
+		{if $events_only}
+			{linkbutton href="?id=%d"|args:$product.id label="Afficher tous les événements" shape="eye"}
+		{else}
+			{linkbutton href="?id=%d&events_only"|args:$product.id label="Cacher les ventes" shape="eye-off"}
+		{/if}
+			{exportmenu right=true}
+	</aside>
 	{elseif $current == 'categories'}
 	<aside>
 		{linkbutton href="edit.php?new" label="Nouvelle catégorie" shape="plus"}
@@ -28,7 +37,7 @@
 		<li{if $current == 'products'} class="current"{/if}><a href="{$plugin_admin_url}manage/products/">Produits</a></li>
 		<li{if $current == 'categories'} class="current"{/if}><a href="{$plugin_admin_url}manage/categories/">Catégories</a></li>
 		<li{if $current == 'methods'} class="current"{/if}><a href="{$plugin_admin_url}manage/methods/">Moyens de paiement</a></li>
-		<li{if $current == 'stock'} class="current"{/if}><a href="{$plugin_admin_url}manage/stock/">Stock</a></li>
+		<li{if $current == 'stock' || $current === 'history'} class="current"{/if}><a href="{$plugin_admin_url}manage/stock/">Stock</a></li>
 		<li{if $current == 'sync'} class="current"{/if}><a href="{$plugin_admin_url}manage/sync.php">Comptabilité</a></li>
 		<li{if $current == 'export'} class="current"{/if}><a href="{$plugin_admin_url}manage/export.php">Export données</a></li>
 		{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}

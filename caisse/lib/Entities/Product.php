@@ -4,6 +4,7 @@ namespace Paheko\Plugin\Caisse\Entities;
 
 use Paheko\Plugin\Caisse\POS;
 use Paheko\DB;
+use Paheko\DynamicList;
 use Paheko\Entity;
 use Paheko\Utils;
 use Paheko\ValidationException;
@@ -125,19 +126,48 @@ class Product extends Entity
 		DB::getInstance()->preparedQuery($sql, $this->id(), Method::TYPE_DEBT);
 	}
 
-	public function history(bool $only_events = false): array
+	public function getHistoryList(bool $only_events = false): DynamicList
 	{
-		$events = $only_events ? ' AND h.event IS NOT NULL' : '';
+		$columns = [
+			'date' => [
+				'select' => 'h.date',
+				'label' => 'Date',
+			],
+			'type' => [
+				'select' => 'CASE
+					WHEN h.item THEN \'Vente\'
+					WHEN e.type = 0 THEN \'Événement\'
+					WHEN e.type = 1 THEN \'Inventaire\'
+					WHEN e.type = 2 THEN \'Réception commande\'
+					ELSE \'?\' END
+				',
+				'label' => 'Type',
+			],
+			'event_label' => [
+				'select' => 'e.label',
+				'label' => 'Événement',
+			],
+			'change' => [
+				'label' => 'Modification du stock',
+				'select' => '(CASE WHEN e.type = 1 THEN \'=\' WHEN h.change > 0 THEN \'+\' ELSE \'\' END) || CAST(h.change AS TEXT)',
+			],
+			'id_tab' => ['select' => 'ti.tab'],
+			'id_event' => ['select' => 'h.event'],
+		];
 
-		$db = EM::getInstance(self::class)->DB();
-		$sql = sprintf(POS::sql('SELECT
-			h.*, e.label AS event_label, e.type AS event_type, ti.tab
-			FROM @PREFIX_products_stock_history h
+		$conditions = 'h.product = ' . (int)$this->id();
+
+		if ($only_events) {
+			$conditions .= ' AND h.event IS NOT NULL';
+		}
+
+		$tables = '@PREFIX_products_stock_history h
 			LEFT JOIN @PREFIX_stock_events e ON e.id = h.event AND e.applied = 1
-			LEFT JOIN @PREFIX_tabs_items ti ON ti.id = h.item
-			WHERE h.product = ? %s
-			ORDER BY h.date DESC;'), $events);
-		return $db->get($sql, $this->id());
+			LEFT JOIN @PREFIX_tabs_items ti ON ti.id = h.item';
+
+		$list = POS::DynamicList($columns, $tables, $conditions);
+		$list->orderBy('date', true);
+		return $list;
 	}
 
 	public function getImagesPath(): string
