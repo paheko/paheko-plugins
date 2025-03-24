@@ -44,7 +44,7 @@ $selected_fee = $form('fee') != null ? current(array_filter($fees, fn($fee) => (
 $tpl->assign('layout', 'public');
 $tpl->assign('status', 'validate');
 
-$fields = DynamicFields::getInstance()->all();
+$fields = array_filter(DynamicFields::getInstance()->all(), fn ($field) => $field->user_access_level > 0);
 
 $user = getUser($tpl, $form);
 $tpl->assign_by_ref('user', $user);
