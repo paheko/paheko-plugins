@@ -30,9 +30,9 @@
 	<p class="help block">Conseil : raccourcissez l'URL en utilisant un outil tel que <a href="https://ouvaton.link/">ouvaton.link</a></p>
 </fieldset>
 
-<fieldset>
+<fieldset class="help block">
 	<legend>Personnaliser les champs du formulaire</legend>
-	<dd>
+	<dl>
 		<p>
 			Vous pouvez afficher ou masquer mais également rendre obligatoire ou optionnel les champs du formulaire d'inscription. Pour cela, rendez-vous dans la {:link href="!config/fields" label="configuration de la fiche de membre"} puis modifiez les champs souhaités :
 		</p>
@@ -43,7 +43,7 @@
 		<p>
 			Vous pouvez également changer l'ordre d'affichage des champs en cliquant sur les icônes haut et bas à droite de la liste des champs.
 		</p>
-	</dd>
+	</dl>
 </fieldset>
 
 <script type="text/javascript">
