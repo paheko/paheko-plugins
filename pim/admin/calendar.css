@@ -84,10 +84,40 @@ table.calendar h3 {
 	border-bottom: 1px solid #ddd;
 }
 
-table.calendar h3 a {
-	color: #000;
+table.calendar .observance h3 small span {
+	display: none;
+}
+
+table.calendar .observance h3 {
+	cursor: help;
+	position: relative;
+}
+
+table.calendar .observance h3 small:after {
 	display: block;
-	text-decoration: none;
+	position: absolute;
+	right: 0;
+	top: -.2em;
+	content: attr(data-emoji);
+	font-weight: normal;
+	font-size: 1.5em;
+	color: #666;
+	opacity: 0.4;
+}
+
+table.calendar .observance h3:hover small span {
+	display: block;
+	position: absolute;
+	z-index: 1000;
+	top: 0;
+	right: 0;
+	left: 0;
+	background: #fff;
+	padding: .2em .4em;
+	box-shadow: 0px 0px 5px #000;
+	content: attr(title);
+	border-radius: .3em;
+	font-weight: normal;
 }
 
 table.calendar td.holiday h3 {

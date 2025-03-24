@@ -250,7 +250,16 @@ class Contact extends Entity
 			return;
 		}
 
+		//	var_dump($name->getValue()); exit;
+		if (strpos($obj->N->getValue(), 'rustine') !== false) {
+		}
+
 		$name = explode(';', $name->getValue());
+
+		if (empty($name[1]) && !empty($name[0])) {
+			$name[1] = $name[0];
+			$name[0] = null;
+		}
 
 		$this->import([
 			'last_name'    => $name[0] ?? null,

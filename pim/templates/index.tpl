@@ -47,7 +47,20 @@
 			<tr>
 				{foreach from=$week item="day"}
 				<td class="{$day.class}" data-date="{$day.date|strftime:'%Y-%m-%d'}">
-					<h3 title="{$day.observance}">{$day.date|strftime:'%d'}</h3>
+					<h3>
+						{$day.date|strftime:'%d'}
+						{if $day.observance}
+							<small data-emoji="{$day.observance.emoji}">
+								<span>
+								{if $day.observance.url}
+									{link href=$day.observance.url label=$day.observance.label}
+								{else}
+									{$day.observance.label}
+								{/if}
+								</span>
+							</small>
+						{/if}
+					</h3>
 					<ul>
 						{if $day.holiday}
 							<li class="holiday">{$day.holiday}</li>

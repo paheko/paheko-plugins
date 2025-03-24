@@ -212,6 +212,10 @@ class Events
 				$item->class .= ' other_month';
 			}
 
+			if ($item->observance) {
+				$item->class .= ' observance';
+			}
+
 			$item->events = [];
 
 			foreach ($events[$item->date_ymd] ?? [] as $e) {

@@ -9,49 +9,48 @@ class Calendar
 {
 	const WORLD_CELEBRATIONS = [
 		1 => [
-			1 => 'Journée mondiale de la paix',
-			4 => 'Journée mondiale du braille',
-			7 => 'Fête de la quenouille',
-			15 => 'Journée de Wikipédia',
-			20 => 'Martin Luther King Day',
-			21 => 'Journée internationale des câlins',
-			22 => 'Journée de l\'amitié franco-allemande',
-			26 => 'Journée internationale des énergies propres',
-			27 => 'Journée internationale dédiée à la mémoire des victimes de l\'Holocauste',
-			28 => 'Journée européenne de la protection des données',
+			1 => ['Journée mondiale de la paix', '🕊️'],
+			4 => ['Journée mondiale du braille', '⠃⠗⠁⠊⠇⠇⠑'],
+			15 => ['Journée de Wikipédia', 'WP'],
+			20 => ['Martin Luther King Day', null, 'https://fr.wikipedia.org/wiki/Martin_Luther_King_Day'],
+			21 => ['Journée internationale des câlins', '🫂', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_internationale_des_c%C3%A2lins'],
+			22 => ['Journée de l\'amitié franco-allemande', '🇩🇪', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_franco-allemande'],
+			26 => ['Journée internationale des énergies propres', '☀️', 'https://www.un.org/fr/observances/clean-energy-day'],
+			27 => ['Journée internationale dédiée à la mémoire des victimes de l\'Holocauste', null, 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_internationale_d%C3%A9di%C3%A9e_%C3%A0_la_m%C3%A9moire_des_victimes_de_l%27Holocauste'],
+			28 => ['Journée européenne de la protection des données', '🪪','https://fr.wikipedia.org/wiki/Journ%C3%A9e_europ%C3%A9enne_de_la_protection_des_donn%C3%A9es'],
 		],
 		2 => [
-			2 => 'Journée mondiale des zones humides',
-			4 => 'Journée mondiale contre le cancer',
-			6 => 'Journée mondiale sans téléphone portable',
-			7 => 'Journée mondiale sans téléphone portable',
-			8 => 'Journée mondiale sans téléphone portable',
-			11 => 'Journée mondiale des malades',
-			20 => 'Journée mondiale de la justice sociale',
-			21 => 'Journée internationale de la langue maternelle',
+			2 => ['Journée mondiale des zones humides', '🐸', 'https://www.un.org/fr/observances/world-wetlands-day'],
+			4 => ['Journée mondiale contre le cancer', '🦀', 'https://www.ligue-cancer.net/journee-mondiale-contre-le-cancer'],
+			6 => ['Journée mondiale sans téléphone portable', '📴', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_mondiale_sans_t%C3%A9l%C3%A9phone_portable'],
+			7 => ['Journée mondiale sans téléphone portable', '📴', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_mondiale_sans_t%C3%A9l%C3%A9phone_portable'],
+			8 => ['Journée mondiale sans téléphone portable', '📴', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_mondiale_sans_t%C3%A9l%C3%A9phone_portable'],
+			11 => ['Journée mondiale des malades', '🤒'],
+			20 => ['Journée mondiale de la justice sociale', '✊', 'https://www.un.org/fr/observances/social-justice-day'],
+			21 => ['Journée internationale de la langue maternelle', '🗣️', 'https://www.un.org/fr/observances/mother-language-day'],
 		],
 		3 => [
-			3 => 'Journée mondiale de la vie sauvage',
-			5 => 'Journée internationale pour le désarmement et la non-prolifération',
-			8 => 'Journée internationale des femmes',
-			14 => 'Journée de π',
-			15 => 'Journée internationale de lutte contre l\'islamophobie',
-			20 => 'Journée mondiale du bonheur',
-			21 => 'Journée internationale pour l\'élimination de la discrimination raciale',
-			22 => 'Journée mondiale de l\'eau',
-			30 => 'Journée internationale du zéro déchet',
+			3 => ['Journée mondiale de la vie sauvage', '🐺', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_mondiale_de_la_vie_sauvage'],
+			5 => ['Journée internationale pour le désarmement et la non-prolifération', '☢️', 'https://www.un.org/fr/observances/disarmament-non-proliferation-awareness-day'],
+			8 => ['Journée internationale des droits des femmes', '✊', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_internationale_des_femmes'],
+			14 => ['Journée de pi', 'π', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_de_pi'],
+			15 => ['Journée internationale de lutte contre l\'islamophobie', '🧕', 'https://www.un.org/fr/observances/anti-islamophobia-day'],
+			20 => ['Journée internationale du bonheur', '😺', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_internationale_du_bonheur'],
+			21 => ['Journée internationale pour l\'élimination de la discrimination raciale', null, 'https://www.un.org/fr/observances/end-racism-day'],
+			22 => ['Journée mondiale de l\'eau', '💧', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_mondiale_de_l%27eau'],
+			30 => ['Journée internationale du zéro déchet', '🗑️', 'https://www.un.org/fr/observances/zero-waste-day'],
 		],
 		4 => [
-			2 => 'Journée mondiale de la sensibilisation à l\'autisme',
-			7 => 'Journée mondiale de la santé',
-			8 => 'Journée internationale des Roms',
-			12 => 'Nuit de Youri Gagarine',
-			14 => 'Journée nationale du souvenir de la déportation',
-			15 => 'Steal something from work Day',
-			22 => 'Journée de la terre',
-			24 => 'Journée de commémoration du génocide arménien',
-			28 => 'Journée mondiale contre les accidents du travail',
-			29 => 'Journée internationale de la danse',
+			2 => ['Journée mondiale de la sensibilisation à l\'autisme', '♾️', 'https://www.un.org/fr/observances/autism-day'],
+			7 => ['Journée mondiale de la santé', '🤒', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_mondiale_de_la_sant%C3%A9'],
+			8 => ['Journée internationale des Roms', null, 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_internationale_des_Roms'],
+			12 => ['Nuit de Youri Gagarine', '👨‍🚀', 'https://fr.wikipedia.org/wiki/Nuit_de_Youri'],
+			14 => ['Journée nationale du souvenir de la déportation', null, 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_nationale_du_souvenir_de_la_d%C3%A9portation'],
+			15 => ['Steal something from work Day', null, 'https://fr.crimethinc.com/steal-something-from-work-day'],
+			22 => ['Journée de la terre', '🌱', 'https://fr.wikipedia.org/wiki/Jour_de_la_Terre'],
+			24 => ['Journée de commémoration du génocide arménien', '🇦🇲', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_de_comm%C3%A9moration_du_g%C3%A9nocide_arm%C3%A9nien'],
+			28 => ['Journée mondiale contre les accidents du travail', '🦺', 'https://www.un.org/fr/observances/work-safety-day'],
+			29 => ['Journée internationale de la danse', '🩰', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_internationale_de_la_danse'],
 		],
 		5 => [
 			1 => 'Journée internationale des travailleurs',
@@ -295,12 +294,26 @@ class Calendar
 		return false;
 	}
 
-	static public function getLocalObservance($m, $d): ?string
+	static public function getLocalObservance($m, $d): ?array
 	{
 		$m = (int)$m;
 		$d = (int)$d;
 
-		return self::WORLD_CELEBRATIONS[$m][$d] ?? null;
+		if (!isset(self::WORLD_CELEBRATIONS[$m][$d])) {
+			return null;
+		}
+
+		$day = self::WORLD_CELEBRATIONS[$m][$d];
+
+		if (is_array($day)) {
+			return ['label' => $day[0], 'emoji' => $day[1] ?? '✊', 'url' => $day[2] ?? null];
+		}
+
+		return [
+			'label' => $day,
+			'emoji' => '✊',
+			'url' => null,
+		];
 	}
 
 	static public function getUniqueColor(string $str): int
