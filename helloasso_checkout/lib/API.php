@@ -321,7 +321,7 @@ class API
 		}
 	}
 
-	public function createCheckout(int $amount, string $label, string $query, array $payer = null): \stdClass
+	public function createCheckout(int $amount, string $label, string $query, array $payer = null, array $metadata): \stdClass
 	{
 		$base_url = HTTP::getScheme() == 'https' ? HTTP::getRequestURL(false) : "https://lesptitsvelos.fr";
 
@@ -333,6 +333,7 @@ class API
 			'returnUrl' => "$base_url?$query&status=success",
 			'errorUrl' => "$base_url?$query&status=error",
 			'containsDonation' => false,
+			'metadata' => $metadata
 		];
 		if ($payer != null)
 			$params['payer'] = $payer;
