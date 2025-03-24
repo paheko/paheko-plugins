@@ -34,7 +34,7 @@
 	<legend>Personnaliser les champs du formulaire</legend>
 	<dl>
 		<p>
-			Vous pouvez afficher ou masquer mais également rendre obligatoire ou optionnel les champs du formulaire d'inscription. Pour cela, rendez-vous dans la {:link href="!config/fields" label="configuration de la fiche de membre"} puis modifiez les champs souhaités :
+			Vous pouvez afficher ou masquer mais également rendre obligatoire ou optionnel les champs du formulaire d'inscription. Pour cela, rendez-vous dans la {link href="!config/fields" label="configuration de la fiche de membre"} puis modifiez les champs souhaités :
 		</p>
 		<ul>
 			<li>Cochez ou décochez la case <i>Champ obligatoire</i> dans le bloc Préférences</li>
