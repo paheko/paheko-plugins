@@ -37,15 +37,15 @@
 }
 
 .pos .products section button {
-    background: #eee;
-    border: .2rem solid #ddd;
-    border-color: hsl(var(--cat-hue), 40%, 75%);
-	border-radius: .5rem;
-	padding: .5rem;
-	margin: .3rem;
-	flex: 1;
-	transition: background .2s;
-	min-width: 9rem !important;
+    /* background: #eee; */
+    /* border: .2rem solid #ddd; */
+    /* border-color: hsl(var(--cat-hue), 40%, 75%); */
+    /* border-radius: .5rem; */
+    /* padding: .5rem; */
+    /* margin: .3rem; */
+    flex: 1;
+    transition: background .2s;
+    min-width: 9rem !important;
 }
 
 .pos .products section button h4 {
@@ -59,8 +59,8 @@
 }
 
 .pos .products section button:hover {
-	background: #fee;
-	border-color: #fcc;
+	/* background: #fee; */
+	/* border-color: #fcc; */
 }
 
 .pos .products section div {
