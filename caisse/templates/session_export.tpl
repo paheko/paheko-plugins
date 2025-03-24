@@ -89,6 +89,27 @@
 	{/if}
 </p>
 
+<h2 class="ruler">Totaux des règlements, par moyen de paiement</h2>
+
+<table class="list">
+	<thead>
+		<tr>
+			<td>Moyen</td>
+			<td>Montant</td>
+		</tr>
+	</thead>
+	<tbody>
+		{foreach from=$payments_totals item="payment"}
+		<tr>
+			<th>{$payment.method_name}</th>
+			<td>
+				{$payment.total|raw|money_currency:false}
+			</td>
+		</tr>
+		{/foreach}
+	</tbody>
+</table>
+
 <h2 class="ruler">Ventes par catégorie</h2>
 
 <table class="list">
@@ -163,27 +184,6 @@
 			<td>{$weight|weight:false:true}</td>
 		</tr>
 	</tfoot>
-</table>
-
-<h2 class="ruler">Totaux des règlements, par moyen de paiement</h2>
-
-<table class="list">
-	<thead>
-		<tr>
-			<td>Moyen</td>
-			<td>Montant</td>
-		</tr>
-	</thead>
-	<tbody>
-		{foreach from=$payments_totals item="payment"}
-		<tr>
-			<th>{$payment.method_name}</th>
-			<td>
-				{$payment.total|raw|money_currency:false}
-			</td>
-		</tr>
-		{/foreach}
-	</tbody>
 </table>
 
 

@@ -4,6 +4,7 @@ namespace Paheko\Plugin\Caisse;
 
 use Paheko\DB;
 use Paheko\DynamicList;
+use Paheko\Utils;
 use Paheko\Users\DynamicFields;
 use KD2\DB\EntityManager as EM;
 
@@ -88,6 +89,11 @@ class Sessions
 				'select' => 'SUM(ti.total)',
 				'order' => null,
 			],
+			'tabs_count' => [
+				'select' => 'COUNT(DISTINCT t.id)',
+				'order' => null,
+				'label' => 'Nombre de notes',
+			],
 		];
 
 		if (!$with_location) {
@@ -105,6 +111,12 @@ class Sessions
 		$list->orderBy('opened', true);
 		$list->groupBy('s.id');
 		$list->setCount('COUNT(DISTINCT s.id)');
+		$list->setExportCallback(function (&$row) {
+			$row->total = Utils::money_format($row->total, '.', '');
+			$row->close_amount = Utils::money_format($row->close_amount, '.', '');
+			$row->open_amount = Utils::money_format($row->open_amount, '.', '');
+			$row->error_amount = $row->error_amount ? Utils::money_format($row->error_amount, '.', '') : null;
+		});
 		return $list;
 	}
 }

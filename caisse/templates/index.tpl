@@ -2,6 +2,7 @@
 
 <nav class="tabs">
 	<aside>
+		{exportmenu}
 		{linkbutton href="debts.php" label="Ardoises" shape="history"}
 	{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
 		{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}
@@ -48,6 +49,7 @@
 				{/if}
 			</td>
 			<td class="money">{$pos_session.total|raw|money_currency}</td>
+			<td class="num">{$pos_session.tabs_count}</td>
 			<td class="actions">
 				{if !$pos_session.closed}
 				{linkbutton shape="right" label="Reprendre" href="tab.php?session=%d"|args:$pos_session.id}
