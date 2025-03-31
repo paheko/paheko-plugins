@@ -39,7 +39,7 @@ class Calendar
 			21 => ['Journée internationale pour l\'élimination de la discrimination raciale', null, 'https://www.un.org/fr/observances/end-racism-day'],
 			22 => ['Journée mondiale de l\'eau', '💧', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_mondiale_de_l%27eau'],
 			30 => ['Journée internationale du zéro déchet', '🗑️', 'https://www.un.org/fr/observances/zero-waste-day'],
-			31 => ['Journée internationale de visibilité transgenre', '🏳️‍⚧️', https://fr.wikipedia.org/wiki/Journ%C3%A9e_internationale_de_visibilit%C3%A9_transgenre']
+			31 => ['Journée internationale de visibilité transgenre', '🏳️‍⚧️', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_internationale_de_visibilit%C3%A9_transgenre']
 		],
 		4 => [
 			2 => ['Journée mondiale de la sensibilisation à l\'autisme', '♾️', 'https://www.un.org/fr/observances/autism-day'],
