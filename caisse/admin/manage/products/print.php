@@ -18,7 +18,9 @@ $form->runIf('print', function () use ($tpl) {
 	$selected = (array)f('selected');
 
 	foreach ($products as $key => $product) {
-		if (!in_array($product->category, $selected)) {
+		// Exclude archived products and from categories that should not be printed
+		if (!in_array($product->category, $selected)
+			|| $product->archived) {
 			unset($products[$key]);
 		}
 	}
