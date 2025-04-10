@@ -1,54 +1,34 @@
 {include file="_head.tpl" title="Historique produit : %s"|args:$product.name}
 
-{include file="../_nav.tpl" current='products'}
+{include file="../_nav.tpl" current='history'}
 
-<p>
-{if $events_only}
-	{linkbutton href="?id=%d"|args:$product.id label="Afficher tous les événements" shape="eye"}
-{else}
-	{linkbutton href="?id=%d&events_only"|args:$product.id label="Cacher les ventes" shape="eye-off"}
-{/if}
-</p>
+<nav class="tabs">
+	<ul class="sub">
+		<li class="title">Produit : {$product.name}</li>
+	</ul>
+</nav>
 
-<table class="list">
-	<thead>
-		<tr>
-			<th>Date</th>
-			<td>Type</td>
-			<td>Événement</td>
-			<td class="num">Modification du stock</td>
-			<td></td>
-		</tr>
-	</thead>
-	<tbody>
-		{foreach from=$history item="row"}
+{include file="common/dynamic_list_head.tpl"}
+		{foreach from=$list->iterate() item="row"}
 			<tr>
 				<th>{$row.date|date}</th>
-				<td>
-					{if $row.item}
-						Vente
-					{elseif $row.event_type == 0}
-						Événement
-					{elseif $row.event_type == 1}
-						Inventaire
-					{elseif $row.event_type == 2}
-						Réception commande
-					{/if}
-				</td>
+				<td>{$row.type}</td>
 				<td>{$row.event_label}</td>
 				<td class="num">
-					{if $row.event_type == 1}={elseif $row.change > 0}+{/if}{$row.change}
+					{$row.change}
 				</td>
 				<td class="actions">
-					{if $row.tab}
-						{linkbutton href="%stab.php?id=%d"|args:$plugin_admin_url,$row.tab label="Note de caisse" shape="menu"}
-					{elseif $row.event}
-						{linkbutton href="%smanage/stock/details.php?id=%d"|args:$plugin_admin_url,$row.event label="Événement de stock" shape="table"}
+					{if $row.id_tab}
+						{linkbutton href="%stab.php?id=%d"|args:$plugin_admin_url:$row.id_tab label="Note de caisse" shape="menu"}
+					{elseif $row.id_event}
+						{linkbutton href="%smanage/stock/details.php?id=%d"|args:$plugin_admin_url:$row.id_event label="Événement de stock" shape="table"}
 					{/if}
 				</td>
 			</tr>
 		{/foreach}
 	</tbody>
 </table>
+
+{$list->getHTMLPagination()|raw}
 
 {include file="_foot.tpl"}

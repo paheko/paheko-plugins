@@ -53,7 +53,7 @@ class Categories
 			],
 		];
 
-		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price > 0');
+		$list = POS::DynamicList($columns, '@PREFIX_tabs_items i', 'strftime(\'%Y\', i.added) = :year AND i.price >= 0');
 		$list->setParameter('year', (string)$year);
 		$list->setTitle(sprintf('Ventes %d, par catégorie', $year));
 		$list->groupBy('i.category_name');

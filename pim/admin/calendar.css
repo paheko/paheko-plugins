@@ -1,0 +1,272 @@
+body.calendar {
+	height: 100vh;
+	overflow: hidden;
+}
+
+body.calendar main {
+	min-height: calc(100% - 2em);
+	display: flex;
+	flex-direction: column;
+}
+
+body.calendar .tabs {
+	display: flex;
+	flex-direction: row-reverse;
+	flex-wrap: wrap;
+}
+
+nav.tabs .months {
+	max-width: unset;
+	flex: 1 1;
+}
+
+.months a {
+	display: inline-flex;
+	justify-content: center;
+}
+
+.months a.year {
+	width: 4rem;
+}
+
+.months a.month {
+	width: 7rem;
+}
+
+.months a.current {
+	font-weight: bold;
+	font-size: 1.3em;
+	width: 12rem;
+	padding: .1rem;
+}
+
+table.calendar {
+	border-collapse: collapse;
+	width: 100%;
+	border: none;
+	height: 80%;
+	flex-grow: 1;
+}
+
+table.calendar thead th {
+	text-align: center;
+	opacity: .5;
+	border: none;
+}
+
+table.calendar td, table.calendar th {
+	padding: 0.5em;
+	border: 1px solid #ccc;
+	width: 14.2%;
+	vertical-align: top;
+}
+
+table.calendar.weeks-4 tbody tr {
+	height: 25%;
+}
+
+table.calendar.weeks-5 tbody tr {
+	height: 20%;
+}
+
+table.calendar.weeks-6 tbody tr {
+	height: 17%;
+}
+
+table.calendar th {
+	height: 1em;
+	font-size: 0.9em;
+}
+
+table.calendar h3 {
+	font-size: 1em;
+	text-align: center;
+	border-bottom: 1px solid #ddd;
+}
+
+table.calendar .observance h3 small span {
+	display: none;
+}
+
+table.calendar .observance h3 {
+	cursor: help;
+	position: relative;
+}
+
+table.calendar .observance h3 small:after {
+	display: block;
+	position: absolute;
+	right: 0;
+	top: -.2em;
+	content: attr(data-emoji);
+	font-weight: normal;
+	font-size: 1.5em;
+	color: #999;
+}
+
+table.calendar .observance h3:hover small span {
+	display: block;
+	position: absolute;
+	z-index: 1000;
+	top: 0;
+	right: 0;
+	left: 0;
+	background: #fff;
+	padding: .2em .4em;
+	box-shadow: 0px 0px 5px #000;
+	content: attr(title);
+	border-radius: .3em;
+	font-weight: normal;
+}
+
+table.calendar td.holiday h3 {
+	background: url("cross.png") no-repeat center center;
+}
+
+table.calendar td h3 a:hover {
+	background-color: #eee;
+}
+
+table.calendar td.today {
+	outline: 1px inset #666;
+	background: #eee;
+}
+
+table.calendar td.selected {
+	background: #ddd;
+}
+
+table.calendar td.otherMonth h3 a {
+	color: #999;
+}
+
+table.calendar td ul {
+	list-style-type: none;
+	font-size: 12px;
+}
+
+table.calendar td ul li {
+	clear: left;
+	padding: 1px;
+}
+
+table.calendar td ul li.birthday {
+	background: url("bday.png") no-repeat 0px center;
+	padding-left: 20px;
+}
+
+table.calendar td ul li.birthday em {
+	display: block;
+	color: #666;
+}
+
+table.calendar td ul li.running {
+	opacity: 0.8;
+	text-align: center;
+	border-bottom: 1px solid #ccc;
+}
+
+table.calendar td ul li.all_day {
+	text-align: center;
+	border-bottom: 1px solid #ccc;
+}
+
+table.calendar td ul b {
+	color: #666;
+	font-weight: normal;
+	margin-right: 0.2em;
+	white-space: nowrap;
+}
+
+table.calendar td ul i {
+	vertical-align: super;
+	font-size: .8em;
+	margin-left: -.2em;
+	margin-right: .5em;
+	color: #999;
+	background: rgba(255, 255, 255, 0.7);
+	padding: 1px 3px;
+	border-radius: 1em;
+}
+
+table.calendar td ul li a {
+	color: inherit;
+}
+
+table.calendar td ul a:hover {
+	color: red;
+}
+
+table.calendar li.holiday {
+	color: #666;
+	text-align: center;
+}
+
+table.calendar li.all_day {
+	background: hsl(var(--hue), 50%, 75%);
+}
+
+table.calendar li.running {
+	background: hsl(var(--hue), 50%, 90%);
+}
+
+table.calendar li.other {
+	color: hsl(var(--hue), 75%, 30%);
+}
+
+table.categories td.color {
+	width: 2em;
+}
+
+.cat_color {
+	display: inline-block;
+	width: 2em;
+	height: 2em;
+	border-radius: 100%;
+	border: 1px solid #999;
+	vertical-align: middle;
+	background: hsl(var(--hue), 50%, 75%);
+}
+
+select + .cat_color {
+	margin-left: 1em;
+}
+
+input.auto-animation, select.auto-animation {
+	outline: 2px solid darkorange;
+	box-shadow: 0px 0px 10px 3px darkorange;
+	transition: .5s;
+}
+
+@media handheld, screen and (max-width: 700px) {
+	table.calendar, table.calendar tr, table.calendar td, table.calendar th {
+		display: flex;
+		flex-direction: column;
+		width: unset;
+	}
+
+	table.calendar td, table.calendar th {
+		margin-bottom: .5em;
+		border: none;
+	}
+
+	table.calendar tr {
+		border: 1px solid #ccc;
+		margin: 1em .2em;
+	}
+
+	table.calendar thead {
+		display: none;
+	}
+
+	body.calendar {
+		height: auto;
+		overflow: auto;
+	}
+}
+
+@media handheld, screen and (max-width: 980px) {
+	body.calendar .tabs {
+		flex-direction: column;
+	}
+}

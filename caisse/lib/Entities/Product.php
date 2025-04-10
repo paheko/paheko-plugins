@@ -3,7 +3,9 @@
 namespace Paheko\Plugin\Caisse\Entities;
 
 use Paheko\Plugin\Caisse\POS;
+use Paheko\Plugin\Caisse\Stock;
 use Paheko\DB;
+use Paheko\DynamicList;
 use Paheko\Entity;
 use Paheko\Utils;
 use Paheko\ValidationException;
@@ -55,11 +57,9 @@ class Product extends Entity
 		return EM::getInstance(Method::class)->DB()->get($sql, $this->exists() ? $this->id() : null);
 	}
 
-	public function importForm(array $source = null)
+	public function importForm(?array $source = null)
 	{
-		if (null === $source) {
-			$source = $_POST;
-		}
+		$source ??= $_POST;
 
 		if (isset($source['price'])) {
 			$source['price'] = Utils::moneyToInteger($source['price']);
@@ -127,19 +127,24 @@ class Product extends Entity
 		DB::getInstance()->preparedQuery($sql, $this->id(), Method::TYPE_DEBT);
 	}
 
-	public function history(bool $only_events = false): array
+	public function getHistoryList(bool $only_events = false): DynamicList
 	{
-		$events = $only_events ? ' AND h.event IS NOT NULL' : '';
+		$columns = Stock::HISTORY_COLUMNS;
+		unset($columns['product_label']);
 
-		$db = EM::getInstance(self::class)->DB();
-		$sql = sprintf(POS::sql('SELECT
-			h.*, e.label AS event_label, e.type AS event_type, ti.tab
-			FROM @PREFIX_products_stock_history h
+		$conditions = 'h.product = ' . (int)$this->id();
+
+		if ($only_events) {
+			$conditions .= ' AND h.event IS NOT NULL';
+		}
+
+		$tables = '@PREFIX_products_stock_history h
 			LEFT JOIN @PREFIX_stock_events e ON e.id = h.event AND e.applied = 1
-			LEFT JOIN @PREFIX_tabs_items ti ON ti.id = h.item
-			WHERE h.product = ? %s
-			ORDER BY h.date DESC;'), $events);
-		return $db->get($sql, $this->id());
+			LEFT JOIN @PREFIX_tabs_items ti ON ti.id = h.item';
+
+		$list = new DynamicList($columns, POS::sql($tables), $conditions);
+		$list->orderBy('date', true);
+		return $list;
 	}
 
 	public function getImagesPath(): string

@@ -52,7 +52,7 @@ $form->runIf('cancel', function () use ($csv) {
 }, $csrf_key, Utils::getSelfURI(null));
 
 $form->runIf(f('load') && isset($_FILES['file']['tmp_name']), function () use ($csv, $columns, $benevalibre_match) {
-	$csv->load($_FILES['file']);
+	$csv->upload($_FILES['file']);
 }, $csrf_key, Utils::getSelfURI());
 
 $form->runIf(f('set_translation_table') && $csv->loaded(), function () use (&$csv) {

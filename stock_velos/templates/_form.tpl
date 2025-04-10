@@ -35,7 +35,7 @@
 <fieldset>
 	<legend>Provenance</legend>
 	<dl>
-	{if $fields.notes.enabled}
+	{if $fields.source.enabled}
 		{input type="select" name="source" label="D'où provient le vélo ?" required=$fields.source.required options=$fields.source.options default="Don" source=$velo}
 	{/if}
 	{if $fields.source_details.enabled}
@@ -58,6 +58,9 @@
 	{/if}
 	{if $fields.roues.enabled}
 		{input type="select" name="roues" required=$fields.roues.required label="Taille" options=$fields.roues.options source=$velo}
+	{/if}
+	{if $fields.taille.enabled}
+		{input type="select" name="taille" required=$fields.taille.required label="Taille du cadre" options=$fields.taille.options source=$velo}
 	{/if}
 	{if $fields.genre.enabled}
 		{input type="select" name="genre" required=$fields.genre.required label="Genre de cadre" options=$fields.genre.options source=$velo}

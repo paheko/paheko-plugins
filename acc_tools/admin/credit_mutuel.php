@@ -143,7 +143,7 @@ $form->runIf('load', function () use ($tabula_path) {
 	// Création du CSV de sortie
 	$fp = fopen('php://temp', 'w+');
 
-	fputcsv($fp, ['Numéro d\'écriture', 'Date', 'Libellé', 'Compte de débit', 'Compte de crédit', 'Montant', 'Numéro pièce comptable', 'Référence paiement', 'Notes']);
+	fputcsv($fp, ['Numéro d\'écriture', 'Date', 'Libellé', 'Compte de débit', 'Compte de crédit', 'Montant', 'Numéro pièce comptable', 'Référence paiement', 'Notes'], ',', '"', '\\');
 
 	foreach ($out as $line) {
 		$label = $line[2];
@@ -175,7 +175,7 @@ $form->runIf('load', function () use ($tabula_path) {
 		$amount = !empty($line[4]) ? $line[4] : '-' . $line[3];
 		$amount = str_replace('.', '', $amount);
 
-		fputcsv($fp, ['', $line[0], $label, '', '', $amount, '', $ref, $notes]);
+		fputcsv($fp, ['', $line[0], $label, '', '', $amount, '', $ref, $notes], ',', '"', '\\');
 	}
 
 	header('Content-Type: text/csv; charset="utf-8"');

@@ -83,7 +83,7 @@ class Tab extends Entity
 		$this->addItem($id);
 	}
 
-	public function addItem(int $id, string $user_weight = null, int $price = null, int $type = TabItem::TYPE_PRODUCT)
+	public function addItem(int $id, ?string $user_weight = null, ?int $price = null, int $type = TabItem::TYPE_PRODUCT)
 	{
 		if ($this->closed) {
 			throw new UserException('Cette note est close, impossible de modifier la note.');
@@ -197,6 +197,15 @@ class Tab extends Entity
 			WHERE ti.tab = ?
 			GROUP BY ti.id
 			ORDER BY ti.id;'), $this->id);
+	}
+
+	public function isUserIdMissing(): bool
+	{
+		if ($this->user_id) {
+			return false;
+		}
+
+		return DB::getInstance()->test(TabItem::TABLE, 'id_fee IS NOT NULL AND tab = ?', $this->id());
 	}
 
 	public function pay(int $method_id, int $amount, ?string $reference, bool $auto_close = true): void

@@ -131,6 +131,7 @@ if ($tab) {
 	$tpl->assign('remainder', $tab->getRemainder());
 	$tpl->assign('payment_options', $tab->listPaymentOptions());
 	$tpl->assign('debt', $tab->getUserDebt());
+	$tpl->assign('missing_user', $tab->isUserIdMissing());
 }
 
 $tpl->assign('selected_cat', qg('cat'));

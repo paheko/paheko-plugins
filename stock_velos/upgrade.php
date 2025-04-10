@@ -40,3 +40,9 @@ if (version_compare($old_version, '4.3.1', '<')) {
 		CREATE INDEX IF NOT EXISTS prv_poids3 ON plugin_stock_velos(source, poids);
 	');
 }
+
+if (version_compare($old_version, '4.3.2', '<')) {
+	$db->exec('
+		ALTER TABLE plugin_stock_velos ADD COLUMN taille TEXT NULL;
+	');
+}

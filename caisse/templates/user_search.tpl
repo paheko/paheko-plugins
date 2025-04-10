@@ -81,10 +81,6 @@ if (buttons.length) {
 
 var rows = document.querySelectorAll('table tbody tr');
 
-if (rows.length == 1) {
-	rows[0].querySelector('button').click();
-}
-
 rows.forEach((e) => {
 	e.classList.add('clickable');
 
@@ -97,7 +93,13 @@ rows.forEach((e) => {
 	};
 });
 
-document.querySelector('input').focus();
+q.focus();
+var a = document.querySelector('a[href*="users/new"]');
+
+a.addEventListener('click', () => {
+	a.href = a.href.replace(/&nom=.*$|$/, '&nom=' + encodeURIComponent(q.value));
+	return true;
+});
 </script>
 {/literal}
 

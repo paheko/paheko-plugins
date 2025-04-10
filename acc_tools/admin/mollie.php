@@ -39,7 +39,7 @@ $form->runIf('load', function () use ($columns) {
 
 	$months = array_flip($months);
 
-	fputcsv($fp, ['Numéro d\'écriture', 'Date', 'Libellé', 'Compte de débit', 'Compte de crédit', 'Montant', 'Numéro pièce comptable', 'Référence paiement', 'Notes']);
+	fputcsv($fp, ['Numéro d\'écriture', 'Date', 'Libellé', 'Compte de débit', 'Compte de crédit', 'Montant', 'Numéro pièce comptable', 'Référence paiement', 'Notes'], ',', '"', '\\');
 
 	try {
 		file_put_contents($tmpfile, $csv->fetch());
@@ -61,9 +61,9 @@ $form->runIf('load', function () use ($columns) {
 				$date = $date->format('d/m/Y');
 			}
 
-			fputcsv($fp, ['', $date, 'Dons reçus via Mollie', '512D', '754', $gross, '', $row->ref, '']);
-			fputcsv($fp, ['', $date, 'Frais Mollie', '627', '512D', $fees, '', $row->ref, '']);
-			fputcsv($fp, ['', $date, 'Virement Mollie', '580', '512D', $net, '', $row->ref, '']);
+			fputcsv($fp, ['', $date, 'Dons reçus via Mollie', '512E', '754', $gross, '', $row->ref, ''], ',', '"', '\\');
+			fputcsv($fp, ['', $date, 'Frais Mollie', '627', '512E', $fees, '', $row->ref, ''], ',', '"', '\\');
+			fputcsv($fp, ['', $date, 'Virement Mollie', '580', '512E', $net, '', $row->ref, ''], ',', '"', '\\');
 		}
 	}
 	catch (\Throwable $e) {

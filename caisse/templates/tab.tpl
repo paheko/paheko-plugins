@@ -57,6 +57,10 @@
 				<h3>{$current_tab.name}</h3>
 			</div>
 
+			{if $missing_user}
+				<p class="alert block">Cette note doit être liée à un membre.</p>
+			{/if}
+
 			<div class="actions">
 				<form method="post">
 					<span class="id">Note #{$current_tab.id}</span>
@@ -260,11 +264,12 @@
 </section>
 {/if}
 
-{* For testing barcode detection on browser
+{* For testing barcode detection in browser
 	<script src="https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@0.9.15/dist/index.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@0.9.20/dist/index.js"></script>
 *}
 
-<script type="text/javascript" src="{$plugin_admin_url}tab.js?2024-08b" async="async"></script>
+<script type="text/javascript" src="{$plugin_admin_url}tab.js?{$version_hash}" async="async"></script>
+<script type="text/javascript" src="{$plugin_admin_url}product_search.js?{$version_hash}" async="async"></script>
 
 {include file="_foot.tpl"}
