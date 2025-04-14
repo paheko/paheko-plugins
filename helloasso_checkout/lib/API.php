@@ -321,22 +321,19 @@ class API
 		}
 	}
 
-	public function createCheckout(int $amount, string $label, string $query, array $payer = null, array $metadata): \stdClass
+	public function createCheckout(int $amount, string $label, string $query, array $params = []): \stdClass
 	{
 		$base_url = HTTP::getScheme() == 'https' ? HTTP::getRequestURL(false) : "https://lesptitsvelos.fr";
 
-		$params = [
+		$params = array_merge($params, [
 			'totalAmount' => $amount,
 			'initialAmount' => $amount,
 			'itemName' => $label,
 			'backUrl' => "$base_url?$query&status=canceled",
 			'returnUrl' => "$base_url?$query&status=success",
 			'errorUrl' => "$base_url?$query&status=error",
-			'containsDonation' => false,
-			'metadata' => $metadata
-		];
-		if ($payer != null)
-			$params['payer'] = $payer;
+			'containsDonation' => false
+		]);
 
 		$response = $this->POST(sprintf('v5/organizations/%s/checkout-intents', $this->org_slug), $params, HTTP::JSON);
 

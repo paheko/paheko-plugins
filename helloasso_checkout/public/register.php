@@ -77,7 +77,12 @@ $form->runIf('validate', function () use ($tpl, $form, $user, $service, $selecte
         'email' => $form('email')
     ];
 
-    $checkout = API::getInstance()->createCheckout($selected_fee->amount, $service->label . ' - ' . $selected_fee->label, "service_id=$service->id", $payer, $_POST);
+    $checkout = API::getInstance()->createCheckout(
+        $selected_fee->amount,
+        $service->label . ' - ' . $selected_fee->label,
+        "service_id=$service->id",
+        [ 'player' => $payer, 'metadata' => $_POST ]
+    );
 
     $tpl->assign('checkout', $checkout);
     $tpl->assign('status', 'checkout');
