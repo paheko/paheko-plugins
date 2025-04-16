@@ -358,6 +358,10 @@ class Events
 				$cat_id = $this->getDefaultCategory();
 			}
 
+			if (!$cat_id) {
+				throw new ValidationException('Aucune catégorie par défaut n\'a été définie');
+			}
+
 			foreach ($v->VEVENT as $vevent) {
 				$event = $this->create();
 				$event->id_category = $cat_id;
