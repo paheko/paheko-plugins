@@ -14,7 +14,7 @@ class Entry extends Entity
 
 	protected int $id;
 	protected ?int $user_id;
-	protected ?int $task_id;
+	protected ?int $task_id = null;
 	protected Date $date;
 	protected ?string $notes;
 	protected ?int $duration;
@@ -25,10 +25,6 @@ class Entry extends Entity
 	public function selfCheck(): void
 	{
 		parent::selfCheck();
-
-		if (!$this->task_id) {
-			$this->task_id = null;
-		}
 
 		$this->assert(!(is_null($this->duration) && is_null($this->timer_started)), 'Duration cannot be NULL if timer is not running');
 	}
