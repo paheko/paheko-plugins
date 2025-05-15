@@ -15,7 +15,7 @@
 			{foreach from=$list->iterate() item="row"}
 			<tr>
 				<th>{$row.date|date_short}</th>
-				<td>{if !$row.name}<em>Anonyme</em>{else}{$row.name}{/if}</td>
+				<td>{$row.name}</td>
 				<td class="money">{$row.amount|money_currency_html|raw}</td>
 				<td class="actions">
 					{if $row.user_id}

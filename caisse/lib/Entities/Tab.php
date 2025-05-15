@@ -231,6 +231,10 @@ class Tab extends Entity
 			throw new UserException('Ce moyen de paiement n\'est pas disponible.');
 		}
 
+		if ($option->type === Method::TYPE_DEBT && empty($this->name)) {
+			throw new UserException('Il n\'est pas possible d\'enregistrer une ardoise sans nom associé.');
+		}
+
 		if (empty($option->amount)) {
 			throw new UserException('Ce moyen de paiement ne peut pas être utilisé pour cette note');
 		}

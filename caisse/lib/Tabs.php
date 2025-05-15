@@ -164,7 +164,7 @@ class Tabs
 			FROM @PREFIX_tabs t
 			INNER JOIN @PREFIX_tabs_payments p ON p.tab = t.id
 			LEFT JOIN @PREFIX_methods m ON p.method = m.id
-			WHERE p.status = %d
+			WHERE p.status = %d AND (t.user_id IS NOT NULL OR t.name IS NOT NULL)
 			GROUP BY t.user_id, t.name)';
 
 		$tables = POS::sql(sprintf($tables, TabItem::TYPE_PAYOFF, Tab::PAYMENT_STATUS_DEBT));
