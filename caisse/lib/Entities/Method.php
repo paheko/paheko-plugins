@@ -38,11 +38,11 @@ class Method extends Entity
 		$source ??= $_POST;
 
 		if (isset($source['min'])) {
-			$source['min'] = Utils::moneyToInteger($source['min']);
+			$source['min'] = trim($source['min']) === '' ? null : Utils::moneyToInteger($source['min']);
 		}
 
 		if (isset($source['max'])) {
-			$source['max'] = Utils::moneyToInteger($source['max']);
+			$source['max'] = trim($source['max']) === '' ? null : Utils::moneyToInteger($source['max']);
 		}
 
 		$source['enabled'] = !empty($source['enabled']);
