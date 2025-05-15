@@ -102,7 +102,7 @@ p {
 			{{/foreach}}
 			<tr>
 				<th colspan="4">{{if $tab.total < 0}}Reste à régler{{else}}Reste à payer{{/if}}</th>
-				<td class="number">{{$remainder_after|raw|money_currency:false}}</td>
+				<td class="number">{{$remainder|raw|money_currency:false}}</td>
 			</tr>
 		</tfoot>
 	</table>
