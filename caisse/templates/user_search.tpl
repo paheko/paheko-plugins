@@ -7,6 +7,7 @@
 	<h2 class="ruler">
 		{input type="text" placeholder="Recherche rapide de membre" value=$query name="q"}
 		{button type="submit" label="Chercher" shape="search"}
+		{button shape="edit" label="Renommer sans lier à un membre" id="rename_no_user" style="font-size: .7em"}
 	</h2>
 </form>
 
@@ -50,9 +51,6 @@
 {elseif $query !== ''}
 	<div class="alert block">
 		<p>Aucun résultat.</p>
-		<p>
-			{button shape="edit" label="Renommer la note sans la lier à un membre" id="rename_no_user"}
-		</p>
 	</div>
 {/if}
 
