@@ -220,8 +220,11 @@ class Tab extends Entity
 
 		$remainder = $this->getRemainder();
 
-		if ($amount > $remainder) {
+		if ($amount >= 0 && $amount > $remainder) {
 			throw new UserException('Il n\'est pas possible d\'encaisser un montant supérieur au reste à payer.');
+		}
+		elseif ($amount < 0 && $amount < $remainder) {
+			throw new UserException('Il n\'est pas possible de rembourser un montant supérieur au reste à rembourser.');
 		}
 
 		$options = $this->listPaymentOptions();
