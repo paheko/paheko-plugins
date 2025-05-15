@@ -111,8 +111,13 @@ if (a = $('#f_amount')) {
 			return;
 		}
 
+		var amount = g.getMoneyAsInt(a.value);
 		var max = g.getMoneyAsInt(o.dataset.amount);
-		var diff = g.getMoneyAsInt(a.value) - max;
+		var diff = amount - max;
+
+		if (amount < 0) {
+			diff = 0;
+		}
 
 		g.toggle('form.payment .submit', diff <= 0);
 		g.toggle('form.payment .toomuch', diff > 0);
