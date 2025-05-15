@@ -74,11 +74,11 @@ function enableBarcodeScanner()
 	var barcode_btn = $('#scanbarcode');
 
 	if (!('BarcodeDetector' in window)) {
-			window['BarcodeDetector'] = barcodeDetectorPolyfill.BarcodeDetectorPolyfill;
 		if (window['barcodeDetectorPolyfill']) {
+			window['BarcodeDetector'] = barcodeDetectorPolyfill.BarcodeDetectorPolyfill;
 		}
 		else {
-			//return;
+			return;
 		}
 	}
 
