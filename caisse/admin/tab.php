@@ -61,58 +61,67 @@ elseif (null !== qg('new')) {
 	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab->id()]));
 }
 elseif ($tab) {
-	if (!empty($_POST['add_item'])) {
+	$url = Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab->id]);
+	$csrf_key = null;
+
+	$form->runIf('add_item', function () use ($tab) {
 		$tab->addItem((int)key($_POST['add_item']), current($_POST['add_item']));
-		reload();
-	}
-	elseif (!empty($_GET['add_debt'])) {
+	}, $csrf_key, $url);
+
+	$form->runIf('add_debt', function () use ($tab) {
 		$tab->addUserDebt();
-		Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab->id]));
-	}
-	elseif (qg('delete_item')) {
-		$tab->removeItem((int)qg('delete_item'));
-		Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab->id]));
-	}
-	elseif (!empty($_POST['change_qty'])) {
+	}, $csrf_key, $url);
+
+	$form->runIf('delete_item', function () use ($tab) {
+		$tab->removeItem((int)$_POST['delete_item']);
+	}, $csrf_key, $url);
+
+	$form->runIf('change_qty', function () use ($tab) {
 		$tab->updateItemQty((int)key($_POST['change_qty']), (int)current($_POST['change_qty']));
-		reload();
-	}
-	elseif (!empty($_POST['change_weight'])) {
+	}, $csrf_key, $url);
+
+	$form->runIf('change_weight', function () use ($tab) {
 		$tab->updateItemWeight((int)key($_POST['change_weight']), current($_POST['change_weight']));
-		reload();
-	}
-	elseif (!empty($_POST['change_price'])) {
+	}, $csrf_key, $url);
+
+	$form->runIf('change_price', function () use ($tab) {
 		$tab->updateItemPrice((int)key($_POST['change_price']), current($_POST['change_price']));
-		reload();
-	}
-	elseif (!empty($_POST['pay'])) {
-		$tab->pay((int)$_POST['method_id'], get_amount(f('amount')), $_POST['reference'], $plugin->getConfig('auto_close_tabs') ?? false, $plugin->getConfig('debt_account'));
-		reload();
-	}
-	elseif (qg('delete_payment')) {
-		$tab->removePayment((int) qg('delete_payment'));
-		Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab->id]));
-	}
-	elseif (!empty($_POST['rename_name'])) {
-		$tab->rename($_POST['rename_name'], (int) f('rename_id') ?: null);
-		reload();
-	}
-	elseif (!empty($_POST['rename_item'])) {
+	}, $csrf_key, $url);
+
+	$form->runIf('pay', function () use ($tab, $plugin) {
+		$tab->pay((int)$_POST['method_id'],
+			get_amount($_POST['amount'] ?? 0),
+			$_POST['reference'] ?? null,
+			$plugin->getConfig('auto_close_tabs') ?? false,
+			$plugin->getConfig('debt_account')
+		);
+	}, $csrf_key, $url);
+
+	$form->runIf('delete_payment', function () use ($tab) {
+		$tab->removePayment((int) $_POST['delete_payment']);
+	}, $csrf_key, $url);
+
+	$form->runIf('rename_name', function () use ($tab) {
+		$tab->rename($_POST['rename_name'], intval($_POST['rename_id'] ?? 0) ?: null);
+	}, $csrf_key, $url);
+
+	$form->runIf('rename_item', function () use ($tab) {
 		$tab->renameItem((int) key($_POST['rename_item']), current($_POST['rename_item']));
-		reload();
-	}
-	elseif (!empty($_POST['close'])) {
+	}, $csrf_key, $url);
+
+	$form->runIf('close', function () use ($tab) {
 		$tab->close();
-		reload();
-	}
-	elseif (!empty($_POST['reopen'])) {
+	}, $csrf_key, $url);
+
+	$form->runIf('reopen', function () use ($tab) {
 		$tab->reopen();
-		reload();
-	}
-	elseif (!empty($_POST['delete'])) {
+	}, $csrf_key, $url);
+
+	$form->runIf('delete', function () use ($tab) {
+		$id = $tab->session;
 		$tab->delete();
-		Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'session=' . $current_pos_session->id()]));
-	}
+		Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'session=' . $id]));
+	}, $csrf_key);
 }
 
 $tabs = Tabs::listForSession($current_pos_session->id);
@@ -129,6 +138,7 @@ if ($tab) {
 	$tpl->assign('items', $tab->listItems());
 	$tpl->assign('existing_payments', $tab->listPayments());
 	$tpl->assign('remainder', $tab->getRemainder());
+	//var_dump($tab->listPaymentOptions()); exit;
 	$tpl->assign('payment_options', $tab->listPaymentOptions());
 	$tpl->assign('debt', $tab->getUserDebt());
 	$tpl->assign('missing_user', $tab->isUserIdMissing());

@@ -22,7 +22,7 @@
 	margin-right: auto;
 }
 
-.pos header .actions form {
+.pos header .actions {
 	display: flex;
 	justify-content: space-between;
 	gap: .7rem;
@@ -87,10 +87,6 @@
 .pos .products header button {
 	font-size: 1.5em;
 	border: none;
-}
-
-.pos form {
-	display: inline;
 }
 
 .pos .items table td, .pos .items table th {

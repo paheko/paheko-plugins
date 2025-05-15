@@ -44,7 +44,10 @@
 	<input type="hidden" name="rename_name" />
 </form>
 
+{form_errors}
+
 <section class="pos">
+	<form method="post" action="">
 	<section class="tab">
 		<header>
 			<div class="title">
@@ -62,7 +65,6 @@
 			{/if}
 
 			<div class="actions">
-				<form method="post">
 					<span class="id">Note #{$current_tab.id}</span>
 					{linkbutton title="Reçu" label=null shape="print" target="_dialog" href="./receipt.php?tab=%d"|args:$current_tab.id}
 				{if $current_tab.user_id}
@@ -86,14 +88,13 @@
 				Ce membre doit {$debt|money_currency_html|raw}
 				{linkbutton href="debts_history.php?user=%d"|args:$current_tab.user_id label="Historique des ardoises" shape="menu"}
 				{if !$current_tab.closed}
-					{linkbutton href="?id=%d&add_debt=1"|args:$current_tab.id label="Payer cette ardoise" shape="money"}
+					{button type="submit" name="add_debt" value="1" label="Payer cette ardoise" shape="money"}
 				{/if}
 			</p>
 			{/if}
 		</header>
 
 		<section class="items">
-			<form method="post">
 			<table class="list">
 				<thead>
 					<th></th>
@@ -127,7 +128,7 @@
 					<td class="money">{$item.total|escape|money_currency:false}</td>
 					<td class="actions">
 						{if !$current_tab.closed}
-							{linkbutton label="" shape="delete" href="?id=%d&delete_item=%d"|args:$current_tab.id,$item.id title="Cliquer pour supprimer la ligne"}
+							{button type="submit" label="" shape="delete" name="delete_item" value=$item.id title="Cliquer pour supprimer la ligne"}
 						{/if}
 					</td>
 				</tr>
@@ -156,7 +157,6 @@
 					</tr>
 				</tfoot>
 			</table>
-		</form>
 		</section>
 
 		<section class="payments">
@@ -169,7 +169,7 @@
 					<th>{$payment.method_name}</th>
 					<td>{$payment.amount|escape|money_currency}</td>
 					<td><em>{$payment.reference}</em></td>
-					<td class="actions">{if !$current_tab.closed}{linkbutton shape="delete" href="?id=%d&delete_payment=%d"|args:$current_tab.id,$payment.id title="Supprimer" label=""}{/if}</td>
+					<td class="actions">{if !$current_tab.closed}{button type="submit" shape="delete" label="" name="delete_payment" value=$payment.id title="Supprimer"}{/if}</td>
 				</tr>
 				{/foreach}
 				</tbody>
@@ -178,8 +178,7 @@
 
 		{if !$current_tab.closed}
 			{if $remainder && count($payment_options)}
-			<form method="post" action="" class="payment">
-				<fieldset>
+				<fieldset class="payment">
 					<legend>
 						{if $remainder < 0}
 							Reste {$remainder|escape|abs|money_currency} à rembourser
@@ -192,9 +191,9 @@
 						<dd>
 							<select name="method_id" id="f_method_id">
 								{foreach from=$payment_options item="method"}
-									<option value="{$method.id}" data-amount="{$method.amount|money_raw}" data-type="{$method.type}">
+									<option value="{$method.id}" data-max="{$method.max_amount|money_raw}" data-type="{$method.type}">
 										{$method.name}
-										{if $remainder > $method.amount}
+										{if $remainder > 0 && $remainder > $method.max_amount}
 											(jusqu'à {$method.amount|escape|money_currency:false})
 										{/if}
 									</option>
@@ -214,7 +213,6 @@
 						{button type="submit" name="pay" label="Enregistrer le paiement" shape="right" class="main" accesskey="P"}
 					</p>
 				</fieldset>
-			</form>
 			{elseif $remainder > 0}
 				<p class="error block">Aucun moyen de paiement possible : certains produits n'ont aucun moyen de paiement défini.</p>
 			{elseif $remainder < 0}
