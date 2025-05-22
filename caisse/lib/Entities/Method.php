@@ -22,6 +22,7 @@ class Method extends Entity
 	protected ?int $max = null;
 	protected ?string $account = null;
 	protected bool $enabled = false;
+	protected ?int $position = null;
 
 	const TYPE_TRACKED = 0;
 	const TYPE_CASH = 1;
@@ -51,6 +52,10 @@ class Method extends Entity
 			$source['account'] = Form::getSelectorValue($source['account']);
 		}
 
+		if (isset($source['position_present'])) {
+			$source['position'] = !empty($source['position']) ? 1 : null;
+		}
+
 		parent::importForm($source);
 	}
 
@@ -58,6 +63,19 @@ class Method extends Entity
 	public function selfCheck(): void
 	{
 		$this->assert(!empty($this->name) && trim($this->name) !== '', 'Le nom ne peut rester vide.');
+	}
+
+	public function save(bool $selfcheck = true): bool
+	{
+		$position_modified = $this->isModified('position');
+		$r = parent::save($selfcheck);
+
+		if ($r && $position_modified) {
+			$db = EntityManager::getInstance(static::class)->DB();
+			$db->update(self::TABLE, ['position' => null], 'id != ' . $this->id());
+		}
+
+		return $r;
 	}
 
 	public function delete(): bool

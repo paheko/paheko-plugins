@@ -303,8 +303,7 @@ class Tab extends Entity
 				WHEN max IS NOT NULL AND max > 0 AND payable > max THEN max -- We have to pay more than max allowed, then just return max
 				WHEN min IS NOT NULL AND payable < min THEN NULL -- We cannot use as the minimum required amount has not been reached
 				WHEN :left < 0 THEN MAX(:left, payable)
-				ELSE MIN(:left, payable) END AS max_amount,
-				CASE WHEN type = :cash THEN 1 ELSE 0 END AS is_cash
+				ELSE MIN(:left, payable) END AS max_amount
 			FROM (SELECT m.*, SUM(pt.amount) AS paid, SUM(i.total) AS payable
 				FROM @PREFIX_methods m
 				INNER JOIN @PREFIX_products_methods pm ON pm.method = m.id
@@ -312,8 +311,8 @@ class Tab extends Entity
 				LEFT JOIN @PREFIX_tabs_payments AS pt ON pt.tab = i.tab AND m.id = pt.method
 				WHERE m.enabled = 1 ' . $where . '
 				GROUP BY m.id
-				ORDER BY name COLLATE NOCASE
-			);'), ['id' => $this->id, 'left' => $remainder, 'cash' => Method::TYPE_CASH]);
+				ORDER BY position IS NOT NULL DESC, position, name COLLATE NOCASE
+			);'), ['id' => $this->id, 'left' => $remainder]);
 	}
 
 	public function rename(string $new_name, ?int $user_id) {

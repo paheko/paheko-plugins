@@ -194,7 +194,7 @@
 									<option value="{$method.id}"
 										data-max="{$method.max_amount|money_raw}"
 										data-type="{$method.type}"
-										{if $method.is_cash && empty($selected)}
+										{if $method.default && empty($selected)}
 											{assign var="selected" value=1}
 											selected="selected"
 										{/if}>
