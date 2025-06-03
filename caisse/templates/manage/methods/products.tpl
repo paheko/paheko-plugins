@@ -9,7 +9,7 @@
 <table class="list">
 	<thead>
 		<tr>
-			<td class="check"><input type="checkbox" title="Tout cocher / décocher" id="f_all" /><label for="f_all"></label></td>
+			<td class="check"><input type="checkbox" title="Tout cocher / décocher" aria-label="Tout cocher / décocher" id="f_all" /><label for="f_all"></label></td>
 			<th>Nom</th>
 			<td class="money">Prix</td>
 		</tr>

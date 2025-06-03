@@ -121,10 +121,10 @@ if (a = $('#f_amount')) {
 			}
 		}
 
-		g.toggle('form.payment .submit', diff <= 0);
-		g.toggle('form.payment .toomuch', diff > 0);
+		g.toggle('.payment .submit', diff <= 0);
+		g.toggle('.payment .toomuch', diff > 0);
 
-		document.querySelector('form.payment .toomuch b').innerText = g.formatMoney(diff);
+		document.querySelector('.payment .toomuch b').innerText = g.formatMoney(diff);
 	}
 
 	a.addEventListener('keyup', updatePaidAmount);
