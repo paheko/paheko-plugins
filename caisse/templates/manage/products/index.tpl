@@ -2,6 +2,7 @@
 
 {include file="../_nav.tpl" current='products'}
 
+
 <p class="actions">
 	{if $archived}
 		{linkbutton shape="eye" label="Voir les produits non archivés" href="?"}
@@ -9,6 +10,12 @@
 		{linkbutton shape="eye-off" label="Voir seulement les produits archivés" href="?archived=1"}
 	{/if}
 </p>
+<form action="" method="get" class="shortForm shortFormLeft">
+<fieldset>
+	<legend>Recherche</legend>
+	<p>{input type="search" name="q" placeholder="Nom du produit" default=$search} {button type="submit" label="Chercher" shape="right"}</p>
+</fieldset>
+</form>
 
 {include file="common/dynamic_list_head.tpl"}
 	<?php $category = null; ?>

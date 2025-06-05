@@ -56,7 +56,7 @@ class Products
 	}
 
 
-	static public function getList(bool $archived = false): DynamicList
+	static public function getList(bool $archived = false, ?string $search = null): DynamicList
 	{
 		$columns = [
 			'category' => [
@@ -82,9 +82,24 @@ class Products
 
 		$conditions = 'p.archived = ' . (int) $archived;
 
+		$search = is_string($search) ? trim($search) : null;
+		$search = $search ?: null;
+
+		if ($search !== null) {
+			$conditions .= ' AND p.name LIKE :search ESCAPE \'\\\'';
+		}
+
 		$list = POS::DynamicList($columns, '@PREFIX_products p INNER JOIN @PREFIX_categories c ON c.id = p.category', $conditions);
 		$list->orderBy('category', false);
 		$list->setTitle('Liste des produits');
+
+		if ($search !== null) {
+			$db = DB::getInstance();
+			$search = trim($search);
+			$search = '%' . $db->escapeLike($search, '\\') . '%';
+			$list->setParameter('search', $search);
+		}
+
 		return $list;
 	}
 
