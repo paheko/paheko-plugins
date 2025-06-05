@@ -10,6 +10,7 @@ $archived = !empty($_GET['archived']);
 $search = $_GET['q'] ?? null;
 $list = Products::getStockList($archived, $search);
 $list->loadFromQueryString();
+$list->setPageSize(null);
 
 $tpl->assign(compact('list', 'archived', 'search'));
 $tpl->assign('categories', Stock::listCategoriesValue());
