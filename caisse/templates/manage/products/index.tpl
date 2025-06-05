@@ -4,7 +4,7 @@
 
 <p class="actions">
 	{if $archived}
-		{linkbutton shape="eye" label="Voir tous les produits" href="?"}
+		{linkbutton shape="eye" label="Voir les produits non archivés" href="?"}
 	{else}
 		{linkbutton shape="eye-off" label="Voir seulement les produits archivés" href="?archived=1"}
 	{/if}
