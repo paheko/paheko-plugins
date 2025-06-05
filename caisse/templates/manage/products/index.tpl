@@ -2,19 +2,19 @@
 
 {include file="../_nav.tpl" current='products'}
 
+<nav class="tabs">
+	<aside>
+		{if $archived}
+			{linkbutton shape="eye" label="Voir les produits non archivés" href="?"}
+		{else}
+			{linkbutton shape="eye-off" label="Voir seulement les produits archivés" href="?archived=1"}
+		{/if}
+		{exportmenu right=true}
+	</aside>
+</nav>
 
-<p class="actions">
-	{if $archived}
-		{linkbutton shape="eye" label="Voir les produits non archivés" href="?"}
-	{else}
-		{linkbutton shape="eye-off" label="Voir seulement les produits archivés" href="?archived=1"}
-	{/if}
-</p>
-<form action="" method="get" class="shortForm shortFormLeft">
-<fieldset>
-	<legend>Recherche</legend>
+<form action="" method="get" class="shortFormLeft">
 	<p>{input type="search" name="q" placeholder="Nom du produit" default=$search} {button type="submit" label="Chercher" shape="right"}</p>
-</fieldset>
 </form>
 
 {include file="common/dynamic_list_head.tpl"}

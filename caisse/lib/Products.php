@@ -6,6 +6,8 @@ use Paheko\DB;
 use Paheko\DynamicList;
 use KD2\DB\EntityManager as EM;
 
+use Paheko\Plugin\Caisse\Entities\Product;
+
 class Products
 {
 	static public function listBuyableByCategory(): array
@@ -78,6 +80,41 @@ class Products
 			],
 			'id' => ['select' => 'p.id'],
 			'stock' => ['select' => 'p.stock'],
+			'num' => [
+				'select' => 'p.id',
+				'label' => 'Numéro unique',
+				'export' => true,
+			],
+			'code' => [
+				'select' => 'p.code',
+				'label' => 'Code barre',
+				'export' => true,
+			],
+			'description' => [
+				'select' => 'p.description',
+				'label' => 'Description',
+				'export' => true,
+			],
+			'purchase_price' => [
+				'select' => 'p.purchase_price',
+				'label' => 'Prix d\'achat unitaire',
+				'export' => true,
+			],
+			'stock2' => [
+				'select' => 'p.stock',
+				'label' => 'Stock',
+				'export' => true,
+			],
+			'archived' => [
+				'select' => 'CASE WHEN p.archived = 1 THEN \'Archivé\' END',
+				'label' => 'Archivé',
+				'export' => true,
+			],
+			'weight' => [
+				'select' => sprintf('CASE p.weight WHEN NOT NULL THEN p.weight WHEN %d THEN \'Poids demandé\' WHEN %d THEN \'Prix au poids\' END', Product::WEIGHT_REQUIRED, Product::WEIGHT_BASED_PRICE),
+				'label' => 'Poids',
+				'export' => true,
+			],
 		];
 
 		$conditions = 'p.archived = ' . (int) $archived;
