@@ -2,26 +2,27 @@
 
 {include file="../_nav.tpl" current='stock' subcurrent="products"}
 
-<p class="actions">
-	{exportmenu right=true table=true}
-</p>
+<nav class="tabs">
+	<aside>
+		{if $archived}
+			{linkbutton shape="eye" label="Voir les produits non archivés" href="?"}
+		{else}
+			{linkbutton shape="eye-off" label="Voir seulement les produits archivés" href="?archived=1"}
+		{/if}
+		{exportmenu right=true}
+	</aside>
+</nav>
 
-<table class="list">
-	<thead>
-		<tr>
-			<th>Nom</th>
-			<td>Prix unitaire</td>
-			<td>En stock</td>
-			<td>Valeur commerciale<br />(prix de vente)</td>
-			<td>Valeur du stock<br />(prix d'achat)</td>
-			<td></td>
-		</tr>
-	</thead>
-	<tbody>
+<form action="" method="get" class="shortFormLeft">
+	<p>{input type="search" name="q" placeholder="Nom du produit" default=$search} {button type="submit" label="Chercher" shape="right"}</p>
+</form>
+
+
+{include file="common/dynamic_list_head.tpl" disable_user_sort=true}
 	<?php $category = null; ?>
-	{foreach from=$list item="product"}
-		{if $category !== $product.category}
-			<?php $category = $product->category; $c = $categories[$category]; ?>
+	{foreach from=$list->iterate() item="product"}
+		{if $category !== $product.id_category}
+			<?php $category = $product->id_category; $c = $categories[$category]; ?>
 			<tr>
 				<th colspan="2"><h2 class="ruler">{$c.label}</h2></th>
 				<td class="num">{$c.stock}</td>

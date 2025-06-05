@@ -57,7 +57,21 @@ class Products
 			GROUP BY p.id ORDER BY category_name COLLATE U_NOCASE, name COLLATE U_NOCASE;', $join, $where)));
 	}
 
+	/**
+	 * Return list of products for stock view
+	 */
+	static public function getStockList(bool $archived = false, ?string $search = null): DynamicList
+	{
+		$list = self::getList($archived, $search);
+		$list->addConditions(' AND p.stock IS NOT NULL');
+		$list->addColumn('sale_value', ['select' => 'p.stock * p.price', 'label' => 'Valeur à la vente']);
+		$list->addColumn('stock_value', ['select' => 'p.stock * p.purchase_price', 'label' => 'Valeur du stock (à l\'achat)']);
+		return $list;
+	}
 
+	/**
+	 * Return list of products for management
+	 */
 	static public function getList(bool $archived = false, ?string $search = null): DynamicList
 	{
 		$columns = [
@@ -79,6 +93,7 @@ class Products
 				'label' => 'Quantité par défaut',
 			],
 			'id' => ['select' => 'p.id'],
+			'id_category' => ['select' => 'p.category'],
 			'stock' => ['select' => 'p.stock'],
 			'num' => [
 				'select' => 'p.id',

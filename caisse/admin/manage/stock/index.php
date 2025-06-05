@@ -6,7 +6,12 @@ use Paheko\Plugin\Caisse\Stock;
 
 require __DIR__ . '/../_inc.php';
 
-$tpl->assign('list', Products::listByCategory(false, true));
+$archived = !empty($_GET['archived']);
+$search = $_GET['q'] ?? null;
+$list = Products::getStockList($archived, $search);
+$list->loadFromQueryString();
+
+$tpl->assign(compact('list', 'archived', 'search'));
 $tpl->assign('categories', Stock::listCategoriesValue());
 
 $tpl->display(PLUGIN_ROOT . '/templates/manage/stock/index.tpl');
