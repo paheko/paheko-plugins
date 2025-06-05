@@ -55,6 +55,39 @@ class Products
 			GROUP BY p.id ORDER BY category_name COLLATE U_NOCASE, name COLLATE U_NOCASE;', $join, $where)));
 	}
 
+
+	static public function getList(bool $archived = false): DynamicList
+	{
+		$columns = [
+			'category' => [
+				'select' => 'c.name',
+				'label' => 'Catégorie',
+				'order' => 'c.name COLLATE U_NOCASE %s, name COLLATE U_NOCASE %1$s',
+			],
+			'name' => [
+				'select' => 'p.name',
+				'label' => 'Nom',
+			],
+			'price' => [
+				'select' => 'p.price',
+				'label' => 'Prix unitaire',
+			],
+			'qty' => [
+				'select' => 'p.qty',
+				'label' => 'Quantité par défaut',
+			],
+			'id' => ['select' => 'p.id'],
+			'stock' => ['select' => 'p.stock'],
+		];
+
+		$conditions = 'p.archived = ' . (int) $archived;
+
+		$list = POS::DynamicList($columns, '@PREFIX_products p INNER JOIN @PREFIX_categories c ON c.id = p.category', $conditions);
+		$list->orderBy('category', false);
+		$list->setTitle('Liste des produits');
+		return $list;
+	}
+
 	static public function get(int $id): ?Entities\Product
 	{
 		return EM::findOneById(Entities\Product::class, $id);

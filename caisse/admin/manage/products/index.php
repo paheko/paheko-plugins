@@ -5,6 +5,10 @@ use Paheko\Plugin\Caisse\Products;
 
 require __DIR__ . '/../_inc.php';
 
-$tpl->assign('list', Products::listByCategory(false));
+$archived = !empty($_GET['archived']);
+$list = Products::getList($archived);
+$list->loadFromQueryString();
+
+$tpl->assign(compact('list', 'archived'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/manage/products/index.tpl');
