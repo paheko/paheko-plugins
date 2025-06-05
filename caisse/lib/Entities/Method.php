@@ -21,8 +21,8 @@ class Method extends Entity
 	protected ?int $min = null;
 	protected ?int $max = null;
 	protected ?string $account = null;
-	protected bool $enabled = false;
-	protected ?int $position = null;
+	protected bool $enabled = true;
+	protected bool $is_default = false;
 
 	const TYPE_TRACKED = 0;
 	const TYPE_CASH = 1;
@@ -52,8 +52,8 @@ class Method extends Entity
 			$source['account'] = Form::getSelectorValue($source['account']);
 		}
 
-		if (isset($source['position_present'])) {
-			$source['position'] = !empty($source['position']) ? 1 : null;
+		if (isset($source['is_default_present'])) {
+			$source['is_default'] = !empty($source['is_default']);
 		}
 
 		parent::importForm($source);
@@ -67,12 +67,12 @@ class Method extends Entity
 
 	public function save(bool $selfcheck = true): bool
 	{
-		$position_modified = $this->isModified('position');
+		$default_modified = $this->isModified('is_default');
 		$r = parent::save($selfcheck);
 
-		if ($r && $position_modified) {
+		if ($r && $default_modified) {
 			$db = EntityManager::getInstance(static::class)->DB();
-			$db->update(self::TABLE, ['position' => null], 'id != ' . $this->id());
+			$db->update(self::TABLE, ['is_default' => 0], 'id != ' . $this->id());
 		}
 
 		return $r;

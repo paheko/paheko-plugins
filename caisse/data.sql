@@ -7,9 +7,9 @@ INSERT INTO @PREFIX_products (category, name, price) VALUES
 	(4, "Dérailleur (avant, arrière)", 1200),
 	(4, "Panier", 1500);
 
-INSERT INTO @PREFIX_methods (id, name, type, account, position) VALUES (1, 'Espèces', 1, '530', 1);
-INSERT INTO @PREFIX_methods (id, name, type, account, position) VALUES (2, 'Chèque', 0, '5112', 2);
-INSERT INTO @PREFIX_methods (id, name, type, account, position) VALUES (3, 'Ardoise', 2, '4110', 3);
+INSERT INTO @PREFIX_methods (id, name, type, account, is_default, enabled) VALUES (1, 'Espèces', 1, '530', 1, 1);
+INSERT INTO @PREFIX_methods (id, name, type, account, is_default, enabled) VALUES (2, 'Chèque', 0, '5112', 0, 1);
+INSERT INTO @PREFIX_methods (id, name, type, account, is_default, enabled) VALUES (3, 'Ardoise', 2, '4110', 0, 1);
 
 -- Ajout espèces/chèque/dette
 INSERT INTO @PREFIX_products_methods (product, method) SELECT id, 1 FROM @PREFIX_products;

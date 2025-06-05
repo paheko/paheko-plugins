@@ -311,7 +311,7 @@ class Tab extends Entity
 				LEFT JOIN @PREFIX_tabs_payments AS pt ON pt.tab = i.tab AND m.id = pt.method
 				WHERE m.enabled = 1 ' . $where . '
 				GROUP BY m.id
-				ORDER BY position IS NOT NULL DESC, position, name COLLATE NOCASE
+				ORDER BY name COLLATE NOCASE
 			);'), ['id' => $this->id, 'left' => $remainder]);
 	}
 

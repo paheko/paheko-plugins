@@ -13,7 +13,7 @@
 				Si décoché, ce moyen de paiement ne sera pas utilisable dans la caisse.
 			</dd>
 
-			{input type="checkbox" name="position" value=1 label="Moyen de paiement par défaut" source=$method}
+			{input type="checkbox" name="is_default" value=1 label="Moyen de paiement par défaut" source=$method}
 			<dd class="help">
 				Si coché, ce moyen de paiement sera pré-selectionné pour chaque nouveau paiement dans la caisse.
 			</dd>
