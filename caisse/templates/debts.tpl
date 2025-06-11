@@ -2,6 +2,7 @@
 
 <nav class="tabs">
 	<aside>
+		{exportmenu}
 		{linkbutton shape="left" href="./" label="Caisse"}
 	</aside>
 	<ul>

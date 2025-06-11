@@ -150,7 +150,6 @@ class Tabs
 				'label' => 'Nom',
 			],
 			'user_id' => [],
-			'method' => [],
 			'account' => [],
 			'amount' => [
 				'label' => 'Montant',
