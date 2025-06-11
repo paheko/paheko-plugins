@@ -208,7 +208,7 @@ class Tab extends Entity
 		return DB::getInstance()->test(TabItem::TABLE, 'id_fee IS NOT NULL AND tab = ?', $this->id());
 	}
 
-	public function pay(int $method_id, int $amount, ?string $reference, bool $auto_close = true): void
+	public function pay(int $method_id, int $amount, ?string $reference, bool $auto_close = false, bool $force_tab_name = false): void
 	{
 		if ($this->closed) {
 			throw new UserException('Il n\'est pas possible de modifier une note clôturée.');
@@ -264,7 +264,7 @@ class Tab extends Entity
 		]);
 
 		if ($remainder - $amount === 0 && $auto_close) {
-			$this->close();
+			$this->close($force_tab_name);
 		}
 	}
 
@@ -332,12 +332,16 @@ class Tab extends Entity
 		$item->save();
 	}
 
-	public function close()
+	public function close(bool $force_tab_name = false)
 	{
 		$remainder = $this->getRemainder();
 
 		if ($remainder != 0) {
 			throw new UserException(sprintf("Impossible de clôturer la note: reste %s € à régler.", $remainder / 100));
+		}
+
+		if ($force_tab_name && empty($this->name) && empty($this->user_id)) {
+			throw new UserException('Impossible de clôturer la note : aucun nom n\'a été fourni.');
 		}
 
 		return DB::getInstance()->preparedQuery(POS::sql('UPDATE @PREFIX_tabs SET closed = datetime(\'now\',\'localtime\') WHERE id = ?;'), [$this->id]);

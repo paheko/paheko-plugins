@@ -93,7 +93,7 @@ elseif ($tab) {
 			get_amount($_POST['amount'] ?? 0),
 			$_POST['reference'] ?? null,
 			$plugin->getConfig('auto_close_tabs') ?? false,
-			$plugin->getConfig('debt_account')
+			$plugin->getConfig('force_tab_name') ?? false
 		);
 	}, $csrf_key, $url);
 
@@ -109,8 +109,8 @@ elseif ($tab) {
 		$tab->renameItem((int) key($_POST['rename_item']), current($_POST['rename_item']));
 	}, $csrf_key, $url);
 
-	$form->runIf('close', function () use ($tab) {
-		$tab->close();
+	$form->runIf('close', function () use ($tab, $plugin) {
+		$tab->close($plugin->getConfig('force_tab_name') ?? false);
 	}, $csrf_key, $url);
 
 	$form->runIf('reopen', function () use ($tab) {

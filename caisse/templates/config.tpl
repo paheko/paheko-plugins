@@ -25,7 +25,8 @@
 				Utiliser ce réglage si vous avez des bénévoles partageant le même compte membre.
 			</dd>
 			{input type="checkbox" name="auto_close_tabs" label="Clôturer automatiquement les notes de caisse une fois qu'elles sont entièrement réglées" default=$plugin.config.auto_close_tabs value=1}
-			</dd>
+			{input type="checkbox" name="force_tab_name" label="Exiger un nom pour chaque note" default=$plugin.config.force_tab_name value=1}
+			<dd class="help">Si cette case est cochée, une note ne pourra être clôturée si elle ne comporte pas de nom.</dd>
 		</dl>
 	</fieldset>
 	<p class="submit">
