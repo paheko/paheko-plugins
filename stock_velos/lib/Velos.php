@@ -345,8 +345,8 @@ class Velos
 		$list = new DynamicList($columns, $tables, $conditions);
 		$list->orderBy('date_sortie', true);
 		$list->setModifier(function (&$row) {
-			$row->date_sortie = Entity::filterUserDateValue($row->date_sortie, Date::class);
-			$row->date_entree = Entity::filterUserDateValue($row->date_entree, Date::class);
+			$row->date_sortie = Entity::filterUserDateValue($row->date_sortie ?? null, Date::class);
+			$row->date_entree = Entity::filterUserDateValue($row->date_entree ?? null, Date::class);
 		});
 		return $list;
 	}
