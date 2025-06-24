@@ -4,6 +4,7 @@ namespace Paheko\Plugin\PIM;
 
 use Paheko\Entities\Plugin;
 use Paheko\Entities\Users\User;
+use Paheko\UserException;
 use Paheko\Users\Session;
 use Paheko\DB;
 use Paheko\Utils;

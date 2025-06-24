@@ -6,6 +6,7 @@ use Paheko\Plugin\PIM\ChangesTracker;
 
 use Paheko\DB;
 use Paheko\Entity;
+use Paheko\UserException;
 use Paheko\Utils;
 use KD2\DB\Date;
 use KD2\Graphics\Image;
