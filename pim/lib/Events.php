@@ -5,8 +5,10 @@ namespace Paheko\Plugin\PIM;
 use Paheko\Plugin\PIM\Entities\Event;
 use Paheko\Plugin\PIM\Entities\Event_Category;
 use Paheko\DB;
+use Paheko\UserException;
 use Paheko\Utils;
 use Paheko\ValidationException;
+
 use DateTime;
 use DateTimezone;
 use Sabre\VObject;

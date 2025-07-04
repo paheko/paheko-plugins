@@ -6,6 +6,7 @@ use Paheko\Entities\Plugin;
 use Paheko\Entities\Users\User;
 use Paheko\Users\Session;
 use Paheko\DB;
+use Paheko\UserException;
 use Paheko\Utils;
 use Paheko\Users\Users;
 
