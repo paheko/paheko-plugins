@@ -6,6 +6,7 @@ use Paheko\Plugin\PIM\ChangesTracker;
 use Paheko\Plugin\PIM\Events;
 use Paheko\Entity;
 use Paheko\UserException;
+use Paheko\Utils;
 use DateTime;
 
 use Sabre\VObject;
