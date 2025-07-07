@@ -15,7 +15,6 @@ use Paheko\Accounting\Transactions;
 use Paheko\CSV_Custom;
 use Paheko\DB;
 use Paheko\DynamicList;
-use Paheko\Entity;
 use Paheko\Plugins;
 use Paheko\Utils;
 use Paheko\UserException;
@@ -305,12 +304,12 @@ class Tracking
 			unset($columns['notes']['export']);
 		}
 
-		if (!empty($filters['start']) && ($start = Entity::filterUserDateValue($filters['start']))) {
+		if (!empty($filters['start']) && ($start = Utils::parseDateTime($filters['start']))) {
 			$conditions .= ' AND e.date >= :start';
 			$params['start'] = $start;
 		}
 
-		if (!empty($filters['end']) && ($end = Entity::filterUserDateValue($filters['end']))) {
+		if (!empty($filters['end']) && ($end = Utils::parseDateTime($filters['end']))) {
 			$conditions .= ' AND e.date <= :end';
 			$params['end'] = $end;
 		}
@@ -413,12 +412,12 @@ class Tracking
 			'order' => null,
 		];
 
-		if (!empty($filters['start']) && ($start = Entity::filterUserDateValue($filters['start']))) {
+		if (!empty($filters['start']) && ($start = Utils::parseDateTime($filters['start']))) {
 			$conditions .= ' AND e.date >= :start';
 			$params['start'] = $start;
 		}
 
-		if (!empty($filters['end']) && ($end = Entity::filterUserDateValue($filters['end']))) {
+		if (!empty($filters['end']) && ($end = Utils::parseDateTime($filters['end']))) {
 			$conditions .= ' AND e.date <= :end';
 			$params['end'] = $end;
 		}

@@ -36,8 +36,8 @@ elseif (count($years) == 1) {
 }
 
 if ($year) {
-	$start = qg('start') ? Entity::filterUserDateValue(qg('start')) : ($year->start_date ?? null);
-	$end = qg('end') ? Entity::filterUserDateValue(qg('end')) : ($year->end_date ?? null);
+	$start = qg('start') ? Utils::parseDateTime(qg('start')) : ($year->start_date ?? null);
+	$end = qg('end') ? Utils::parseDateTime(qg('end')) : ($year->end_date ?? null);
 
 	if ($start) {
 		$start = Date::createFromInterface($start);

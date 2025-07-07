@@ -147,8 +147,8 @@ class Event extends Entity
 		$this->set('timezone', $tz);
 
 		if (!empty($qs['start'])) {
-			$start = $this->filterUserDateValue($qs['start']);
-			$end = $this->filterUserDateValue($qs['end']);
+			$start = Utils::parseDateTime($qs['start']);
+			$end = Utils::parseDateTime($qs['end']);
 		}
 
 		$start ??= new \DateTime;

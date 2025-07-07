@@ -3,7 +3,6 @@
 namespace Paheko\Plugin\Stock_Velos;
 
 use Paheko\DB;
-use Paheko\Entity;
 use Paheko\UserException;
 use Paheko\Utils;
 use Paheko\DynamicList;
@@ -256,7 +255,7 @@ class Velos
 		}
 
 		$list->setModifier(function (&$row) {
-			$row->date_entree = Entity::filterUserDateValue($row->date_entree ?? null, Date::class);
+			$row->date_entree = Utils::parseDateTime($row->date_entree ?? null, Date::class);
 		});
 		return $list;
 	}
@@ -345,8 +344,8 @@ class Velos
 		$list = new DynamicList($columns, $tables, $conditions);
 		$list->orderBy('date_sortie', true);
 		$list->setModifier(function (&$row) {
-			$row->date_sortie = Entity::filterUserDateValue($row->date_sortie ?? null, Date::class);
-			$row->date_entree = Entity::filterUserDateValue($row->date_entree ?? null, Date::class);
+			$row->date_sortie = Utils::parseDateTime($row->date_sortie ?? null, Date::class);
+			$row->date_entree = Utils::parseDateTime($row->date_entree ?? null, Date::class);
 		});
 		return $list;
 	}
