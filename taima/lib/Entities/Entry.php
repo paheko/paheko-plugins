@@ -5,6 +5,7 @@ namespace Paheko\Plugin\Taima\Entities;
 use Paheko\Entity;
 use Paheko\Form;
 use Paheko\Users\Users;
+use Paheko\Utils;
 
 use KD2\DB\Date;
 
