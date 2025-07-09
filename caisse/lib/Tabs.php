@@ -221,4 +221,58 @@ class Tabs
 
 		return $list;
 	}
+
+
+	static public function listStats(int $year, string $period = 'year'): DynamicList
+	{
+		$columns = [
+			'count' => [
+				'label' => 'Nombre de notes',
+				'select' => 'COUNT(ti.id)',
+			],
+			'avg_products_count' => [
+				'label' => 'Nombre moyen de produits par note',
+				'select' => 'AVG(ti.qty)',
+			],
+			'price' => [
+				'label' => 'Montant moyen du produit',
+				'select' => 'AVG(ti.price)',
+			],
+			'sum' => [
+				'label' => 'Montant moyen de la note',
+				'select' => 'SUM(ti.total)/COUNT(t.id)',
+			],
+			'avg_open_time' => [
+				'label' => 'Heure d\'ouverture moyenne',
+				'select' => 'AVG(strftime(\'%H.%M\', t.opened))',
+			],
+			'avg_close_time' => [
+				'label' => 'Heure de fermeture moyenne',
+				'select' => 'AVG(strftime(\'%H\', t.closed)+(strftime(\'%M\', t.closed)/60))',
+			],
+		];
+
+		$list = POS::DynamicList($columns, '@PREFIX_tabs t INNER JOIN @PREFIX_tabs_items ti ON ti.tab = t.id', 'strftime(\'%Y\', t.opened) = :year AND t.closed IS NOT NULL');
+		$list->orderBy('count', true);
+		$list->setParameter('year', (string)$year);
+		$list->setTitle(sprintf('Notes %d', $year));
+		POS::applyPeriodToList($list, $period, 't.opened', 't.session');
+
+		// List all sales
+		if ($period === 'all') {
+			$columns['date_short'] = [
+				'select' => 'strftime(\'%d/%m/%Y\', t.opened)',
+				'label'  => 'Date',
+			];
+			$columns['session'] = [
+				'select' => 't.session',
+				'label'  => 'Session',
+			];
+			$list->setColumns($columns);
+			$list->orderBy('date_short', true);
+		}
+
+		return $list;
+	}
+
 }

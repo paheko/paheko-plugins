@@ -15,6 +15,7 @@
 		<li class="{if $page === 'sales_products'}current{/if}">{link href="?year=%d&page=sales_products&period=%s"|args:$year:$period label="Ventes, par produit"}</li>
 		<li class="{if $page === 'methods_in'}current{/if}">{link href="?year=%d&page=methods_in&period=%s"|args:$year:$period label="Encaissements"}</li>
 		<li class="{if $page === 'methods_out'}current{/if}">{link href="?year=%d&page=methods_out&period=%s"|args:$year:$period label="Décaissements"}</li>
+		<li class="{if $page === 'tabs'}current{/if}">{link href="?year=%d&page=tabs&period=%s"|args:$year:$period label="Notes"}</li>
 	</ul>
 
 	<ul class="sub">
@@ -22,6 +23,7 @@
 		<li class="{if $period === 'semester'}current{/if}">{link href="?year=%d&page=%s&period=semester"|args:$year:$page label="Par semestre"}</li>
 		<li class="{if $period === 'quarter'}current{/if}">{link href="?year=%d&page=%s&period=quarter"|args:$year:$page label="Par trimestre"}</li>
 		<li class="{if $period === 'month'}current{/if}">{link href="?year=%d&page=%s&period=month"|args:$year:$page label="Par mois"}</li>
+		<li class="{if $period === 'day'}current{/if}">{link href="?year=%d&page=%s&period=day"|args:$year:$page label="Par jour"}</li>
 		<li class="{if $period === 'all'}current{/if}">{link href="?year=%d&page=%s&period=all"|args:$year:$page label="Tout"}</li>
 	</ul>
 	{/if}
@@ -68,6 +70,9 @@
 					{$value|weight:false:true}
 				{elseif $key === 'tab'}
 					{link href="../tab.php?id=%d"|args:$value label=$value class="num"}
+				{elseif $key === 'avg_open_time' || $key === 'avg_close_time'}
+					<?php $h = floor($value); $value = sprintf('%02d', $h) . ':' . sprintf('%02d', ($value - $h)*60); ?>
+					{$value}
 				{else}
 					{$value}
 				{/if}

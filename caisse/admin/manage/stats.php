@@ -5,6 +5,7 @@ use Paheko\Plugin\Caisse\Categories;
 use Paheko\Plugin\Caisse\Methods;
 use Paheko\Plugin\Caisse\Products;
 use Paheko\Plugin\Caisse\Sessions;
+use Paheko\Plugin\Caisse\Tabs;
 
 require __DIR__ . '/_inc.php';
 
@@ -42,6 +43,9 @@ if ($year) {
 	}
 	elseif ($page === 'sales_products') {
 		$list = Products::listSales($year, $period);
+	}
+	elseif ($page === 'tabs') {
+		$list = Tabs::listStats($year, $period);
 	}
 
 	if ($list) {

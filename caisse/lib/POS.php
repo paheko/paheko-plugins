@@ -65,6 +65,10 @@ class POS
 			$group = 'strftime(\'%Y-%m-01\', ' . $column_name . ')';
 			$label = 'Mois';
 		}
+		elseif ($period === 'day') {
+			$group = 'strftime(\'%d/%m/%Y\', ' . $column_name . ')';
+			$label = 'Jour';
+		}
 		elseif ($period === 'year') {
 			$group = null;
 			$label = 'Année';
@@ -76,7 +80,13 @@ class POS
 		}
 
 		if ($group) {
-			$list->groupBy($group . ', ' . $list->getGroupBy());
+			$old = $list->getGroupBy();
+
+			if ($old) {
+				$group .= ', ' . $old;
+			}
+
+			$list->groupBy($group);
 
 			$list->addColumn('period', [
 				'select' => $group,
