@@ -71,6 +71,8 @@
 					{$value|weight:false:true}
 				{elseif $key === 'tab'}
 					{link href="../tab.php?id=%d"|args:$value label=$value class="num"}
+				{elseif $key === 'session'}
+					{link href="../session.php?id=%d"|args:$value label=$value class="num"}
 				{elseif $key === 'avg_open_time' || $key === 'avg_close_time'}
 					<?php $h = floor($value); $value = sprintf('%02d', $h) . ':' . sprintf('%02d', ($value - $h)*60); ?>
 					{$value}

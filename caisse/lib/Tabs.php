@@ -228,19 +228,19 @@ class Tabs
 		$columns = [
 			'count' => [
 				'label' => 'Nombre de notes',
-				'select' => 'COUNT(ti.id)',
+				'select' => 'COUNT(*)',
 			],
-			'avg_products_count' => [
-				'label' => 'Nombre moyen de produits par note',
-				'select' => 'AVG(ti.qty)',
+			'products_count' => [
+				'label' => 'Nombre de produits',
+				'select' => 'SUM(ti.qty)',
 			],
 			'price' => [
-				'label' => 'Montant moyen du produit',
+				'label' => 'Montant moyen d\'un produit',
 				'select' => 'AVG(ti.price)',
 			],
 			'sum' => [
 				'label' => 'Montant moyen de la note',
-				'select' => 'SUM(ti.total)/COUNT(t.id)',
+				'select' => 'SUM(ti.total)/COUNT(*)',
 			],
 			'avg_open_time' => [
 				'label' => 'Heure d\'ouverture moyenne',
@@ -254,6 +254,7 @@ class Tabs
 
 		$list = POS::DynamicList($columns, '@PREFIX_tabs t INNER JOIN @PREFIX_tabs_items ti ON ti.tab = t.id', 'strftime(\'%Y\', t.opened) = :year AND t.closed IS NOT NULL AND ti.total > 0');
 		$list->orderBy('count', true);
+		//$list->groupBy('t.session');
 		$list->setParameter('year', (string)$year);
 		$list->setTitle(sprintf('Notes %d', $year));
 
