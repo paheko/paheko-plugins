@@ -23,6 +23,7 @@
 		<li class="{if $period === 'semester'}current{/if}">{link href="?year=%d&page=%s&period=semester"|args:$year:$page label="Par semestre"}</li>
 		<li class="{if $period === 'quarter'}current{/if}">{link href="?year=%d&page=%s&period=quarter"|args:$year:$page label="Par trimestre"}</li>
 		<li class="{if $period === 'month'}current{/if}">{link href="?year=%d&page=%s&period=month"|args:$year:$page label="Par mois"}</li>
+		<li class="{if $period === 'weekday'}current{/if}">{link href="?year=%d&page=%s&period=weekday"|args:$year:$page label="Par jour de la semaine"}</li>
 		<li class="{if $period === 'day'}current{/if}">{link href="?year=%d&page=%s&period=day"|args:$year:$page label="Par jour"}</li>
 		<li class="{if $period === 'all'}current{/if}">{link href="?year=%d&page=%s&period=all"|args:$year:$page label="Tout"}</li>
 	</ul>

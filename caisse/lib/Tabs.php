@@ -252,11 +252,27 @@ class Tabs
 			],
 		];
 
-		$list = POS::DynamicList($columns, '@PREFIX_tabs t INNER JOIN @PREFIX_tabs_items ti ON ti.tab = t.id', 'strftime(\'%Y\', t.opened) = :year AND t.closed IS NOT NULL');
+		$list = POS::DynamicList($columns, '@PREFIX_tabs t INNER JOIN @PREFIX_tabs_items ti ON ti.tab = t.id', 'strftime(\'%Y\', t.opened) = :year AND t.closed IS NOT NULL AND ti.total > 0');
 		$list->orderBy('count', true);
 		$list->setParameter('year', (string)$year);
 		$list->setTitle(sprintf('Notes %d', $year));
-		POS::applyPeriodToList($list, $period, 't.opened', 't.session');
+
+		if ($period === 'all' || $period === 'day') {
+			$columns['weekday'] = [
+				'label' => 'Jour de la semaine',
+				'select' => 'CASE strftime(\'%w\', t.opened)
+					WHEN \'0\' THEN \'7-dimanche\'
+					WHEN \'1\' THEN \'1-lundi\'
+					WHEN \'2\' THEN \'2-mardi\'
+					WHEN \'3\' THEN \'3-mercredi\'
+					WHEN \'4\' THEN \'4-jeudi\'
+					WHEN \'5\' THEN \'5-vendredi\'
+					WHEN \'6\' THEN \'6-samedi\'
+					END',
+			];
+		}
+
+		$list->setColumns($columns);
 
 		// List all sales
 		if ($period === 'all') {
@@ -271,6 +287,7 @@ class Tabs
 			$list->setColumns($columns);
 			$list->orderBy('date_short', true);
 		}
+		POS::applyPeriodToList($list, $period, 't.opened', 't.session');
 
 		return $list;
 	}
