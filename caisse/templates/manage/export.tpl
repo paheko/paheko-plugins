@@ -1,6 +1,4 @@
-{include file="_head.tpl" title="Export compta"}
-
-{include file="./_nav.tpl" current='export'}
+{include file="_head.tpl" title="Export des données comptable"}
 
 <form method="post" action="{$self_url}">
 	<fieldset>

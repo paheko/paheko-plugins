@@ -13,6 +13,10 @@
 		{/if}
 			{exportmenu right=true}
 	</aside>
+	{elseif $current === 'sync'}
+	<aside>
+		{linkbutton shape="export" href="export.php" label="Export" target="_dialog"}
+	</aside>
 	{elseif $current == 'categories'}
 	<aside>
 		{linkbutton href="edit.php?new" label="Nouvelle catégorie" shape="plus"}
@@ -43,7 +47,6 @@
 		<li{if $current == 'methods'} class="current"{/if}><a href="{$plugin_admin_url}manage/methods/">Moyens de paiement</a></li>
 		<li{if $current == 'stock' || $current === 'history'} class="current"{/if}><a href="{$plugin_admin_url}manage/stock/">Stock</a></li>
 		<li{if $current == 'sync'} class="current"{/if}><a href="{$plugin_admin_url}manage/sync.php">Comptabilité</a></li>
-		<li{if $current == 'export'} class="current"{/if}><a href="{$plugin_admin_url}manage/export.php">Export données</a></li>
 		{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
 		<li{if $current == 'config'} class="current"{/if}><a href="{$plugin_admin_url}config.php">Configuration</a></li>
 		{/if}
