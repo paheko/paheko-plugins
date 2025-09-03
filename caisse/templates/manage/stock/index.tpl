@@ -18,7 +18,17 @@
 </form>
 
 
-{include file="common/dynamic_list_head.tpl" disable_user_sort=true}
+<table class="list">
+	<thead>
+		<tr>
+			<th>Produit</th>
+			<td>Prix unitaire</td>
+			<td>Quantité par défaut</td>
+			<td>Valeur à la vente</td>
+			<td>Valeur du stock (à l'achat)</td>
+			<td></td>
+		</tr>
+	</thead>
 	<?php $category = null; ?>
 	{foreach from=$list->iterate() item="product"}
 		{if $category !== $product.id_category}
