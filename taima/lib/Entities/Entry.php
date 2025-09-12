@@ -60,6 +60,10 @@ class Entry extends Entity
 
 	public function setDateString(string $date)
 	{
+		if (trim($date) === '') {
+			return;
+		}
+
 		$ts = Utils::parseDateTime($date, Date::class);
 
 		$this->assert($ts !== null, 'Invalid date string: ' . $date);
