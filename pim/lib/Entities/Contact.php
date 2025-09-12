@@ -252,10 +252,6 @@ class Contact extends Entity
 			return;
 		}
 
-		//	var_dump($name->getValue()); exit;
-		if (strpos($obj->N->getValue(), 'rustine') !== false) {
-		}
-
 		$name = explode(';', $name->getValue());
 
 		if (empty($name[1]) && !empty($name[0])) {
