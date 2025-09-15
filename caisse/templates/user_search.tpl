@@ -1,14 +1,14 @@
 {include file="_head.tpl" title="Renommer la note"}
 
-<form method="post" action="{$self_url}" style="clear: both" data-focus="1">
-	<p class="actions">
-		{linkbutton shape="plus" label="Nouveau membre" href="!users/new.php?tab=1" target="_dialog"}
-	</p>
-	<h2 class="ruler">
+<form method="post" action="{$self_url}" class="pos-user-search" data-focus="1">
+	<p class="search">
 		{input type="text" placeholder="Recherche rapide de membre" value=$query name="q"}
 		{button type="submit" label="Chercher" shape="search"}
-		{button shape="edit" label="Renommer sans lier à un membre" id="rename_no_user" style="font-size: .7em"}
-	</h2>
+		{button shape="edit" label="Renommer sans lier à un membre" id="rename_no_user"}
+	</p>
+	<p>
+		{linkbutton shape="plus" label="Nouveau membre" href="!users/new.php?tab=1" target="_dialog"}
+	</p>
 </form>
 
 {if count($list)}

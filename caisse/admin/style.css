@@ -237,3 +237,23 @@
 	}
 
 }
+
+.pos-user-search {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1em;
+}
+
+.pos-user-search input[name="q"] {
+	font-size: 1.6em;
+}
+
+.pos-user-search .search button {
+	font-size: 1.2em;
+}
+
+.pos-user-search #rename_no_user {
+	font-size: .9em;
+}
