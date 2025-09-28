@@ -102,6 +102,7 @@ class Calendar
 			22 => ['Journée sans voiture', '🚵‍♀️', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_sans_voiture'],
 			23 => ['Journée de la bisexualité', '🏳️‍⚧️', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_de_la_bisexualit%C3%A9'],
 			26 => ['Journée européenne des langues', '🗣️', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_europ%C3%A9enne_des_langues'],
+			28 => ['Journée internationale pour le droit à l\'IVG', '📣✊♀️', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_mondiale_pour_le_droit_%C3%A0_l%27avortement'],
 			30 => ['Journée nationale de la vérité et de la réconciliation (Canada)', '👐🏽', 'https://fr.wikipedia.org/wiki/Journ%C3%A9e_nationale_de_la_v%C3%A9rit%C3%A9_et_de_la_r%C3%A9conciliation'],
 		],
 		10 => [
