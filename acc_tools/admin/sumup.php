@@ -15,6 +15,7 @@ $form->runIf('load', function() {
 	}
 
 	$group_fees = (bool) f('group_fees');
+	$only_paid = (bool) f('only_paid');
 
 	$fp = fopen($_FILES['csv']['tmp_name'], 'r');
 	$first_line = fgets($fp, 4096);
@@ -44,13 +45,14 @@ $form->runIf('load', function() {
 	$fp = fopen('php://temp', 'w+');
 	$fees_sum = 0;
 
-	fputcsv($fp, ['Date', 'Libellé', 'Compte de débit', 'Compte de crédit', 'Montant', 'Référence paiement', 'Remarques'], ',', '"', '\\');
+	fputcsv($fp, ['Date', 'Libellé', 'Compte de débit', 'Compte de crédit', 'Montant', 'Référence paiement', 'Remarques', 'Statut'], ',', '"', '\\');
 
 	foreach (CSV::import($_FILES['csv']['tmp_name'], $columns, $mandatory_columns) as $row) {
 		$row = (object)$row;
 
 		// Ignore failed payments
-		if ($row->status !== 'Payé') {
+		if ($only_paid
+			&& $row->status !== 'Payé') {
 			continue;
 		}
 
@@ -69,17 +71,17 @@ $form->runIf('load', function() {
 		$amount = preg_replace('/[\s ]+/U', '', $row->total);
 		$amount = Utils::moneyToInteger($amount);
 
-		fputcsv($fp, [date('d/m/Y', $date), $label, '', '', Utils::money_format($amount, ',', ''), $row->ref, ''], ',', '"', '\\');
+		fputcsv($fp, [date('d/m/Y', $date), $label, '', '', Utils::money_format($amount, ',', ''), $row->ref, '', $row->status], ',', '"', '\\');
 
 		if ($fee && !$group_fees) {
 			if ($fees_sum) {
-				fputcsv($fp, [date('d/m/Y', $date), 'Commission SumUp sur transaction', '', '', Utils::money_format($fee, ',', ''), $row->ref, ''], ',', '"', '\\');
+				fputcsv($fp, [date('d/m/Y', $date), 'Commission SumUp sur transaction', '', '', Utils::money_format($fee, ',', ''), $row->ref, '', ''], ',', '"', '\\');
 			}
 		}
 	}
 
 	if ($fees_sum && $group_fees) {
-		fputcsv($fp, [date('d/m/Y', $date), 'Commission SumUp sur transactions', '', '', Utils::money_format($fees_sum, ',', ''), '', ''], ',', '"', '\\');
+		fputcsv($fp, [date('d/m/Y', $date), 'Commission SumUp sur transactions', '', '', Utils::money_format($fees_sum, ',', ''), '', '', ''], ',', '"', '\\');
 	}
 
 	header('Content-Type: text/csv; charset="utf-8"');
