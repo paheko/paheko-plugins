@@ -13,6 +13,9 @@
 			{input type="radio" name="group_fees" value=1 default=1 label="Regrouper toutes les commissions en une seule écriture"}
 			{input type="radio" name="group_fees" value=0 label="Créer une écriture pour chaque commission prélevée"}
 		</dl>
+		<p class="help">
+			Note : seuls les paiements marqués comme "Payé" (dans la colonne "Status") seront exportés.
+		</p>
 		<p class="submit">
 			{csrf_field key=$csrf_key}
 			{button type="submit" label="Charger" shape="right" class="main" name="load"}
