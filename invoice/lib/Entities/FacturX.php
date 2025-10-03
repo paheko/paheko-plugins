@@ -63,6 +63,10 @@ class FacturX extends Entity
 			return true;
 		}
 
+		if (Utils::getPDFCommand() === 'prince') {
+			return true;
+		}
+
 		return FACTURX_COMMAND === 'gs';
 	}
 
@@ -156,6 +160,23 @@ class FacturX extends Entity
 		$id = 'facturx_' . sha1(random_bytes(10));
 		Static_Cache::store($id, $xml);
 		$tmp_xml_file = Static_Cache::getPath($id);
+
+		// Prince can directly create a valid Factur-X PDF using STDIN/STDOUT,
+		// without temporary files, much better
+		if (Utils::getPDFCommand() === 'prince') {
+			$cmd = sprintf(
+				'prince --http-timeout=3 --pdf-profile="PDF/A-3a" --pdf-xmp=%s --attach-data=%s -o %s -',
+				escapeshellarg(self::ROOT . '/Factur-X_extension_schema.xmp'),
+				escapeshellarg($tmp_xml_file),
+				escapeshellarg($path ?? '-')
+			);
+
+			$out = '';
+			Utils::exec($cmd, 10, $this->html, fn ($data) => $out .= $data);
+			return $out;
+		}
+
+		// If Prince is not available, use ghostscript
 		$tmp_pdf_file = Utils::filePDF($this->html);
 
 		$cmd = sprintf('gs --permit-file-read=%s'
