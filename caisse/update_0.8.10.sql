@@ -5,6 +5,8 @@ UPDATE @PREFIX_methods SET is_default = 1 WHERE position = 1 LIMIT 1;
 
 ALTER TABLE @PREFIX_methods RENAME TO @PREFIX_methods_old;
 
+-- DROP COLUMN is not available until SQLite 3.35.0+
+-- ALTER TABLE @PREFIX_methods DROP COLUMN position;
 CREATE TABLE IF NOT EXISTS @PREFIX_methods (
 	-- Payment methods
 	id INTEGER NOT NULL PRIMARY KEY,
