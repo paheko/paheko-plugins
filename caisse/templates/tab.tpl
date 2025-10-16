@@ -79,7 +79,9 @@
 				{elseif !$current_tab.closed}
 					{button type="submit" name="close" label="Clore la note" accesskey="C" shape="lock" disabled="disabled" title="La note ne peut être close, elle n'est pas soldée."}
 				{/if}
+				{if !$current_tab.closed}
 					{button type="button" label="Renommer" accesskey="R" shape="edit" id="tab_user_rename"}
+				{/if}
 				</form>
 			</div>
 
