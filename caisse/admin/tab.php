@@ -60,7 +60,7 @@ elseif (null !== qg('new')) {
 	$tab = $current_pos_session->openTab();
 	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab->id()]));
 }
-elseif ($tab) {
+elseif ($tab && !$current_pos_session->closed) {
 	$url = Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab->id]);
 	$csrf_key = null;
 
