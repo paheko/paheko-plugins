@@ -13,5 +13,5 @@ $channel = Chat::getChannel(intval($_GET['id'] ?? 0), $me);
 $users = $channel->listUsers();
 
 $tpl = Template::getInstance();
-$tpl->assign(compact('users', 'channel'));
+$tpl->assign(compact('users', 'channel', 'plugin'));
 $tpl->display(PLUGIN_ROOT . '/templates/users.tpl');
