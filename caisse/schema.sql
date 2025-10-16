@@ -26,6 +26,14 @@ CREATE TABLE IF NOT EXISTS @PREFIX_products (
 CREATE INDEX IF NOT EXISTS @PREFIX_products_category ON @PREFIX_products (category);
 CREATE INDEX IF NOT EXISTS @PREFIX_products_code ON @PREFIX_products (code);
 
+CREATE TABLE IF NOT EXISTS @PREFIX_products_links (
+	-- Links between products: add all the linked products to the cart when adding the parent product
+	id_product INTEGER NOT NULL REFERENCES @PREFIX_products (id) ON DELETE CASCADE,
+	id_linked_product INTEGER NOT NULL REFERENCES @PREFIX_products (id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX_products_links_unique ON @PREFIX_products_links (id_product, id_linked_product);
+
 CREATE TABLE IF NOT EXISTS @PREFIX_products_stock_history (
 	-- History of stock changes for a product
 	id INTEGER NOT NULL PRIMARY KEY,
@@ -128,7 +136,8 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_items (
 	type INTEGER NOT NULL DEFAULT 0,
 	pricing INTEGER NOT NULL DEFAULT 0,
 	id_fee INTEGER NULL REFERENCES services_fees (id) ON DELETE SET NULL,
-	id_subscription INTEGER NULL REFERENCES services_users (id) ON DELETE SET NULL
+	id_subscription INTEGER NULL REFERENCES services_users (id) ON DELETE SET NULL,
+	id_parent_item INTEGER NULL REFERENCES @PREFIX_tabs_items (id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS @PREFIX_tabs_items_tab ON @PREFIX_tabs_items (tab);

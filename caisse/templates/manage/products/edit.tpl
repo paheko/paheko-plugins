@@ -75,6 +75,14 @@
 			{input type="money" name="purchase_price" label="Prix d'achat unitaire" source=$product required=false help="Indiquer ici le prix d'achat, si le produit a été acheté. Ce prix est utilisé pour calculer la valeur du stock lors de l'inventaire."}
 		</dl>
 		<dl>
+			{if !$product->isLinked()}
+				{input type="list" name="linked_products" target="list_for_linking.php?id=%d"|args:$product.id multiple=true label="Produits associés" required=false default=$linked_products}
+				<dd class="help">
+					Chaque produit indiqué ici sera automatiquement ajouté à la note lors de l'ajout de ce produit.<br />
+					Les produits liés ne pourront être supprimés de la note sans supprimer le produit "parent".<br />
+					Particulièrement utile pour les adhésions qui comprennent une part fédérale par exemple.
+				</dd>
+			{/if}
 			<dt>Archivage</dt>
 			{input type="checkbox" name="archived" label="Produit archivé" source=$product value=1}
 			<dd class="help">Si coché, ce produit ne sera plus proposé à la vente.</dd>

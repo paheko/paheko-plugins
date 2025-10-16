@@ -39,13 +39,15 @@ else {
 		$product->importForm();
 		$product->save();
 		$product->setMethods(array_keys(f('methods') ?? []));
+		$product->setLinkedProducts(array_keys(f('linked_products') ?? []));
 	}, $csrf_key, './');
 
 	$methods = $product->listPaymentMethods();
 	$categories = Categories::listAssoc();
 	$fees = Services::listGroupedWithFeesForSelect(false);
+	$linked_products = $product->listLinkedProductsAssoc();
 
-	$tpl->assign(compact('methods', 'categories', 'fees'));
+	$tpl->assign(compact('methods', 'categories', 'fees', 'linked_products'));
 
 	$tpl->display(PLUGIN_ROOT . '/templates/manage/products/edit.tpl');
 }

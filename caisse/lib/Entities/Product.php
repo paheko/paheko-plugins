@@ -2,6 +2,7 @@
 
 namespace Paheko\Plugin\Caisse\Entities;
 
+use Paheko\Plugin\Caisse\Categories;
 use Paheko\Plugin\Caisse\POS;
 use Paheko\Plugin\Caisse\Stock;
 use Paheko\DB;
@@ -30,6 +31,8 @@ class Product extends Entity
 	protected bool $archived = false;
 
 	protected ?int $id_fee = null;
+
+	protected ?Category $_category = null;
 
 	const WEIGHT_DISABLED = null;
 	const WEIGHT_REQUIRED = -1;
@@ -150,5 +153,61 @@ class Product extends Entity
 	public function getImagesPath(): string
 	{
 		return sprintf('p/public/%s/%d', 'caisse', $this->id());
+	}
+
+	public function category(): Category
+	{
+		$this->_category ??= Categories::get($this->category);
+		return $this->_category;
+	}
+
+	public function isLinked(): bool
+	{
+		if (!$this->exists()) {
+			return false;
+		}
+
+		return EM::getInstance(self::class)->DB()->test(POS::SQL('@PREFIX_products_links'), 'id_linked_product = ?', $this->id());
+	}
+
+	public function listLinkedProducts(): array
+	{
+		if (!$this->exists()) {
+			return [];
+		}
+
+		return EM::getInstance(self::class)->all(POS::sql('SELECT p.*
+			FROM @TABLE AS p
+			INNER JOIN @PREFIX_products_links AS d ON p.id = d.id_linked_product
+			WHERE d.id_product = ?
+			GROUP BY p.id;'), $this->id());
+	}
+
+	public function listLinkedProductsAssoc(): array
+	{
+		if (!$this->exists()) {
+			return [];
+		}
+
+		return EM::getInstance(self::class)->DB()->getAssoc(POS::sql('SELECT p.id, p.name
+			FROM @PREFIX_products AS p
+			INNER JOIN @PREFIX_products_links AS d ON p.id = d.id_linked_product
+			WHERE d.id_product = ?
+			GROUP BY p.id;'), $this->id());
+	}
+
+	public function setLinkedProducts(array $ids): void
+	{
+		$db = EM::getInstance(self::class)->DB();
+		$db->begin();
+
+		$db->preparedQuery(POS::sql('DELETE FROM @PREFIX_products_links WHERE id_product = ?;'), $this->id());
+
+		foreach ($ids as $id) {
+			$db->insert(POS::tbl('products_links'), ['id_product' => $this->id(), 'id_linked_product' => (int)$id]);
+		}
+
+		$db->commit();
+
 	}
 }

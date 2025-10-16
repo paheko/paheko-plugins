@@ -129,7 +129,7 @@
 					{/if}
 					<td class="money">{$item.total|escape|money_currency:false}</td>
 					<td class="actions">
-						{if !$current_tab.closed}
+						{if !$current_tab.closed && !$item.id_parent_item}
 							{button type="submit" label="" shape="delete" name="delete_item" value=$item.id title="Cliquer pour supprimer la ligne"}
 						{/if}
 					</td>

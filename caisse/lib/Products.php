@@ -155,6 +155,14 @@ class Products
 		return $list;
 	}
 
+	static public function getListForLinking(int $id, bool $archived = false, ?string $search = null): DynamicList
+	{
+		$list = self::getList($archived, $search);
+		$list->addConditions(sprintf(POS::sql(' AND p.id NOT IN (SELECT id_product FROM @PREFIX_products_links) AND p.id != %d'), $id));
+		$list->removeColumns(['archived', 'stock2', 'weight', 'purchase_price', 'code', 'description', 'num', 'stock', 'price', 'qty']);
+		return $list;
+	}
+
 	static public function get(int $id): ?Entities\Product
 	{
 		return EM::findOneById(Entities\Product::class, $id);

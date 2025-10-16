@@ -33,6 +33,7 @@ class TabItem extends Entity
 
 	protected ?int $id_fee = null;
 	protected ?int $id_subscription = null;
+	protected ?int $id_parent_item = null;
 
 	protected ?Product $_product = null;
 
