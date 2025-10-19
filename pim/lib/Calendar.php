@@ -253,8 +253,8 @@ class Calendar
 		$holidays[$year] = self::FR_HOLIDAYS;
 
 		// Jours variables
-		$easter = new DateTime(date('Y') . '-03-21');
-		$easter->add(new DateInterval(sprintf('P%dD', easter_days(date('Y')))));
+		$easter = new DateTime($year . '-03-21');
+		$easter->add(new DateInterval(sprintf('P%dD', easter_days($year))));
 
 		$a = clone $easter;
 		$a->modify('+39 days'); // Jeudi de l'ascension
