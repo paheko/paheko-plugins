@@ -172,6 +172,12 @@ class Tab extends Entity
 		}
 
 		$item = $this->getItem($id);
+
+		// Item has vanished
+		if (!$item) {
+			return;
+		}
+
 		$item->set('qty', $qty);
 		$item->save();
 	}
@@ -185,6 +191,12 @@ class Tab extends Entity
 		$weight = Utils::weightToInteger($weight);
 
 		$item = $this->getItem($id);
+
+		// Item has vanished
+		if (!$item) {
+			return;
+		}
+
 		$item->set('weight', $weight);
 		$item->save();
 	}
@@ -198,6 +210,12 @@ class Tab extends Entity
 		$price = Utils::moneyToInteger($price);
 
 		$item = $this->getItem($id);
+
+		// Item has vanished
+		if (!$item) {
+			return;
+		}
+
 		$item->set('price', $price);
 		$item->save();
 	}
@@ -341,13 +359,19 @@ class Tab extends Entity
 		return $db->update(POS::tbl('tabs'), ['name' => $new_name, 'user_id' => $user_id], $db->where('id', $this->id));
 	}
 
-	public function renameItem(int $id, string $name)
+	public function renameItem(int $id, string $name): void
 	{
 		if ($this->closed) {
 			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
 		$item = $this->getItem($id);
+
+		// Item has vanished
+		if (!$item) {
+			return;
+		}
+
 		$item->set('name', trim($name));
 		$item->save();
 	}
