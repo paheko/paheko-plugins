@@ -11,7 +11,7 @@ use Paheko\Entities\Signal;
 
 class PDF
 {
-	const VERSION = '3.1.1';
+	const VERSION = '3.1.0';
 	const URL = 'https://github.com/dompdf/dompdf/releases/download/v' . self::VERSION . '/dompdf-' . self::VERSION . '.zip';
 	const DIRECTORY = SHARED_CACHE_ROOT . '/dompdf';
 	const VERSION_FILE = self::DIRECTORY . '/dompdf/VERSION';
@@ -114,10 +114,17 @@ class PDF
 			$dompdf->setPaper('A4', 'landscape');
 		}
 
-		$dompdf->loadHtml($html);
+		try {
+			$dompdf->loadHtml($html);
 
-		// Render the HTML as PDF
-		$dompdf->render();
+			// Render the HTML as PDF
+			$dompdf->render();
+		}
+		catch (\Throwable $e) {
+			file_put_contents(CACHE_ROOT . '/dompdf_error.html', $html);
+			throw $e;
+		}
+
 		return $dompdf;
 	}
 
