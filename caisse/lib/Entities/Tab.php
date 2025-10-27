@@ -350,7 +350,7 @@ class Tab extends Entity
 	}
 
 	public function rename(string $new_name, ?int $user_id) {
-		if ($this->closed) {
+		if ($this->closed && ($this->user_id || $this->name)) {
 			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
