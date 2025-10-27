@@ -32,7 +32,7 @@ class Categories
 		return $db->getAssoc(POS::sql('SELECT id, name FROM @PREFIX_categories ORDER BY name;'));
 	}
 
-	static public function listSales(int $year, string $period = 'year'): DynamicList
+	static public function listSales(int $year, string $period = 'year', ?int $location = null): DynamicList
 	{
 		$columns = [
 			'category' => [
@@ -58,6 +58,11 @@ class Categories
 		$list->setTitle(sprintf('Ventes %d, par catégorie', $year));
 		$list->groupBy('i.category_name');
 		POS::applyPeriodToList($list, $period, 'i.added', 'i.id');
+
+		if ($location) {
+			$list->addTables(POS::sql('INNER JOIN @PREFIX_tabs t ON t.id = i.tab INNER JOIN @PREFIX_sessions s ON s.id = t.session'));
+			$list->addConditions(sprintf('AND s.id_location = %d', $location));
+		}
 
 		return $list;
 	}

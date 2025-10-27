@@ -204,7 +204,7 @@ class Products
 		return $product;
 	}
 
-	static public function listSales(int $year, string $period = 'year'): DynamicList
+	static public function listSales(int $year, string $period = 'year', ?int $location = null): DynamicList
 	{
 		$columns = [
 			'name' => [
@@ -231,6 +231,11 @@ class Products
 		$list->setTitle(sprintf('Ventes %d, par produit', $year));
 		$list->groupBy('i.product');
 		POS::applyPeriodToList($list, $period, 'i.added', 'i.id');
+
+		if ($location) {
+			$list->addTables(POS::sql('INNER JOIN @PREFIX_tabs t ON t.id = i.tab INNER JOIN @PREFIX_sessions s ON s.id = t.session'));
+			$list->addConditions(sprintf('AND s.id_location = %d', $location));
+		}
 
 		// List all sales
 		if ($period === 'all') {

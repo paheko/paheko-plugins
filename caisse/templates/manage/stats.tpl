@@ -18,38 +18,49 @@
 		<li class="{if $page === 'tabs'}current{/if}">{link href="?year=%d&page=tabs&period=%s"|args:$year:$period label="Notes"}</li>
 	</ul>
 
+	{if count($locations)}
 	<ul class="sub">
-		<li class="{if $period === 'year'}current{/if}">{link href="?year=%d&page=%s&period=year"|args:$year:$page label="Sur l'année"}</li>
-		<li class="{if $period === 'semester'}current{/if}">{link href="?year=%d&page=%s&period=semester"|args:$year:$page label="Par semestre"}</li>
-		<li class="{if $period === 'quarter'}current{/if}">{link href="?year=%d&page=%s&period=quarter"|args:$year:$page label="Par trimestre"}</li>
-		<li class="{if $period === 'month'}current{/if}">{link href="?year=%d&page=%s&period=month"|args:$year:$page label="Par mois"}</li>
-		<li class="{if $period === 'weekday'}current{/if}">{link href="?year=%d&page=%s&period=weekday"|args:$year:$page label="Par jour de la semaine"}</li>
-		<li class="{if $period === 'day'}current{/if}">{link href="?year=%d&page=%s&period=day"|args:$year:$page label="Par jour"}</li>
-		<li class="{if $period === 'all'}current{/if}">{link href="?year=%d&page=%s&period=all"|args:$year:$page label="Tout"}</li>
+		<li class="{if !$location}current{/if}">{link href="?year=%d&page=%s&period=%s"|args:$year:$page:$period label="Tous les lieux de vente"}</li>
+		{foreach from=$locations item="name" key="id"}
+			<li class="{if $location == $id}current{/if}">{link href="?year=%d&page=%s&period=%s&location=%d"|args:$year:$page:$period:$id label=$name}</li>
+		{/foreach}
+	</ul>
+	{/if}
+
+	<ul class="sub">
+		<li class="{if $period === 'year'}current{/if}">{link href="?year=%d&page=%s&period=year&location=%s"|args:$year:$page:$location label="Sur l'année"}</li>
+		<li class="{if $period === 'semester'}current{/if}">{link href="?year=%d&page=%s&period=semester&location=%s"|args:$year:$page:$location label="Par semestre"}</li>
+		<li class="{if $period === 'quarter'}current{/if}">{link href="?year=%d&page=%s&period=quarter&location=%s"|args:$year:$page:$location label="Par trimestre"}</li>
+		<li class="{if $period === 'month'}current{/if}">{link href="?year=%d&page=%s&period=month&location=%s"|args:$year:$page:$location label="Par mois"}</li>
+		<li class="{if $period === 'weekday'}current{/if}">{link href="?year=%d&page=%s&period=weekday&location=%s"|args:$year:$page:$location label="Par jour de la semaine"}</li>
+		<li class="{if $period === 'day'}current{/if}">{link href="?year=%d&page=%s&period=day&location=%s"|args:$year:$page:$location label="Par jour"}</li>
+		<li class="{if $period === 'all'}current{/if}">{link href="?year=%d&page=%s&period=all&location=%s"|args:$year:$page:$location label="Tout"}</li>
 	</ul>
 	{/if}
 </nav>
 
 {if $list}
 
-	{if $page === 'methods_in' && $period === 'year'}
-		<section class="graphs">
-			<figure>
-				<figcaption><h2>Montant des encaissements, par méthode et par mois</h2></figcaption>
-				<img src="?graph=methods&year={$year}"/>
-			</figure>
-		</section>
-	{elseif $page === 'sales_categories' && $period === 'year'}
-		<section class="graphs">
-			<figure>
-				<figcaption><h2>Montant des ventes, par catégorie et par mois</h2></figcaption>
-				<img src="?graph=categories&year={$year}"/>
-			</figure>
-			<figure>
-				<figcaption><h2>Nombre de ventes par catégorie et par mois</h2></figcaption>
-				<img src="?graph=categories_qty&year={$year}"/>
-			</figure>
-		</section>
+	{if !$location}
+		{if $page === 'methods_in' && $period === 'year'}
+			<section class="graphs">
+				<figure>
+					<figcaption><h2>Montant des encaissements, par méthode et par mois</h2></figcaption>
+					<img src="?graph=methods&year={$year}"/>
+				</figure>
+			</section>
+		{elseif $page === 'sales_categories' && $period === 'year'}
+			<section class="graphs">
+				<figure>
+					<figcaption><h2>Montant des ventes, par catégorie et par mois</h2></figcaption>
+					<img src="?graph=categories&year={$year}"/>
+				</figure>
+				<figure>
+					<figcaption><h2>Nombre de ventes par catégorie et par mois</h2></figcaption>
+					<img src="?graph=categories_qty&year={$year}"/>
+				</figure>
+			</section>
+		{/if}
 	{/if}
 
 	<p class="actions">

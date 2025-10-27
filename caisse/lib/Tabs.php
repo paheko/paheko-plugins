@@ -223,7 +223,7 @@ class Tabs
 	}
 
 
-	static public function listStats(int $year, string $period = 'year'): DynamicList
+	static public function listStats(int $year, string $period = 'year', ?int $location = null): DynamicList
 	{
 		$columns = [
 			'count' => [
@@ -289,6 +289,11 @@ class Tabs
 			$list->orderBy('date_short', true);
 		}
 		POS::applyPeriodToList($list, $period, 't.opened', 't.session');
+
+		if ($location) {
+			$list->addTables(POS::sql('INNER JOIN @PREFIX_sessions s ON s.id = t.session'));
+			$list->addConditions(sprintf('AND s.id_location = %d', $location));
+		}
 
 		return $list;
 	}

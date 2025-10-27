@@ -62,7 +62,7 @@ class Methods
 		return $list;
 	}
 
-	static public function listSales(int $year, string $period = 'year'): DynamicList
+	static public function listSales(int $year, string $period = 'year', ?int $location = null): DynamicList
 	{
 		$columns = [
 			'method' => [
@@ -79,7 +79,8 @@ class Methods
 			],
 		];
 
-		$tables = '@PREFIX_tabs_payments p INNER JOIN @PREFIX_methods m ON m.id = p.method';
+		$tables = '@PREFIX_tabs_payments p
+			INNER JOIN @PREFIX_methods m ON m.id = p.method';
 
 		$list = POS::DynamicList($columns, $tables, 'strftime(\'%Y\', p.date) = :year AND amount > 0');
 		$list->groupBy('m.id');
@@ -87,6 +88,12 @@ class Methods
 		$list->setParameter('year', (string)$year);
 		$list->setTitle(sprintf('Paiements encaissés %d, par moyen de paiement', $year));
 		POS::applyPeriodToList($list, $period, 'p.date', 'p.id');
+
+		if ($location) {
+			$list->addTables(POS::sql('INNER JOIN @PREFIX_tabs t ON p.tab = t.id
+				INNER JOIN @PREFIX_sessions s ON t.session = s.id'));
+			$list->addConditions(sprintf(' AND s.id_location = %d', $location));
+		}
 
 		// List all sales
 		if ($period === 'all') {
@@ -116,10 +123,15 @@ class Methods
 		return $list;
 	}
 
-	static public function listExits(int $year, string $period = 'year'): DynamicList
+	static public function listExits(int $year, string $period = 'year', ?int $location = null): DynamicList
 	{
-		$list = self::listSales($year, $period);
+		$list = self::listSales($year, $period, $location);
 		$list->setConditions('strftime(\'%Y\', p.date) = :year AND amount < 0');
+
+		if ($location) {
+			$list->addConditions(sprintf(' AND s.id_location = %d', $location));
+		}
+
 		$list->setTitle(sprintf('Paiements décaissés %d, par moyen de paiement', $year));
 		return $list;
 	}
