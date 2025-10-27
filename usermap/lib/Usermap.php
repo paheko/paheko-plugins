@@ -116,7 +116,7 @@ class Usermap
 		return DB::getInstance()->get('SELECT lat, lon FROM plugin_usermap_locations;');
 	}
 
-	public function getMissingUsersSQL(string $select = null, int $limit = null): string
+	public function getMissingUsersSQL(?string $select = null, ?int $limit = null): string
 	{
 		$db = DB::getInstance();
 		$fields = array_map([$db, 'quoteIdentifier'], $this->fields);
@@ -171,7 +171,7 @@ class Usermap
 			$random = random_bytes(10);
 
 			$fp = fopen($tmp, 'w');
-			fputcsv($fp, $fields);
+			fputcsv($fp, $fields, ',', '"', '\\');
 
 			foreach ($db->iterate($sql) as $row) {
 				$foreign_hash = md5($random . $row->id . $row->address_hash);
@@ -182,7 +182,7 @@ class Usermap
 				$row = (array)$row;
 				$row = array_map(fn($a) => str_replace(["\r", "\n"], '', $a), $row);
 				$i++;
-				fputcsv($fp, $row);
+				fputcsv($fp, $row, ',', '"', '\\');
 			}
 
 			fclose($fp);
@@ -223,7 +223,7 @@ class Usermap
 			$i = 0;
 
 			while (!feof($fp)) {
-				$row = fgetcsv($fp);
+				$row = fgetcsv($fp, null, ',', '"', '\\');
 
 				if (!$i++ || !$row) {
 					continue;
