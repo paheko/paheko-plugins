@@ -92,6 +92,12 @@ class POS
 		}
 
 		if ($group) {
+			$list->addColumn('period', [
+				'select' => $group,
+				'label' => $label,
+				//'order' => $column_name . ' %s',
+			], 0);
+
 			$old = $list->getGroupBy();
 
 			if ($old) {
@@ -99,12 +105,6 @@ class POS
 			}
 
 			$list->groupBy($group);
-
-			$list->addColumn('period', [
-				'select' => $group,
-				'label' => $label,
-				//'order' => $column_name . ' %s',
-			], 0);
 
 			$list->orderBy('period', false);
 		}
