@@ -56,16 +56,20 @@ class Sessions
 				'select' => 's.id',
 				'label' => 'Num.',
 			],
+			'open_user' => [
+				'label' => 'Responsable',
+				'select' => 's.open_user',
+			],
+			'close_user' => [
+				'select' => 's.close_user',
+			],
+			'opened_day' => [
+				'label' => 'Jour',
+				'select' => 's.opened',
+			],
 			'opened' => [
 				'label' => 'Ouverture',
 				'select' => 's.opened',
-			],
-			'open_user' => [
-				'select' => 's.open_user',
-			],
-			'open_amount' => [
-				'label' => 'Montant',
-				'order' => null,
 			],
 			'closed' => [
 				'label' => 'Clôture',
@@ -74,20 +78,18 @@ class Sessions
 			'closed_same_day' => [
 				'select' => 'date(s.closed) = date(s.opened)',
 			],
-			'close_user' => [
-				'select' => 's.close_user',
+			'open_amount' => [
+				'label' => 'Montant ouv.',
 			],
 			'close_amount' => [
-				'label' => 'Montant clôture',
-				'order' => null,
+				'label' => 'Montant clô.',
+			],
+			'total' => [
+				'label' => 'Résultat',
+				'select' => 'SUM(ti.total)',
 			],
 			'error_amount' => [
 				'label' => 'Erreur',
-			],
-			'total' => [
-				'label' => 'Recettes',
-				'select' => 'SUM(ti.total)',
-				'order' => null,
 			],
 			'tabs_count' => [
 				'select' => 'COUNT(DISTINCT t.id)',
