@@ -131,7 +131,7 @@ if (a = $('#f_amount')) {
 
 	pm.addEventListener('change', updatePaidAmount);
 
-	document.querySelector('form.payment .toomuch button').onclick = () => {
+	document.querySelector('.payment .toomuch button').onclick = () => {
 		var o = pm.options[pm.selectedIndex];
 		a.value = o.dataset.max;
 		updatePaidAmount();
