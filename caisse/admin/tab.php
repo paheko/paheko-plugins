@@ -70,8 +70,9 @@ elseif ($tab) {
 		$tab->rename($_POST['rename_name'], intval($_POST['rename_id'] ?? 0) ?: null);
 	}, $csrf_key, $url);
 }
-elseif ($tab && !$current_pos_session->closed) {
-	$form->runIf('add_item', function () use ($tab) {
+
+if ($tab && !$current_pos_session->closed) {
+	$form->runIf(!empty($_POST['add_item']) && is_array($_POST['add_item']), function () use ($tab) {
 		$tab->addItem((int)key($_POST['add_item']), current($_POST['add_item']));
 	}, $csrf_key, $url);
 

@@ -82,7 +82,6 @@
 				{if !$current_tab.closed || (!$current_tab.name && !$current_tab.user_id)}
 					{button type="button" label="Renommer" accesskey="R" shape="edit" id="tab_user_rename"}
 				{/if}
-				</form>
 			</div>
 
 			{if $debt}
@@ -228,6 +227,7 @@
 		{/if}
 		</section>
 	</section>
+	</form>
 
 	{if !$current_tab.closed}
 	<section class="products">

@@ -3,9 +3,10 @@ var q = document.querySelector('input[name="q"]');
 
 if (q) {
 	var q_timeout;
+	var search;
 
 	q.onkeyup = (e) => {
-		if (e.key === 'Enter' && (a = document.querySelector('.products section button:not([hidden])'))) {
+		if (search && e.key === 'Enter' && (a = document.querySelector('.products section button:not([hidden])'))) {
 			a.click();
 			return;
 		}
@@ -16,7 +17,7 @@ if (q) {
 	};
 
 	function searchProduct() {
-		var search = g.normalizeString(q.value);
+		search = g.normalizeString(q.value);
 		var code = q.value.replace(/\s/, '');
 
 		// Try to match barcodes
