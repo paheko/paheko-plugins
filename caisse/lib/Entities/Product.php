@@ -86,7 +86,7 @@ class Product extends Entity
 			$code = new BarCode($source['code']);
 
 			if (!$code->verify()) {
-				throw new ValidationException('Code barre invalide. Vérifiez s\'il ne manque pas un chiffre. Le code barre doit comporter 13 chiffres.');
+				throw new ValidationException('Code barre invalide. Vérifiez s\'il ne manque pas un chiffre. Le code barre doit comporter 8 ou 13 chiffres.');
 			}
 
 			$source['code'] = $code->get();

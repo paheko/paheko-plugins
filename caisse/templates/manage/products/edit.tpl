@@ -67,7 +67,7 @@
 			{input type="textarea" name="description" label="Description" source=$product}
 			{input type="money" name="price" label="Prix unitaire" source=$product required=true help="Indiquer zéro pour un produit gratuit. Indiquer un montant négatif pour une sortie de la caisse (par exemple un remboursement)."}
 			{input type="number" name="qty" label="Quantité" help="Quantité par défaut quand le produit est ajouté à une note" source=$product required=true}
-			{input type="text" name="code" label="Numéro de code barre" required=false source=$product help="Si ce champ est rempli avec le code barre à 13 chiffres du produit, il sera possible d'utiliser ce code barre pour retrouver un produit lors de l'encaissement. Cela permet également d'utiliser une douchette."}
+			{input type="text" name="code" label="Numéro de code barre" required=false source=$product help="Si ce champ est rempli avec le code barre à 8 ou 13 chiffres du produit, il sera possible d'utiliser ce code barre pour retrouver un produit lors de l'encaissement. Cela permet également d'utiliser une douchette."}
 			<?=$product->getSVGBarcode();?>
 		</dl>
 		<dl class="fee-hidden">
