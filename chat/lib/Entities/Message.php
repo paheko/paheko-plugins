@@ -17,6 +17,7 @@ class Message extends Entity
 	protected ?int $id;
 	protected int $id_channel;
 	protected ?int $id_thread = null;
+	protected ?string $title = null;
 	protected int $added;
 	protected ?int $id_user = null;
 	protected ?string $user_name = null;

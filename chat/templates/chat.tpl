@@ -33,12 +33,12 @@
 			{if $recipient.id_user}
 				{linkbutton href="!users/details.php?id=%d"|args:$recipient.id_user label="Fiche membre" shape="user" target="_blank"}
 			{elseif $channel.access !== $channel::ACCESS_DIRECT && $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)}
-				{linkbutton shape="users" label="Participant⋅e⋅s" href="%s/users.php?id=%d"|args:$plugin_url:$channel.id target="_dialog"}
+				{linkbutton shape="users" label="Participant⋅e⋅s" href="users.php?id=%d"|args:$channel.id target="_dialog"}
 				{linkbutton shape="edit" label="Gérer" href="!p/chat/edit.php?id=%d"|args:$channel.id target="_dialog"}
 			{/if}
 				{*TODO {linkbutton href="search.php?id=%d"|args:$channel.id shape="search" title="Rechercher dans cette discussion" target="_dialog" label=""}*}
 			{if $recipient.id_user}
-				{linkbutton href="#" shape="camera" title="Lancer une réunion vidéo" onclick="openJitsi(); return false;" label=""}
+				{linkbutton href="#" shape="videocam" title="Lancer une réunion vidéo" onclick="openJitsi(); return false;" label=""}
 			{/if}
 		</aside>
 		<article>{$channel.description|markdown|raw}</article>
@@ -88,7 +88,7 @@
 	</section>
 </div>
 
-<script type="text/javascript" src="{$plugin_url}chat.js">
+<script type="text/javascript" src="{$plugin.url}chat.js">
 </script>
 
 {include file="_foot.tpl"}

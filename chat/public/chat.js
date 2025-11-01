@@ -88,7 +88,7 @@
 					addMessageEvents(element);
 				}
 				else if (!last_message || data.message.id > last_message.dataset.id) {
-					container.innerHTML += data.html;
+					container.insertAdjacentHTML('beforeend', data.html);
 					last_message = container.lastElementChild;
 					addMessageEvents(last_message);
 				}
@@ -232,6 +232,7 @@
 							sendReaction(message, e.innerText);
 						};
 						e.innerText = emoji;
+						e.title = match.replace(/\|/g, ', ');
 						e.dataset.text = match;
 						cat.appendChild(e);
 					}
@@ -240,6 +241,7 @@
 				}
 
 				emoji_selector.insertBefore(tabs, search.nextSibling);
+				tabs.firstElementChild.click();
 
 				g.openDialog(emoji_selector);
 				search.focus();
@@ -251,6 +253,16 @@
 			var f = message.querySelector('footer');
 
 			if (f) {
+				var b = f.querySelector('[data-action="permalink"]');
+
+				if (b) {
+					b.onclick = () => {
+						navigator.clipboard.writeText(b.href);
+						alert('Lien copié !');
+						return false;
+					};
+				}
+
 				f.querySelector('[data-action="react"]').onclick = () => openEmojiSelector(message);
 
 				if (d = f.querySelector('[data-action="delete"]')) {
@@ -453,7 +465,6 @@
 		var name = main.dataset.orgName + '--' + main.dataset.channelName;
 		name = name.replace(/[^\w\p{L}-]+/gu, '_');
 		name = name.replace(/--/, '/');
-		console.log(name);
 		var url = jitsi_url + name + '?lang=fr#config.prejoinConfig.enabled=false&userInfo.displayName=%22%encoded_username%%22';
 		sendComment('invite à rejoindre la [discussion vidéo](' + url + ')');
 		url = url.replace(/%encoded_username%/, encodeURIComponent(main.dataset.userName));

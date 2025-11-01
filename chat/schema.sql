@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS plugin_chat_messages (
 	id INTEGER NOT NULL PRIMARY KEY,
 	id_channel INTEGER NOT NULL REFERENCES plugin_chat_channels ON DELETE CASCADE,
 	id_thread INTEGER NULL REFERENCES plugin_chat_messages(id) ON DELETE CASCADE,
+	title TEXT NULL,
 	added INTEGER NOT NULL,
 	id_user INTEGER NULL REFERENCES plugin_chat_users (id) ON DELETE SET NULL,
 	user_name TEXT NULL,

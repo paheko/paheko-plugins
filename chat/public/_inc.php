@@ -9,6 +9,7 @@ use Paheko\Plugin\Chat\Entities\User;
 
 use Paheko\Files\Files;
 use Paheko\Users\Session;
+use Paheko\Utils;
 use Paheko\Template;
 use Paheko\UserTemplate\CommonFunctions;
 use Paheko\UserTemplate\CommonModifiers;
@@ -203,22 +204,34 @@ function chat_message_html($message, User $me, bool &$first = false): string
 
 	if ($message->type !== Message::TYPE_DELETED) {
 		$out .= '<footer>';
-		// TODO
-		$out .= CommonFunctions::linkbutton(['shape' => 'link', 'title' => 'Permalien', 'label' => '', 'target' => '_blank', 'href' => sprintf('./?id=%d&focus=%d#msg-%2$d', $message->id_channel, $message->id)]);
-
 		if ($message->id_user === $me->id || $is_admin) {
-			if ($message->type === Message::TYPE_TEXT) {
-				// TODO
-				//$out .= CommonFunctions::button(['shape' => 'edit', 'title' => 'Éditer', 'data-action' => 'edit',]);
-			}
-
+			// TODO: edit dialog with title, and ability to change text if message is text
+			$out .= CommonFunctions::linkbutton([
+				'shape'  => 'edit',
+				'title'  => 'Éditer',
+				'href'   => Utils::getLocalURL('!/p/chat/edit.php?id=' . $message->id),
+				'target' => '_dialog',
+				'label'  => '',
+			]);
 			$out .= CommonFunctions::button(['shape' => 'delete', 'title' => 'Supprimer', 'data-action' => 'delete']);
 		}
 
-		//$out .= CommonFunctions::button(['shape' => 'chat', 'title' => 'Répondre', 'data-action' => 'reply']);
+		$out .= CommonFunctions::button(['shape' => 'reply', 'title' => 'Répondre', 'data-action' => 'reply']);
+
 		$out .= CommonFunctions::button(['shape' => 'smile', 'title' => 'Réaction', 'data-action' => 'react']);
-		$out .= '<button class="react">👍</button>';
-		$out .= '<button class="react">❤️</button>';
+		$out .= '<button class="react" title="Mettre un pouce">👍</button>';
+		$out .= '<button class="react" title="Mettre un cœur">❤️</button>';
+
+		// TODO
+		$out .= CommonFunctions::linkbutton([
+			'shape'       => 'link',
+			'title'       => 'Permalien',
+			'label'       => '',
+			'target'      => '_blank',
+			'href'        => sprintf('?id=%d&focus=%d#msg-%2$d', $message->id_channel, $message->id),
+			'data-action' => 'permalink',
+		]);
+
 		$out .= '</footer>';
 	}
 

@@ -83,7 +83,7 @@ $recipient = $channel->getRecipient($me);
 $layout = $me->isAnonymous() ? 'public' : null;
 
 $tpl = Template::getInstance();
-$tpl->assign(compact('messages', 'channel', 'channels', 'csrf_key', 'recipient', 'me', 'layout'));
+$tpl->assign(compact('messages', 'channel', 'channels', 'csrf_key', 'recipient', 'me', 'layout', 'plugin'));
 $tpl->display(PLUGIN_ROOT . '/templates/chat.tpl');
 
 if (time() % 10 == 0) {

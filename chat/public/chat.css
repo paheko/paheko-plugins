@@ -29,6 +29,10 @@ body {
 	padding: 0;
 }
 
+main#content {
+	padding: 0;
+}
+
 #chat {
 	display: grid;
 	grid-template-areas: "cc c"
@@ -37,8 +41,6 @@ body {
 	grid-template-columns: 13em 1fr;
 	grid-template-rows: 5em 1fr 5em;
 	height: 100vh;
-	margin-left: -10px;
-	margin-right: -15px;
 }
 
 body.sticky:not(.public) #chat {
