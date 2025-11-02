@@ -11,7 +11,8 @@
 	<nav class="channels">
 		{if $session->canAccess($session::SECTION_USERS, $session::ACCESS_ADMIN)}
 		<aside>
-			{linkbutton shape="plus" label="Nouvelle discussion" href="!p/chat/edit.php" target="_dialog"}
+			{linkbutton shape="plus" label="Nouveau salon" href="!p/chat/edit.php" target="_dialog"}
+			{linkbutton shape="user" label="Discuter avec…" href="!users/selector.php" target="_dialog"}
 		</aside>
 		{/if}
 		<ul>
@@ -38,6 +39,7 @@
 			{/if}
 				{*TODO {linkbutton href="search.php?id=%d"|args:$channel.id shape="search" title="Rechercher dans cette discussion" target="_dialog" label=""}*}
 			{if $recipient.id_user}
+				{*TODO linkbutton href="!p/chat/leave.php?id=%d"|args:$channel.id shape="delete" label="Quitter"*}
 				{linkbutton href="#" shape="videocam" title="Lancer une réunion vidéo" onclick="openJitsi(); return false;" label=""}
 			{/if}
 		</aside>
@@ -88,7 +90,7 @@
 	</section>
 </div>
 
-<script type="text/javascript" src="{$plugin.url}chat.js">
+<script type="text/javascript" src="/p/chat/chat.js">
 </script>
 
 {include file="_foot.tpl"}

@@ -30,26 +30,31 @@ class User extends Entity
 		$this->save();
 	}
 
-	public function isOnline(): bool
+	public function getStatus(): string
 	{
 		if (!$this->last_connect) {
-			return false;
+			return 'offline';
 		}
 
 		$now = time();
 
-		if ($this->last_connect > $this->last_disconnect && $this->last_connect >= $now - 60) {
-			return true;
+		// Online is when last connect is more recent than 10 minutes
+		// as connect.php requires a reconnect every 10 minutes
+		if ($this->last_connect > $this->last_disconnect
+			&& $this->last_connect >= $now - 600) {
+			return 'online';
 		}
-
-		if (!$this->last_disconnect) {
-			return true;
+		// You can be inactive for 2 minutes
+		elseif ($this->last_disconnect <= $now - 120) {
+			return 'inactive';
 		}
-
-		if ($this->last_disconnect >= $now - 15) {
-			return true;
+		else {
+			return 'offline';
 		}
+	}
 
-		return false;
+	public function isOnline(): bool
+	{
+		return $this->getStatus() === 'online';
 	}
 }

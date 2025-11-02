@@ -470,4 +470,11 @@
 		url = url.replace(/%encoded_username%/, encodeURIComponent(main.dataset.userName));
 		window.open(url, 'jitsi');
 	};
+
+	// Override inputListSelected function
+	g.inputListSelected = (value, label) => {
+		// Redirecting directly crashes chrome
+		window.setTimeout(() => window.location.replace(g.admin_url + 'p/chat/?with_user=' + value), 200);
+		return;
+	};
 })();

@@ -6,6 +6,7 @@ use Paheko\Plugin\Chat\Entities\Channel;
 use Paheko\Plugin\Chat\Entities\User;
 use Paheko\Plugin\Chat\Entities\Message;
 use Paheko\Users\Session;
+use Paheko\Users\Users as PahekoMembers;
 use Paheko\DB;
 use Paheko\UserException;
 
@@ -23,6 +24,12 @@ class Chat
 
 		if (!$name || !preg_match('!^[a-z][a-z0-9_]{1,15}$!i', $name)) {
 			throw new UserException('Pseudonyme invalide');
+		}
+
+		$db = DB::getInstance();
+
+		if ($db->test(User::TABLE, 'name = ?', $name)) {
+			throw new UserException('Ce pseudo est déjà pris, merci d\'en choisir un autre.');
 		}
 
 		$user = new User;
@@ -140,6 +147,34 @@ class Chat
 	}
 
 	/**
+	 * Create a channel with a member user, not a chat user
+	 */
+	static public function getDirectChannelUser(User $me, int $user_id): ?Channel
+	{
+		$db = DB::getInstance();
+		$recipient_id = $db->firstColumn('SELECT id FROM plugin_chat_users WHERE id_user = ?;', $user_id);
+
+		// Create chat user first
+		if (!$recipient_id) {
+			$member = PahekoMembers::get($user_id);
+
+			if (!$member) {
+				throw new UserException('Ce membre n\'existe pas;');
+			}
+
+			$user = new User;
+			$user->import([
+				'id_user'      => $member->id(),
+				'name'         => $member->name(),
+			]);
+			$user->save();
+			$recipient_id = $user->id();
+		}
+
+		return self::getDirectChannel($me, $recipient_id);
+	}
+
+	/**
 	 * Create or return an existing channel between two users of an existing channel
 	 */
 	static public function getDirectChannel(User $me, int $recipient_id): ?Channel
@@ -226,6 +261,8 @@ class Chat
 			$private_access = sprintf('OR access = \'%s\'', Channel::ACCESS_PRIVATE);
 		}
 
+		// FIXME: getting channel name for direct messages sucks, make it better
+		// FIXME: user name is not updated when member name is updated…
 		$sql = sprintf('SELECT *,
 			CASE WHEN access = \'%s\' THEN (
 				SELECT u.name FROM plugin_chat_users u

@@ -47,32 +47,36 @@ while (true) {
 		break;
 	}
 
-	$refresh = false;
+	//$refresh = false;
+	$refresh = true;
 
 	foreach ($channel->getEventsSince($last_seen_ts, $last_seen_id, $me) as $event) {
 		if ($event['type'] === 'message') {
 			$event['data']['html'] = chat_message_html($event['data']['message'], $me);
+			$last_seen_id = max($last_seen_id, $event['data']['message']->id);
 		}
 
 		echo "event: " . $event['type'] . "\r\n";
 		echo "data: " . json_encode($event['data']) . "\r\n\r\n";
-		$last_seen_id = max($last_seen_id, $event['data']['message']->id);
-		$refresh = true;
+		//$refresh = true;
 	}
+
+	// TODO: add events for list of chats the user is part of (left-side pane),
+	// so that the user sees if a new DM chat is open
 
 	if ($refresh) {
 		$last_seen_ts = time();
 	}
 
 	// This seems to be required to make connection_aborted() work
-	if (!$refresh && $elapsed % 5 == 0) {
+	if ($elapsed % 5 == 0) {
 		echo ": ping\r\n\r\n";
 	}
 
 	@ob_flush();
 	@flush();
 
-	// Sleep for 500 ms
+	// Sleep for 500 ms (0.5 second)
 	usleep(500000);
 }
 

@@ -19,6 +19,13 @@ $channel = null;
 if ($_GET['id'] ?? null) {
 	$channel = Chat::getChannel((int)$_GET['id'], $me);
 }
+elseif ($session->isLogged() && ($_GET['with_user'] ?? null)) {
+	$channel = Chat::getDirectChannelUser($me, (int)$_GET['with_user']);
+
+	if (!$channel) {
+		throw new ValidationException('No valid channel provided', 400);
+	}
+}
 elseif ($_GET['with'] ?? null) {
 	$channel = Chat::getDirectChannel($me, (int)$_GET['with']);
 

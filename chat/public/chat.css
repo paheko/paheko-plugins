@@ -50,10 +50,15 @@ body.sticky:not(.public) #chat {
 body.public:has(#chat) main {
 	max-width: unset;
 	margin: 0;
+	height: calc(100vh - 4.5em);
+}
+
+body.public:has(#chat) {
+	height: 100%;
 }
 
 body.public #chat {
-	height: 85vh;
+	height: 100%;
 	margin: 0;
 }
 
@@ -583,6 +588,7 @@ nav.reactions button:hover::after {
 	z-index: 2;
 	white-space: pre;
 	border: 1px solid var(--gLightBorderColor);
+	text-align: left;
 }
 
 nav.reactions button:hover::before {

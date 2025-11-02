@@ -80,7 +80,7 @@ class Channel extends Entity
 		$this->assert(null === $this->max_history || $this->max_history > 0, 'Le nombre de messages conservés ne peut être zéro ou négatif.');
 	}
 
-	public function importForm(array $source = null)
+	public function importForm(?array $source = null)
 	{
 		$source ??= $_POST;
 
@@ -231,6 +231,16 @@ class Channel extends Entity
 		return $message;
 	}
 
+	public function leave(User $user)
+	{
+		if ($this->access === self::ACCESS_DIRECT) {
+			throw new \LogicException('Cannot leave a DM, or the other person might continue talking without seeing that you have left and cannot see the messages.');
+		}
+
+		// Not sure being able to leave is useful?
+		$db->delete('plugin_chat_users_channels', 'id_user = ? AND id_channel = ?', $user->id(), $this->id());
+	}
+
 	public function public_storage_root(): string
 	{
 		return File::CONTEXT_EXTENSIONS . '/p/chat/public/' . $this->id();
@@ -298,11 +308,20 @@ class Channel extends Entity
 
 	public function listUsers(): array
 	{
-		$sql = 'SELECT u.* FROM @TABLE u
+		$sql = 'SELECT u.*
+			FROM @TABLE u
 			INNER JOIN plugin_chat_users_channels uc ON uc.id_user = u.id
 			WHERE uc.id_channel = ? AND (u.id_user IS NOT NULL OR last_disconnect < ?)
 			ORDER BY u.name COLLATE U_NOCASE;';
-		return EM::getInstance(User::class)->all($sql, $this->id(), time() - 3600);
+
+		$i = EM::getInstance(User::class)->iterate($sql, $this->id(), time() - 3600);
+		$out = [];
+
+		foreach ($i as $row) {
+			$out[$row->id] = $row;
+		}
+
+		return $out;
 	}
 
 	public function listMessages(?int $focus = null, ?int $count = 100): array
@@ -334,6 +353,7 @@ class Channel extends Entity
 
 	public function getEventsSince(int $since, int $last_seen_message_id, User $user): \Generator
 	{
+		static $roster = null;
 		$db = DB::getInstance();
 
 		$sql = 'SELECT m.*, CASE WHEN u.id IS NOT NULL THEN u.name ELSE m.user_name END AS user_name,
@@ -352,5 +372,51 @@ class Channel extends Entity
 				]
 			];
 		}
+
+		// Disable live list of users for now, as it is not used currently in the UI
+		return;
+
+		// Update list of users
+		$users = $db->getGrouped('SELECT u.id, u.id_user, u.name,
+			CASE WHEN MAX(COALESCE(u.last_disconnect, 0), COALESCE(u.last_connect, 0)) >= ? THEN \'online\'
+				WHEN COALESCE(u.last_disconnect, 0) >= ? THEN \'inactive\'
+				ELSE \'offline\' END AS status
+			FROM plugin_chat_users u
+			INNER JOIN plugin_chat_users_channels uc ON uc.id_user = u.id
+			WHERE uc.id_channel = ?;', time() - 600, time() - 60, $this->id());
+
+		if (!$roster || count(array_diff_key($roster, $users))) {
+			yield [
+				'type' => 'users',
+				'data' => [
+					'users' => $users,
+				]
+			];
+		}
+
+		if ($roster) {
+			foreach ($users as $id => $user) {
+				if (!array_key_exists($id, $roster)) {
+					continue;
+				}
+
+				$a = $user;
+				$old = $roster[$id];
+
+				if ($user->status === $old->status) {
+					continue;
+				}
+
+				yield [
+					'type' => 'status_change',
+					'data' => [
+						'status'  => $user->status,
+						'id_user' => $user->id,
+					]
+				];
+			}
+		}
+
+		$roster = $users;
 	}
 }

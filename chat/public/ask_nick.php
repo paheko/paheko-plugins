@@ -8,7 +8,7 @@ use Paheko\Plugin\Chat\Chat;
 require __DIR__ . '/_inc.php';
 
 if (!Chat::hasPublicChannels()) {
-	throw new UserException('Aucune discussion disponible', 403);
+	throw new UserException('Aucune discussion n\'est publique', 403);
 }
 
 $csrf_key = 'ask_nick';

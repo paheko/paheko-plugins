@@ -24,6 +24,14 @@
 
 ## Fonctionnalités prévues
 
+* Mettre à 
+
+* Fils de discussion :
+	* Possibilité de répondre à un message en particulier
+	* Possibilité de définir un titre à un message
+	* Liste des discussions ayant un titre
+	* Affichage du titre dans la discussion
+
 * mise à jour de la liste des salons (quand un nouveau salon est créé, que quelqu'un vient vous parler en privé, etc.)
 * Pouvoir configurer le serveur Jitsi utilisé
 * Possibilité de définir une URL de visio différente pour chaque salon (par exemple pour aller sur BBB)
@@ -39,16 +47,13 @@
 * Indicateur du nombre de messages non lus dans le titre de l'onglet
 * Envoi de notification par e-mail en cas de mention
 * Envoi des discussions par e-mail après X jours d'absence (résumé)
-* Possibilité de répondre à un message (fil de discussion)
 * API simple pour qu'un bot puisse poster des messages
-* Bridge IRC
-* Pouvoir choisir son avatar
+* Pouvoir choisir son avatar (Préférences Paheko)
 * Ajout bouton "ouvrir une discussion privée par chat" sur la fiche d'un membre
-* Pouvoir exclure quelqu'un d'une discussion
-* Pouvoir muter quelqu'un
-* Pouvoir restreindre un canal à une catégorie de membres
-* Pouvoir masquer la liste des participants d'une discussion
-* Masquer par défaut la liste des participants pour un utilisateur anonyme
+* Modération des participants :
+	* Pouvoir exclure quelqu'un d'une discussion
+	* Pouvoir muter quelqu'un
+	* Pouvoir restreindre un canal à une catégorie de membres
 
 ## Ce qui n'est pas prévu
 
@@ -56,6 +61,7 @@
 * Bridge Matrix
 * Bridge XMPP
 * Chiffrement des messages
+* Indicateurs d'interaction : "machin est en train d'écrire", "message lu" : ces fonctionnalités sont faites pour garder l'attention et empêchent de se concentrer sur le sujet de la discussion (<https://web.archive.org/web/20241006061120/https://www.withcardinal.com/blog/2022-06-01-why-we-dont-show-typing>)
 
 ## How it works
 
