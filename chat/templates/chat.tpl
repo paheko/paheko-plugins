@@ -17,6 +17,7 @@
 		{/if}
 		<ul>
 		{foreach from=$channels item="c"}
+			<?php $c->name ??= '(Notes personnelles)'; ?>
 			<li class="{if $c.id === $channel.id}current{/if} {$c.access}">{link href="./?id=%d"|args:$c.id label=$c.name}</li>
 		{/foreach}
 		</ul>

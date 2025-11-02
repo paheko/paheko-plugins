@@ -151,11 +151,13 @@ body.public:has(#chat) footer.public {
 .channels ul li a {
 	display: block;
 	padding: .2em .5em;
+	white-space: pre;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 .channels ul li.current a {
 	background: rgba(var(--gSecondColor), 0.4);
-	font-weight: bold;
 }
 
 .channels ul li a::before {
