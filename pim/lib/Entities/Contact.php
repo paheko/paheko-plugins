@@ -23,7 +23,7 @@ class Contact extends Entity
 	protected ?int $id = null;
 	protected int $id_user;
 	protected string $uri;
-	protected string $first_name;
+	protected ?string $first_name;
 	protected ?string $last_name;
 	protected ?string $title;
 	protected ?string $mobile_phone;
@@ -47,6 +47,7 @@ class Contact extends Entity
 		$this->assert(strlen($this->uri) && strlen($this->uri) < 255, 'Invalid URI');
 		$this->assert(is_null($this->raw) || strlen($this->raw) <= 1024*50, 'Raw event data is too large');
 		$this->assert(is_null($this->first_name) || strlen(trim($this->first_name)), 'Le prénom est obligatoire');
+		$this->assert(is_null($this->first_name) || is_null($this->last_name), 'Le prénom ou le nom doivent être renseignés');
 	}
 
 	public function save(bool $selfcheck = true): bool
