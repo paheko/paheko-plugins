@@ -58,23 +58,35 @@ CREATE VIRTUAL TABLE IF NOT EXISTS plugin_chat_messages_search USING fts4
 (
 	content="plugin_chat_messages",
 	tokenize=unicode61, -- Available from SQLITE 3.7.13 (2012)
+	title TEXT NULL,
 	content TEXT NULL -- Text content
 );
 
-CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_u BEFORE UPDATE ON plugin_chat_messages BEGIN
+CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_u
+	AFTER UPDATE ON plugin_chat_messages
+BEGIN
 	DELETE FROM plugin_chat_messages_search WHERE docid = old.rowid;
 END;
 
-CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_d BEFORE DELETE ON plugin_chat_messages BEGIN
+CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_d
+	AFTER DELETE ON plugin_chat_messages
+BEGIN
 	DELETE FROM plugin_chat_messages_search WHERE docid = old.rowid;
 END;
 
-CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_au AFTER UPDATE ON plugin_chat_messages BEGIN
-	INSERT INTO plugin_chat_messages_search(docid, content) VALUES(new.rowid, new.content);
+-- Only insert if title or content is not null
+CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_au
+	AFTER UPDATE ON plugin_chat_messages
+	WHEN new.content IS NOT NULL OR new.title IS NOT NULL
+BEGIN
+	INSERT INTO plugin_chat_messages_search(docid, title, content) VALUES(new.rowid, new.title, new.content);
 END;
 
-CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_ai AFTER INSERT ON plugin_chat_messages BEGIN
-	INSERT INTO plugin_chat_messages_search(docid, content) VALUES(new.rowid, new.content);
+CREATE TRIGGER IF NOT EXISTS plugin_chat_messages_search_ai
+	AFTER INSERT ON plugin_chat_messages
+	WHEN new.content IS NOT NULL OR new.title IS NOT NULL
+BEGIN
+	INSERT INTO plugin_chat_messages_search(docid, title, content) VALUES(new.rowid, new.title, new.content);
 END;
 
 INSERT OR IGNORE INTO plugin_chat_channels VALUES (1, 'interne', 'Discussions internes à l''association', 'private', 0, NULL, NULL);
