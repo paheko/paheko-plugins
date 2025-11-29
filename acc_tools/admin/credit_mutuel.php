@@ -85,7 +85,7 @@ $form->runIf('load', function () use ($tabula_path) {
 			Crédit EUROS
 		 */
 		foreach ($csv as $count => $line) {
-			$row = str_getcsv($line);
+			$row = str_getcsv($line, ',', '"', '\\');
 
 			if (count($row) < 2) {
 				debug_log('Saut ligne vide');

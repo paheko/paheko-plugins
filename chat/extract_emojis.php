@@ -18,7 +18,7 @@ $categories_map = [
 ];
 
 while (!feof($fp)) {
-	$line = fgetcsv($fp);
+	$line = fgetcsv($fp, 4096*10, ',', '"', '\\');
 
 	if (!$line) {
 		continue;

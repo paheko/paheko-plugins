@@ -70,7 +70,7 @@ class Entry extends Entity
 		$this->setDate($ts);
 	}
 
-	public function setDuration(string $duration = null)
+	public function setDuration(?string $duration = null)
 	{
 		$duration = trim($duration);
 

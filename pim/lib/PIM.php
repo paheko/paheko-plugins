@@ -73,7 +73,7 @@ class PIM
 		return Users::get((int)$login);
 	}
 
-	static public function verifyAccess(Session $session = null): void
+	static public function verifyAccess(?Session $session = null): void
 	{
 		$session ??= Session::getInstance();
 

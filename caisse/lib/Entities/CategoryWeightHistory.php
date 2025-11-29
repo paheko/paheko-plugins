@@ -17,7 +17,7 @@ class CategoryWeightHistory extends Entity
 	protected ?int $item;
 	protected ?int $event;
 
-	public function importForm(array $source = null)
+	public function importForm(?array $source = null)
 	{
 		$source ??= $_POST;
 

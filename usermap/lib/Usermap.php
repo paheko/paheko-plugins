@@ -213,7 +213,10 @@ class Usermap
 				throw new UserException(sprintf('L\'API a renvoyé une erreur : %d', $code));
 			}
 
-			curl_close($curl);
+			if (PHP_VERSION_ID < 80500) {
+				curl_close($curl);
+			}
+
 			unset($curl);
 			fclose($fp);
 
