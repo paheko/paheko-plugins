@@ -163,3 +163,9 @@ if (version_compare($old_version, '0.8.11', '<')) {
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.11.sql')));
 	$db->commitSchemaUpdate();
 }
+
+if (version_compare($old_version, '0.8.12', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.12.sql')));
+	$db->commitSchemaUpdate();
+}

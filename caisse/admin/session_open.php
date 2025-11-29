@@ -8,24 +8,27 @@ use function Paheko\Plugin\Caisse\get_amount;
 
 require __DIR__ . '/_inc.php';
 
-$pos_session = null;
 $csrf_key = 'pos_open_session';
+$balances = Sessions::listOpeningBalances();
 
-$form->runIf('open', function () use ($session) {
-	if (trim(f('amount')) === '') {
-		throw new UserException('Le solde de la caisse ne peut être laissé vide.');
+$form->runIf('open', function () use ($session, $balances) {
+	$amounts = $_POST['balance'];
+
+	foreach ($balances as $balance) {
+		if (trim($amounts[$balance->id] ?? '') === '') {
+			throw new UserException(sprintf('Le solde "%s" ne peut être laissé vide.', $balance->name));
+		}
 	}
 
-	$l = intval(f('id_location')) ?: null;
-	$amount = get_amount(f('amount'));
-	$name = f('user_name') ?: $session->getUser()->name();
-	$s = Sessions::open($name, $amount, $l);
+	$location = intval($_POST['id_location'] ?? 0) ?: null;
+	$name = $_POST['user_name'] ?? $session->getUser()->name();
+	$s = Sessions::open($name, $amounts, $location);
 	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'session=' . $s->id()]));
 }, $csrf_key);
 
 $locations = Locations::listAssoc();
 
-$tpl->assign(compact('csrf_key', 'pos_session', 'locations'));
+$tpl->assign(compact('balances', 'csrf_key', 'locations'));
 
 $tpl->assign('user_name', $session->getUser()->name());
 $tpl->assign('current_pos_session', Sessions::getCurrentId());

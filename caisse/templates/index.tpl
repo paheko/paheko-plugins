@@ -12,7 +12,7 @@
 	{if $current_pos_session}
 		{linkbutton href="tab.php?session=%d"|args:$current_pos_session shape="right" label="Reprendre la session" class="main"}
 	{/if}
-	{linkbutton href="session_open.php" shape="plus" label="Ouvrir une session de caisse" class="main"}
+	{linkbutton href="session_open.php" shape="plus" label="Ouvrir une session de caisse" class="main" target="_dialog"}
 </nav>
 
 {include file="common/dynamic_list_head.tpl"}

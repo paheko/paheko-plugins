@@ -9,10 +9,10 @@
 {form_errors}
 
 <form method="post" action="" data-focus="1">
+	{if $plugin.config.allow_custom_user_name || count($locations)}
 	<fieldset>
-		<legend>Ouvrir la caisse</legend>
+		<legend>Informations d'ouverture</legend>
 		<dl>
-			{input type="money" name="amount" label="Solde de la caisse à l'ouverture" help="Uniquement les espèces, ne pas compter les chèques" required=true}
 			{if $plugin.config.allow_custom_user_name}
 				{input type="text" name="user_name" label="Nom de la personne procédant à l'ouverture de la caisse" required=true default=$user_name}
 			{/if}
@@ -21,6 +21,22 @@
 			{/if}
 		</dl>
 	</fieldset>
+	{/if}
+
+	<div class="pos-balances pos-balances-count-{$balances|count}">
+	{foreach from=$balances item="balance"}
+		<fieldset>
+			<legend>{$balance.name}</legend>
+			<dl>
+				{input type="money" name="balance[%d]"|args:$balance.id label="Solde à l'ouverture" required=true}
+				{if count($balances) == 1}
+				<dd class="help">Ne compter que les espèces, pas les chèques.</dd>
+				{/if}
+			</dl>
+		</fieldset>
+	{/foreach}
+	</div>
+
 	<p class="submit">
 		{csrf_field key=$csrf_key}
 		{linkbutton shape="left" href="./" label="Annuler"}

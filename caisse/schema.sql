@@ -101,11 +101,19 @@ CREATE TABLE IF NOT EXISTS @PREFIX_sessions (
 	opened TEXT NOT NULL DEFAULT (datetime('now','localtime')),
 	closed TEXT NULL,
 	open_user TEXT NULL,
-	open_amount INTEGER NULL,
+	close_user TEXT NULL
+);
+
+CREATE TABLE IF NOT EXISTS @PREFIX_sessions_balances (
+	id INTEGER NOT NULL PRIMARY KEY,
+	id_session INTEGER NOT NULL REFERENCES @PREFIX_sessions (id) ON DELETE CASCADE,
+	id_method INTEGER NOT NULL REFERENCES @PREFIX_methods (id) ON DELETE CASCADE,
+	open_amount INTEGER NOT NULL,
 	close_amount INTEGER NULL,
-	close_user TEXT NULL,
 	error_amount INTEGER NULL
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX_sessions_balances_unique ON @PREFIX_sessions_balances (id_session, id_method);
 
 CREATE TABLE IF NOT EXISTS @PREFIX_tabs (
 	-- Customer tabs (or carts)

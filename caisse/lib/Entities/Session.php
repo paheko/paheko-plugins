@@ -32,10 +32,23 @@ class Session extends Entity
 	protected \DateTime $opened;
 	protected ?\DateTime $closed;
 	protected string $open_user;
-	protected int $open_amount;
-	protected ?int $close_amount;
 	protected ?string $close_user;
-	protected ?int $error_amount;
+
+	protected array $_balances = [];
+
+	public function balance(int $id_method)
+	{
+		$this->_balances[$id_method] ??= EntityManager::findOne(SessionBalance::class, 'SELECT * FROM @TABLE WHERE id_session = ? AND id_method = ?;', $this->id(), $id_method);
+
+		if (!isset($this->_balances[$id_method])) {
+			$balance = new SessionBalance;
+			$balance->set('id_session', $this->id());
+			$balance->set('id_method', $id_method);
+			$this->_balances[$id_method] = $balance;
+		}
+
+		return $this->_balances[$id_method];
+	}
 
 	public function hasOpenNotes(): bool
 	{
@@ -253,13 +266,16 @@ class Session extends Entity
 
 	}
 
-	public function getCashTotal()
+	public function listClosingBalances(): array
 	{
-		return DB::getInstance()->firstColumn(POS::sql('
-			SELECT SUM(amount) FROM @PREFIX_tabs_payments p
+		return DB::getInstance()->get(POS::sql('
+			SELECT m.id, m.name, SUM(amount) AS total, SUM(amount) + b.open_amount AS expected_total
+			FROM @PREFIX_tabs_payments p
 			INNER JOIN @PREFIX_tabs t ON t.id = p.tab
 			INNER JOIN @PREFIX_methods m ON m.id = p.method
-			WHERE t.session = ? AND m.type = ?;'), $this->id, Method::TYPE_CASH);
+			INNER JOIN @PREFIX_sessions_balances b ON b.id_session = t.session AND b.id_method = m.id
+			WHERE t.session = ? AND m.type = ?
+			GROUP BY m.id;'), $this->id, Method::TYPE_CASH);
 	}
 
 	public function listTrackedPayment()
