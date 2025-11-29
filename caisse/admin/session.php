@@ -38,6 +38,7 @@ if ($session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_READ)) {
 	$tpl->assign('transaction', $pos_session->getTransaction());
 }
 
+$tpl->assign('title', sprintf('Session de caisse n°%d du %s', $pos_session->id(), Utils::date_fr($pos_session->opened)));
 $tpl->assign(compact('export'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/session.tpl');

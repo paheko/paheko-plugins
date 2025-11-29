@@ -45,14 +45,18 @@
 					{/if}
 				{/if}
 			</td>
-			<td class="money">{$pos_session.open_amount|raw|money_currency}</td>
-			<td class="money">{$pos_session.close_amount|raw|money_currency}</td>
+			{if $list->hasColumn('open_amount')}
+				<td class="money">{$pos_session.open_amount|raw|money_currency}</td>
+				<td class="money">{$pos_session.close_amount|raw|money_currency}</td>
+			{/if}
 			<td class="money">{$pos_session.total|raw|money_currency}</td>
+			{if $list->hasColumn('error_amount')}
 			<td class="money">
 				{if $pos_session.error_amount}
 					<span class="error">{$pos_session.error_amount|raw|money_currency}</span>
 				{/if}
 			</td>
+			{/if}
 			<td class="num">{$pos_session.tabs_count}</td>
 			<td class="actions">
 				{if !$pos_session.closed}

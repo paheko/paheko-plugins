@@ -68,26 +68,43 @@
 {/if}
 
 
-{if $pos_session.error_amount}
-	<p class="error block">Erreur de {$pos_session.error_amount|raw|money_currency}</span>
-{/if}
-
-<p class="details">
-	Ouverture&nbsp;: {$pos_session.opened|date}
-	— par {$pos_session.open_user}
-	— Caisse = {$pos_session.open_amount|raw|money_currency}
-</p>
-<p class="details">
-	Fermeture&nbsp;:
-	{if !$pos_session.closed}<strong>En cours</strong>
-	{else}{$pos_session.closed|date}
-		— par {$pos_session.close_user}
-		— Caisse = {$pos_session.close_amount|raw|money_currency}
-		{if !$pos_session.error_amount}
-			— pas d'erreur
+<div class="pos-summary">
+	<dl>
+		<dt><strong>Ouverture</strong></dt>
+		<dd>{$pos_session.opened|date}</dd>
+		<dt>Par</dt>
+		<dd>{$pos_session.open_user}</dd>
+	{foreach from=$balances item="balance"}
+		<dt>{$balance.name}</dt>
+		<dd>{$balance.open_amount|raw|money_currency}</dd>
+	{/foreach}
+	</dl>
+	<dl>
+		<dt><strong>Fermeture</strong></dt>
+		<dd>{if !$pos_session.closed}{tag label="darkorange" label="En cours"}{else}{$pos_session.closed|date}{/if}</dd>
+		{if $pos_session.closed}
+			<dt>Par</dt>
+			<dd>{$pos_session.close_user}</dd>
+			{foreach from=$balances item="balance"}
+				<dt>{$balance.name}</dt>
+				<dd>{$balance.close_amount|raw|money_currency}
+				{if !$balance.error_amount}
+					{tag color="darkgreen" label="Pas d'erreur"}
+				{else}
+					{assign var="error" value=$balance.error_amount|money_currency_text:true:true}
+					{tag color="darkred" label="Erreur %s"|args:$error}
+				{/if}
+				</dd>
+			{/foreach}
 		{/if}
-	{/if}
-</p>
+	</dl>
+	<dl>
+		<dt><strong>Résultat</strong></dt>
+		<dd>{$total_sales|money_currency|raw}</dd>
+		<dt>Nombre de notes</dt>
+		<dd>{$tabs|count}</dd>
+	</dl>
+</div>
 
 <h2 class="ruler">Totaux des règlements, par moyen de paiement</h2>
 

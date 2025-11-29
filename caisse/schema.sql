@@ -110,7 +110,9 @@ CREATE TABLE IF NOT EXISTS @PREFIX_sessions_balances (
 	id_method INTEGER NOT NULL REFERENCES @PREFIX_methods (id) ON DELETE CASCADE,
 	open_amount INTEGER NOT NULL,
 	close_amount INTEGER NULL,
-	error_amount INTEGER NULL
+	error_amount INTEGER NULL,
+	result INTEGER NULL,
+	nb_tabs INTEGER NULL
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX_sessions_balances_unique ON @PREFIX_sessions_balances (id_session, id_method);

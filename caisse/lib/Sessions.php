@@ -30,9 +30,17 @@ class Sessions
 		$session->set('id_location', $id_location);
 		$session->save();
 
-		foreach ($balances as $id => $amount) {
-			$b = $session->balance($id);
-			$b->set('open_amount', Utils::moneyToInteger($amount));
+		foreach (self::listOpeningBalances() as $balance) {
+			$amount = $balances[$balance->id] ?? '';
+
+			if (trim($amount) === '') {
+				throw new UserException(sprintf('Le solde "%s" ne peut être laissé vide.', $balance->name));
+			}
+
+			$amount = Utils::moneyToInteger($amount);
+
+			$b = $session->balance($balance->id);
+			$b->set('open_amount', $amount);
 			$b->save();
 		}
 
@@ -92,24 +100,24 @@ class Sessions
 			],
 			'open_amount' => [
 				'label' => 'Montant ouv.',
-				'select' => 'b.open_amount',
+				'select' => 'open_amount',
 			],
 			'close_amount' => [
 				'label' => 'Montant clô.',
-				'select' => 'b.close_amount',
+				'select' => 'close_amount',
 			],
 			'total' => [
 				'label' => 'Résultat',
-				'select' => 'SUM(ti.total)',
+				'select' => 'result',
 			],
 			'error_amount' => [
 				'label' => 'Erreur',
-				'select' => 'SUM(b.error_amount)',
+				'select' => 'error_amount',
 			],
 			'tabs_count' => [
-				'select' => 'COUNT(DISTINCT t.id)',
 				'order' => null,
 				'label' => 'Nombre de notes',
+				'select' => 'nb_tabs',
 			],
 		];
 
@@ -117,11 +125,9 @@ class Sessions
 			unset($columns['location']);
 		}
 
-		$tables = '@PREFIX_sessions s
-			LEFT JOIN @PREFIX_tabs t ON t.session = s.id
-			LEFT JOIN @PREFIX_tabs_items ti ON ti.tab = t.id
-			LEFT JOIN @PREFIX_locations l ON l.id = s.id_location
-			LEFT JOIN @PREFIX_sessions_balances b ON b.id_session = s.id';
+		// This is overly complicated to not be too slow
+		$tables = '(SELECT s.*, SUM(b.open_amount) AS open_amount, SUM(b.close_amount) AS close_amount, SUM(b.error_amount) AS error_amount FROM @PREFIX_sessions s LEFT JOIN @PREFIX_sessions_balances b ON b.id_session = s.id GROUP BY s.id) AS s
+			LEFT JOIN @PREFIX_locations l ON l.id = s.id_location';
 
 		$db = DB::getInstance();
 		// We hide the amount columns if we have more than one method in the balances
@@ -131,6 +137,7 @@ class Sessions
 			unset($columns['close_amount']);
 			$columns['error_amount']['label'] = 'Erreurs';
 		}
+
 
 		$tables = POS::sql($tables);
 

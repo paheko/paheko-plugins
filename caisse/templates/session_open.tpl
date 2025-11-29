@@ -28,7 +28,7 @@
 		<fieldset>
 			<legend>{$balance.name}</legend>
 			<dl>
-				{input type="money" name="balance[%d]"|args:$balance.id label="Solde à l'ouverture" required=true}
+				{input type="money" name="balances[%d]"|args:$balance.id label="Solde à l'ouverture" required=true}
 				{if count($balances) == 1}
 				<dd class="help">Ne compter que les espèces, pas les chèques.</dd>
 				{/if}

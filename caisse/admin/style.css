@@ -273,3 +273,57 @@
 .pos-balances fieldset legend {
 	font-size: 1.2em;
 }
+
+.pos-balances dd.info {
+	padding: .5em;
+	background: #eee;
+	border-radius: .5em;
+	margin: .5em;
+}
+
+.pos-balances dd.info tt {
+	background: #fff;
+	border-radius: .5em;
+	padding: .5em;
+	display: inline-block;
+}
+
+.pos-balances dd.info strong tt {
+	font-size: 1.2em;
+}
+
+.pos-summary {
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	justify-content: stretch;
+	gap: 1em;
+}
+
+.pos-summary dl {
+	border: 2px solid #ccc;
+	border-radius: .5em;
+	padding: .5em;
+	margin: 1em;
+}
+
+.pos-summary dt {
+	margin: .5em;
+	margin-bottom: 0;
+	color: #666;
+}
+
+.pos-summary dd {
+	font-size: 1.2em;
+	margin: .5em;
+	margin-top: .2em;
+}
+.pos-summary dt strong {
+	font-size: 1.3em;
+}
+
+.pos-summary dd .tag {
+	float: right;
+	font-size: 1rem;
+	margin-left: 1em;
+}

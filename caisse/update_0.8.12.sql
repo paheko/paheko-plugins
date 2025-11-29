@@ -28,9 +28,24 @@ CREATE TABLE IF NOT EXISTS @PREFIX_sessions (
 	opened TEXT NOT NULL DEFAULT (datetime('now','localtime')),
 	closed TEXT NULL,
 	open_user TEXT NULL,
-	close_user TEXT NULL
+	close_user TEXT NULL,
+	result INTEGER NULL,
+	nb_tabs INTEGER NULL
 );
 
-INSERT INTO @PREFIX_sessions SELECT id, id_location, opened, closed, open_user, close_user FROM @PREFIX_sessions_old;
+INSERT INTO @PREFIX_sessions
+	SELECT
+		s.id,
+		s.id_location,
+		s.opened,
+		s.closed,
+		s.open_user,
+		s.close_user,
+		NULL,
+		NULL
+	FROM @PREFIX_sessions_old s;
+
+UPDATE @PREFIX_sessions SET result = (SELECT SUM(ti.total) FROM @PREFIX_tabs_items ti INNER JOIN @PREFIX_tabs t ON t.id = ti.tab WHERE t.session = @PREFIX_sessions.id);
+UPDATE @PREFIX_sessions SET nb_tabs = (SELECT COUNT(*) FROM @PREFIX_tabs WHERE session = @PREFIX_sessions.id);
 
 DROP TABLE @PREFIX_sessions_old;
