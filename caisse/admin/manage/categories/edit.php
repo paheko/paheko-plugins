@@ -14,7 +14,7 @@ else {
 	$csrf_key = 'cat_edit_' . $cat->id();
 }
 
-$account = [$cat->account => $cat->account];
+$account = $cat->account ? [$cat->account => $cat->account] : null;
 
 $tpl->assign(compact('cat', 'account', 'csrf_key'));
 

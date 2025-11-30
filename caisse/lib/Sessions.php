@@ -230,7 +230,7 @@ class Sessions
 				'debit'          => null,
 				'line_reference' => null,
 				'line_label'     => null,
-				'reconciled'     => 0,
+				'reconciled'     => '',
 				'sid'            => $session->id,
 			];
 
