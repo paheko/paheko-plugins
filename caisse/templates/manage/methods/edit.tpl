@@ -36,7 +36,7 @@
 			{/if}
 
 			<?php $account = $method->account ? [$method->account => $method->account] : null; ?>
-			{input required=false name="account" multiple=false target="!acc/charts/accounts/selector.php?key=code" type="list" label="Compte du plan comptable" default=$account help="Numéro du compte dans le plan comptable (par exemple 530 pour les espèces), utilisé pour intégrer les notes à la comptabilité."}
+			{input required=true name="account" multiple=false target="!acc/charts/accounts/selector.php?key=code" type="list" label="Compte du plan comptable" default=$account help="Numéro du compte dans le plan comptable (par exemple 530 pour les espèces), utilisé pour intégrer les notes à la comptabilité."}
 			{input type="money" name="min" label="Minimum" source=$method help="Si renseigné, ce moyen de paiement ne pourra pas être utilisé pour un paiement inférieur à ce montant."}
 			{input type="money" name="max" label="Maximum" source=$method help="Si renseigné, ce moyen de paiement ne pourra pas être utilisé pour un paiement supérieur à ce montant."}
 
