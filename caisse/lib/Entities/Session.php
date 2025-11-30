@@ -109,7 +109,6 @@ class Session extends Entity
 
 			if ($value !== $balance->expected_total
 				&& empty($user_balances[$balance->id]['confirm'])) {
-				var_dump($user_balances); exit;
 				throw new UserException(sprintf('Le solde constaté à la clôture ne correspond pas pour "%s", si le recompte est juste, cocher la case pour confirmer l\'erreur.', $balance->name));
 			}
 
@@ -307,10 +306,19 @@ class Session extends Entity
 	public function listBalances(): array
 	{
 		return DB::getInstance()->get(POS::sql('
-			SELECT m.id, m.name, b.open_amount, b.close_amount, b.error_amount
+			SELECT m.id, m.name, m.account, b.open_amount, b.close_amount, b.error_amount
 			FROM @PREFIX_sessions_balances b
 			INNER JOIN @PREFIX_methods m ON m.id = b.id_method
 			WHERE b.id_session = ?;'), $this->id());
+	}
+
+	public function listBalancesWithError(): array
+	{
+		return DB::getInstance()->get(POS::sql('
+			SELECT m.id, m.name, m.account, b.open_amount, b.close_amount, b.error_amount
+			FROM @PREFIX_sessions_balances b
+			INNER JOIN @PREFIX_methods m ON m.id = b.id_method
+			WHERE b.id_session = ? AND b.error_amount IS NOT NULL AND b.error_amount != 0;'), $this->id());
 	}
 
 	public function listTrackedPayment()

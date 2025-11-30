@@ -25,9 +25,8 @@ class POS
 {
 	const TABLES_PREFIX = 'plugin_pos_';
 
-	// FIXME: change for 678/778
-	const ERROR_DEBIT_ACCOUNT = '658';
-	const ERROR_CREDIT_ACCOUNT = '758';
+	const ERROR_DEBIT_ACCOUNT = '678';
+	const ERROR_CREDIT_ACCOUNT = '778';
 
 	static public function sql(string $query): string
 	{
@@ -191,21 +190,6 @@ class POS
 		$count = 0;
 
 		$save_transaction = function ($transaction) use ($attach, &$count, $accounts_ids) {
-			// In some rare cases, the account / product may have disappeared (WTF?!), we consider it to be an error
-			$error = abs($transaction->getLinesDebitSum()) - $transaction->getLinesCreditSum();
-			if ($error != 0) {
-				ErrorManager::reportExceptionSilent(new \LogicException(sprintf('Missing accounts for %s: debit (%d) != credit (%d)', $transaction->reference, $transaction->getLinesDebitSum(), $transaction->getLinesCreditSum())));
-
-				if ($error > 0) {
-					$line = Line::create($accounts_ids[self::ERROR_CREDIT_ACCOUNT], abs($error), 0, 'Erreur de caisse : moyen de paiement ou produit sans compte associé');
-				}
-				else {
-					$line = Line::create($accounts_ids[self::ERROR_DEBIT_ACCOUNT], 0, abs($error), 'Erreur de caisse inconnue : moyen de paiement ou produit sans compte associé');
-				}
-
-				$transaction->addLine($line);
-			}
-
 			$transaction->save();
 			$count++;
 
@@ -217,7 +201,9 @@ class POS
 			}
 		};
 
-		foreach (self::iterateSessions($year->start_date, $year->end_date) as $row) {
+		$errors = [];
+
+		foreach (Sessions::iterateExportLines($year->start_date, $year->end_date, $errors) as $row) {
 			// Skip POS sessions already added as transactions
 			if (array_key_exists($row->reference, $exists)) {
 				continue;
@@ -274,6 +260,11 @@ class POS
 			}
 		}
 
+		if (count($errors)) {
+			ErrorManager::reportExceptionSilent(new \LogicException('POS sync errors: ' . implode("\n", $errors)));
+			throw new UserException(implode("\n", $errors));
+		}
+
 		if ($transaction && $row) {
 			$save_transaction($transaction, $row);
 		}
@@ -281,146 +272,6 @@ class POS
 		$db->commit();
 
 		return $count;
-	}
-
-	static public function iterateSessions(\DateTime $start, \DateTime $end, bool $errors_only = false)
-	{
-		$db = DB::getInstance();
-
-		$errors_only = $errors_only ? 'AND account IS NULL' : '';
-
-		// This is a complex query, beware!
-		// First we aggregate all sold tab items, and payments
-		// then we add (UNION ALL) all error amounts
-		// we default to using the first cash account for the session location
-		$sql = 'SELECT
-			NULL AS id,
-			\'Avancé\' AS type,
-			NULL AS status,
-			\'Session de caisse n°\' || s.id AS label,
-			strftime(\'%%d/%%m/%%Y\', s.closed) AS date,
-			NULL AS notes,
-			\'POS-SESSION-\' || s.id AS reference,
-			NULL AS line_id,
-			lines.account AS account,
-			-- Flip debit/credit if negative
-			CASE
-				WHEN SUM(lines.debit) < 0 THEN ABS(SUM(lines.debit))
-				WHEN SUM(lines.credit) < 0 THEN 0
-				ELSE SUM(lines.credit)
-			END AS credit,
-			CASE
-				WHEN SUM(lines.credit) < 0 THEN ABS(SUM(lines.credit))
-				WHEN SUM(lines.debit) < 0 THEN 0
-				ELSE SUM(lines.debit)
-			END AS debit,
-			CASE WHEN lines.reference IS NULL THEN NULL ELSE SUBSTR(lines.reference, 1, 199) END AS line_reference,
-			NULL AS line_label,
-			0 AS reconciled,
-			s.id AS sid
-			FROM @PREFIX_sessions s
-			INNER JOIN (
-				SELECT session, account, SUM(total) AS credit, 0 AS debit, NULL AS reference
-				FROM @PREFIX_tabs_items ti
-				INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
-				GROUP BY t.session, account
-				UNION ALL
-				SELECT session, account, 0 AS credit, SUM(amount) AS debit, reference
-				FROM @PREFIX_tabs_payments tp
-				INNER JOIN @PREFIX_tabs t ON t.id = tp.tab
-				GROUP BY t.session, account, reference
-				) AS lines
-				ON lines.session = s.id
-			WHERE s.closed IS NOT NULL
-				AND date(s.closed) >= date(:start) AND date(s.closed) <= date(:end)
-				%s
-			GROUP BY s.id, lines.account, lines.reference
-			HAVING (SUM(lines.debit) != 0 OR SUM(lines.credit) != 0)
-			UNION ALL
-			-- Add error amounts to product/charge account
-			SELECT NULL AS id,
-			\'Avancé\' AS type,
-			NULL AS status,
-			\'Session de caisse n°\' || s.id AS label,
-			strftime(\'%%d/%%m/%%Y\', s.closed) AS date,
-			NULL AS notes,
-			\'POS-SESSION-\' || s.id AS reference,
-			NULL AS line_id,
-			CASE WHEN error_amount < 0 THEN :error_debit_account ELSE :error_credit_account END AS account,
-			CASE WHEN error_amount > 0 THEN ABS(error_amount) ELSE 0 END AS credit,
-			CASE WHEN error_amount < 0 THEN ABS(error_amount) ELSE 0 END AS debit,
-			NULL AS line_reference,
-			\'Erreur de caisse\' AS line_label,
-			0 AS reconciled,
-			s.id AS sid
-			FROM @PREFIX_sessions AS s
-			WHERE s.closed IS NOT NULL
-				AND s.error_amount != 0
-				AND date(s.closed) >= date(:start) AND date(s.closed) <= date(:end)
-				%1$s
-			UNION ALL
-			-- Add error amounts to cash account
-			SELECT NULL AS id,
-			\'Avancé\' AS type,
-			NULL AS status,
-			\'Session de caisse n°\' || s.id AS label,
-			strftime(\'%%d/%%m/%%Y\', s.closed) AS date,
-			NULL AS notes,
-			\'POS-SESSION-\' || s.id AS reference,
-			NULL AS line_id,
-			(SELECT m.account FROM @PREFIX_methods AS m WHERE m.type = 1 AND m.enabled = 1
-				AND (CASE WHEN s.id_location IS NULL THEN m.id_location IS NULL ELSE m.id_location = s.id_location END) LIMIT 1) AS account,
-			CASE WHEN error_amount < 0 THEN ABS(error_amount) ELSE 0 END AS credit,
-			CASE WHEN error_amount > 0 THEN ABS(error_amount) ELSE 0 END AS debit,
-			NULL AS line_reference,
-			\'Erreur de caisse\' AS line_label,
-			0 AS reconciled,
-			s.id AS sid
-			FROM @PREFIX_sessions AS s
-			WHERE s.closed IS NOT NULL
-				AND s.error_amount != 0
-				AND date(s.closed) >= date(:start) AND date(s.closed) <= date(:end)
-				%1$s
-			ORDER BY sid, account, line_reference;';
-
-		$sql = sprintf($sql, $errors_only);
-		$sql = POS::sql($sql);
-
-		$error_debit_account = self::ERROR_DEBIT_ACCOUNT;
-		$error_credit_account = self::ERROR_CREDIT_ACCOUNT;
-
-		return $db->iterate($sql, compact('start', 'end', 'error_debit_account', 'error_credit_account'));
-	}
-
-	static public function exportSessionsCSV(string $format, \DateTime $start, \DateTime $end, bool $localized_header = false)
-	{
-		$name = sprintf('Export caisse compta - %s à %s', $start->format('d-m-Y'), $end->format('d-m-Y'));
-
-		if ($localized_header) {
-			$header = ['Numéro d\'écriture', 'Type', 'Statut', 'Libellé', 'Date', 'Remarques', 'Numéro pièce comptable',
-				'Numéro ligne', 'Compte', 'Crédit', 'Débit', 'Référence ligne', 'Libellé ligne', 'Rapprochement'];
-		}
-		else {
-			$header = ['id', 'type', 'status', 'label', 'date', 'notes', 'reference',
-				'line_id', 'account', 'credit', 'debit', 'line_reference', 'line_label', 'reconciled'];
-		}
-
-		CSV::export($format, $name, self::iterateSessions($start, $end), $header, function (&$row) {
-			static $id = null;
-
-			if (null !== $id && $row->sid === $id) {
-				$row->type = $row->status = $row->label = $row->date = $row->reference = null;
-			}
-
-			if (null === $id || $row->sid !== $id) {
-				$id = $row->sid;
-			}
-
-			$row->credit = Utils::money_format($row->credit);
-			$row->debit = Utils::money_format($row->debit);
-
-			unset($row->sid);
-		});
 	}
 
 }

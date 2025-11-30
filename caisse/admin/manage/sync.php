@@ -19,12 +19,4 @@ $form->runIf($year && f('sync'), function () use ($year) {
 
 $tpl->assign('years', Years::listOpenAssoc());
 
-$errors = [];
-
-if ($year) {
-	$errors = POS::iterateSessions($year->start_date, $year->end_date, true);
-}
-
-$tpl->assign('errors', $errors);
-
 $tpl->display(PLUGIN_ROOT . '/templates/manage/sync.tpl');

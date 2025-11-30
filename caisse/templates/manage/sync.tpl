@@ -7,20 +7,6 @@
 	{if !$_GET.ok}Aucune écriture n'avait besoin d'être ajoutée.{else}{$_GET.ok} écritures ont été ajoutées.{/if}
 	{linkbutton href="!acc/search.php?qt=POS-SESSION-&year=%d"|args:$year.id label="Voir les écritures" shape="menu"}
 </p>
-
-{foreach from=$errors item="line"}
-<p class="alert block">
-	{if $line.debit}
-		Un paiement de {$line.debit|money_currency|raw} sur la <a href="../session.php?id={$line.sid}">session n°{$line.sid}</a> n'a pas de compte associé.
-	{else}
-		Une recette de {$line.credit|money_currency|raw} sur la <a href="../session.php?id={$line.sid}">session n°{$line.sid}</a> n'a pas de compte associé.
-	{/if}
-	<br />
-	Cette erreur survient quand une catégorie de produit ou un moyen de paiement n'a pas de compte associé en comptabilité.
-	Le montant a donc été comptabilisé comme une erreur de caisse (758 produit divers ou 658 charge divers).<br />
-	{linkbutton href="!acc/search.php?qt=POS-SESSION-%d&year=%d"|args:$line.sid,$year.id label="Voir l'écriture" shape="search"}
-</p>
-{/foreach}
 {/if}
 
 {form_errors}

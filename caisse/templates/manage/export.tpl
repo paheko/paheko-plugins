@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="Export des données comptable"}
 
-<form method="post" action="{$self_url}">
+<form method="post" action="{$self_url}" data-disable-progress="1">
 	<fieldset>
 		<legend>Intervalle d'export</legend>
 		<dl>
