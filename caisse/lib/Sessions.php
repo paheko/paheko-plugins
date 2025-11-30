@@ -30,7 +30,7 @@ class Sessions
 		$session->set('id_location', $id_location);
 		$session->save();
 
-		foreach (self::listOpeningBalances() as $balance) {
+		foreach (self::listOpeningBalances($id_location) as $balance) {
 			$amount = $balances[$balance->id] ?? '';
 
 			if (trim($amount) === '') {
@@ -154,10 +154,9 @@ class Sessions
 		return $list;
 	}
 
-	static public function listOpeningBalances(): array
+	static public function listOpeningBalances(?int $id_location): array
 	{
-		return DB::getInstance()->get(POS::sql('
-			SELECT id, name
-			FROM @PREFIX_methods
-			WHERE type = ? AND enabled = 1;'), Method::TYPE_CASH);
+		$where = $id_location === null ? 'AND id_location IS NULL' : 'AND id_location = ' . $id_location;
+		$sql = sprintf('SELECT id, name FROM %s WHERE type = %d AND enabled = 1 %s;', Method::TABLE, Method::TYPE_CASH, $where);
+		return DB::getInstance()->get($sql);
 	}}
