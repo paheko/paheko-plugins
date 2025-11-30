@@ -220,10 +220,6 @@ class Tab extends Entity
 			return;
 		}
 
-		if (!$item->canChangePrice()) {
-			throw new UserException('Le prix de ce produit ne peut être modifiée.');
-		}
-
 		$item->set('price', $price);
 		$item->save();
 	}
@@ -489,7 +485,7 @@ class Tab extends Entity
 			'category_name'  => 'Règlement d\'ardoise',
 			'account'        => $account,
 			'type'           => TabItem::TYPE_PAYOFF,
-			'pricing'        => TabItem::PRICING_QTY_BLOCKED,
+			'pricing'        => TabItem::PRICING_SINGLE,
 		]);
 
 		$item->save();

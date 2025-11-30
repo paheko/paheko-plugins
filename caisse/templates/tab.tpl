@@ -119,7 +119,7 @@
 						{/if}
 					</td>
 					<td class="money">
-						{if !$current_tab.closed && $item->canChangePrice()}
+						{if !$current_tab.closed}
 							<button type="submit" title="Cliquer pour changer le prix unitaire" name="change_price[{$item.id}]">{$item.price|escape|money_currency:false}</button>
 						{else}
 							{$item.price|raw|money_currency:false}
