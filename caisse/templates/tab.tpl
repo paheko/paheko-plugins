@@ -111,8 +111,20 @@
 					<th><small class="cat">{$item.category_name}</small> {$item.name}
 						{if !$current_tab.closed}<button title="Cliquer pour renommer" type="submit" value="{$item.name}" name="rename_item[{$item.id}]">{icon shape="edit"}</button>{/if}
 					</th>
-					<td>{if !$current_tab.closed}<input type="submit" name="change_qty[{$item.id}]" value="{$item.qty}" title="Cliquer pour changer la quantité" />{else}{$item.qty}{/if}</td>
-					<td class="money">{if !$current_tab.closed}<button type="submit" title="Cliquer pour changer le prix unitaire" name="change_price[{$item.id}]">{$item.price|escape|money_currency:false}</button>{else}{$item.price|raw|money_currency:false}{/if}</td>
+					<td>
+						{if !$current_tab.closed && $item->canChangeQty()}
+							<input type="submit" name="change_qty[{$item.id}]" value="{$item.qty}" title="Cliquer pour changer la quantité" />
+						{else}
+							{$item.qty}
+						{/if}
+					</td>
+					<td class="money">
+						{if !$current_tab.closed && $item->canChangePrice()}
+							<button type="submit" title="Cliquer pour changer le prix unitaire" name="change_price[{$item.id}]">{$item.price|escape|money_currency:false}</button>
+						{else}
+							{$item.price|raw|money_currency:false}
+						{/if}
+					</td>
 					{if $has_weight}
 						<td class="money">
 							{if !$current_tab.closed && $item.weight}

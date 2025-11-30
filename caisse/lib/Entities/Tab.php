@@ -178,6 +178,10 @@ class Tab extends Entity
 			return;
 		}
 
+		if (!$item->canChangeQty()) {
+			throw new UserException('La quantité de ce produit ne peut être modifiée.');
+		}
+
 		$item->set('qty', $qty);
 		$item->save();
 	}
@@ -216,21 +220,17 @@ class Tab extends Entity
 			return;
 		}
 
+		if (!$item->canChangePrice()) {
+			throw new UserException('Le prix de ce produit ne peut être modifiée.');
+		}
+
 		$item->set('price', $price);
 		$item->save();
 	}
 
 	public function listItems()
 	{
-		return DB::getInstance()->get(POS::sql('SELECT ti.*,
-			GROUP_CONCAT(pm.method, \',\') AS methods
-			FROM @PREFIX_tabs_items ti
-			LEFT JOIN @PREFIX_products p ON ti.product = p.id
-			LEFT JOIN @PREFIX_categories c ON c.id = p.category
-			LEFT JOIN @PREFIX_products_methods pm ON pm.product = p.id
-			WHERE ti.tab = ?
-			GROUP BY ti.id
-			ORDER BY ti.id;'), $this->id);
+		return EM::getInstance(TabItem::class)->all('SELECT * FROM @TABLE WHERE tab = ? ORDER BY id;', $this->id());
 	}
 
 	public function isUserIdMissing(): bool
@@ -480,7 +480,6 @@ class Tab extends Entity
 			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
-
 		$item = new TabItem;
 		$item->importForm([
 			'tab'            => $this->id,
@@ -490,7 +489,7 @@ class Tab extends Entity
 			'category_name'  => 'Règlement d\'ardoise',
 			'account'        => $account,
 			'type'           => TabItem::TYPE_PAYOFF,
-			'pricing'        => TabItem::PRICING_QTY,
+			'pricing'        => TabItem::PRICING_QTY_BLOCKED,
 		]);
 
 		$item->save();

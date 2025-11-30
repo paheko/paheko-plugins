@@ -42,11 +42,13 @@ class TabItem extends Entity
 
 	const PRICING_QTY = 0;
 	const PRICING_QTY_WEIGHT = 1;
+	const PRICING_BLOCKED = 2;
+	const PRICING_QTY_BLOCKED = 3;
 
 	public function selfCheck(): void
 	{
-		$this->assert(in_array($this->type, [self::TYPE_PAYOFF, self::TYPE_PRODUCT], true));
-		$this->assert(in_array($this->pricing, [self::PRICING_QTY, self::PRICING_QTY_WEIGHT], true));
+		$this->assert(in_array($this->type, [self::TYPE_PAYOFF, self::TYPE_PRODUCT, self::TYPE_CREDIT], true));
+		$this->assert(in_array($this->pricing, [self::PRICING_QTY, self::PRICING_QTY_WEIGHT, self::PRICING_BLOCKED], true));
 	}
 
 	public function save(bool $selfcheck = true): bool
@@ -80,5 +82,15 @@ class TabItem extends Entity
 		}
 
 		$this->set('total', $total);
+	}
+
+	public function canChangePrice(): bool
+	{
+		return $this->pricing !== self::PRICING_BLOCKED;
+	}
+
+	public function canChangeQty(): bool
+	{
+		return $this->pricing !== self::PRICING_BLOCKED && $this->pricing !== self::PRICING_QTY_BLOCKED;
 	}
 }
