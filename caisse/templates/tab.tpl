@@ -84,13 +84,11 @@
 				{/if}
 			</div>
 
-			{if $debt}
+			{if $debt > 0}
 			<p class="alert block">
 				Ce membre doit {$debt|money_currency_html|raw}
 				{linkbutton href="debts_history.php?user=%d"|args:$current_tab.user_id label="Historique des ardoises" shape="menu"}
-				{if !$current_tab.closed}
-					{button type="submit" name="add_debt" value="1" label="Payer cette ardoise" shape="money"}
-				{/if}
+				{button type="submit" name="add_debt" value="1" label="Payer cette ardoise" shape="money"}
 			</p>
 			{/if}
 		</header>
@@ -193,14 +191,19 @@
 							<select name="method_id" id="f_method_id">
 								{foreach from=$payment_options item="method"}
 									<option value="{$method.id}"
-										data-max="{$method.max_amount|money_raw}"
+										data-max="{$method.payable|money_raw}"
 										data-type="{$method.type}"
+										{if !$method.payable}
+											disabled="disabled"
+										{/if}
 										{if $method.is_default}
 											selected="selected"
 										{/if}>
 										{$method.name}
-										{if $remainder > 0 && $remainder > $method.max_amount}
-											(jusqu'à {$method.amount|escape|money_currency:false})
+										{if !$method.payable}
+											({$method.explain})
+										{elseif $remainder > 0 && $remainder > $method.payable}
+											(jusqu'à {$method.payable|escape|money_currency:false})
 										{/if}
 									</option>
 								{/foreach}

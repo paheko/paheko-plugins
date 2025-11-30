@@ -173,37 +173,6 @@ class Products
 		return new Entities\Product;
 	}
 
-	static public function createAndSaveForDebtAccount(string $account): Entities\Product
-	{
-		$db = DB::getInstance();
-		$db->begin();
-		$category_id = $db->firstColumn(POS::sql('SELECT id FROM @PREFIX_categories WHERE account = ?;'), $account);
-
-		if (!$category_id) {
-			$cat = Categories::new();
-			$cat->importForm([
-				'account' => $account,
-				'name'    => 'Règlement d\'ardoise',
-			]);
-
-			$cat->save();
-			$category_id = $cat->id();
-		}
-
-		$product = self::new();
-		$product->importForm([
-			'category' => $category_id,
-			'name'     => 'Règlement d\'ardoise',
-			'qty'      => 1,
-			'archived' => true,
-		]);
-
-		$product->save();
-		$product->enableAllMethodsExceptDebt();
-		$db->commit();
-		return $product;
-	}
-
 	static public function listSales(int $year, string $period = 'year', ?int $location = null): DynamicList
 	{
 		$columns = [

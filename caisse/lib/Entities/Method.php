@@ -30,8 +30,8 @@ class Method extends Entity
 
 	const TYPES_LABELS = [
 		self::TYPE_TRACKED => 'Suivi',
-		self::TYPE_CASH => 'Informel',
-		self::TYPE_DEBT => 'Ardoise',
+		self::TYPE_CASH    => 'Informel',
+		self::TYPE_DEBT    => 'Ardoise',
 	];
 
 	public function importForm(?array $source = null)

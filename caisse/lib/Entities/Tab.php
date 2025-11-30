@@ -272,15 +272,15 @@ class Tab extends Entity
 			throw new UserException('Il n\'est pas possible d\'enregistrer une ardoise sans nom associé.');
 		}
 
-		if (null === $option->max_amount) {
-			throw new UserException('Ce moyen de paiement ne peut pas être utilisé pour cette note');
+		if (!$option->payable) {
+			throw new UserException('Ce moyen de paiement ne peut pas être utilisé: ' . $option->explain);
 		}
-		elseif ($option->max_amount >= 0 && $amount > $option->max_amount) {
-			$a = $option->max_amount;
+		elseif ($option->payable >= 0 && $amount > $option->payable) {
+			$a = $option->payable;
 			throw new UserException(sprintf('Ce moyen de paiement ne peut être utilisé pour un montant supérieur à %s€', Utils::money_format($a)));
 		}
-		elseif ($option->max_amount < 0 && $amount < $option->max_amount) {
-			$a = $option->max_amount;
+		elseif ($option->min && $amount < $option->min) {
+			$a = $option->min;
 			throw new UserException(sprintf('Ce moyen de paiement ne peut être utilisé pour un montant inférieur à %s€', Utils::money_format($a)));
 		}
 
@@ -320,33 +320,94 @@ class Tab extends Entity
 			WHERE tp.tab = ?;'), $this->id);
 	}
 
-	public function listPaymentOptions()
+	public function listPaymentOptions(): array
 	{
-		$remainder = $this->getRemainder();
-
 		if ($l = $this->session()->id_location) {
-			$where = ' AND m.id_location = ' . (int)$l;
+			$where = ' AND id_location = ' . (int)$l;
 		}
 		else {
 			$where = '';
 		}
 
-		return DB::getInstance()->getGrouped(POS::sql('SELECT id, *,
-			CASE
-				WHEN max IS NOT NULL AND max > 0 AND paid >= max THEN NULL -- We cannot use this payment method, we paid the max allowed amount with it
-				WHEN max IS NOT NULL AND max > 0 AND payable > max THEN max -- We have to pay more than max allowed, then just return max
-				WHEN min IS NOT NULL AND payable < min THEN NULL -- We cannot use as the minimum required amount has not been reached
-				WHEN :left < 0 THEN MAX(:left, payable)
-				ELSE MIN(:left, payable) END AS max_amount
-			FROM (SELECT m.*, SUM(pt.amount) AS paid, SUM(i.total) AS payable
-				FROM @PREFIX_methods m
-				INNER JOIN @PREFIX_products_methods pm ON pm.method = m.id
-				INNER JOIN @PREFIX_tabs_items i ON i.product = pm.product AND i.tab = :id
-				LEFT JOIN @PREFIX_tabs_payments AS pt ON pt.tab = i.tab AND m.id = pt.method
-				WHERE m.enabled = 1 ' . $where . '
-				GROUP BY m.id
-				ORDER BY name COLLATE NOCASE
-			);'), ['id' => $this->id, 'left' => $remainder]);
+		$db = DB::getInstance();
+		$sql = POS::sql(sprintf('SELECT id, * FROM @PREFIX_methods WHERE enabled = 1 %s ORDER BY name COLLATE U_NOCASE;', $where));
+		$methods = $db->getGrouped($sql);
+
+		$sql = 'SELECT pm.method, pm.method
+			FROM @PREFIX_products_methods pm
+			INNER JOIN @PREFIX_tabs_items i ON i.product = pm.product
+			WHERE i.tab = ?
+			GROUP BY pm.method;';
+
+		$payable_methods = $db->getAssoc(POS::sql($sql), $this->id());
+
+		$sql = 'SELECT method, SUM(amount) FROM @PREFIX_tabs_payments WHERE tab = ? GROUP BY method;';
+		$paid_methods = $db->getAssoc(POS::sql($sql), $this->id());
+
+		$remainder = $this->getRemainder();
+
+		$remainder_nonproducts = null;
+
+		// Walk through methods and see if 
+		foreach ($methods as $id => &$method) {
+			$paid = $paid_methods[$id] ?? 0;
+
+			// If amount paid with this method has been attained, we can no longer pay with it
+			if ($method->max && $paid >= $method->max) {
+				$method->payable = null;
+				$method->explain = 'Maximum dépassé';
+				continue;
+			}
+			// Remainder amount is too small, discard method
+			elseif ($method->min && $remainder < $method->min) {
+				$method->payable = null;
+				$method->explain = 'Minimum non atteint';
+				continue;
+			}
+
+			$method->payable = $remainder;
+
+			// Payoffs and credits can always be paid by all methods
+			if (!array_key_exists($id, $payable_methods)) {
+				// Can't pay a debt with a debt, sorry
+				if ($method->type === Method::TYPE_DEBT) {
+					$method->payable = null;
+					$method->explain = 'On ne peut pas payer une ardoise avec une ardoise';
+					continue;
+				}
+
+				// Only do this request if required
+				$remainder_nonproducts ??= $db->firstColumn(POS::sql('SELECT SUM(total) FROM @PREFIX_tabs_items WHERE type != ? AND tab = ?;'), TabItem::TYPE_PRODUCT, $this->id());
+
+				// There are zero payoff/debt that require a special method
+				if (!$remainder_nonproducts) {
+					$method->payable = null;
+					$method->explain = 'Aucun produit associé à ce moyen de paiement';
+					continue;
+				}
+				elseif ($method->min && $remainder_nonproducts < $method->min) {
+					$method->payable = null;
+					$method->explain = 'Minimum non atteint';
+					continue;
+				}
+
+				// This method only allows to pay for payoffs, not for products
+				$method->payable = $remainder_nonproducts;
+				$method->only_for = [TabItem::TYPE_PAYOFF];
+			}
+
+			if ($method->max) {
+				$method->payable = min($method->payable - $paid, $method->max);
+			}
+
+			if ($method->min) {
+				$method->payable = max($method->payable - $paid, $method->min);
+			}
+		}
+
+		unset($method);
+
+		return $methods;
 	}
 
 	public function rename(string $new_name, ?int $user_id) {
@@ -419,22 +480,20 @@ class Tab extends Entity
 			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
-		$db = DB::getInstance();
-		$sql = POS::sql('SELECT p.id
-			FROM @PREFIX_products p
-			INNER JOIN @PREFIX_categories c ON c.id = p.category
-			WHERE c.account = ? LIMIT 1;');
 
-		// Get first product matching debt account
-		$product_id = $db->firstColumn($sql, $account);
+		$item = new TabItem;
+		$item->importForm([
+			'tab'            => $this->id,
+			'qty'            => 1,
+			'price'          => $amount,
+			'name'           => 'Règlement d\'ardoise',
+			'category_name'  => 'Règlement d\'ardoise',
+			'account'        => $account,
+			'type'           => TabItem::TYPE_PAYOFF,
+			'pricing'        => TabItem::PRICING_QTY,
+		]);
 
-		// Automatically create missing product
-		if (!$product_id) {
-			$product = Products::createAndSaveForDebtAccount($account);
-			$product_id = $product->id();
-		}
-
-		$this->addItem($product_id, null, $amount, TabItem::TYPE_PAYOFF);
+		$item->save();
 	}
 
 	public function addUserDebt(): void

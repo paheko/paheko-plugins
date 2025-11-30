@@ -108,7 +108,7 @@ if (a = $('#f_amount')) {
 		var o = pm.options[pm.selectedIndex];
 
 		// Skip non-cash amounts
-		if (!o.dataset.type) {
+		if (o.dataset.type != 1) {
 			diff = 0;
 		}
 		else {
