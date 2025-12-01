@@ -34,9 +34,9 @@
 			<legend>{$balance.name}</legend>
 			<dl>
 				<dt>Solde à l'ouverture</dt>
-				<dd class="info"><tt>{$balance.open_amount|raw|money_currency}</tt></dd>
+				<dd class="info"><tt>{$balance.open_amount|raw|money_currency_html:false}</tt></dd>
 				<dt>Solde théorique à la fermeture</dt>
-				<dd class="info"><strong><tt>{$balance.expected_total|raw|money_currency}</tt></strong></dd>
+				<dd class="info"><strong><tt>{$balance.expected_total|raw|money_currency_html:false}</tt></strong></dd>
 				<dd class="info">
 					{assign var="amount" value=$balance.total|money_raw}
 					{if !$balance.total}
