@@ -34,7 +34,7 @@
 	</table>
 	{$list->getHTMLPagination()|raw}
 {else}
-	<p class="block alert">Il n'y a aucune ardoise à régler.</p>
+	<p class="block alert">{if $type === 2}Il n'y a aucune ardoise à régler.{else}Il n'y a aucun porte-monnaie de membre crédité.{/if}</p>
 {/if}
 
 {include file="_foot.tpl"}
