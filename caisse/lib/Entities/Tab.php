@@ -363,10 +363,16 @@ class Tab extends Entity
 
 			$method->payable = $remainder;
 
+			if ($method->payable < 0 && ($method->type === Method::TYPE_CREDIT || $method->type === Method::TYPE_DEBT)) {
+				$method->payable = null;
+				$method->explain = 'indisponible';
+				continue;
+			}
+
 			// Payoffs and credits can always be paid by all methods
 			if (!array_key_exists($id, $payable_methods)) {
 				// Can't pay a debt with a debt, sorry
-				if (in_array($method->type, $special_types, true)) {
+				if ( in_array($method->type, $special_types, true)) {
 					$method->payable = null;
 					$method->explain = 'Indisponible';
 					continue;
