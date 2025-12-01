@@ -181,7 +181,7 @@ class Tabs
 				'label' => 'Nom',
 			],
 			'user_id' => [],
-			'account' => [],
+			'id_method' => [],
 			'amount' => [
 				'label' => 'Solde',
 				'select' => 'ABS(SUM(amount))',

@@ -24,7 +24,8 @@
 						{linkbutton href="balances.php?type=%d&id_user="|args:$type:$row.user_id label="Historique" shape="history"}
 					{/if}
 					{if $is_debt}
-						{linkbutton href="tab.php?payoff_user=%d&payoff_amount=%d&payoff_account=%s"|args:$row.user_id:$row.amount:$row.account label="Rembourser" shape="right"}
+						<?php $name = rawurlencode($row->name); ?>
+						{linkbutton href="tab.php?id_user=%d&payoff=%d&id_method=%d&name=%s"|args:$row.user_id:$row.amount:$row.id_method:$name label="Rembourser" shape="right"}
 					{/if}
 				</td>
 			</tr>

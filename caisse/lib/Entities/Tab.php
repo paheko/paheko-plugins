@@ -518,21 +518,33 @@ class Tab extends Entity
 			HAVING SUM(amount) < 0;';
 
 		foreach ($db->iterate($sql, $this->user_id) as $item) {
-			$item = new TabItem;
-			$item->importForm([
-				'tab'           => $this->id,
-				'qty'           => 1,
-				'price'         => abs($item->amount),
-				'name'          => 'Règlement d\'ardoise',
-				'category_name' => $item->method,
-				'account'       => $item->account,
-				'type'          => TabItem::TYPE_PAYOFF,
-				'pricing'       => TabItem::PRICING_SINGLE,
-				'id_method'     => $item->id_method,
-			]);
-
-			$item->save();
+			$this->addPayoff($item->amount, $item->id_method, $item->account, $item->method);
 		}
+	}
+
+	public function addPayoff(int $amount, int $id_method, ?string $method_account = null, ?string $method_name = null): TabItem
+	{
+		if (!isset($method_account, $method_name)) {
+			$method = Methods::get($id_method);
+			$method_account = $method->account;
+			$method_name = $method->name;
+		}
+
+		$item = new TabItem;
+		$item->importForm([
+			'tab'           => $this->id,
+			'qty'           => 1,
+			'price'         => abs($amount),
+			'name'          => 'Règlement d\'ardoise',
+			'category_name' => $method_name,
+			'account'       => $method_account,
+			'type'          => TabItem::TYPE_PAYOFF,
+			'pricing'       => TabItem::PRICING_SINGLE,
+			'id_method'     => $id_method,
+		]);
+
+		$item->save();
+		return $item;
 	}
 
 	public function addUserCredit(int $id_method, int $amount): void

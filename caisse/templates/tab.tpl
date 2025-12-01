@@ -10,7 +10,7 @@
 			{linkbutton href="balances.php?type=2" label="Ardoises" shape="history"}
 		{/if}
 		{if $has_credit_methods}
-			{linkbutton href="balances.php?type=3" label="Tous les porte-monnaie" shape="list-ul"}
+			{linkbutton href="balances.php?type=3" label="Porte-monnaie" shape="list-ul"}
 		{/if}
 		{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
 			{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}
@@ -214,10 +214,12 @@
 										data-type="{$method.type}"
 										{if !$method.payable}
 											disabled="disabled"
-										{/if}
-										{if $method.is_default}
+										{elseif $method.is_default}
 											selected="selected"
 										{/if}>
+										{if !$method.payable}
+											&cross;
+										{/if}
 										{$method.name}
 										{if !$method.payable}
 											({$method.explain})

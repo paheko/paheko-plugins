@@ -60,7 +60,7 @@ class TabItem extends Entity
 		$this->assert(in_array($this->type, [self::TYPE_PRODUCT, self::TYPE_PAYOFF, self::TYPE_CREDIT], true));
 		$this->assert(in_array($this->pricing, [self::PRICING_QTY, self::PRICING_QTY_WEIGHT, self::PRICING_SINGLE], true));
 
-		if ($this->type === self::TYPE_CREDIT || $this->type === self::TYPE_DEBT) {
+		if ($this->type === self::TYPE_CREDIT || $this->type === self::TYPE_PAYOFF) {
 			$this->assert(!is_null($this->id_method));
 		}
 	}

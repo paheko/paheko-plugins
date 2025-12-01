@@ -44,20 +44,24 @@ if ($tab) {
 	$csrf_key = null;
 }
 
-if (!empty($_GET['payoff_amount']) && !empty($_GET['payoff_account'])) {
+if (!empty($_GET['payoff']) && !empty($_GET['id_method'])) {
 	if (!$current_pos_session) {
 		throw new UserException('Aucune session de caisse n\'est ouverte.');
 	}
 
-	if (!empty($_GET['payoff_user'])) {
-		$tab = $current_pos_session->findOpenTabByUser((int) $_GET['payoff_user']);
+	if (!empty($_GET['id_user'])) {
+		$tab = $current_pos_session->findOpenTabByUser((int) $_GET['id_user']);
 	}
 
 	if (!$tab) {
-		$tab = $current_pos_session->openTab(intval($_GET['payoff_user']) ?: null);
+		$tab = $current_pos_session->openTab(intval($_GET['id_user']) ?: null);
+
+		if (!empty($_GET['name']) && !$tab->user_id) {
+			$tab->rename($_GET['name'], null);
+		}
 	}
 
-	$tab->addDebt($_GET['payoff_account'], (int) $_GET['payoff_amount']);
+	$tab->addPayoff((int) $_GET['payoff'], (int)$_GET['id_method']);
 
 	Utils::redirect(Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab->id()]));
 }
