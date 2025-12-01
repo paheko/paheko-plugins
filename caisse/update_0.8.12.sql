@@ -50,6 +50,10 @@ UPDATE @PREFIX_sessions SET nb_tabs = (SELECT COUNT(*) FROM @PREFIX_tabs WHERE s
 
 DROP TABLE @PREFIX_sessions_old;
 
+ALTER TABLE @PREFIX_tabs_items ADD COLUMN id_method INTEGER NULL REFERENCES @PREFIX_methods (id) ON DELETE RESTRICT;
+
+UPDATE @PREFIX_tabs_items SET id_method = (SELECT id FROM @PREFIX_methods WHERE enabled = 1 AND type = 2 AND account = @PREFIX_tabs_items.account) WHERE type = 1;
+
 -- New indexes, this gives us a 30 ms gain on tab page
 CREATE INDEX IF NOT EXISTS @PREFIX_tabs_items_type_tab ON @PREFIX_tabs_items(type, tab);
 

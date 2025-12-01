@@ -33,7 +33,17 @@ class TabItem extends Entity
 
 	protected ?int $id_fee = null;
 	protected ?int $id_subscription = null;
+
+	/**
+	 * This is for when we have an item and children items, ie. an annual subscription
+	 * bringing a mandatory federal fee
+	 */
 	protected ?int $id_parent_item = null;
+
+	/**
+	 * Used for payoff/credit payments, to link item with method
+	 */
+	protected ?int $id_method = null;
 
 	protected ?Product $_product = null;
 
@@ -47,7 +57,7 @@ class TabItem extends Entity
 
 	public function selfCheck(): void
 	{
-		$this->assert(in_array($this->type, [self::TYPE_PAYOFF, self::TYPE_PRODUCT, self::TYPE_CREDIT], true));
+		$this->assert(in_array($this->type, [self::TYPE_PRODUCT, self::TYPE_PAYOFF, self::TYPE_CREDIT], true));
 		$this->assert(in_array($this->pricing, [self::PRICING_QTY, self::PRICING_QTY_WEIGHT, self::PRICING_SINGLE], true));
 	}
 

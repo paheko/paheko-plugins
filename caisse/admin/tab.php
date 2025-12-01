@@ -77,7 +77,7 @@ if ($tab && !$current_pos_session->closed) {
 	}, $csrf_key, $url);
 
 	$form->runIf('add_debt', function () use ($tab) {
-		$tab->addUserDebt();
+		$tab->addUserDebtAsPayoff();
 	}, $csrf_key, $url);
 
 	$form->runIf('delete_item', function () use ($tab) {
@@ -147,6 +147,10 @@ if ($tab) {
 	$tpl->assign('payment_options', $tab->listPaymentOptions());
 	$tpl->assign('debt', $tab->getUserDebt());
 	$tpl->assign('missing_user', $tab->isUserIdMissing());
+
+	if ($has_credit_methods) {
+		$tpl->assign('user_credit', $tab->getUserCredit());
+	}
 }
 
 $tpl->assign('selected_cat', qg('cat'));

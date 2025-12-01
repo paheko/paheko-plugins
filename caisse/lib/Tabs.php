@@ -109,51 +109,70 @@ class Tabs
 
 	static public function getGlobalDebtBalance(): int
 	{
-		return self::requestBalance(Method::TYPE_DEBT, '1');;
+		return self::requestBalance(Method::TYPE_DEBT);
 	}
 
-	static public function requestBalance(int $type, string $conditions, ...$params): int
+	static public function requestBalance(int $type, string $conditions = '1', ...$params): int
 	{
 		$db = DB::getInstance();
-		$sql = self::getBalanceSubQuery([$type]);
+		$sql = self::getUserBalancesQuery($type);
+
 		$sql = sprintf('SELECT SUM(amount) FROM (%s) WHERE %s;', $sql, $conditions);
 		return (int) $db->firstColumn($sql, ...$params);
 	}
 
-	static protected function getBalanceSubQuery(array $types): string
+	static protected function getUserBalancesQuery(?int $type = null): string
 	{
-		$tabitem_types = [];
-
-		if (in_array(Method::TYPE_DEBT, $types, true)) {
-			$tabitem_types[] = TabItem::TYPE_PAYOFF;
-		}
-
-		if (in_array(Method::TYPE_CREDIT, $types, true)) {
-			$tabitem_types[] = TabItem::TYPE_CREDIT;
-		}
-
-		$sql = 'SELECT MAX(t.opened) AS date, p.method, t.name, t.user_id, p.account, SUM(p.amount) - COALESCE(
-				(SELECT SUM(ti.total)
-				FROM @PREFIX_tabs_items ti
-				INNER JOIN @PREFIX_tabs tt ON ti.tab = tt.id
-				WHERE p.account = ti.account
-					AND ti.%s
-					AND tt.user_id = t.user_id
-					AND tt.name = t.name
-				), 0) AS amount
+		$sql = '
+			SELECT t.id, t.opened AS date, t.name, t.user_id, SUM(p.amount) * -1 AS amount, p.account, p.method AS id_method,
+				m.name AS method, CASE WHEN p.type = %d THEN \'debt\' ELSE \'payment\' END AS type,
+				1 AS is_settled
 			FROM @PREFIX_tabs t
 			INNER JOIN @PREFIX_tabs_payments p ON p.tab = t.id
-			WHERE (t.user_id IS NOT NULL OR t.name IS NOT NULL)
-				AND p.%s
-			GROUP BY COALESCE(t.user_id, t.name)';
+			INNER JOIN @PREFIX_methods m ON p.method = m.id
+			WHERE p.%s
+			GROUP BY p.account, t.user_id, t.name, t.id
+			UNION ALL
+			SELECT t.id, t.opened AS date, t.name, t.user_id, SUM(ti.total) AS amount, ti.account, ti.id_method,
+				m.name AS method, CASE WHEN ti.type = %d THEN \'payoff\' ELSE \'credit\' END AS type,
+				CASE WHEN t.closed IS NULL THEN 0 ELSE 1 END AS is_settled
+			FROM @PREFIX_tabs t
+			INNER JOIN @PREFIX_tabs_items ti ON ti.tab = t.id
+			INNER JOIN @PREFIX_methods m ON ti.id_method = m.id
+			WHERE ti.%s
+			GROUP BY ti.account, t.user_id, t.name, t.id
+			ORDER BY date';
+
+		$types = [];
+		$tabtypes = [];
+
+		if ($type === null || $type === Method::TYPE_DEBT) {
+			$types[] = Method::TYPE_DEBT;
+			$tabtypes[] = TabItem::TYPE_PAYOFF;
+		}
+
+		if ($type === null || $type === Method::TYPE_CREDIT) {
+			$types[] = Method::TYPE_CREDIT;
+			$tabtypes[] = TabItem::TYPE_CREDIT;
+		}
 
 		$db = DB::getInstance();
-		$sql = POS::sql(sprintf($sql, $db->where('type', 'IN', $tabitem_types), $db->where('type', 'IN', $types)));
+		$sql = sprintf(POS::sql($sql),
+			Method::TYPE_DEBT,
+			$db->where('type', 'IN', $types),
+			TabItem::TYPE_PAYOFF,
+			$db->where('type', 'IN', $tabtypes)
+		);
+
 		return $sql;
 	}
 
-	static public function listDebts(): ?DynamicList
+	static public function listBalances(int $type): ?DynamicList
 	{
+		if ($type !== Method::TYPE_DEBT) {
+			$type = Method::TYPE_CREDIT;
+		}
+
 		$columns = [
 			'date' => [
 				'label' => 'Date',
@@ -164,26 +183,21 @@ class Tabs
 			'user_id' => [],
 			'account' => [],
 			'amount' => [
-				'label' => 'Montant',
+				'label' => 'Solde',
+				'select' => 'ABS(SUM(amount))',
 			],
 		];
 
-		$tables = sprintf('(%s)', self::getBalanceSubQuery([Method::TYPE_DEBT]));
+		$tables = sprintf('(%s)', self::getUserBalancesQuery($type));
 
-		$list = new DynamicList($columns, $tables, 'amount > 0');
+		$list = new DynamicList($columns, $tables);
 		$list->orderBy('date', true);
+		$list->groupBy('user_id, name' . ($type === Method::TYPE_DEBT ? ' HAVING SUM(amount) != 0' : ''));
 
 		return $list;
 	}
 
-	static public function listCredits(): ?DynamicList
-	{
-		$list = self::listDebts();
-		$list->setConditions('amount < 0');
-		return $list;
-	}
-
-	static public function listDebtsHistory(?int $user_id = null): DynamicList
+	static public function listBalancesHistory(int $type, ?int $user_id = null): DynamicList
 	{
 		$columns = [
 			'type' => ['label' => 'Type'],
@@ -196,29 +210,19 @@ class Tabs
 			'name' => [
 				'label' => 'Nom',
 			],
-			'user_id' => [],
-			'method' => [],
-			'account' => [],
 			'amount' => [
 				'label' => 'Montant',
+				'select' => $type === Method::TYPE_DEBT ? 'amount * -1' : 'amount',
 			],
+			'method' => [
+				'label' => 'Moyen de paiement',
+			],
+			'user_id' => [],
+			'id_method' => [],
+			'account' => [],
 		];
 
-		$tables = '(
-			SELECT t.id, t.opened AS date, t.name, t.user_id, SUM(p.amount) AS amount, m.name AS method, \'debt\' AS type, p.account
-			FROM @PREFIX_tabs t
-			INNER JOIN @PREFIX_tabs_payments p ON p.tab = t.id
-			LEFT JOIN @PREFIX_methods m ON p.method = m.id
-			WHERE p.status = %d
-			GROUP BY t.id
-			UNION ALL
-			SELECT t.id, t.opened AS date, t.name, t.user_id, SUM(ti.total) AS amount, NULL AS method, \'payoff\' AS type, ti.account
-			FROM @PREFIX_tabs t
-			INNER JOIN @PREFIX_tabs_items ti ON ti.tab = t.id
-			WHERE ti.type = %d OR ti.type = %d
-			GROUP BY t.id)';
-
-		$tables = POS::sql(sprintf($tables, Tab::PAYMENT_STATUS_DEBT, TabItem::TYPE_PAYOFF, TabItem::TYPE_PAYOFF));
+		$tables = sprintf('(%s)', self::getUserBalancesQuery($type));
 		$conditions = '1';
 
 		if ($user_id) {

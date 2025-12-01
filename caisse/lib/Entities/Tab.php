@@ -402,6 +402,12 @@ class Tab extends Entity
 					$credit = $this->getUserCredit($method->id);
 					$method->payable = min($method->payable, $credit);
 				}
+
+				if (!$method->payable) {
+					$method->payable = null;
+					$method->explain = 'Solde épuisé';
+					continue;
+				}
 			}
 
 			if ($method->max !== null) {
@@ -479,13 +485,15 @@ class Tab extends Entity
 		return parent::delete();
 	}
 
-	public function getUserCredit(int $id_method): int
+	public function getUserCredit(?int $id_method = null): int
 	{
 		if (empty($this->user_id)) {
 			return 0;
 		}
 
-		return Tabs::requestBalance(TabItem::TYPE_CREDIT, 'user_id = ? AND method = ?', $this->user_id, $id_method);
+		$where = $id_method ? ' AND is_settled = 1 AND id_method = ' . $id_method : '';
+
+		return Tabs::requestBalance(Method::TYPE_CREDIT, 'user_id = ?' . $where, $this->user_id);
 	}
 
 	public function getUserDebt(): int
@@ -494,57 +502,36 @@ class Tab extends Entity
 			return 0;
 		}
 
-		return Tabs::requestBalance(TabItem::TYPE_CREDIT, 'user_id = ?', $this->user_id);
+		return Tabs::requestBalance(Method::TYPE_DEBT, 'user_id = ?', $this->user_id);
 	}
 
-	public function addDebt(string $account, int $amount): void
+	public function addUserDebtAsPayoff(): void
 	{
 		if ($this->closed) {
 			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
-		$item = new TabItem;
-		$item->importForm([
-			'tab'            => $this->id,
-			'qty'            => 1,
-			'price'          => $amount,
-			'name'           => 'Règlement d\'ardoise',
-			'category_name'  => 'Ardoise',
-			'account'        => $account,
-			'type'           => TabItem::TYPE_PAYOFF,
-			'pricing'        => TabItem::PRICING_SINGLE,
-		]);
+		$sql = Tabs::getUserBalancesQuery();
+		$sql = 'SELECT SUM(amount) AS amount, id_method, method FROM (%s)
+			WHERE user_id = ? AND type IN (\'debt\', \'payoff\')
+			GROUP BY id_method
+			HAVING SUM(amount) < 0;';
 
-		$item->save();
-	}
+		foreach ($db->iterate($sql, $this->user_id) as $item) {
+			$item = new TabItem;
+			$item->importForm([
+				'tab'           => $this->id,
+				'qty'           => 1,
+				'price'         => abs($item->amount),
+				'name'          => 'Règlement d\'ardoise',
+				'category_name' => $item->method,
+				'account'       => $item->account,
+				'type'          => TabItem::TYPE_PAYOFF,
+				'pricing'       => TabItem::PRICING_SINGLE,
+				'id_method'     => $item->id_method,
+			]);
 
-	public function addUserDebt(): void
-	{
-		if ($this->closed) {
-			throw new UserException('Cette note est close, impossible de modifier la note.');
-		}
-
-		$list = Tabs::listDebtsHistory($this->user_id);
-		$list->setPageSize(null);
-		$due = [];
-
-		// Create list of debts, by third-party account
-		foreach ($list->iterate() as $item) {
-			$due[$item->account] ??= 0;
-
-			if ($item->type === 'debt') {
-				$due[$item->account] += $item->amount;
-			}
-			else {
-				$due[$item->account] -= $item->amount;
-			}
-		}
-
-		// Remove accounts where they are at zero
-		$due = array_filter($due);
-
-		foreach ($due as $account => $amount) {
-			$this->addDebt($account, $amount);
+			$item->save();
 		}
 	}
 
@@ -570,14 +557,15 @@ class Tab extends Entity
 
 		$item = new TabItem;
 		$item->importForm([
-			'tab'            => $this->id,
-			'qty'            => 1,
-			'price'          => $amount,
-			'name'           => 'Crédit du porte-monnaie',
-			'category_name'  => $method->name,
-			'account'        => $method->account,
-			'type'           => TabItem::TYPE_CREDIT,
-			'pricing'        => TabItem::PRICING_SINGLE,
+			'tab'           => $this->id,
+			'qty'           => 1,
+			'price'         => $amount,
+			'name'          => 'Crédit du porte-monnaie',
+			'category_name' => $method->name,
+			'account'       => $method->account,
+			'type'          => TabItem::TYPE_CREDIT,
+			'pricing'       => TabItem::PRICING_SINGLE,
+			'id_method'     => $method->id,
 		]);
 
 		$item->save();

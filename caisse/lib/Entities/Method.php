@@ -67,12 +67,6 @@ class Method extends Entity
 	{
 		$this->assert(!empty($this->name) && trim($this->name) !== '', 'Le nom ne peut rester vide.');
 		$this->assert(array_key_exists($this->type, self::TYPES_LABELS));
-
-		if (!$this->exists()
-			&& in_array($this->type, [self::TYPE_DEBT, self::TYPE_CREDIT], true)) {
-			$db = DB::getInstance();
-			$this->assert(!$db->test(self::TABLE, 'type = ?', $this->type), 'Un seul moyen de paiement de ce type peut être créé');
-		}
 	}
 
 	public function save(bool $selfcheck = true): bool
