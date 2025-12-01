@@ -47,7 +47,7 @@
 
 	{$list->getHTMLPagination()|raw}
 {else}
-	<p class="block alert">Il n'y a aucune ardoise dans l'historique.</p>
+	<p class="block alert">Il n'y a rien dans cet historique.</p>
 {/if}
 
 {include file="_foot.tpl"}
