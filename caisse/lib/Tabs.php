@@ -7,6 +7,7 @@ use Paheko\DB;
 use Paheko\DynamicList;
 use Paheko\Users\DynamicFields;
 
+use Paheko\Plugin\Caisse\Entities\Method;
 use Paheko\Plugin\Caisse\Entities\Tab;
 use Paheko\Plugin\Caisse\Entities\TabItem;
 use KD2\DB\EntityManager as EM;
@@ -106,38 +107,49 @@ class Tabs
 		return $out;
 	}
 
-	static public function getUnpaidDebtAmount(?int $user_id = null): int
+	static public function getGlobalDebtBalance(): int
 	{
-		if ($user_id !== null) {
-			$join = 'INNER JOIN @PREFIX_tabs t ON t.id = p.tab';
-			$where = sprintf(' AND t.user_id = %d', $user_id);
+		return self::requestBalance(Method::TYPE_DEBT, '1');;
+	}
+
+	static public function requestBalance(int $type, string $conditions, ...$params): int
+	{
+		$db = DB::getInstance();
+		$sql = self::getBalanceSubQuery([$type]);
+		$sql = sprintf('SELECT SUM(amount) FROM (%s) WHERE %s;', $sql, $conditions);
+		return (int) $db->firstColumn($sql, ...$params);
+	}
+
+	static protected function getBalanceSubQuery(array $types): string
+	{
+		$tabitem_types = [];
+
+		if (in_array(Method::TYPE_DEBT, $types, true)) {
+			$tabitem_types[] = TabItem::TYPE_PAYOFF;
 		}
-		else {
-			$join = $where = '';
+
+		if (in_array(Method::TYPE_CREDIT, $types, true)) {
+			$tabitem_types[] = TabItem::TYPE_CREDIT;
 		}
+
+		$sql = 'SELECT MAX(t.opened) AS date, p.method, t.name, t.user_id, p.account, SUM(p.amount) - COALESCE(
+				(SELECT SUM(ti.total)
+				FROM @PREFIX_tabs_items ti
+				INNER JOIN @PREFIX_tabs tt ON ti.tab = tt.id
+				WHERE p.account = ti.account
+					AND ti.%s
+					AND tt.user_id = t.user_id
+					AND tt.name = t.name
+				), 0) AS amount
+			FROM @PREFIX_tabs t
+			INNER JOIN @PREFIX_tabs_payments p ON p.tab = t.id
+			WHERE (t.user_id IS NOT NULL OR t.name IS NOT NULL)
+				AND p.%s
+			GROUP BY COALESCE(t.user_id, t.name)';
 
 		$db = DB::getInstance();
-		$sql = POS::sql(sprintf('SELECT SUM(p.amount)
-			FROM @PREFIX_tabs_payments p %s
-			WHERE p.status = %d %s;',
-			$join,
-			Tab::PAYMENT_STATUS_DEBT,
-			$where
-		));
-
-		$due = (int) $db->firstColumn($sql);
-
-		$sql = POS::sql(sprintf('SELECT SUM(p.total)
-			FROM @PREFIX_tabs_items p %s
-			WHERE p.type = %d %s;',
-			$join,
-			TabItem::TYPE_PAYOFF,
-			$where
-		));
-
-		$paid = (int) $db->firstColumn($sql);
-
-		return $due - $paid;
+		$sql = POS::sql(sprintf($sql, $db->where('type', 'IN', $tabitem_types), $db->where('type', 'IN', $types)));
+		return $sql;
 	}
 
 	static public function listDebts(): ?DynamicList
@@ -156,21 +168,18 @@ class Tabs
 			],
 		];
 
-		$tables = '(
-			SELECT MAX(t.opened) AS date, t.name, t.user_id, p.account, SUM(p.amount) - COALESCE((SELECT SUM(ti.total)
-				FROM @PREFIX_tabs_items ti INNER JOIN @PREFIX_tabs tt ON ti.tab = tt.id
-				WHERE ti.type = %d AND tt.user_id = t.user_id AND tt.name = t.name), 0) AS amount
-			FROM @PREFIX_tabs t
-			INNER JOIN @PREFIX_tabs_payments p ON p.tab = t.id
-			LEFT JOIN @PREFIX_methods m ON p.method = m.id
-			WHERE p.status = %d AND (t.user_id IS NOT NULL OR t.name IS NOT NULL)
-			GROUP BY t.user_id, t.name)';
-
-		$tables = POS::sql(sprintf($tables, TabItem::TYPE_PAYOFF, Tab::PAYMENT_STATUS_DEBT));
+		$tables = sprintf('(%s)', self::getBalanceSubQuery([Method::TYPE_DEBT]));
 
 		$list = new DynamicList($columns, $tables, 'amount > 0');
 		$list->orderBy('date', true);
 
+		return $list;
+	}
+
+	static public function listCredits(): ?DynamicList
+	{
+		$list = self::listDebts();
+		$list->setConditions('amount < 0');
 		return $list;
 	}
 
@@ -206,10 +215,10 @@ class Tabs
 			SELECT t.id, t.opened AS date, t.name, t.user_id, SUM(ti.total) AS amount, NULL AS method, \'payoff\' AS type, ti.account
 			FROM @PREFIX_tabs t
 			INNER JOIN @PREFIX_tabs_items ti ON ti.tab = t.id
-			WHERE ti.type = %d
+			WHERE ti.type = %d OR ti.type = %d
 			GROUP BY t.id)';
 
-		$tables = POS::sql(sprintf($tables, Tab::PAYMENT_STATUS_DEBT, TabItem::TYPE_PAYOFF));
+		$tables = POS::sql(sprintf($tables, Tab::PAYMENT_STATUS_DEBT, TabItem::TYPE_PAYOFF, TabItem::TYPE_PAYOFF));
 		$conditions = '1';
 
 		if ($user_id) {

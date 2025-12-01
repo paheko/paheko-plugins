@@ -93,6 +93,10 @@
 	padding: .5em;
 }
 
+.pos .items table td.qty {
+	text-align: center;
+}
+
 @media screen and (max-width:600px) {
 	.items table.list tbody tr {
 		display: flex;

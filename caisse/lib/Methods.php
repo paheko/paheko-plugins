@@ -164,4 +164,21 @@ class Methods
 
 		return POS::plotGraph(null, $data);
 	}
+
+	static public function listCreditMethodsAssoc(): array
+	{
+		$sql = 'SELECT id, name FROM @PREFIX_methods WHERE enabled = 1 AND type = ' . Method::TYPE_CREDIT;
+		return DB::getInstance()->getAssoc(POS::sql($sql));
+	}
+
+	static public function getDefaultMethodId(): int
+	{
+		$sql = 'SELECT id FROM @PREFIX_methods WHERE enabled = 1 AND is_default = 1';
+		return DB::getInstance()->firstColumn(POS::sql($sql));
+	}
+
+	static public function hasCreditMethods(): bool
+	{
+		return DB::getInstance()->test(Method::TABLE, 'enabled = 1 AND type = ' . Method::TYPE_CREDIT);
+	}
 }

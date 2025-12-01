@@ -39,6 +39,7 @@ class TabItem extends Entity
 
 	const TYPE_PRODUCT = 0;
 	const TYPE_PAYOFF = 1;
+	const TYPE_CREDIT = 2;
 
 	const PRICING_QTY = 0;
 	const PRICING_QTY_WEIGHT = 1;
@@ -46,7 +47,7 @@ class TabItem extends Entity
 
 	public function selfCheck(): void
 	{
-		$this->assert(in_array($this->type, [self::TYPE_PAYOFF, self::TYPE_PRODUCT], true));
+		$this->assert(in_array($this->type, [self::TYPE_PAYOFF, self::TYPE_PRODUCT, self::TYPE_CREDIT], true));
 		$this->assert(in_array($this->pricing, [self::PRICING_QTY, self::PRICING_QTY_WEIGHT, self::PRICING_SINGLE], true));
 	}
 

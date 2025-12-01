@@ -22,6 +22,7 @@
 			{input type="radio-btn" name="type" value=$method::TYPE_CASH label="Paiement informel (espèces, monnaie locale…)" source=$method}
 			{input type="radio-btn" name="type" value=$method::TYPE_TRACKED label="Paiement suivi (chèques, carte bancaire…)" source=$method help="Une référence sera demandée pour chaque paiement avec ce moyen (par exemple : numéro de chèque), et il faudra valider chaque paiement lors de la clôture de la caisse, pour vérifier que le paiement n'a pas été égaré."}
 			{input type="radio-btn" name="type" value=$method::TYPE_DEBT label="Ardoise (dette)" help="Le paiement sera noté comme étant une dette de l'usager l'égard de l'organisation. La dette pourra être réglée plus tard." source=$method}
+			{input type="radio-btn" name="type" value=$method::TYPE_CREDIT label="Porte-monnaie" help="Chaque membre disposera d'un compte individuel qui pourra être crédité avec un autre moyen de paiement. Il pourra ensuite payer avec ces crédits." source=$method}
 			<dd class="help">Note : les écritures comptables de la caisse étant consolidées (regroupées), les ardoises de la caisse n'apparaissent pas comme dettes dans la comptabilité.</dd>
 
 			{if count($locations)}
@@ -39,7 +40,6 @@
 			{input required=true name="account" multiple=false target="!acc/charts/accounts/selector.php?key=code" type="list" label="Compte du plan comptable" default=$account help="Numéro du compte dans le plan comptable (par exemple 530 pour les espèces), utilisé pour intégrer les notes à la comptabilité."}
 			{input type="money" name="min" label="Minimum" source=$method help="Si renseigné, ce moyen de paiement ne pourra pas être utilisé pour un paiement inférieur à ce montant."}
 			{input type="money" name="max" label="Maximum" source=$method help="Si renseigné, ce moyen de paiement ne pourra pas être utilisé pour un paiement supérieur à ce montant."}
-
 		</dl>
 	</fieldset>
 	<p class="submit">

@@ -5,6 +5,7 @@ namespace Paheko\Plugin\Caisse\Entities;
 use Paheko\DB;
 use Paheko\UserException;
 
+use Paheko\Plugin\Caisse\Methods;
 use Paheko\Plugin\Caisse\POS;
 use Paheko\Plugin\Caisse\Products;
 use Paheko\Plugin\Caisse\Tabs;
@@ -27,9 +28,6 @@ class Tab extends Entity
 	protected ?int $user_id = null;
 
 	public int $total;
-
-	const PAYMENT_STATUS_DEBT = 0;
-	const PAYMENT_STATUS_PAID = 1;
 
 	protected ?Session $_session = null;
 
@@ -263,12 +261,13 @@ class Tab extends Entity
 		if (!$option) {
 			throw new UserException('Ce moyen de paiement n\'est pas disponible.');
 		}
-
-		if ($option->type === Method::TYPE_DEBT && empty($this->name)) {
+		elseif ($option->type === Method::TYPE_DEBT && empty($this->name)) {
 			throw new UserException('Il n\'est pas possible d\'enregistrer une ardoise sans nom associé.');
 		}
-
-		if (!$option->payable) {
+		elseif ($option->type === Method::TYPE_CREDIT && empty($this->user_id)) {
+			throw new UserException('Il n\'est pas possible d\'enregistrer un paiement par porte-monnaie sans membre associé.');
+		}
+		elseif (!$option->payable) {
 			throw new UserException('Ce moyen de paiement ne peut pas être utilisé: ' . $option->explain);
 		}
 		elseif ($option->payable >= 0 && $amount > $option->payable) {
@@ -279,8 +278,7 @@ class Tab extends Entity
 			$a = $option->min;
 			throw new UserException(sprintf('Ce moyen de paiement ne peut être utilisé pour un montant inférieur à %s€', Utils::money_format($a)));
 		}
-
-		if (null !== $reference && $option->type !== Method::TYPE_TRACKED) {
+		elseif (null !== $reference && $option->type !== Method::TYPE_TRACKED) {
 			throw new UserException('Référence indiquée pour un règlement en espèces : vouliez-vous enregistrer un règlement par chèque ?');
 		}
 
@@ -290,7 +288,7 @@ class Tab extends Entity
 			'amount'    => $amount,
 			'reference' => $reference,
 			'account'   => $option->account,
-			'status'    => $option->type === Method::TYPE_DEBT ? self::PAYMENT_STATUS_DEBT : self::PAYMENT_STATUS_PAID,
+			'type'      => $option->type,
 		]);
 
 		if ($remainder - $amount === 0 && $auto_close) {
@@ -342,9 +340,11 @@ class Tab extends Entity
 
 		$remainder = $this->getRemainder();
 
-		$remainder_nonproducts = null;
+		$remainder_nonproducts ??= $db->firstColumn(POS::sql('SELECT SUM(total) FROM @PREFIX_tabs_items WHERE type != ? AND tab = ?;'), TabItem::TYPE_PRODUCT, $this->id());
 
-		// Walk through methods and see if 
+ 		$special_types = [Method::TYPE_DEBT, Method::TYPE_CREDIT];
+
+		// Walk through methods and see if we can use them and calculate the payable amount
 		foreach ($methods as $id => &$method) {
 			$paid = $paid_methods[$id] ?? 0;
 
@@ -366,14 +366,11 @@ class Tab extends Entity
 			// Payoffs and credits can always be paid by all methods
 			if (!array_key_exists($id, $payable_methods)) {
 				// Can't pay a debt with a debt, sorry
-				if ($method->type === Method::TYPE_DEBT) {
+				if (in_array($method->type, $special_types, true)) {
 					$method->payable = null;
-					$method->explain = 'On ne peut pas payer une ardoise avec une ardoise';
+					$method->explain = 'Indisponible';
 					continue;
 				}
-
-				// Only do this request if required
-				$remainder_nonproducts ??= $db->firstColumn(POS::sql('SELECT SUM(total) FROM @PREFIX_tabs_items WHERE type != ? AND tab = ?;'), TabItem::TYPE_PRODUCT, $this->id());
 
 				// There are zero payoff/debt that require a special method
 				if (!$remainder_nonproducts) {
@@ -392,12 +389,33 @@ class Tab extends Entity
 				$method->only_for = [TabItem::TYPE_PAYOFF];
 			}
 
-			if ($method->max) {
+			if (in_array($method->type, $special_types, true)) {
+				$method->payable -= $remainder_nonproducts;
+
+				if (!$method->payable) {
+					$method->payable = null;
+					$method->explain = 'Indisponible';
+					continue;
+				}
+
+				if ($method->type === Method::TYPE_CREDIT) {
+					$credit = $this->getUserCredit($method->id);
+					$method->payable = min($method->payable, $credit);
+				}
+			}
+
+			if ($method->max !== null) {
 				$method->payable = min($method->payable - $paid, $method->max);
 			}
 
 			if ($method->min) {
 				$method->payable = max($method->payable - $paid, $method->min);
+			}
+
+			if (!$method->payable) {
+				$method->payable = null;
+				$method->explain = 'Indisponible';
+				continue;
 			}
 		}
 
@@ -461,13 +479,22 @@ class Tab extends Entity
 		return parent::delete();
 	}
 
+	public function getUserCredit(int $id_method): int
+	{
+		if (empty($this->user_id)) {
+			return 0;
+		}
+
+		return Tabs::requestBalance(TabItem::TYPE_CREDIT, 'user_id = ? AND method = ?', $this->user_id, $id_method);
+	}
+
 	public function getUserDebt(): int
 	{
 		if (empty($this->user_id)) {
 			return 0;
 		}
 
-		return Tabs::getUnpaidDebtAmount($this->user_id);
+		return Tabs::requestBalance(TabItem::TYPE_CREDIT, 'user_id = ?', $this->user_id);
 	}
 
 	public function addDebt(string $account, int $amount): void
@@ -482,7 +509,7 @@ class Tab extends Entity
 			'qty'            => 1,
 			'price'          => $amount,
 			'name'           => 'Règlement d\'ardoise',
-			'category_name'  => 'Règlement d\'ardoise',
+			'category_name'  => 'Ardoise',
 			'account'        => $account,
 			'type'           => TabItem::TYPE_PAYOFF,
 			'pricing'        => TabItem::PRICING_SINGLE,
@@ -519,5 +546,40 @@ class Tab extends Entity
 		foreach ($due as $account => $amount) {
 			$this->addDebt($account, $amount);
 		}
+	}
+
+	public function addUserCredit(int $id_method, int $amount): void
+	{
+		if ($this->closed) {
+			throw new UserException('Cette note est close, impossible de modifier la note.');
+		}
+
+		if ($amount <= 0) {
+			throw new UserException('Le montant doit être supérieur à zéro.');
+		}
+
+		$method = Methods::get($id_method);
+
+		if (!$method->account) {
+			throw new UserException('Le moyen de paiement sélectionné n\'a pas de compte indiqué au plan comptable, merci d\'en sélectionner un.');
+		}
+
+		if ($method->type !== $method::TYPE_CREDIT) {
+			throw new \LogicException('This is not a credit method');
+		}
+
+		$item = new TabItem;
+		$item->importForm([
+			'tab'            => $this->id,
+			'qty'            => 1,
+			'price'          => $amount,
+			'name'           => 'Crédit du porte-monnaie',
+			'category_name'  => $method->name,
+			'account'        => $method->account,
+			'type'           => TabItem::TYPE_CREDIT,
+			'pricing'        => TabItem::PRICING_SINGLE,
+		]);
+
+		$item->save();
 	}
 }

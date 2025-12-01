@@ -1,13 +1,16 @@
 {include file="_head.tpl"}
 
 <nav class="tabs">
-	{if $debt_total || $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
+	{if $debt_balance || $has_credit_methods || $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
 	<aside>
-		{if $debt_total}
-			{assign var="debt_total" value=$debt_total|money_currency_text}
+		{if $debt_balance}
+			{assign var="debt_total" value=$debt_balance|money_currency_text}
 			{linkbutton href="debts.php" label="Ardoises : %s"|args:$debt_total shape="history"}
 		{else}
 			{linkbutton href="debts.php" label="Ardoises" shape="history"}
+		{/if}
+		{if $has_credit_methods}
+			{linkbutton href="credits.php" label="Porte-monnaie" shape="money"}
 		{/if}
 		{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
 			{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}
@@ -69,6 +72,9 @@
 					{linkbutton title="Reçu" label=null shape="print" target="_dialog" href="./receipt.php?tab=%d"|args:$current_tab.id}
 				{if $current_tab.user_id}
 					{linkbutton href="!users/details.php?id=%d"|args:$current_tab.user_id label="" shape="user" target="_blank" title="Ouvrir la fiche membre"}
+					{if $has_credit_methods}
+						{linkbutton href="credit_history.php?id_user%d"|args:$current_tab.user_id label="Porte-monnaie" target="_dialog"}
+					{/if}
 				{/if}
 				{if !$remainder && !$current_tab.closed}
 					{button type="submit" name="close" label="Clore la note" accesskey="C" shape="lock"}
@@ -85,11 +91,11 @@
 			</div>
 
 			{if $debt > 0}
-			<p class="alert block">
-				Ce membre doit {$debt|money_currency_html|raw}
-				{linkbutton href="debts_history.php?user=%d"|args:$current_tab.user_id label="Historique des ardoises" shape="menu"}
-				{button type="submit" name="add_debt" value="1" label="Payer cette ardoise" shape="money"}
-			</p>
+				<p class="alert block">
+					Ce membre doit {$debt|money_currency_html|raw}
+					{linkbutton href="debts_history.php?user=%d"|args:$current_tab.user_id label="Historique" shape="menu"}
+					{button type="submit" name="add_debt" value="1" label="Payer cette ardoise" shape="money"}
+				</p>
 			{/if}
 		</header>
 
@@ -111,7 +117,7 @@
 					<th><small class="cat">{$item.category_name}</small> {$item.name}
 						{if !$current_tab.closed}<button title="Cliquer pour renommer" type="submit" value="{$item.name}" name="rename_item[{$item.id}]">{icon shape="edit"}</button>{/if}
 					</th>
-					<td>
+					<td class="qty">
 						{if !$current_tab.closed && $item->canChangeQty()}
 							<input type="submit" name="change_qty[{$item.id}]" value="{$item.qty}" title="Cliquer pour changer la quantité" />
 						{else}
