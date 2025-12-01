@@ -151,29 +151,30 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_items (
 );
 
 CREATE INDEX IF NOT EXISTS @PREFIX_tabs_items_tab ON @PREFIX_tabs_items (tab);
-CREATE INDEX IF NOT EXISTS plugin_pos_tabs_items_type_tab ON plugin_pos_tabs_items(type, tab);
+CREATE INDEX IF NOT EXISTS @PREFIX_tabs_items_type_tab ON @PREFIX_tabs_items(type, tab);
 
 -- Used in saisie_poids module
-CREATE INDEX IF NOT EXISTS @PREFIX_tabs_items_weight ON plugin_pos_tabs_items(product, weight);
+CREATE INDEX IF NOT EXISTS @PREFIX_tabs_items_weight ON @PREFIX_tabs_items(product, weight);
 
 CREATE TABLE IF NOT EXISTS @PREFIX_tabs_payments (
 	-- Payments for a tab
 	id INTEGER NOT NULL PRIMARY KEY,
 	tab INTEGER NOT NULL REFERENCES @PREFIX_tabs (id) ON DELETE CASCADE,
-	method INTEGER NULL REFERENCES @PREFIX_methods (id) ON DELETE RESTRICT,
+	method INTEGER NOT NULL REFERENCES @PREFIX_methods (id) ON DELETE RESTRICT,
 	date TEXT NOT NULL DEFAULT (datetime('now','localtime')),
 	amount INTEGER NOT NULL, -- Can be negative for a refund
 	reference TEXT NULL,
 	account TEXT NULL,
-	status INTEGER NOT NULL DEFAULT 1
+	type INTEGER NOT NULL -- Copy of method type
 );
 
 CREATE INDEX IF NOT EXISTS @PREFIX_tabs_payments_tab ON @PREFIX_tabs_payments (tab);
-CREATE INDEX IF NOT EXISTS plugin_pos_tabs_payments_status_tab ON plugin_pos_tabs_payments(status, tab);
+CREATE INDEX IF NOT EXISTS @PREFIX_tabs_payments_tab_type ON @PREFIX_tabs_payments(type, tab);
 
-CREATE TRIGGER IF NOT EXISTS @PREFIX_tabs_account1 AFTER UPDATE ON @PREFIX_methods WHEN OLD.account != NEW.account
+CREATE TRIGGER IF NOT EXISTS @PREFIX_tabs_account1 AFTER UPDATE ON @PREFIX_methods
+	WHEN (OLD.account != NEW.account OR OLD.type != NEW.type)
 BEGIN
-	UPDATE @PREFIX_tabs_payments SET account = NEW.account WHERE method = NEW.id;
+	UPDATE @PREFIX_tabs_payments SET account = NEW.account, type = NEW.type WHERE method = NEW.id;
 END;
 
 CREATE TRIGGER IF NOT EXISTS @PREFIX_tabs_account2 AFTER UPDATE ON @PREFIX_categories WHEN OLD.account != NEW.account
