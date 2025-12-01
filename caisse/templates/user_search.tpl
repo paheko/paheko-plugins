@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="Renommer la note"}
 
-<form method="post" action="{$self_url}" class="pos-user-search" data-focus="1">
+<form method="post" action="{$self_url}" class="pos-user-search">
 	<p class="search">
 		{input type="text" placeholder="Recherche rapide de membre" value=$query name="q"}
 		{button type="submit" label="Chercher" shape="search"}
@@ -76,6 +76,9 @@ buttons.forEach((e) => {
 if (buttons.length) {
 	buttons[0].focus();
 }
+else {
+	q.focus();
+}
 
 var rows = document.querySelectorAll('table tbody tr');
 
@@ -91,7 +94,6 @@ rows.forEach((e) => {
 	};
 });
 
-q.focus();
 var a = document.querySelector('a[href*="users/new"]');
 
 a.addEventListener('click', () => {
