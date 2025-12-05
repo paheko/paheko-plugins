@@ -86,3 +86,26 @@ CREATE TRIGGER IF NOT EXISTS @PREFIX_tabs_account1 AFTER UPDATE ON @PREFIX_metho
 BEGIN
 	UPDATE @PREFIX_tabs_payments SET account = NEW.account, type = NEW.type WHERE method = NEW.id;
 END;
+
+ALTER TABLE @PREFIX_products_stock_history RENAME TO @PREFIX_products_stock_history_old;
+
+CREATE TABLE IF NOT EXISTS @PREFIX_products_stock_history (
+	-- History of stock changes for a product
+	id INTEGER NOT NULL PRIMARY KEY,
+	product INTEGER NOT NULL REFERENCES @PREFIX_products (id) ON DELETE CASCADE,
+	change INTEGER NOT NULL, -- Number of items removed or added to stock: can be negative or positive
+	price INTEGER NULL, -- Buying price
+	remaining INTEGER NULL, -- Number of remaining items at this price
+	date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Date of change
+	item INTEGER NULL REFERENCES @PREFIX_tabs_items (id) ON DELETE CASCADE, -- Link to item in a customer tab
+	event INTEGER NULL REFERENCES @PREFIX_stock_events (id) ON DELETE CASCADE, -- Link to stock event
+	CHECK(item IS NOT NULL OR event IS NOT NULL)
+);
+
+INSERT INTO @PREFIX_products_stock_history
+	SELECT id, product, change, NULL, NULL, date, item, event
+	FROM @PREFIX_products_stock_history_old;
+
+CREATE INDEX IF NOT EXISTS @PREFIX_products_stock_history_remaining ON @PREFIX_products_stock_history (product, date, remaining);
+
+DROP TABLE @PREFIX_products_stock_history_old;

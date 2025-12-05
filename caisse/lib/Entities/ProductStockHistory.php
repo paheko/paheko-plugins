@@ -13,6 +13,8 @@ class ProductStockHistory extends Entity
 	protected ?int $id;
 	protected int $product;
 	protected int $change;
+	protected ?int $price = null;
+	protected ?int $remaining = null;
 	protected \DateTime $date;
 	protected ?int $item;
 	protected ?int $event;

@@ -28,23 +28,29 @@
 						<th>Produit</th>
 						<td>Stock enregistré</td>
 						<td>{if $event.type == $event::TYPE_INVENTORY}Stock inventorié{else}Changement de stock{/if}</td>
-						<td>Valeur d'achat</td>
-						<td></td>
+						<td>Valeur d'achat unitaire</td>
+						<td class="actions"></td>
 					</tr>
 				</thead>
 				<tbody>
 					{foreach from=$list item="row"}
 						<tr>
 							<th><small class="cat">{$row.category_name}</small> {$row.product_name}</th>
-							<td>{$row.current_stock}</td>
-							<td>
+							<td class="num">{$row.current_stock}</td>
+							<td class="num">
 								{if $event.applied}
 									{if $row.change > 0 && $event.type != $event::TYPE_INVENTORY}+{/if}{$row.change}
 								{else}
 									<button type="submit" class="change" name="change[{$row.product_id}]" value="{$row.change}">{if $row.change > 0 && $event.type != $event::TYPE_INVENTORY}+{/if}{$row.change}</button>
 								{/if}
 							</td>
-							<td>{$row.value|raw|money_currency}</td>
+							<td class="num">
+								{if $event.applied}
+									{$row.value|raw|money_currency}
+								{else}
+									<button type="submit" class="change" name="change_price[{$row.product_id}]" value="{$row.value}">{$row.value|raw|money_currency:false}</button>
+								{/if}
+							</td>
 							<td class="actions">
 								{if !$event.applied}
 								{linkbutton label="" shape="delete" href="?id=%d&delete=%d"|args:$event.id,$row.product_id title="Cliquer pour supprimer la ligne"}
@@ -54,11 +60,11 @@
 					{/foreach}
 						<tr>
 							<th>Total</th>
-							<td>{$total.current_stock}</td>
-							<td>
+							<td class="num">{$total.current_stock}</td>
+							<td class="num">
 								{$total.change}
 							</td>
-							<td>{$total.value|raw|money_currency}</td>
+							<td class="num"></td>
 							<td class="actions">
 							</td>
 						</tr>

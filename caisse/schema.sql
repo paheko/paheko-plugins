@@ -39,11 +39,15 @@ CREATE TABLE IF NOT EXISTS @PREFIX_products_stock_history (
 	id INTEGER NOT NULL PRIMARY KEY,
 	product INTEGER NOT NULL REFERENCES @PREFIX_products (id) ON DELETE CASCADE,
 	change INTEGER NOT NULL, -- Number of items removed or added to stock: can be negative or positive
+	price INTEGER NULL, -- Buying price
+	remaining INTEGER NULL, -- Number of remaining items at this price
 	date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Date of change
 	item INTEGER NULL REFERENCES @PREFIX_tabs_items (id) ON DELETE CASCADE, -- Link to item in a customer tab
 	event INTEGER NULL REFERENCES @PREFIX_stock_events (id) ON DELETE CASCADE, -- Link to stock event
 	CHECK(item IS NOT NULL OR event IS NOT NULL)
 );
+
+CREATE INDEX IF NOT EXISTS @PREFIX_products_stock_history_remaining ON @PREFIX_products_stock_history (product, date, remaining);
 
 CREATE TABLE IF NOT EXISTS @PREFIX_weight_changes_types (
 	id INTEGER NOT NULL PRIMARY KEY

@@ -20,7 +20,13 @@ if (!$event->applied) {
 	}, null, '?id=' . $event->id());
 
 	$form->runIf('change', function () use ($event) {
-		$event->setProductQty(key(f('change')), (int) current(f('change')));
+		$change = $_POST['change'];
+		$event->setProductQty(key($change), (int) current($change));
+	}, $csrf_key, Utils::getRequestURI());
+
+	$form->runIf('change_price', function () use ($event) {
+		$price = $_POST['change_price'];
+		$event->setProductPrice(key($price), Utils::moneyToInteger(current($price)));
 	}, $csrf_key, Utils::getRequestURI());
 
 	$form->runIf('apply', function () use ($event) {

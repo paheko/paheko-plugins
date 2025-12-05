@@ -99,4 +99,97 @@ class Stock
 		return $list;
 	}
 
+	static public function recalculateRemaining(?int $id_event = null): void
+	{
+		$where = '';
+
+		if ($id_event) {
+			$where = sprintf(' AND event != %d', $id_event);
+		}
+
+		$db = DB::getInstance();
+		$db->begin();
+
+		// Reset remaining value, the loop will only update rows that have been affected by a sale
+		$sql = 'UPDATE @PREFIX_products_stock_history SET remaining = change
+			WHERE event IN (SELECT id FROM @PREFIX_stock_events WHERE type = ?);';
+
+		$db->preparedQuery(POS::sql($sql), StockEvent::TYPE_ORDER_RECEIVED);
+
+		// Only iterate over sales and received orders, from newest to oldest
+		$sql = 'SELECT h.id, h.product, h.event, h.change, h.price, h.remaining, h.date FROM @PREFIX_products_stock_history h
+			INNER JOIN @PREFIX_stock_events e ON e.id = h.event
+			WHERE e.type = ? ' . $where . '
+			UNION ALL
+			SELECT id, product, NULL AS event, change, NULL AS price, NULL AS remaining, date FROM @PREFIX_products_stock_history
+			WHERE item IS NOT NULL
+			ORDER BY date DESC, id DESC;';
+
+		$consumed = [];
+
+		echo '<pre>';
+		print_r($db->get(POS::sql($sql), StockEvent::TYPE_ORDER_RECEIVED));
+
+		foreach ($db->iterate(POS::sql($sql), StockEvent::TYPE_ORDER_RECEIVED) as $row) {
+			var_dump($row); exit;
+			$consumed[$row->product] ??= 0;
+
+			if (!empty($row->item)) {
+				$consumed[$row->product] += abs($row->change);
+				continue;
+			}
+			// Product has not been consumed
+			elseif ($consumed[$row->product] === 0) {
+				continue;
+			}
+
+			$change = $consumed[$row->product];
+
+			// We can't remove more items than we have
+			if ($change > $row->remaining) {
+				$change = $row->remaining;
+			}
+
+			$consumed[$row->product] -= $change;
+			$row->remaining -= $change;
+
+			$db->preparedQuery(POS::sql('UPDATE @PREFIX_products_stock_history SET remaining = ? WHERE id = ?;'), $row->remaining, $row->id);
+		}
+
+		$db->commit();
+	}
+
+	static public function updateRemainingForSession(?int $id_session = null): void
+	{
+		// Update current stock value
+		$stock_sql = 'SELECT h.*, SUM(ti.qty) AS sold_qty FROM @PREFIX_products_stock_history h
+			INNER JOIN @PREFIX_tabs_items ti ON ti.product = h.product
+			INNER JOIN @PREFIX_products p ON p.id = ti.product
+			INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
+			INNER JOIN @PREFIX_sessions s ON s.id = t.session
+			WHERE s.closed IS NOT NULL
+				AND s.id = ?
+				AND h.remaining IS NOT NULL
+				AND h.remaining > 0
+				AND h.price IS NOT NULL
+			GROUP BY h.id
+			ORDER BY h.product, h.date, h.id;';
+
+		$remaining = [];
+
+		foreach ($db->iterate(POS::sql($stock_sql), $id_session) as $row) {
+			$remaining[$row->product] ??= $row->sold_qty;
+
+			if ($remaining[$row->product] === 0) {
+				continue;
+			}
+
+			$consumed = min($row->remaining, $remaining[$row->product]);
+			$remaining[$row->product] -= $consumed;
+
+			$db->preparedQuery(POS::sql('UPDATE @PREFIX_products_stock_history SET remaining = ? WHERE id = ?;'), $row->remaining - $consumed, $row->id);
+		}
+
+	}
+
 }

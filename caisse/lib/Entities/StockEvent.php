@@ -2,8 +2,10 @@
 
 namespace Paheko\Plugin\Caisse\Entities;
 
+use Paheko\DB;
 use Paheko\Entity;
 use Paheko\Plugin\Caisse\POS;
+use Paheko\Plugin\Caisse\Stock;
 use KD2\DB\EntityManager as EM;
 
 class StockEvent extends Entity
@@ -46,6 +48,7 @@ class StockEvent extends Entity
 		$this->set('applied', true);
 
 		$db = EM::getInstance(self::class)->DB();
+		$db->begin();
 
 		if ($this->type == $this::TYPE_INVENTORY) {
 			/*
@@ -58,6 +61,7 @@ class StockEvent extends Entity
 					INNER JOIN @PREFIX_products_stock_history h ON h.product = p.id AND h.event = %d;
 			');
 			*/
+
 			$sql = sprintf('
 				-- Set product stock to inventory
 				UPDATE @PREFIX_products AS p
@@ -78,6 +82,7 @@ class StockEvent extends Entity
 
 		$db->exec(POS::sql($sql));
 		$this->save();
+		$db->commit();
 	}
 
 	public function listChanges(): array
@@ -87,7 +92,7 @@ class StockEvent extends Entity
 		$sql = POS::sql('SELECT
 			c.name AS category_name, p.name AS product_name, p.stock AS current_stock,
 			h.change AS change, p.id AS product_id,
-			SUM(p.purchase_price * h.change) AS value
+			COALESCE(h.price, SUM(p.purchase_price * h.change)) AS value
 			FROM @PREFIX_products_stock_history h
 			LEFT JOIN @PREFIX_products p ON p.id = h.product
 			LEFT JOIN @PREFIX_categories c ON c.id = p.category
@@ -113,17 +118,26 @@ class StockEvent extends Entity
 
 	public function delete(): bool
 	{
+		$db = DB::getInstance();
+		$db->begin();
+
 		// Reverse stock change
 		if ($this->applied) {
-			$db = EM::getInstance(self::class)->DB();
-
 			$sql = sprintf('UPDATE @PREFIX_products AS p SET stock = stock + (SELECT change FROM @PREFIX_products_stock_history h WHERE h.product = p.id AND h.event = %d) * -1 WHERE id IN (SELECT product FROM @PREFIX_products_stock_history WHERE event = %1$d);', $this->id());
 			$sql = POS::sql($sql);
 
 			$db->exec($sql);
+
+			if ($this->type === self::TYPE_ORDER_RECEIVED) {
+				Stock::recalculateRemaining($this->id());
+			}
 		}
 
-		return parent::delete();
+		$r =  parent::delete();
+
+		$db->commit();
+
+		return $r;
 	}
 
 	public function addProduct(int $id, int $qty = 0): ProductStockHistory
@@ -140,6 +154,11 @@ class StockEvent extends Entity
 		$p->event = $this->id();
 		$p->date = new \DateTime;
 		$p->change = ($this->type === self::TYPE_LOSS) ? $qty * -1 : $qty;
+
+		if ($this->type === self::TYPE_ORDER_RECEIVED) {
+			$p->remaining = $qty;
+		}
+
 		$p->save();
 		return $p;
 	}
@@ -165,11 +184,34 @@ class StockEvent extends Entity
 			throw new \InvalidArgumentException('Product is not in stock event');
 		}
 
-		if ($this->type == self::TYPE_INVENTORY) {
+		if ($this->type === self::TYPE_INVENTORY
+			|| $this->type === self::TYPE_ORDER_RECEIVED) {
 			$qty = abs($qty);
 		}
 
 		$p->change = $qty;
+
+		if ($this->type === self::TYPE_ORDER_RECEIVED) {
+			$p->remaining = abs($qty);
+		}
+
+		$p->save();
+	}
+
+	public function setProductPrice(int $id, int $price)
+	{
+		$p = EM::findOne(ProductStockHistory::class,
+			POS::sql('SELECT * FROM @PREFIX_products_stock_history WHERE product = ? AND event = ?;'), $id, $this->id());
+
+		if (!$p) {
+			throw new \InvalidArgumentException('Product is not in stock event');
+		}
+
+		if ($this->type !== self::TYPE_ORDER_RECEIVED) {
+			throw new \InvalidArgumentException('This is not a "buy" event');
+		}
+
+		$p->price = $price;
 		$p->save();
 	}
 }

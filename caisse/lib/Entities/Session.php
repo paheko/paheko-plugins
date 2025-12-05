@@ -140,6 +140,35 @@ class Session extends Entity
 				WHERE s.closed IS NOT NULL AND ti.product IS NOT NULL AND s.id = ? AND p.stock IS NOT NULL
 				GROUP BY ti.id, ti.product;'), $this->id);
 
+		// Update current stock value
+		$stock_sql = 'SELECT h.*, SUM(ti.qty) AS sold_qty FROM @PREFIX_products_stock_history h
+			INNER JOIN @PREFIX_tabs_items ti ON ti.product = h.product
+			INNER JOIN @PREFIX_products p ON p.id = ti.product
+			INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
+			INNER JOIN @PREFIX_sessions s ON s.id = t.session
+			WHERE s.closed IS NOT NULL
+				AND s.id = ?
+				AND h.remaining IS NOT NULL
+				AND h.remaining > 0
+				AND h.price IS NOT NULL
+			GROUP BY h.id
+			ORDER BY h.product, h.date, h.id;';
+
+		$remaining = [];
+
+		foreach ($db->iterate(POS::sql($stock_sql), $this->id()) as $row) {
+			$remaining[$row->product] ??= $row->sold_qty;
+
+			if ($remaining[$row->product] === 0) {
+				continue;
+			}
+
+			$consumed = min($row->remaining, $remaining[$row->product]);
+			$remaining[$row->product] -= $consumed;
+
+			$db->preparedQuery(POS::sql('UPDATE @PREFIX_products_stock_history SET remaining = ? WHERE id = ?;'), $row->remaining - $consumed, $row->id);
+		}
+
 		// Update weight
 		$db->preparedQuery(POS::sql('INSERT INTO @PREFIX_categories_weight_history (category, change, date, item, type)
 			SELECT p.category, -SUM(ti.qty * ti.weight), ti.added, ti.id, NULL
