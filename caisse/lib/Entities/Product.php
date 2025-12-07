@@ -105,8 +105,13 @@ class Product extends Entity
 			return '';
 		}
 
-		$code = new BarCode($this->code);
-		return $code->toSVG();
+		try {
+			$code = new BarCode($this->code);
+			return $code->toSVG();
+		}
+		catch (\LogicException $e) {
+			return '';
+		}
 	}
 
 	public function setMethods(array $methods): void

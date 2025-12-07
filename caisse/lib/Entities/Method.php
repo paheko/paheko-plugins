@@ -3,6 +3,7 @@
 namespace Paheko\Plugin\Caisse\Entities;
 
 use Paheko\Plugin\Caisse\POS;
+use Paheko\DB;
 use Paheko\Entity;
 use Paheko\Form;
 use Paheko\ValidationException;
@@ -27,11 +28,13 @@ class Method extends Entity
 	const TYPE_TRACKED = 0;
 	const TYPE_CASH = 1;
 	const TYPE_DEBT = 2;
+	const TYPE_CREDIT = 3;
 
 	const TYPES_LABELS = [
 		self::TYPE_TRACKED => 'Suivi',
 		self::TYPE_CASH    => 'Informel',
 		self::TYPE_DEBT    => 'Ardoise',
+		self::TYPE_CREDIT  => 'Porte-monnaie',
 	];
 
 	public function importForm(?array $source = null)
@@ -63,6 +66,7 @@ class Method extends Entity
 	public function selfCheck(): void
 	{
 		$this->assert(!empty($this->name) && trim($this->name) !== '', 'Le nom ne peut rester vide.');
+		$this->assert(array_key_exists($this->type, self::TYPES_LABELS));
 	}
 
 	public function save(bool $selfcheck = true): bool

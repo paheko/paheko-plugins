@@ -20,7 +20,7 @@
 
 </nav>
 
-{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_READ)}
+{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_READ) && $pos_session.closed}
 	{form_errors}
 	{if $transaction}
 		<p class="block confirm">

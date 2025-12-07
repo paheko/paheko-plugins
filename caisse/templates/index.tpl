@@ -3,10 +3,13 @@
 <nav class="tabs">
 	<aside>
 		{exportmenu}
-		{linkbutton href="debts.php" label="Ardoises" shape="history"}
-	{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
-		{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}
-	{/if}
+		{linkbutton href="balances.php?type=2" label="Ardoises" shape="history"}
+		{if $has_credit_methods}
+			{linkbutton href="balances.php?type=3" label="Porte-monnaie" shape="list-ul"}
+		{/if}
+		{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_ADMIN)}
+			{linkbutton href="manage/" label="Gestion et statistiques" shape="settings"}
+		{/if}
 	</aside>
 
 	{if $current_pos_session}
