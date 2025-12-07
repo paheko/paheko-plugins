@@ -1,8 +1,3 @@
--- Rename position column to is_default
-ALTER TABLE @PREFIX_methods ADD COLUMN is_default INTEGER NOT NULL DEFAULT 0;
-
-UPDATE @PREFIX_methods SET is_default = 1 WHERE id = (SELECT id FROM @PREFIX_methods WHERE position = 1 LIMIT 1);
-
 ALTER TABLE @PREFIX_methods RENAME TO @PREFIX_methods_old;
 
 -- DROP COLUMN is not available until SQLite 3.35.0+
@@ -20,5 +15,9 @@ CREATE TABLE IF NOT EXISTS @PREFIX_methods (
 	enabled INTEGER NOT NULL DEFAULT 1
 );
 
-INSERT INTO @PREFIX_methods SELECT id, id_location, name, type, min, max, account, is_default, enabled FROM @PREFIX_methods_old;
+INSERT INTO @PREFIX_methods SELECT
+	id, id_location, name, type, min, max, account,
+	CASE WHEN position = 1 THEN 1 ELSE 0 END,
+	enabled
+	FROM @PREFIX_methods_old;
 DROP TABLE @PREFIX_methods_old;
