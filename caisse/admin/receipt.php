@@ -18,10 +18,9 @@ if (!$tab) {
 
 function get_receipt($tab)
 {
-	$items = $tab->listItems();
+	$items = array_map(fn ($a) => $a->asArray(), $tab->listItems());
 	$payments = $tab->listPayments();
 	$remainder = $tab->getRemainder();
-	$options = $tab->listPaymentOptions();
 
 	$tpl = new UserTemplate;
 	$tpl->setSourcePath(PLUGIN_ROOT . '/templates/invoice.skel');
