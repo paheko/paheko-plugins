@@ -91,9 +91,9 @@
 				{/if}
 			</div>
 
-			{if $debt > 0}
+			{if $debt < 0}
 				<p class="alert block">
-					Ce membre doit {$debt|money_currency_html|raw}
+					Ce membre doit {$debt|abs|money_currency_html|raw}
 					{linkbutton href="balances_history.php?type=2&user=%d"|args:$current_tab.user_id label="Historique" shape="menu"}
 					{button type="submit" name="add_debt" value="1" label="Payer cette ardoise" shape="money"}
 				</p>

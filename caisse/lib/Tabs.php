@@ -121,7 +121,7 @@ class Tabs
 		return (int) $db->firstColumn($sql, ...$params);
 	}
 
-	static protected function getUserBalancesQuery(?int $type = null): string
+	static public function getUserBalancesQuery(?int $type = null): string
 	{
 		$sql = '
 			SELECT t.id, t.opened AS date, t.name, t.user_id, SUM(p.amount) * -1 AS amount, p.account, p.method AS id_method,

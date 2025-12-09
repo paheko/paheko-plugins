@@ -517,11 +517,13 @@ class Tab extends Entity
 			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
-		$sql = Tabs::getUserBalancesQuery();
-		$sql = 'SELECT SUM(amount) AS amount, id_method, method FROM (%s)
+		$sql = 'SELECT SUM(amount) AS amount, id_method, method, account FROM (%s)
 			WHERE user_id = ? AND type IN (\'debt\', \'payoff\')
 			GROUP BY id_method
 			HAVING SUM(amount) < 0;';
+
+		$sql = sprintf($sql, Tabs::getUserBalancesQuery());
+		$db = DB::getInstance();
 
 		foreach ($db->iterate($sql, $this->user_id) as $item) {
 			$this->addPayoff($item->amount, $item->id_method, $item->account, $item->method);
