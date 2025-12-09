@@ -195,7 +195,13 @@ class Session extends Entity
 
 	public function syncWithYearId(int $id, ?int $id_creator = null): bool
 	{
-		return POS::syncAccounting($id_creator, Years::get($id), $this->id()) === 1;
+		$year = Years::get($id);
+
+		if (!$year) {
+			return false;
+		}
+
+		return POS::syncAccounting($id_creator, $year, $this->id()) === 1;
 	}
 
 	public function getPaymentsTotal()
