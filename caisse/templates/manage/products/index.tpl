@@ -17,10 +17,13 @@
 	<p>{input type="search" name="q" placeholder="Nom du produit" default=$search} {button type="submit" label="Chercher" shape="right"}</p>
 </form>
 
-{include file="common/dynamic_list_head.tpl"}
+<form method="post" action="">
+
+{include file="common/dynamic_list_head.tpl" check=true}
 	<?php $category = null; ?>
 		{foreach from=$list->iterate() item="row"}
 		<tr>
+			<td class="check">{input type="checkbox" name="selected[]" value=$row.id}</td>
 			<td>
 				{if $category !== $row.category}
 					<?php $category = $row->category; ?>
@@ -38,8 +41,31 @@
 		</tr>
 	{/foreach}
 	</tbody>
+	<tfoot>
+		<tr>
+			<td class="check"><input type="checkbox" value="Tout cocher / décocher" id="f_all2" /><label for="f_all2"></label></td>
+			<td class="actions" colspan="5">
+				<em>Pour les produits cochés :</em>
+				{csrf_field key=$csrf_key}
+				<select name="action">
+					<option value="">— Choisir une action à effectuer —</option>
+					{if $archived}
+						<option value="archive">Désarchiver</option>
+					{else}
+						<option value="archive">Archiver</option>
+					{/if}
+					<option value="delete">Supprimer</option>
+				</select>
+				<noscript>
+					<input type="submit" value="OK" />
+				</noscript>
+			</td>
+		</tr>
+	</tfoot>
 </table>
+</form>
 
 {$list->getHTMLPagination()|raw}
+
 
 {include file="_foot.tpl"}

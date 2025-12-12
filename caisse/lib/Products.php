@@ -238,4 +238,18 @@ class Products
 	{
 		return DB::getInstance()->test(POS::tbl('products'), 'weight < 0');
 	}
+
+	static public function markSelectedAsArchived(array $ids, bool $archived)
+	{
+		$ids = array_map('intval', $ids);
+		$db = DB::getInstance();
+		$db->exec(sprintf(POS::sql('UPDATE @PREFIX_products SET archived = %d WHERE %s;'), $archived, $db->where('id', $ids)));
+	}
+
+	static public function deleteSelected(array $ids)
+	{
+		$ids = array_map('intval', $ids);
+		$db = DB::getInstance();
+		$db->exec(sprintf(POS::sql('DELETE FROM @PREFIX_products WHERE %s;'), $db->where('id', $ids)));
+	}
 }
