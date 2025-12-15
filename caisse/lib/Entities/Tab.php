@@ -274,7 +274,7 @@ class Tab extends Entity
 			$a = $option->payable;
 			throw new UserException(sprintf('Ce moyen de paiement ne peut être utilisé pour un montant supérieur à %s€', Utils::money_format($a)));
 		}
-		elseif ($option->min && $amount < $option->min) {
+		elseif ($option->min && $amount >= 0 && $amount < $option->min) {
 			$a = $option->min;
 			throw new UserException(sprintf('Ce moyen de paiement ne peut être utilisé pour un montant inférieur à %s€', Utils::money_format($a)));
 		}
@@ -327,108 +327,109 @@ class Tab extends Entity
 		$sql = POS::sql(sprintf('SELECT id, * FROM @PREFIX_methods WHERE enabled = 1 %s ORDER BY name COLLATE U_NOCASE;', $where));
 		$methods = $db->getGrouped($sql);
 
-		$sql = 'SELECT pm.method, pm.method
+		// List of amounts payable by method, for products
+		// Wallet credit and debt payoffs are handled separately
+		$sql = 'SELECT pm.method, SUM(i.total)
 			FROM @PREFIX_products_methods pm
 			INNER JOIN @PREFIX_tabs_items i ON i.product = pm.product
 			WHERE i.tab = ?
 			GROUP BY pm.method;';
-
 		$payable_methods = $db->getAssoc(POS::sql($sql), $this->id());
 
+		// List of amounts paid by each method
 		$sql = 'SELECT method, SUM(amount) FROM @PREFIX_tabs_payments WHERE tab = ? GROUP BY method;';
 		$paid_methods = $db->getAssoc(POS::sql($sql), $this->id());
 
-		$remainder = $this->getRemainder();
+		// List of totals per type of item
+		$sql = POS::sql('SELECT type, SUM(total) FROM @PREFIX_tabs_items WHERE tab = ? GROUP BY type;');
+		$totals = $db->getAssoc($sql, $this->id());
+		$base = [TabItem::TYPE_PRODUCT => 0, TabItem::TYPE_PAYOFF => 0, TabItem::TYPE_CREDIT => 0];
 
-		$remainder_nonproducts ??= $db->firstColumn(POS::sql('SELECT SUM(total) FROM @PREFIX_tabs_items WHERE type != ? AND tab = ?;'), TabItem::TYPE_PRODUCT, $this->id());
+		$totals = array_replace($base, $totals);
 
- 		$special_types = [Method::TYPE_DEBT, Method::TYPE_CREDIT];
+		$total = array_sum($totals);
+		$total_paid = array_sum($paid_methods);
+		$remainder = $total - $total_paid;
 
 		// Walk through methods and see if we can use them and calculate the payable amount
 		foreach ($methods as $id => &$method) {
 			$paid = $paid_methods[$id] ?? 0;
 
+			// Allow to pay products with linked payment method only
+			$max_payable = $payable_methods[$id] ?? 0;
+
+			// Cannot pay wallet credit with wallet or debt
+			if ($method->type !== Method::TYPE_DEBT && $method->type !== Method::TYPE_CREDIT) {
+				$max_payable += $totals[TabItem::TYPE_CREDIT];
+			}
+
+			// Debts cannot be paid of with a debt, but with credit or with other methods
+			if ($method->type !== Method::TYPE_DEBT) {
+				$max_payable += $totals[TabItem::TYPE_PAYOFF];
+			}
+
+			// If zero, this means that paid_methods[$id] does not exist, and there is no credit or payoff to pay
+			if ($max_payable === 0) {
+				$method->explain = 'aucun produit associé';
+				$method->payable = null;
+				continue;
+			}
+
+			// Subtract what has been paid already this might get us below zero
+			$payable = $max_payable - $total_paid;
+
+			// Cannot pay more than the total remainder
+			$payable = min($remainder, $payable);
+
+			if ($payable <= 0
+				&& ($method->type === Method::TYPE_DEBT || $method->type === Method::TYPE_CREDIT)) {
+				$method->explain = 'indisponible';
+				$method->payable = null;
+				continue;
+			}
+
+			// Check for account credit
+			if ($method->type === Method::TYPE_CREDIT) {
+				$credit = $this->getUserCredit($method->id);
+				$payable = min($payable, $credit);
+
+				// Cannot pay more than available credit
+				if ($payable <= 0) {
+					$method->payable = null;
+					$method->explain = 'solde épuisé';
+					continue;
+				}
+			}
+
 			// If amount paid with this method has been attained, we can no longer pay with it
 			if ($method->max && $paid >= $method->max) {
 				$method->payable = null;
-				$method->explain = 'Maximum dépassé';
+				$method->explain = 'maximum atteint';
 				continue;
 			}
 			// Remainder amount is too small, discard method
-			elseif ($method->min && $remainder < $method->min) {
+			elseif ($method->min && $payable >= 0 && $payable < $method->min) {
 				$method->payable = null;
-				$method->explain = 'Minimum non atteint';
+				$method->explain = 'minimum : ' . Utils::money_format($method->min);
 				continue;
 			}
 
-			$method->payable = $remainder;
+			if ($method->max !== null) {
+				$payable = min($payable, $method->max);
+			}
 
-			if ($method->payable < 0 && ($method->type === Method::TYPE_CREDIT || $method->type === Method::TYPE_DEBT)) {
+			// Allow for negative amounts (refunds) even if min is specified
+			if ($method->min && $payable >= 0) {
+				$payable = max($payable, $method->min);
+			}
+
+			if (!$payable) {
 				$method->payable = null;
 				$method->explain = 'indisponible';
 				continue;
 			}
 
-			// Payoffs and credits can always be paid by all methods
-			if (!array_key_exists($id, $payable_methods)) {
-				// Can't pay a debt with a debt, sorry
-				if ( in_array($method->type, $special_types, true)) {
-					$method->payable = null;
-					$method->explain = 'Indisponible';
-					continue;
-				}
-
-				// There are zero payoff/debt that require a special method
-				if (!$remainder_nonproducts) {
-					$method->payable = null;
-					$method->explain = 'Aucun produit associé à ce moyen de paiement';
-					continue;
-				}
-				elseif ($method->min && $remainder_nonproducts < $method->min) {
-					$method->payable = null;
-					$method->explain = 'Minimum non atteint';
-					continue;
-				}
-
-				// This method only allows to pay for payoffs, not for products
-				$method->payable = $remainder_nonproducts;
-				$method->only_for = [TabItem::TYPE_PAYOFF];
-			}
-
-			if (in_array($method->type, $special_types, true)) {
-				$method->payable -= $remainder_nonproducts;
-
-				if (!$method->payable) {
-					$method->payable = null;
-					$method->explain = 'Indisponible';
-					continue;
-				}
-
-				if ($method->type === Method::TYPE_CREDIT) {
-					$credit = $this->getUserCredit($method->id);
-					$method->payable = min($method->payable, $credit);
-				}
-
-				if (!$method->payable) {
-					$method->payable = null;
-					$method->explain = 'Solde épuisé';
-					continue;
-				}
-			}
-
-			if ($method->max !== null) {
-				$method->payable = min($method->payable - $paid, $method->max);
-			}
-
-			if ($method->min) {
-				$method->payable = max($method->payable - $paid, $method->min);
-			}
-
-			if (!$method->payable) {
-				$method->payable = null;
-				$method->explain = 'Indisponible';
-				continue;
-			}
+			$method->payable = $payable;
 		}
 
 		unset($method);
