@@ -113,7 +113,7 @@ class Sessions
 			],
 			'total' => [
 				'label' => 'Résultat',
-				'select' => 'result',
+				'select' => 'CASE WHEN s.closed IS NOT NULL THEN result ELSE NULL END',
 			],
 			'error_amount' => [
 				'label' => 'Erreur',
