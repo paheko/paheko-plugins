@@ -27,7 +27,7 @@ $form->runIf('sync', function () use ($usermap, $plugin) {
 	Utils::redirect($plugin->url('admin/?msg=' . $count));
 }, $csrf_key);
 
-$address = $_GET['address'] ?? $config->org_address;
+$address = $_GET['address'] ?? ($config->org_address_public ?? $config->org_address);
 $address = $usermap->normalizeAddress($address);
 
 $tpl->assign('count', $usermap->count());
