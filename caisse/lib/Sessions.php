@@ -152,8 +152,8 @@ class Sessions
 		$list->setCount('COUNT(DISTINCT s.id)');
 		$list->setExportCallback(function (&$row) {
 			$row->total = Utils::money_format($row->total, '.', '');
-			$row->close_amount = Utils::money_format($row->close_amount, '.', '');
-			$row->open_amount = Utils::money_format($row->open_amount, '.', '');
+			$row->close_amount = isset($row->close_amount) ? Utils::money_format($row->close_amount, '.', '') : null;
+			$row->open_amount = isset($row->open_amount) ? Utils::money_format($row->open_amount, '.', '') : null;
 			$row->error_amount = $row->error_amount ? Utils::money_format($row->error_amount, '.', '') : null;
 		});
 		return $list;
