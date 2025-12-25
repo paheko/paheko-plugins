@@ -224,6 +224,28 @@ class Contact extends Entity
 		return $vcard->serialize();
 	}
 
+	protected function getBinaryValue(VObject\Property $p): ?string
+	{
+		$type = $p->getValueType();
+		$value = $p->getValue();
+
+		if ($type === 'URI') {
+			if (!preg_match('/^data:image\/(?:jpe?g|gif|png|webp|svg\+xml);base64,/', $value, $match)) {
+				return null;
+			}
+
+			$value = substr($value, strlen($match[0]));
+			$value = base64_decode($value);
+			return $value;
+		}
+		elseif ($type === 'BINARY') {
+			return $value;
+		}
+		else {
+			return null;
+		}
+	}
+
 	public function importVCard($obj): void
 	{
 		if (is_string($obj)) {
@@ -231,10 +253,13 @@ class Contact extends Entity
 		}
 
 		if (!empty($obj->PHOTO)) {
-			if (!$this->exists()
-				|| $this->getPhotoHash() !== md5($obj->PHOTO->getValue())) {
+			$value = $this->getBinaryValue($obj->PHOTO);
+
+			if ($value !== null
+				&& (!$this->exists() || $this->getPhotoHash() !== md5($value)))
+			{
 				try {
-					$i = Image::createFromBlob($obj->PHOTO->getValue());
+					$i = Image::createFromBlob($value);
 					$i->cropResize(200, 200);
 					$this->_photo = $i->output('webp', true);
 					$this->_has_photo = true;
