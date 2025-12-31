@@ -635,7 +635,9 @@ class Tracking
 			$e->setDateString($row->date);
 
 			if (isset($row->duration_hours)) {
-				$e->setDuration($row->duration_hours);
+				if (!$e->setDuration($row->duration_hours)) {
+					throw new UserException('La durée indiquée est invalide : ' . $row->duration_hours);
+				}
 			}
 			elseif (isset($row->duration)) {
 				$e->set('duration', (int)$row->duration);

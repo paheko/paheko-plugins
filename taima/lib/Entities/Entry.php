@@ -70,17 +70,17 @@ class Entry extends Entity
 		$this->setDate($ts);
 	}
 
-	public function setDuration(?string $duration = null)
+	public function setDuration(?string $duration = null): bool
 	{
 		$duration = trim($duration);
 
 		if ($duration === '') {
 			$this->set('duration', null);
 			$this->start();
-			return;
+			return true;
 		}
 
-		if (preg_match('/^(\d+)[h:](\d*)$/', $duration, $match)) {
+		if (preg_match('/^(\d+)[h:](\d*)(?::\d+)?$/', $duration, $match)) {
 			$minutes = (int) $match[1] * 60 + (int) $match[2];
 		}
 		elseif (preg_match('/^(\d+)(?:[.,](\d*))?$/', $duration, $match)) {
@@ -91,11 +91,12 @@ class Entry extends Entity
 			}
 		}
 		else {
-			throw new \InvalidArgumentException('Invalid duration: ' . $duration);
+			return false;
 		}
 
 		$this->set('timer_started', null);
 		$this->set('duration', (int) $minutes);
+		return true;
 	}
 
 	public function start(): void
