@@ -36,8 +36,13 @@ class PIMServer extends \Sabre\DAV\Server
 			$this->invokeMethod($this->httpRequest, $this->httpResponse);
 			//file_put_contents(__DIR__ . '/dav.log', (string)$this->httpRequest . "\n\n" . (string)$this->httpResponse . "\n\n", FILE_APPEND);
 		} catch (\Throwable $e) {
+			$client_exceptions = [
+				\Sabre\DAV\Exception\NotFound::class,
+				\Sabre\DAV\Exception\PreconditionFailed::class,
+			];
+
 			// Ignore client errors
-			if (!preg_match('/An If-Match header was specified/', $e->getMessage())) {
+			if (!in_array(get_class($e), $client_exceptions, true)) {
 				if (\Paheko\SHOW_ERRORS) {
 					throw $e;
 				}
