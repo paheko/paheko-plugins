@@ -122,7 +122,7 @@ window.setInterval(function () {
 if (times.length) {
 	document.head.querySelector('link[rel="icon"]').remove();
 	updateTimer(times[0]);
-	icon = "data:image/svg+xml;utf8," + encodeURI(icon).replace('#', '%23');
+	icon = "data:image/svg+xml," + encodeURI(icon).replace('#', '%23');
 	document.head.innerHTML += `<link sizes="any" rel="icon" type="image/svg+xml" href="${icon}" />`;
 }
 
