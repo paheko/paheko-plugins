@@ -23,16 +23,16 @@ class Contact extends Entity
 	protected ?int $id = null;
 	protected int $id_user;
 	protected string $uri;
-	protected ?string $first_name;
-	protected ?string $last_name;
-	protected ?string $title;
-	protected ?string $mobile_phone;
-	protected ?string $phone;
-	protected ?string $address;
-	protected ?string $email;
-	protected ?string $web;
-	protected ?string $notes;
-	protected ?Date $birthday;
+	protected ?string $first_name = null;
+	protected ?string $last_name = null;
+	protected ?string $title = null;
+	protected ?string $mobile_phone = null;
+	protected ?string $phone = null;
+	protected ?string $address = null;
+	protected ?string $email = null;
+	protected ?string $web = null;
+	protected ?string $notes = null;
+	protected ?Date $birthday = null;
 	protected ?string $raw = null;
 	protected DateTime $updated;
 	protected bool $archived = false;
@@ -45,9 +45,10 @@ class Contact extends Entity
 		parent::selfCheck();
 
 		$this->assert(strlen($this->uri) && strlen($this->uri) < 255, 'Invalid URI');
-		$this->assert(is_null($this->raw) || strlen($this->raw) <= 1024*50, 'Raw event data is too large');
-		$this->assert(is_null($this->first_name) || strlen(trim($this->first_name)), 'Le prénom est obligatoire');
+		$this->assert(!isset($this->raw) || strlen($this->raw) <= 1024*50, 'Raw event data is too large');
 		$this->assert(isset($this->first_name) || isset($this->last_name), 'Le prénom ou le nom doivent être renseignés');
+		$this->assert(!isset($this->first_name) || mb_strlen(trim($this->first_name)), 'Le prénom est vide');
+		$this->assert(!isset($this->last_name) || mb_strlen(trim($this->first_name)), 'Le nom est vide');
 	}
 
 	public function save(bool $selfcheck = true): bool
