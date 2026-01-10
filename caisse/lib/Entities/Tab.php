@@ -472,11 +472,22 @@ class Tab extends Entity
 			throw new UserException(sprintf("Impossible de clôturer la note: reste %s € à régler.", $remainder / 100));
 		}
 
+		if (!$force_tab_name && $this->requiresName()) {
+			$force_tab_name = true;
+		}
+
 		if ($force_tab_name && empty($this->name) && empty($this->user_id)) {
 			throw new UserException('Impossible de clôturer la note : aucun nom n\'a été fourni.');
 		}
 
 		return DB::getInstance()->preparedQuery(POS::sql('UPDATE @PREFIX_tabs SET closed = datetime(\'now\',\'localtime\') WHERE id = ?;'), [$this->id]);
+	}
+
+	public function requiresName(): bool
+	{
+		$db = DB::getInstance();
+		return $db->test(TabItem::TABLE, 'tab = ? AND (type = ? OR type = ?)', $this->id(), TabItem::TYPE_PAYOFF, TabItem::TYPE_CREDIT)
+			|| $db->test(POS::tbl('tabs_payments'), 'tab = ? AND (type = ? OR type = ?)', $this->id(), Method::TYPE_DEBT, Method::TYPE_CREDIT);
 	}
 
 	public function reopen() {
