@@ -131,7 +131,7 @@ class Tabs
 			INNER JOIN @PREFIX_tabs_payments p ON p.tab = t.id
 			INNER JOIN @PREFIX_methods m ON p.method = m.id
 			WHERE p.%s
-			GROUP BY p.account, t.user_id, t.name, t.id
+			GROUP BY p.account, COALESCE(t.user_id, t.name), t.id
 			UNION ALL
 			SELECT t.id, t.opened AS date, t.name, t.user_id, SUM(ti.total) AS amount, ti.account, ti.id_method,
 				m.name AS method, CASE WHEN ti.type = %d THEN \'payoff\' ELSE \'credit\' END AS type,
@@ -140,7 +140,7 @@ class Tabs
 			INNER JOIN @PREFIX_tabs_items ti ON ti.tab = t.id
 			INNER JOIN @PREFIX_methods m ON ti.id_method = m.id
 			WHERE ti.%s
-			GROUP BY ti.account, t.user_id, t.name, t.id
+			GROUP BY ti.account, COALESCE(t.user_id, t.name), t.id
 			ORDER BY date';
 
 		$types = [];
@@ -192,7 +192,7 @@ class Tabs
 
 		$list = new DynamicList($columns, $tables);
 		$list->orderBy('date', true);
-		$list->groupBy('user_id, name' . ($type === Method::TYPE_DEBT ? ' HAVING SUM(amount) != 0' : ''));
+		$list->groupBy('COALESCE(user_id, name)' . ($type === Method::TYPE_DEBT ? ' HAVING SUM(amount) != 0' : ''));
 
 		return $list;
 	}
