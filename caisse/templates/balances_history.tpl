@@ -37,6 +37,7 @@
 				<td class="actions">
 					{if $row.user_id}
 						{linkbutton href="!users/details.php?id=%d"|args:$row.user_id label="Fiche membre" shape="user" target="_top"}
+						{linkbutton href="balances_history.php?type=%d&id_user=%d"|args:$type:$row.user_id label="Historique" shape="history"}
 					{/if}
 					{linkbutton href="tab.php?id=%d"|args:$row.id label="Note" shape="money" target="_top"}
 				</td>
