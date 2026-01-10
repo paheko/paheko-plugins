@@ -21,10 +21,10 @@
 				<td class="actions">
 					{if $row.user_id}
 						{linkbutton href="!users/details.php?id=%d"|args:$row.user_id label="Fiche membre" shape="user"}
-						{linkbutton href="balances.php?type=%d&id_user="|args:$type:$row.user_id label="Historique" shape="history"}
+						{linkbutton href="balances_history.php?type=%d&id_user=%d"|args:$type:$row.user_id label="Historique" shape="history"}
 					{/if}
 					{if $is_debt}
-						<?php $name = rawurlencode($row->name); ?>
+						<?php $name = rawurlencode((string)$row->name); ?>
 						{linkbutton href="tab.php?id_user=%d&payoff=%d&id_method=%d&name=%s"|args:$row.user_id:$row.amount:$row.id_method:$name label="Rembourser" shape="right"}
 					{/if}
 				</td>

@@ -518,6 +518,15 @@ class Tab extends Entity
 			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
+		if (!$this->user_id) {
+			return;
+		}
+
+		if ($this->getUserDebt() >= 0) {
+			// Don't add debt if user has no debt
+			return;
+		}
+
 		$sql = 'SELECT SUM(amount) AS amount, id_method, method, account FROM (%s)
 			WHERE user_id = ? AND type IN (\'debt\', \'payoff\')
 			GROUP BY id_method
@@ -533,6 +542,10 @@ class Tab extends Entity
 
 	public function addPayoff(int $amount, int $id_method, ?string $method_account = null, ?string $method_name = null): TabItem
 	{
+		if ($this->user_id && $this->getUserDebt() >= 0) {
+			throw new UserException('Ce membre n\'a pas d\'ardoise à payer');
+		}
+
 		if (!isset($method_account, $method_name)) {
 			$method = Methods::get($id_method);
 			$method_account = $method->account;

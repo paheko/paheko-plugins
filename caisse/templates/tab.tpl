@@ -95,7 +95,9 @@
 				<p class="alert block">
 					Ce membre doit {$debt|abs|money_currency_html|raw}
 					{linkbutton href="balances_history.php?type=2&user=%d"|args:$current_tab.user_id label="Historique" shape="menu"}
-					{button type="submit" name="add_debt" value="1" label="Payer cette ardoise" shape="money"}
+					{if !$current_tab.closed}
+						{button type="submit" name="add_debt" value="1" label="Payer cette ardoise" shape="money"}
+					{/if}
 				</p>
 			{/if}
 		</header>
