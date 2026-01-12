@@ -149,7 +149,6 @@ class Sessions
 		$list = new DynamicList($columns, $tables);
 		$list->orderBy('opened', true);
 		$list->groupBy('s.id');
-		$list->setCount('COUNT(DISTINCT s.id)');
 		$list->setExportCallback(function (&$row) {
 			$row->total = Utils::money_format($row->total, '.', '');
 			$row->close_amount = isset($row->close_amount) ? Utils::money_format($row->close_amount, '.', '') : null;
