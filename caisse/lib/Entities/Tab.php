@@ -209,7 +209,12 @@ class Tab extends Entity
 			throw new UserException('Cette note est close, impossible de modifier la note.');
 		}
 
-		$price = Utils::moneyToInteger($price);
+		try {
+			$price = Utils::moneyToInteger($price, true);
+		}
+		catch (\InvalidArgumentException $e) {
+			throw new UserException($e->getMessage(), 0, $e);
+		}
 
 		$item = $this->getItem($id);
 
