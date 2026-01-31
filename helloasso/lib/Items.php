@@ -24,7 +24,7 @@ class Items
 		return EM::findOneById(Item::class, $id);
 	}
 
-	static public function list($for): DynamicList
+	static public function list($for, Helloasso $ha): DynamicList
 	{
 		$columns = [
 			'type' => [
@@ -56,6 +56,12 @@ class Items
 			'card_url' => [
 				'select' => 'json_extract(raw_data, \'$.membershipCardUrl\')',
 			],
+			'first_name' => [
+				'select' => 'json_extract(raw_data, \'$.user.firstName\')',
+			],
+			'last_name' => [
+				'select' => 'json_extract(raw_data, \'$.user.lastName\')',
+			],
 		];
 
 		$tables = Item::TABLE;
@@ -79,7 +85,9 @@ class Items
 			$list->setTitle(sprintf('Commande - %d - Items', $for->id));
 		}
 
-		$list->setModifier(function ($row) {
+		$tiers = [];
+
+		$list->setModifier(function ($row) use ($ha, $tiers) {
 			$row->type_label = Item::TYPES[$row->type] ?? 'Inconnu';
 			$row->type_color = Item::TYPES_COLORS[$row->type] ?? '';
 
@@ -90,6 +98,23 @@ class Items
 			if (isset($row->options)) {
 				$row->options = json_decode($row->options) ?? [];
 				$row->options = array_map([self::class, 'normalizeOption'], $row->options);
+			}
+
+			$row->new_user_url = '';
+
+			if ($row->type === 'Membership'
+				&& !isset($row->id_user)
+				&& isset($row->first_name, $row->last_name)) {
+				$data = ['firstName' => $row->first_name, 'lastName' => $row->last_name];
+				$row->matching_user = $ha->findMatchingUser((object) $data);
+
+				if (!$row->matching_user) {
+					$tiers[$row->id_tier] ??= Forms::getTier($row->id_tier);
+					$data = array_merge($data, $row->custom_fields);
+					$user = $ha->getMappedUser((object)$data, $tiers[$row->id_tier]->fields_map);
+					$user['redirect'] = sprintf('%s&item_id=%d&item_set_user_id=%%d', Utils::getSelfURI(), $row->id);
+					$row->new_user_url = '!users/new.php?' . http_build_query($user);
+				}
 			}
 		});
 

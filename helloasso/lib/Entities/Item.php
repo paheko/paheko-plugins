@@ -60,4 +60,14 @@ class Item extends Entity
 		'Canceled'   => 'Annulé',
 		'Contested'  => 'Contesté',
 	];
+
+	public function setUserId(int $id): void
+	{
+		if ($this->id_user) {
+			return;
+		}
+
+		$this->set('id_user', $id);
+		$this->save();
+	}
 }

@@ -7,12 +7,6 @@
 	</ul>
 </nav>
 
-{if isset($_GET['ok'])}
-<p class="confirm block">
-	Connexion à l'API HelloAsso effectuée !
-</p>
-{/if}
-
 {form_errors}
 
 <div class="help block">

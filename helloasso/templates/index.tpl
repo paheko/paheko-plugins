@@ -3,7 +3,7 @@
 {else}
 	{assign var="title" value="HelloAsso — Toutes les campagnes"}
 {/if}
-{include file="_head.tpl" title="HelloAsso — Toutes les campagnes"}
+{include file="_head.tpl" title=$title}
 
 {include file="./_menu.tpl" current="home" current_sub=null}
 

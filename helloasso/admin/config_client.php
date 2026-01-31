@@ -12,7 +12,7 @@ $ha = HelloAsso::getInstance();
 
 $form->runIf('save', function () use ($ha) {
 	$ha->saveClient($_POST['client_id'] ?? '', $_POST['client_secret'] ?? '', (bool) ($_POST['sandbox'] ?? false));
-}, $csrf_key, '?ok');
+}, $csrf_key, './sync.php?msg=CONNECTED');
 
 $tpl->assign([
 	'client_id'  => $ha->getClientId(),

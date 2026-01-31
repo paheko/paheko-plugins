@@ -36,11 +36,6 @@ class Tier extends Entity
 
 	protected Form $_form;
 
-	public function canMatchUsers(): bool
-	{
-		return !empty($this->fields_map) || $this->use_payer_fallback_info;
-	}
-
 	public function getTypeLabel(): string
 	{
 		return self::TYPES[$this->type];

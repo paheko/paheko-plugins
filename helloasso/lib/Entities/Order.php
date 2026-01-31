@@ -106,6 +106,11 @@ class Order extends Entity
 		return EM::getInstance(Item::class)->all('SELECT * FROM @TABLE WHERE id_order = ? ORDER BY id DESC;', $this->id());
 	}
 
+	public function getItem(int $id): ?Item
+	{
+		return EM::findOne(Item::class, 'SELECT * FROM @TABLE WHERE id_order = ? AND id = ?;', $this->id(), $id);
+	}
+
 	public function listPayments(): array
 	{
 		return EM::getInstance(Payment::class)->all('SELECT * FROM @TABLE WHERE id_order = ? ORDER BY id DESC;', $this->id());

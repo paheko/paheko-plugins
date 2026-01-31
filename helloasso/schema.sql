@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers (
 	-- JSON list of fields for mapping user information
 	fields_map TEXT NULL,
 
-	use_payer_fallback_info INTEGER NOT NULL DEFAULT 0
+	create_user INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers_options (

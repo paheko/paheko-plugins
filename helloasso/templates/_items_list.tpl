@@ -27,13 +27,11 @@
 			<td>
 				{if $row.id_user}
 					{linkbutton shape="user" label="Fiche membre" href="!users/details.php?id=%d"|args:$row.id_user}
-				{elseif $row.custom_fields && isset($row->id_tier) && ($tier = $order->tier($row->id_tier)) && $tier->canMatchUsers()}
-					{if $user = $tier->findMatchingUser($row->custom_fields)}
-						Membre trouvé : {$user.identity}<br />
-						{linkbutton shape="link" href="?id=%d&set_item_user_id=%d"|args:$order.id:$row.id label="Lier cette adhésion à ce membre"}
-					{else}
-						{linkbutton shape="plus" href=$tier->getNewUserURL($row->custom_field) label="Créer ce membre"}
-					{/if}
+				{elseif $row.matching_user}
+					Membre trouvé : {$row.matching_user.identity}<br />
+					{linkbutton shape="link" href="?id=%d&item_id=%d&item_set_user_id=%d"|args:$order.id:$row.id:$row.matching_user.id label="Lier cette adhésion à ce membre"}
+				{elseif $row.new_user_url}
+					{linkbutton shape="plus" href=$row.new_user_url|cat:"&set_item="|cat:$row.id|cat:"&set_item_user_id=%d" label="Créer ce membre"}
 				{/if}
 			</td>
 			{/if}

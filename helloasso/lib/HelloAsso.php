@@ -131,11 +131,38 @@ class HelloAsso
 		DB::getInstance()->exec($sql);
 	}
 
-	public function saveConfig(array $fields_map, int $merge_names_order, bool $match_email_field): void
+	public function saveConfig(array $data): void
 	{
-		$this->plugin->setConfigProperty('fields_map', $fields_map);
-		$this->plugin->setConfigProperty('merge_names_order', $merge_names_order);
-		$this->plugin->setConfigProperty('match_email_field', $match_email_field);
+		static $properties = [
+			'fields_map' => 'array',
+			'merge_names_order' => 'int',
+			'match_email_field' => 'bool',
+			'bank_account_code' => 'string',
+			'provider_account_code' => 'string',
+		];
+
+		foreach ($properties as $name => $type) {
+			$value = $data[$name] ?? null;
+
+			if ($type === 'string') {
+				if (is_array($value)) {
+					$value = key($value);
+				}
+			}
+			elseif ($type === 'bool') {
+				$value = (bool) $value;
+			}
+			elseif ($type === 'int') {
+				$value = (int) $value;
+			}
+
+			if (get_debug_type($value) !== $type) {
+				continue;
+			}
+
+			$this->plugin->setConfigProperty($name, $value);
+		}
+
 		$this->plugin->save();
 	}
 
@@ -144,7 +171,7 @@ class HelloAsso
 		return empty($this->config->oauth) ? false : true;
 	}
 
-	public function findUserForPayment(stdClass $payer)
+	public function findMatchingUser(stdClass $data): ?stdClass
 	{
 		$map = $this->config->fields_map ?? new stdClass;
 		$where = '';
@@ -156,7 +183,7 @@ class HelloAsso
 
 		if ($this->config->match_email_field ?? null) {
 			$where = sprintf('%s = ? COLLATE NOCASE', $db->quoteIdentifier($email_field));
-			$params[] = $payer->email;
+			$params[] = $data->email;
 		}
 		else {
 			$order = $this->config->merge_names_order ?? self::MERGE_NAMES_FIRST_LAST;
@@ -173,25 +200,25 @@ class HelloAsso
 				$where = sprintf('%s = ? COLLATE U_NOCASE', $db->quoteIdentifier($map->firstName));
 
 				if ($order === self::MERGE_NAMES_FIRST_LAST) {
-					$params[] = $payer->firstName . ' ' . $payer->lastName;
+					$params[] = $data->firstName . ' ' . $data->lastName;
 				}
 				else {
-					$params[] = $payer->lastName . ' ' . $payer->firstName;
+					$params[] = $data->lastName . ' ' . $data->firstName;
 				}
 			}
 			else {
 				$where = sprintf('%s = ? COLLATE U_NOCASE AND %s = ? COLLATE U_NOCASE', $db->quoteIdentifier($map->firstName), $db->quoteIdentifier($map->lastName));
-				$params[] = $payer->firstName;
-				$params[] = $payer->lastName;
+				$params[] = $data->firstName;
+				$params[] = $data->lastName;
 			}
 		}
 
 		$sql = sprintf('SELECT id, %s AS identity FROM users WHERE %s;', $identity_field, $where);
 
-		return $db->first($sql, ...$params);
+		return $db->first($sql, ...$params) ?: null;
 	}
 
-	public function getMappedUser(stdClass $payer): array
+	public function getMappedUser(stdClass $data, ?array $map_extra = null): array
 	{
 		$out = [];
 		$map = $this->config->fields_map ?? new stdClass;
@@ -201,11 +228,11 @@ class HelloAsso
 				continue;
 			}
 
-			if (!isset($payer->$key)) {
+			if (!isset($data->$key)) {
 				continue;
 			}
 
-			$value = $payer->$key ?? null;
+			$value = $data->$key;
 
 			if ($key === 'dateOfBirth' && $value) {
 				$value = DateTime::createFromFormat('!Y-m-d', substr($value, 0, strlen(date('Y-m-d'))));
@@ -220,10 +247,10 @@ class HelloAsso
 			$order = $this->config->merge_names_order ?? self::MERGE_NAMES_FIRST_LAST;
 
 			if ($order === self::MERGE_NAMES_FIRST_LAST) {
-				$out[$map->firstName] = $payer->firstName . ' ' . $payer->lastName;
+				$out[$map->firstName] = $data->firstName . ' ' . $data->lastName;
 			}
 			else {
-				$out[$map->firstName] = $payer->lastName . ' ' . $payer->firstName;
+				$out[$map->firstName] = $data->lastName . ' ' . $data->firstName;
 			}
 		}
 

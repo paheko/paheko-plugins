@@ -2,6 +2,13 @@
 
 {include file="%s/templates/_menu.tpl"|args:$plugin_root current="sync"}
 
+{if $_GET.msg === 'CONNECTED'}
+<p class="confirm block">
+	Connexion à l'API HelloAsso effectuée !
+</p>
+{/if}
+
+
 {if $last_sync}
 	<p class="help">
 		La dernière synchronisation date du {$last_sync|date}.
