@@ -24,7 +24,7 @@ class Payments
 	{
 		$columns = [
 			'id' => [
-				'label' => 'Référence',
+				'label' => 'Numéro',
 			],
 			'id_transaction' => [
 				'label' => 'Écriture',

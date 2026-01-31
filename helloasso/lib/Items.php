@@ -25,7 +25,7 @@ class Items
 	{
 		$columns = [
 			'id' => [
-				'label' => 'Référence',
+				'label' => 'Numéro',
 			],
 			'amount' => [
 				'label' => 'Montant',

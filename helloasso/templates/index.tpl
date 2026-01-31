@@ -17,7 +17,7 @@
 			<td>{$form.org_name}</td>
 			<th><a href="orders.php?id={$form.id}">{$form.name}</a></th>
 			<td>{$form.type_label}</td>
-			<td>{$form.state_label}</td>
+			<td>{tag color=$form.state_color label=$form.state_label}</td>
 		</tr>
 		{/foreach}
 	</tbody>

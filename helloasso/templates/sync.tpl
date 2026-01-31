@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="HelloAsso"}
 
-{include file="%s/templates/_menu.tpl"|args:$plugin_root current="home"}
+{include file="%s/templates/_menu.tpl"|args:$plugin_root current="sync"}
 
 {if $last_sync}
 	<p class="help">

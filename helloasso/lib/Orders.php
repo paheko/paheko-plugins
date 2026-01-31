@@ -24,7 +24,7 @@ class Orders
 	{
 		$columns = [
 			'id' => [
-				'label' => 'Référence',
+				'label' => 'Numéro',
 			],
 			'date' => [
 				'label' => 'Date',

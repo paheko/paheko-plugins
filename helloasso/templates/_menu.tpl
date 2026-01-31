@@ -1,7 +1,7 @@
 <nav class="tabs">
 	<ul>
 		<li{if $current == 'home'} class="current"{/if}><a href="./">Formulaires</a></li>
-		<li{if $current == 'targets'} class="current"{/if}><a href="sync.php">Synchronisation</a></li>
+		<li{if $current == 'sync'} class="current"{/if}><a href="sync.php">Synchronisation</a></li>
 		{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
 			<li{if $current == 'config'} class="current"{/if}><a href="config.php">Configuration</a></li>
 		{/if}

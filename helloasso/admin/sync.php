@@ -8,7 +8,7 @@ $csrf_key = 'sync';
 
 $form->runIf('sync', function() use ($ha) {
 	$ha->sync();
-}, $csrf_key, PLUGIN_URL);
+}, $csrf_key, './');
 
 $tpl->assign('last_sync', $ha->getLastSync());
 $tpl->assign('csrf_key', $csrf_key);

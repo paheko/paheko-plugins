@@ -3,6 +3,7 @@
 namespace Paheko;
 
 use Paheko\Plugin\HelloAsso\HelloAsso;
+use Paheko\Users\DynamicFields;
 
 $session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
 
@@ -23,18 +24,14 @@ $merge_names_options = $ha::MERGE_NAMES_OPTIONS;
 
 $fields_names = $ha::PAYER_FIELDS;
 
-$champs = Config::getInstance()->get('champs_membres')->getAll();
+$fields = DynamicFields::getInstance()->all();
 
 $target_fields = [
-	null => '-- Ne pas importer',
+	'' => '— Ne pas importer —',
 ];
 
-foreach ($champs as $key => $config) {
-	if (!isset($config->title)) {
-		continue;
-	}
-
-	$target_fields[$key] = $config->title;
+foreach ($fields as $key => $field) {
+	$target_fields[$key] = $field->label;
 }
 
 $plugin_config = $ha->getConfig();

@@ -37,4 +37,11 @@ class Form extends Entity
 		'Private'  => 'privé',
 		'Disabled' => 'désactivé',
 	];
+
+	const STATES_COLORS = [
+		'Draft'    => 'darkgray',
+		'Public'   => 'darkgreen',
+		'Private'  => 'darkred',
+		'Disabled' => 'black',
+	];
 }

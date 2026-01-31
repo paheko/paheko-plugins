@@ -7,7 +7,7 @@
 <dl class="describe">
 	<dt>Personne</dt>
 	<dd>{$order.person}</dd>
-	<dt>Référence</dt>
+	<dt>Numéro de commande</dt>
 	<dd>{$order.id}</dd>
 	<dt>Montant total</dt>
 	<dd>{$order.amount|money_currency|raw}</dd>

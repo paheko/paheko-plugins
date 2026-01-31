@@ -46,6 +46,7 @@ class Forms
 		foreach ($list as &$row) {
 			$row->state_label = Form::STATES[$row->state] ?? '';
 			$row->type_label = Form::TYPES[$row->type] ?? '';
+			$row->state_color = Form::STATES_COLORS[$row->state] ?? '';
 		}
 
 		return $list;

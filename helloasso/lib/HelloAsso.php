@@ -21,9 +21,30 @@ class HelloAsso
 		self::MERGE_NAMES_LAST_FIRST => 'Nom Prénom',
 	];
 
-	protected $plugin;
-	protected $config;
+	const PAYER_FIELDS = [
+		'firstName'   => 'Prénom',
+		'lastName'    => 'Nom',
+		'email'       => 'Courriel',
+		'address'     => 'Adresse postale',
+		'city'        => 'Ville',
+		'zipCode'     => 'Code postale',
+		'country'     => 'Pays',
+		'dateOfBirth' => 'Date de naissance',
+		'company'     => 'Organisme'
+	];
 
+	const PAYER_FIELD_DEFAULT_MATCHES = [
+		'address' => 'adresse',
+		'city'    => 'ville',
+		'zipcode' => 'code_postal'
+	];
+
+	const FIXED_PRICE_CATEGORY = 'Fixed';
+	const PAY_WHAT_YOU_WANT_PRICE_CATEGORY = 'Pwyw';
+	const FREE_PRICE_CATEGORY = 'Free';
+
+	protected ?Plugin $plugin = null;
+	protected ?\stdClass $config = null;
 
 	static protected $_instance;
 
@@ -40,6 +61,11 @@ class HelloAsso
 	{
 		$this->plugin = Plugins::get('helloasso');
 		$this->config = $this->plugin->getConfig();
+	}
+
+	public function getConfig(): \stdClass
+	{
+		return $this->config;
 	}
 
 	public function plugin(): Plugin
