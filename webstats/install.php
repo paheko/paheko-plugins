@@ -1,7 +1,10 @@
 <?php
 
-use Garradin\Plugin\Webstats\Stats;
+namespace Paheko;
 
+use Paheko\Plugin\Webstats\Stats;
+
+$db = DB::getInstance();
 $db->import(__DIR__ . '/schema.sql');
 
-$plugin->registerSignal('usertemplate.appendscript', 'Garradin\Plugin\Webstats\Stats::appendScript');
+$plugin->registerSignal('web.request', 'Paheko\Plugin\Webstats\Stats::webRequest');

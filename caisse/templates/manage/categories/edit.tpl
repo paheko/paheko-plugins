@@ -7,7 +7,7 @@
 		<legend>Modifier une catégorie</legend>
 		<dl>
 			{input type="text" name="name" label="Nom" required=true source=$cat}
-			{input type="text" name="account" label="Code du compte" source=$cat help="Code du compte dans le plan comptable (par exemple 754), utilisé pour intégrer les notes à la comptabilité."}
+			{input required=true name="account" multiple=false target="!acc/charts/accounts/selector.php?key=code" type="list" label="Compte du plan comptable" default=$account help="Numéro du compte dans le plan comptable (par exemple 754), utilisé pour intégrer les notes à la comptabilité."}
 		</dl>
 	</fieldset>
 	<p class="submit">

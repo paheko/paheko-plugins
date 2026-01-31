@@ -1,7 +1,9 @@
 <?php
 
-namespace Garradin;
-use Garradin\Plugin\Caisse\Products;
+namespace Paheko;
+use Paheko\Plugin\Caisse\Categories;
+use Paheko\Plugin\Caisse\Products;
+use Paheko\Services\Services;
 
 require __DIR__ . '/../_inc.php';
 
@@ -11,6 +13,11 @@ if (qg('new') !== null) {
 }
 else {
 	$product = Products::get((int) qg('id'));
+
+	if (!$product) {
+		throw new UserException('Ce produit n\'existe pas');
+	}
+
 	$csrf_key = 'product_edit_' . $product->id();
 }
 
@@ -32,12 +39,15 @@ else {
 		$product->importForm();
 		$product->save();
 		$product->setMethods(array_keys(f('methods') ?? []));
+		$product->setLinkedProducts(array_keys(f('linked_products') ?? []));
 	}, $csrf_key, './');
 
 	$methods = $product->listPaymentMethods();
-	$categories = Products::listCategoriesAssoc();
+	$categories = Categories::listAssoc();
+	$fees = Services::listGroupedWithFeesForSelect(false);
+	$linked_products = $product->listLinkedProductsAssoc();
 
-	$tpl->assign(compact('methods', 'categories'));
+	$tpl->assign(compact('methods', 'categories', 'fees', 'linked_products'));
 
 	$tpl->display(PLUGIN_ROOT . '/templates/manage/products/edit.tpl');
 }

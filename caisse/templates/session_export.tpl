@@ -68,88 +68,43 @@
 {/if}
 
 
-{if $pos_session.error_amount}
-	<p class="error block">Erreur de {$pos_session.error_amount|raw|money_currency}</span>
-{/if}
-
-<p class="details">
-	Ouverture&nbsp;: {$pos_session.opened|date}
-	— par {$pos_session.open_user}
-	— Caisse = {$pos_session.open_amount|raw|money_currency}
-</p>
-<p class="details">
-	Fermeture&nbsp;:
-	{if !$pos_session.closed}<strong>En cours</strong>
-	{else}{$pos_session.closed|date}
-		— par {$pos_session.close_user}
-		— Caisse = {$pos_session.close_amount|raw|money_currency}
-		{if !$pos_session.error_amount}
-			— pas d'erreur
-		{/if}
-	{/if}
-</p>
-
-{if count($missing_users_tabs) && !$print}
-<div class="noprint">
-	<h2 class="ruler">Membres non inscrits</h2>
-
-	<table class="list">
-		<thead>
-			<tr>
-				<td>Note</td>
-				<td>Nom</td>
-				<td></td>
-			</tr>
-		</thead>
-		<tbody>
-			{foreach from=$missing_users_tabs item="tab"}
-			<tr>
-				<th>{$tab.id}</th>
-				<td>
-					{$tab.name}
-				</td>
-				<td class="actions">
-					<form method="post" action="{$admin_url}users/new.php">
-						<input type="hidden" name="{$id_field}" value="{$tab.name}" />
-						<input type="submit" value="Inscrire ce membre" />
-					</form>
-				</td>
-			</tr>
+<div class="pos-summary">
+	<dl>
+		<dt><strong>Ouverture</strong></dt>
+		<dd>{$pos_session.opened|date}</dd>
+		<dt>Par</dt>
+		<dd>{$pos_session.open_user}</dd>
+	{foreach from=$balances item="balance"}
+		<dt>{$balance.name}</dt>
+		<dd>{$balance.open_amount|raw|money_currency}</dd>
+	{/foreach}
+	</dl>
+	<dl>
+		<dt><strong>Fermeture</strong></dt>
+		<dd>{if !$pos_session.closed}{tag label="darkorange" label="En cours"}{else}{$pos_session.closed|date}{/if}</dd>
+		{if $pos_session.closed}
+			<dt>Par</dt>
+			<dd>{$pos_session.close_user}</dd>
+			{foreach from=$balances item="balance"}
+				<dt>{$balance.name}</dt>
+				<dd>{$balance.close_amount|raw|money_currency}
+				{if !$balance.error_amount}
+					{tag color="darkgreen" label="Pas d'erreur"}
+				{else}
+					{assign var="error" value=$balance.error_amount|money_currency_text:true:true}
+					{tag color="darkred" label="Erreur %s"|args:$error}
+				{/if}
+				</dd>
 			{/foreach}
-		</tbody>
-	</table>
+		{/if}
+	</dl>
+	<dl>
+		<dt><strong>Résultat</strong></dt>
+		<dd>{$total_sales|money_currency|raw}</dd>
+		<dt>Nombre de notes</dt>
+		<dd>{$tabs|count}</dd>
+	</dl>
 </div>
-{/if}
-
-<h2 class="ruler">Recettes par catégorie</h2>
-
-<table class="list">
-	<thead>
-		<tr>
-			<td>Compte</td>
-			<td>Catégorie</td>
-			<td>Montant</td>
-		</tr>
-	</thead>
-	<tbody>
-		{foreach from=$totals_categories item="cat"}
-		<tr>
-			<td>{$cat.account}</td>
-			<th>{$cat.category_name}</th>
-			<td>
-				{$cat.total|raw|money_currency}
-			</td>
-		</tr>
-		{/foreach}
-	</tbody>
-	<tfoot>
-		<tr>
-			<td></td>
-			<th>Total</th>
-			<td>{$total|raw|money_currency}</td>
-		</tr>
-	</tfoot>
-</table>
 
 <h2 class="ruler">Totaux des règlements, par moyen de paiement</h2>
 
@@ -165,11 +120,87 @@
 		<tr>
 			<th>{$payment.method_name}</th>
 			<td>
-				{$payment.total|raw|money_currency}
+				{$payment.total|raw|money_currency:false}
 			</td>
 		</tr>
 		{/foreach}
 	</tbody>
+</table>
+
+<h2 class="ruler">Ventes par catégorie</h2>
+
+<table class="list">
+	<thead>
+		<tr>
+			<td>Compte</td>
+			<td>Catégorie</td>
+			<td>Montant</td>
+			<td>Nombre de ventes</td>
+			<td>Poids</td>
+		</tr>
+	</thead>
+	<tbody>
+		<?php $count = $weight = 0; ?>
+		{foreach from=$totals_categories item="cat"}
+		<tr>
+			<td>{$cat.account}</td>
+			<th>{$cat.category_name}</th>
+			<td>
+				{$cat.total|raw|money_currency:false}
+			</td>
+			<td>{$cat.count}</td>
+			<td>{$cat.weight|weight:false:true}</td>
+		</tr>
+		<?php $count += $cat->count; $weight += $cat->weight; ?>
+		{/foreach}
+	</tbody>
+	<tfoot>
+		<tr>
+			<td></td>
+			<th>Total</th>
+			<td>{$total_sales|raw|money_currency:false}</td>
+			<td>{$count}</td>
+			<td>{$weight|weight:false:true}</td>
+		</tr>
+	</tfoot>
+</table>
+
+<h2 class="ruler">Ventes par produit</h2>
+
+<table class="list">
+	<thead>
+		<tr>
+			<td>Catégorie</td>
+			<td>Produit</td>
+			<td>Montant</td>
+			<td>Nombre de ventes</td>
+			<td>Poids</td>
+		</tr>
+	</thead>
+	<tbody>
+		<?php $count = $weight = 0; ?>
+		{foreach from=$totals_products item="p"}
+		<tr>
+			<td>{$p.category_name}</td>
+			<th>{$p.name}</th>
+			<td>
+				{$p.total|raw|money_currency:false}
+			</td>
+			<td>{$p.count}</td>
+			<td>{$p.weight|weight:false:true}</td>
+		</tr>
+		<?php $count += $p->count; $weight += $p->weight; ?>
+		{/foreach}
+	</tbody>
+	<tfoot>
+		<tr>
+			<td></td>
+			<th>Total</th>
+			<td>{$total_sales|raw|money_currency:false}</td>
+			<td>{$count}</td>
+			<td>{$weight|weight:false:true}</td>
+		</tr>
+	</tfoot>
 </table>
 
 
@@ -191,11 +222,11 @@
 		<tr>
 			<td>{$payment.tab}{if $payment.tab_name} — {$payment.tab_name}{/if}</td>
 			<th>
-				{$payment.date|date_format:"%H:%M"}
+				{$payment.date|date_hour}
 			</th>
 			<td>{$payment.method_name}</td>
 			<td>
-				{$payment.amount|raw|money_currency}
+				{$payment.amount|raw|money_currency:false}
 			</td>
 			<td>{$payment.reference}</td>
 			<td class="actions">
@@ -205,8 +236,6 @@
 		{/foreach}
 	</tbody>
 </table>
-
-{if $details}
 
 <h2 class="ruler">Liste des notes</h2>
 
@@ -224,15 +253,18 @@
 		<tr>
 			<td>{$tab.id}{if $tab.name} — {$tab.name}{/if}</td>
 			<th>
-				{$tab.opened|date_format:"%H:%M"}
+				{$tab.opened|date_hour}
 				{if $tab.closed}
-				&rarr; {$tab.closed|date_format:"%H:%M"}
+				&rarr; {$tab.closed|date_hour}
 				{/if}
 			</th>
 			<td>
-				{$tab.total|raw|money_currency}
+				{$tab.total|raw|money_currency:false}
 			</td>
 			<td class="actions">
+				{if $tab.user_id}
+					{linkbutton shape="user" label="Fiche membre" href="!users/details.php?id=%d"|args:$tab.user_id class="noprint"}
+				{/if}
 				{linkbutton shape="menu" label="Détails" href="tab.php?id=%d"|args:$tab.id class="noprint"}
 			</td>
 		</tr>
@@ -242,18 +274,20 @@
 		<tr>
 			<td></td>
 			<th>Total</th>
-			<td>{$total|raw|money_currency}</td>
+			<td>{$total_payments|raw|money_currency:false}</td>
 			<td class="actions"></td>
 		</tr>
 	</tfoot>
 </table>
 
+{if $details}
+
 {foreach from=$tabs item="tab"}
 
 	<h2 class="ruler">Note n°{$tab.id}&nbsp;:
-		{$tab.opened|date_format:"%H:%M"}
+		{$tab.opened|date_hour}
 		{if $tab.closed}
-		&rarr; {$tab.closed|date_format:"%H:%M"}
+		&rarr; {$tab.closed|date_hour}
 		{/if}
 		— {$tab.name}
 	</h2>
@@ -273,8 +307,8 @@
 				<td>{$item.category_name}</td>
 				<th>{$item.name}</th>
 				<td>{$item.qty}</td>
-				<td>{$item.price|raw|money_currency}</td>
-				<td>{$item.total|raw|money_currency}</td>
+				<td>{$item.price|raw|money_currency:false}</td>
+				<td>{$item.total|raw|money_currency:false}</td>
 			</tr>
 			{/foreach}
 			</tbody>
@@ -284,7 +318,7 @@
 					<th>Total</th>
 					<td></td>
 					<td></td>
-					<td>{$tab.total|raw|money_currency}</td>
+					<td>{$tab.total|raw|money_currency:false}</td>
 				</tr>
 			</tfoot>
 		</table>

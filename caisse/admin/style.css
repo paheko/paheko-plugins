@@ -5,18 +5,41 @@
 }
 
 .pos header {
+	margin-bottom: 1rem;
+}
+
+.pos header .title {
 	display: flex;
 	justify-content: space-between;
-	margin-bottom: 1rem;
+}
+
+.pos header .id {
+	color: #666;
+	font-weight: normal;
+	vertical-align: middle;
+	display: inline-flex;
+	align-items: center;
+	margin-right: auto;
+}
+
+.pos header .actions {
+	display: flex;
+	justify-content: space-between;
+	gap: .7rem;
+}
+
+.pos header .actions a, .pos header .actions button {
+	margin: 0;
 }
 
 .pos .products {
 	text-align: center;
 }
 
-.pos .products button {
+.pos .products section button {
     background: #eee;
     border: .2rem solid #ddd;
+    border-color: hsl(var(--cat-hue), 40%, 75%);
 	border-radius: .5rem;
 	padding: .5rem;
 	margin: .3rem;
@@ -25,17 +48,17 @@
 	min-width: 9rem !important;
 }
 
-.pos .products button h4 {
+.pos .products section button h4 {
 	color: #666;
 	font-size: 1em;
 	margin: .5em 0;
 }
 
-.pos .products button h3 {
+.pos .products section  button h3 {
 	font-size: 1.1em;
 }
 
-.pos .products button:hover {
+.pos .products section button:hover {
 	background: #fee;
 	border-color: #fcc;
 }
@@ -51,13 +74,47 @@
 	margin: 1rem 0;
 }
 
-input[name="q"] {
+.pos .products header input[name="q"] {
 	font-size: 2rem;
 	min-width: 5em;
 	width: calc(100% - 1em);
 }
-.pos form {
-	display: inline;
+
+.pos .products header {
+	display: flex;
+}
+
+.pos .products header button {
+	font-size: 1.5em;
+	border: none;
+}
+
+.pos .items table td, .pos .items table th {
+	padding: .5em;
+}
+
+.pos .items table td.qty {
+	text-align: center;
+}
+
+@media screen and (max-width:600px) {
+	.items table.list tbody tr {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.items table.list tbody th {
+		flex-grow: 1;
+		width: 100% !important;
+		text-align: left !important;
+	}
+	.items table.list thead {
+		display: none;
+	}
+	.items table.list tfoot tr {
+		display: flex;
+	}
 }
 
 .pos .items i {
@@ -68,6 +125,49 @@ input[name="q"] {
 	line-height: 1rem;
 }
 
+.pos .list thead td {
+	text-align: center;
+}
+
+.pos .products ul {
+	font-size: .8em;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	margin-top: .5em;
+}
+
+.pos .products ul a {
+	text-decoration: none;
+	color: #333;
+	padding: .2em .4em;
+	border-radius: .3em;
+	margin: .3em;
+	display: inline-block;
+	transition: background .2s, color .2s;
+	background: #ccc;
+	background: hsl(var(--cat-hue), 40%, 85%);
+	border: 1px solid #ccc;
+	box-shadow: 0px 0px 5px #ccc;
+}
+
+.pos .products ul .current a {
+	color: #fff;
+	background: hsl(var(--cat-hue), 30%, 55%);
+}
+
+.pos .products ul .current a[data-cat=""] {
+	background: #666;
+}
+
+.pos .products ul a:hover {
+	text-decoration: underline;
+	background: hsl(var(--cat-hue), 20%, 80%);
+	border-color: #fff;
+	color: darkred;
+	box-shadow: 0px 0px 5px #999;
+}
+
 .list small.cat {
 	font-size: 7pt;
 	font-weight: normal;
@@ -75,18 +175,43 @@ input[name="q"] {
 	display: block;
 }
 
+.tabs .pos-tabs {
+	display: flex;
+	align-items: end;
+	justify-content: space-between;
+	margin-bottom: .8em;
+}
+
+.tabs .pos-tabs ul {
+	padding: .5rem;
+	margin: 0;
+	border: none;
+	max-height: 4.2em;
+	overflow: hidden;
+	position: relative;
+	justify-content: start;
+}
+
+.tabs .pos-tabs .plus {
+	margin-top: 1em;
+}
+
+.tabs .pos-tabs.open ul {
+	overflow: unset;
+	max-height: unset;
+}
+
 .tabs .pos-tabs li {
-	padding: .2rem .1rem;
+	padding: .1rem;
 	margin: 0;
 }
 
 .tabs .pos-tabs li a {
-	border-radius: .5rem;
+	margin: 0;
 }
 
-.tabs .pos-tabs {
-	padding: 0;
-	border: none;
+.tabs .pos-tabs li:first-child::before, .tabs .pos-tabs li:last-child::after {
+	display: none;
 }
 
 .tabs .pos-tabs li.closed a {
@@ -94,57 +219,20 @@ input[name="q"] {
 	opacity: 0.5;
 }
 
+
 .pos .items th button {
 	font-size: 10px;
 	padding: .2em .3em;
 	border-width: 1px;
 }
 
-#user_rename {
-	position: fixed;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	top: 0;
-	background: rgba(0, 0, 0, 0.7);
-	padding: 1em;
-	z-index: 10000;
-	text-align: center;
+.user_rename_list th {
+	font-weight: bold;
 }
 
-#user_rename li {
-	max-width: 40rem;
-	background: #ddd;
-	padding: .5rem;
-	border: .1rem solid #ccc;
-	margin: .5rem auto;
-	border-radius: .5rem;
-	text-align: left;
-}
-
-#user_rename li:hover {
-	background: #ccf;
-	padding: .5rem;
-	border: .1rem solid #99f;
-	cursor: pointer;
-}
-
-#user_rename li:hover h3 {
-	color: darkred;
-	text-decoration: underline;
-}
-
-
-#user_rename li h5 {
-	float: right;
-	border: .1rem solid #999;
-	padding: .5rem;
-	border-radius: .5rem;
-	background: #fff;
-}
-
-#user_rename input {
-	font-size: 2em;
+.user_rename_list td.subscriptions {
+	font-size: .9em;
+	color: #666;
 }
 
 @media screen and (max-width: 800px) {
@@ -152,4 +240,94 @@ input[name="q"] {
 		display: block;
 	}
 
+}
+
+.pos-user-search {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1em;
+}
+
+.pos-user-search input[name="q"] {
+	font-size: 1.6em;
+}
+
+.pos-user-search .search button {
+	font-size: 1.2em;
+}
+
+.pos-user-search #rename_no_user {
+	font-size: .9em;
+}
+
+.pos-balances:not(.pos-balances-count-1) {
+	display: flex;
+	flex-direction: row;
+	text-align: center;
+	align-items: stretch;
+	gap: 1em;
+}
+
+.pos-balances fieldset {
+	max-width: 25em;
+}
+
+.pos-balances fieldset legend {
+	font-size: 1.2em;
+}
+
+.pos-balances dd.info {
+	padding: .5em;
+	background: #eee;
+	border-radius: .5em;
+	margin: .5em;
+}
+
+.pos-balances dd.info tt {
+	background: #fff;
+	border-radius: .5em;
+	padding: .5em;
+	display: inline-block;
+}
+
+.pos-balances dd.info strong tt {
+	font-size: 1.2em;
+}
+
+.pos-summary {
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	justify-content: stretch;
+	gap: 1em;
+}
+
+.pos-summary dl {
+	border: 2px solid #ccc;
+	border-radius: .5em;
+	padding: .5em;
+	margin: 1em;
+}
+
+.pos-summary dt {
+	margin: .5em;
+	margin-bottom: 0;
+	color: #666;
+}
+
+.pos-summary dd {
+	font-size: 1.2em;
+	margin: .5em;
+	margin-top: .2em;
+}
+.pos-summary dt strong {
+	font-size: 1.3em;
+}
+
+.pos-summary dd .tag {
+	float: right;
+	font-size: 1rem;
+	margin-left: 1em;
 }

@@ -1,38 +1,44 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
-use Garradin\Plugin\Caisse\Sessions;
-use function Garradin\Plugin\Caisse\get_amount;
+use Paheko\Plugin\Caisse\Sessions;
+use Paheko\Users\Session;
+use Paheko\UserException;
 
 require __DIR__ . '/_inc.php';
 
-$pos_session = null;
-$csrf_key = 'pos_open_session';
+$session = Session::getInstance();
+$pos_session = Sessions::get((int)qg('id'));
 
-if (null !== qg('id')) {
-	$pos_session = Sessions::get((int)qg('id'));
-}
-elseif ($current_pos_session = Sessions::getCurrent()) {
-	$pos_session = $current_pos_session;
+if (!$pos_session) {
+	throw new UserException('Aucun numéro de session indiqué, ou numéro invalide');
 }
 
-$form->runIf('open', function () use ($session) {
-	if (trim(f('amount')) === '') {
-		throw new UserException('Le solde de la caisse ne peut être laissé vide.');
+$export = $pos_session->export((bool) qg('details'), qg('pdf') ? 2 : 0);
+
+if (qg('pdf')) {
+	return;
+}
+
+if ($session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_READ)) {
+	if ($session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE) && $plugin->getConfig('accounting_year_id')) {
+		$csrf_key = 'sync_pos_' . $pos_session->id();
+		$tpl->assign(compact('csrf_key'));
+
+		$form->runIf('sync', function () use ($pos_session, $plugin) {
+			$r = $pos_session->syncWithYearId($plugin->getConfig('accounting_year_id'));
+
+			if (!$r) {
+				throw new UserException("L'écriture n'a pu être créée, vérifiez que l'exercice sélectionné dans la configuration englobe bien la date de la session de caisse.");
+			}
+		}, $csrf_key, Utils::getSelfURI());
 	}
 
-	Sessions::open(f('user_name') ?: $session->getUser()->name(), get_amount(f('amount')));
-}, $csrf_key, Utils::plugin_url(['file' => 'tab.php']));
-
-$tpl->assign(compact('csrf_key', 'pos_session'));
-
-$tpl->assign('current_pos_session', Sessions::getCurrentId());
-
-if ($pos_session) {
-	echo $pos_session->export((bool) qg('details'), qg('pdf') ? 2 : 0);
+	$tpl->assign('transaction', $pos_session->getTransaction());
 }
-else {
-	$tpl->assign('user_name', $session->getUser()->name());
-	$tpl->display(PLUGIN_ROOT . '/templates/session_open.tpl');
-}
+
+$tpl->assign('title', sprintf('Session de caisse n°%d du %s', $pos_session->id(), Utils::date_fr($pos_session->opened)));
+$tpl->assign(compact('export'));
+
+$tpl->display(PLUGIN_ROOT . '/templates/session.tpl');

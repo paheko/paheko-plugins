@@ -1,10 +1,10 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
-use Garradin\Users\Session;
-use Garradin\Plugin\Caisse\Sessions;
-use function Garradin\Plugin\Caisse\get_amount;
+use Paheko\Users\Session;
+use Paheko\Plugin\Caisse\Sessions;
+use function Paheko\Plugin\Caisse\get_amount;
 
 require __DIR__ . '/_inc.php';
 
@@ -18,26 +18,46 @@ if ($pos_session->closed) {
 	throw new UserException('Cette session est déjà clôturée');
 }
 
-if (isset($_POST['close'], $_POST['amount']) && !empty($_POST['confirm'])) {
-	$payments = f('payments') ? array_keys(f('payments')) : [];
-	$pos_session->close(
-		f('user_name') ?: Session::getInstance()->getUser()->name(),
-		get_amount(f('amount')),
-		(bool) f('recheck'),
-		$payments,
-		$plugin->getConfig('send_email_when_closing')
-	);
-	Utils::redirect(Utils::plugin_url(['file' => 'session.php', 'query' => 'id=' . $pos_session->id]));
-}
+$url = Utils::plugin_url(['file' => 'session.php', 'query' => 'id=' . $pos_session->id]);
+$csrf_key = 'pos_close_' . $pos_session->id();
 
-$tpl->assign('pos_session', $pos_session);
+$form->runIf('close', function () use ($session, $pos_session, $plugin) {
+	if (empty($_POST['confirm'])) {
+		throw new UserException('Merci de valider que les informations du formulaire sont justes.');
+	}
+
+	if (!isset($_POST['balances']) || !is_array($_POST['balances'])) {
+		$_POST['balances'] = [];
+	}
+
+	if (!isset($_POST['payments']) || !is_array($_POST['payments'])) {
+		$_POST['payments'] = [];
+	}
+
+	$name = $_POST['user_name'] ?? $session->getUser()->name();
+
+	$pos_session->close($name, $_POST['balances'], array_keys($_POST['payments']));
+
+	if ($id = $plugin->getConfig('accounting_year_id')) {
+		$pos_session->syncWithYearId($id, Session::getUserId());
+	}
+
+	if ($email = $plugin->getConfig('send_email_when_closing')) {
+		$pos_session->sendTo($email);
+	}
+
+}, $csrf_key, $url);
 
 $tpl->assign('open_notes', $pos_session->hasOpenNotes());
 
-$cash_total = $pos_session->getCashTotal();
-$tpl->assign('cash_total', $cash_total);
 $tpl->assign('user_name', $session->getUser()->name());
-$tpl->assign('close_total', $cash_total + $pos_session->open_amount);
-$tpl->assign('payments_except_cash', $pos_session->listPaymentWithoutCash());
+$tpl->assign('payments_except_cash', $pos_session->listTrackedPayment());
+$tpl->assign('missing_users', $pos_session->listTabIdsWithFeesButNoUser());
+
+$tpl->assign('title', sprintf('Clôture — Session n°%d du %s', $pos_session->id(), Utils::date_fr($pos_session->opened)));
+
+$balances = $pos_session->listClosingBalances();
+
+$tpl->assign(compact('csrf_key', 'pos_session', 'balances'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/session_close.tpl');

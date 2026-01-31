@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="Gestion produits"}
 
-{include file="./_nav.tpl" current='categories'}
+{include file="../_nav.tpl" current='categories'}
 
 <table class="list">
 	<thead>
@@ -16,7 +16,7 @@
 				<th>{$category.name}</th>
 				<td>{$category.account}</td>
 				<td class="actions">
-					{linkbutton href="edit.php?id=%d"|args:$category.id label="Modifier" shape="edit" target="_dialog"}
+					{linkbutton href="edit.php?id=%d"|args:$category.id label="Modifier" shape="edit"}
 					{linkbutton href="edit.php?id=%d&delete"|args:$category.id label="Supprimer" shape="delete" target="_dialog"}
 				</td>
 			</tr>

@@ -1,7 +1,8 @@
 <?php
 
-namespace Garradin;
-use Garradin\Plugin\Caisse\Methods;
+namespace Paheko;
+use Paheko\Plugin\Caisse\Locations;
+use Paheko\Plugin\Caisse\Methods;
 
 require __DIR__ . '/../_inc.php';
 
@@ -37,6 +38,8 @@ else {
 			$method->linkAllProducts();
 		}
 	}, $csrf_key, './');
+
+	$tpl->assign('locations', Locations::listAssoc());
 
 	$tpl->display(PLUGIN_ROOT . '/templates/manage/methods/edit.tpl');
 }

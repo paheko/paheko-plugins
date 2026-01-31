@@ -21,7 +21,7 @@
 	body {
 		font-family: Arial, Helvetica, sans-serif;
 		color: #000;
-		font-size: 10pt;
+		font-size: 9pt;
 		columns: 3;
 	}
 	h2 {
@@ -41,8 +41,10 @@
 	}
 
 	table th, table td {
-		padding: .2rem .3rem;
+		padding: .1rem .2rem;
 		text-align: left;
+		font-weight: normal;
+		break-inside: avoid;
 	}
 	table td {
 		border-left: 1px dotted #999;
@@ -57,20 +59,26 @@
 <body>
 
 <section class="products">
-	{foreach from=$products_categories key="category" item="products"}
-		<section>
-			<h2 class="ruler">{$category}</h2>
+	<?php $cat = null; ?>
+	{foreach from=$products item="product"}
+		{if $cat.id !== $product.category}
+			{if $cat}
+				</table>
+			</section>
+			{/if}
+			<section>
+				<h2 class="ruler">{$product.category_name}</h2>
 
-			<table>
-			{foreach from=$products item="product"}
-				<tr>
-					<th>{$product.name}</th>
-					<td>{$product.price|escape|money_currency}</td>
-				</tr>
-			{/foreach}
-			</table>
-		</section>
+				<table>
+			<?php $cat = $product->category; ?>
+		{/if}
+			<tr>
+				<th>{$product.name}</th>
+				<td>{$product.price|escape|money_currency}</td>
+			</tr>
 	{/foreach}
+		</table>
+	</section>
 </section>
 
 </body>

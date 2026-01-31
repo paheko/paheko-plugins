@@ -1,8 +1,8 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
-use Garradin\Plugin\Taima\Tracking;
+use Paheko\Plugin\Taima\Tracking;
 
 $old_version = $plugin->oldVersion();
 $db = DB::getInstance();
@@ -21,7 +21,7 @@ if (version_compare($old_version, '0.4.1', '<')) {
 	$db->exec('ALTER TABLE plugin_taima_entries RENAME TO plugin_taima_entries_old;
 		CREATE TABLE IF NOT EXISTS plugin_taima_entries (
 		id INTEGER NOT NULL PRIMARY KEY,
-		user_id INTEGER NULL REFERENCES membres (id) ON DELETE CASCADE,
+		user_id INTEGER NULL REFERENCES users (id) ON DELETE CASCADE,
 		task_id INTEGER NULL REFERENCES plugin_taima_tasks(id) ON DELETE SET NULL,
 		year INTEGER NOT NULL CHECK (LENGTH(year) = 4),
 		week INTEGER NOT NULL CHECK (week >= 1 AND week <= 53),
@@ -35,7 +35,7 @@ if (version_compare($old_version, '0.4.1', '<')) {
 }
 
 // Change ON DELETE CASCADE to ON DELETE SET NULL
-if (version_compare($old_version, '0.5.1', '<')) {
+if (version_compare($old_version, '0.6.0', '<')) {
 	$db->beginSchemaUpdate();
 	$db->exec('ALTER TABLE plugin_taima_entries RENAME TO plugin_taima_entries_old;
 
@@ -54,7 +54,19 @@ if (version_compare($old_version, '0.5.1', '<')) {
 	DROP TABLE plugin_taima_entries_old;');
 
 	$db->commitSchemaUpdate();
+}
 
+// Change ON DELETE CASCADE to ON DELETE SET NULL
+if (version_compare($old_version, '1.0.1', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec('CREATE INDEX IF NOT EXISTS plugin_taima_entries_user_timer ON plugin_taima_entries (user_id, timer_started);');
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '1.1.0', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec('ALTER TABLE plugin_taima_tasks ADD COLUMN id_project INTEGER NULL;');
+	$db->commitSchemaUpdate();
 }
 
 $plugin->registerSignal('menu.item', [Tracking::class, 'menuItem']);

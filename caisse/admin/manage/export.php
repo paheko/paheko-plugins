@@ -1,8 +1,8 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
-use Garradin\Plugin\Caisse\POS;
+use Paheko\Plugin\Caisse\Sessions;
 
 require __DIR__ . '/_inc.php';
 
@@ -16,7 +16,7 @@ else {
 }
 
 if ($start && $end && f('export')) {
-	POS::exportSessionsCSV($start, $end, true);
+	Sessions::export(f('format'), $start, $end, true);
 	exit;
 }
 

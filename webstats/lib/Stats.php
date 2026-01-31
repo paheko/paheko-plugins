@@ -1,27 +1,34 @@
 <?php
 
-namespace Garradin\Plugin\Webstats;
+namespace Paheko\Plugin\Webstats;
 
-use Garradin\UserTemplate\CommonFunctions;
-use Garradin\DB;
-use Garradin\Plugin;
-use Garradin\Users\Session;
+use Paheko\UserTemplate\CommonFunctions;
+use Paheko\DB;
+use Paheko\Plugins;
+use Paheko\Users\Session;
+use Paheko\Entities\Plugin;
+use Paheko\Entities\Signal;
 
 use KD2\Graphics\SVG\Plot;
 use KD2\Graphics\SVG\Plot_Data;
 
 class Stats
 {
-	static public function appendScript(array $params, array &$scripts): void
+	static public function webRequest(Signal $signal, Plugin $plugin): void
 	{
-		$scripts[] = Plugins::getPublicURL('webstats', 'stats.js');
+		$url = $plugin->url('stats.js');
+		$script = sprintf('<script type="text/javascript" defer src="%s"></script>', $url);
+
+		$content = $signal->getOut('content');
+		$content = str_ireplace('</body', $script . '</body', $content);
+		$signal->setOut('content', $content);
 	}
 
 	static public function store(\stdClass $data): void
 	{
 		$db = DB::getInstance();
 
-		$sql = sprintf('BEGIN; INSERT INTO plugin_webstats_stats (year, month, day, mobile_visits) VALUES (%d, %d, %d, %d)
+		$sql = sprintf('BEGIN; INSERT INTO plugin_webstats_stats (year, month, day, hits, visits, mobile_visits) VALUES (%d, %d, %d, 1, 1, %d)
 			ON CONFLICT (year, month, day) DO UPDATE SET hits = hits + 1, ',
 			(int) date('Y'),
 			(int) date('m'),
@@ -29,12 +36,12 @@ class Stats
 			!empty($data->is_mobile) ? 1 : 0
 		);
 
-		if (!empty($data->is_new_visitor) && !empty($data->is_mobile)) {
-			$sql .= 'mobile_visits = mobile_visits + 1, ';
-		}
-
 		if (!empty($data->is_new_visitor)) {
 			$sql .= 'visits = visits + 1, ';
+
+			if (!empty($data->is_mobile)) {
+				$sql .= 'mobile_visits = mobile_visits + 1, ';
+			}
 		}
 
 		$sql = rtrim($sql, ', ');
@@ -73,7 +80,7 @@ class Stats
 			ORDER BY hits DESC LIMIT 50;');
 	}
 
-	static public function graph()
+	static public function graph(): ?string
 	{
 		$plot = new Plot(900, 300);
 
@@ -91,19 +98,23 @@ class Stats
 			}
 		}
 
-		$graph = new Plot_Data($data['hits']);
+		if (!isset($data['date'])) {
+			return null;
+		}
+
+		$graph = new Plot_Data($data['hits'] ?? []);
 		$graph->title = 'Pages vues';
 		$graph->color = 'Crimson';
 		$graph->width = 3;
 		$plot->add($graph);
 
-		$graph = new Plot_Data($data['visits']);
+		$graph = new Plot_Data($data['visits'] ?? []);
 		$graph->title = 'Visites';
 		$graph->color = 'CadetBlue';
 		$graph->width = 3;
 		$plot->add($graph);
 
-		$graph = new Plot_Data($data['mobile_visits']);
+		$graph = new Plot_Data($data['mobile_visits'] ?? []);
 		$graph->title = 'Mobiles';
 		$graph->color = 'Salmon';
 		$graph->width = 3;

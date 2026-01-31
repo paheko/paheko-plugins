@@ -1,22 +1,32 @@
 <?php
 
-namespace Garradin\Plugin\Caisse;
+namespace Paheko\Plugin\Caisse;
 
-use Garradin\DB;
-use Garradin\UserException;
-use Garradin\Entities\Accounting\Line;
-use Garradin\Entities\Accounting\Transaction;
-use Garradin\Entities\Accounting\Year;
-use Garradin\Files\Files;
-use Garradin\Accounting\Accounts;
-use Garradin\Users\Session;
+use Paheko\CSV;
+use Paheko\DB;
+use Paheko\DynamicList;
+use Paheko\UserException;
+use Paheko\Utils;
+use Paheko\Entities\Accounting\Line;
+use Paheko\Entities\Accounting\Transaction;
+use Paheko\Entities\Accounting\Year;
+use Paheko\Files\Files;
+use Paheko\Accounting\Accounts;
+use Paheko\Users\Session;
 
 use KD2\Graphics\SVG\Bar;
 use KD2\Graphics\SVG\Bar_Data_Set;
+use KD2\Graphics\SVG\Plot;
+use KD2\Graphics\SVG\Plot_Data;
+
+use KD2\ErrorManager;
 
 class POS
 {
 	const TABLES_PREFIX = 'plugin_pos_';
+
+	const ERROR_DEBIT_ACCOUNT = '678';
+	const ERROR_CREDIT_ACCOUNT = '778';
 
 	static public function sql(string $query): string
 	{
@@ -28,23 +38,96 @@ class POS
 		return self::TABLES_PREFIX . $table;
 	}
 
+	static public function DynamicList(array $columns, string $tables, string $conditions = '1'): DynamicList
+	{
+		$list = new DynamicList($columns, self::sql($tables), $conditions);
+		$list->setExportCallback(function (&$row) {
+			if (isset($row->sum)) {
+				$row->sum = Utils::money_format($row->sum, '.', '');
+			}
+		});
+		$list->setPagesize(null);
+		return $list;
+	}
+
+	static public function applyPeriodToList(DynamicList $list, string $period, string $column_name, string $group_all): DynamicList
+	{
+		if ($period === 'quarter') {
+			$group = '\'T\' || CAST( (strftime(\'%m\', ' . $column_name . ') + 2) / 3 AS INT)';
+			$label = 'Trimestre';
+		}
+		elseif ($period === 'semester') {
+			$group = '\'S\' || CAST( (strftime(\'%m\', ' . $column_name . ') - 1) / 6 + 1 AS INT)';
+			$label = 'Semestre';
+		}
+		elseif ($period === 'month') {
+			$group = 'strftime(\'%Y-%m-01\', ' . $column_name . ')';
+			$label = 'Mois';
+		}
+		elseif ($period === 'day') {
+			$group = 'strftime(\'%d/%m/%Y\', ' . $column_name . ')';
+			$label = 'Jour';
+		}
+		elseif ($period === 'weekday') {
+			$group = 'CASE strftime(\'%w\', ' . $column_name . ')
+					WHEN \'0\' THEN \'7-dimanche\'
+					WHEN \'1\' THEN \'1-lundi\'
+					WHEN \'2\' THEN \'2-mardi\'
+					WHEN \'3\' THEN \'3-mercredi\'
+					WHEN \'4\' THEN \'4-jeudi\'
+					WHEN \'5\' THEN \'5-vendredi\'
+					WHEN \'6\' THEN \'6-samedi\'
+					END';
+			$label = 'Jour de la semaine';
+		}
+		elseif ($period === 'year') {
+			$group = null;
+			$label = 'Année';
+		}
+		else {
+			$list->groupBy($group_all);
+			$label = 'Tout';
+			$group = null;
+		}
+
+		if ($group) {
+			$list->addColumn('period', [
+				'select' => $group,
+				'label' => $label,
+				//'order' => $column_name . ' %s',
+			], 0);
+
+			$old = $list->getGroupBy();
+
+			if ($old) {
+				$group .= ', ' . $old;
+			}
+
+			$list->groupBy($group);
+
+			$list->orderBy('period', false);
+		}
+
+		$list->setTitle($list->getTitle() . sprintf(' (%s)', $label));
+		return $list;
+	}
+
 	static public function barGraph(?string $title, array $data): string
 	{
 		$bar = new Bar(1000, 400);
 		$bar->setTitle($title);
-		$current_group = null;
-		$set = null;
-		$sum = 0;
+		$i = -50;
 
-		$color = function (string $str): string {
-			return sprintf('#%s', substr(md5($str), 0, 6));
+		$color = function () use (&$i) {
+			$i += 50;
+			return sprintf('hsl(%d, 70%%, 60%%)', $i);
 		};
 
 		foreach ($data as $group_label => $group) {
 			$set = new Bar_Data_Set($group_label);
 
 			foreach ($group as $label => $value) {
-				$set->add($value, $label, $color($label));
+				$set->add($value, $label, $color());
 			}
 
 			$bar->add($set);
@@ -53,8 +136,31 @@ class POS
 		return $bar->output();
 	}
 
-	static public function syncAccounting(int $id_creator, Year $year, bool $attach = true): int
+	static public function plotGraph(?string $title, array $data): string
 	{
+		$plot = new Plot(1000, 400);
+		$plot->setTitle($title);
+
+		$i = -50;
+
+		$color = function () use (&$i) {
+			$i += 50;
+			return sprintf('hsl(%d, 60%%, %d%%)', $i, $i % 100 ? 80 : 60);
+		};
+
+		foreach ($data as $label => $values) {
+			$set = new Plot_Data($values, $label, $color());
+			$plot->add($set);
+		}
+
+		$plot->setLabels([1 => 'jan', 'fév', 'mar', 'avr', 'mai', 'juin', 'juil', 'août', 'sep', 'oct', 'nov', 'déc']);
+
+		return $plot->output();
+	}
+
+	static public function syncAccounting(?int $id_creator, Year $year, ?int $only_session_id = null): int
+	{
+		$attach = true;
 		$db = DB::getInstance();
 		$db->begin();
 
@@ -66,15 +172,15 @@ class POS
 			throw new UserException('Des moyens de paiement n\'ont pas de compte associé. Merci de les associer à des comptes du plan comptable pour pouvoir procéder à la synchronisation.');
 		}
 
-		$accounts_codes = $db->getAssoc(self::sql('SELECT account, account FROM @PREFIX_categories UNION ALL SELECT account, account FROM @PREFIX_methods;'));
-		$accounts_codes['758'] = '758'; // Erreurs de caisse
-		$accounts_codes['658'] = '658';
-		$accounts = (new Accounts($year->id_chart))->listForCodes($accounts_codes);
+		$accounts = $year->accounts();
+		$accounts_ids = [];
+		$accounts_ids[self::ERROR_CREDIT_ACCOUNT] = $accounts->getIdFromCode(self::ERROR_CREDIT_ACCOUNT);
+		$accounts_ids[self::ERROR_DEBIT_ACCOUNT] = $accounts->getIdFromCode(self::ERROR_DEBIT_ACCOUNT);
 
-		$diff = array_diff_key($accounts_codes, $accounts);
-
-		if (count($diff)) {
-			throw new UserException('Les comptes suivants n\'existent pas dans le plan comptable de l\'exercice sélectionné, merci de bien vouloir les créer : ' . implode(', ', $diff));
+		foreach ($accounts_ids as $code => $id) {
+			if (!$id) {
+				throw new UserException(sprintf('Le compte "%s" n\'existe pas dans le plan comptable. Merci de le créer.', $code));
+			}
 		}
 
 		$exists = $db->getAssoc('SELECT reference, id FROM acc_transactions WHERE id_year = ? AND reference LIKE \'POS-SESSION-%\';', $year->id);
@@ -83,20 +189,7 @@ class POS
 		$row = null;
 		$count = 0;
 
-		$save_transaction = function ($transaction) use ($attach, &$count, $accounts) {
-			// In some rare cases, the product may have disappeared (WTF?!), we consider it to be an error
-			$error = abs($transaction->getLinesDebitSum()) - $transaction->getLinesCreditSum();
-			if ($error != 0) {
-				if ($error > 0) {
-					$line = Line::create($accounts['758']->id, abs($error), 0, 'Erreur de caisse');
-				}
-				else {
-					$line = Line::create($accounts['658']->id, 0, abs($error), 'Erreur de caisse');
-				}
-
-				$transaction->addLine($line);
-			}
-
+		$save_transaction = function ($transaction) use ($attach, &$count, $accounts_ids) {
 			$transaction->save();
 			$count++;
 
@@ -108,20 +201,34 @@ class POS
 			}
 		};
 
-		foreach (self::iterateSessions($year->start_date, $year->end_date) as $row) {
+		$errors = [];
+
+		foreach (Sessions::iterateExportLines($year->start_date, $year->end_date, $errors) as $row) {
 			// Skip POS sessions already added as transactions
 			if (array_key_exists($row->reference, $exists)) {
 				continue;
 			}
 
-			// Skip lines with no account, they will be treated like errors
+			// Skip if POS session ID differs
+			if ($only_session_id && $row->sid !== $only_session_id) {
+				continue;
+			}
+
+			// No account? This means there was no account set for the payment method / product
+			// when the session was done
+			// We still allow the transaction to be created, but it will be accounted as an error.
 			if (empty($row->account)) {
 				continue;
 			}
 
-			if (empty($accounts[$row->account]->id)) {
-				throw new \LogicException($row->account . ': this account has not been found?');
+			$accounts_ids[$row->account] ??= $accounts->getIdFromCode($row->account);
+
+			if (!$accounts_ids[$row->account]) {
+				throw new UserException(sprintf('Le compte "%s" n\'existe pas dans le plan comptable de cet exercice. Merci de le créer.', $row->account));
 			}
+
+			$label = $row->line_label;
+			$account_id = $accounts_ids[$row->account];
 
 			unset($row->id);
 			unset($row->status);
@@ -129,6 +236,11 @@ class POS
 			if ($transaction && $transaction->reference != $row->reference) {
 				$save_transaction($transaction, $row);
 				$transaction = null;
+
+				// Make sure we create only one transaction for this session (safeguard)
+				if ($only_session_id) {
+					break;
+				}
 			}
 
 			if (!$transaction) {
@@ -138,7 +250,19 @@ class POS
 				$transaction->import((array) $row);
 			}
 
-			$transaction->addLine(Line::create($accounts[$row->account]->id, $row->credit, $row->debit, $row->line_label, $row->line_reference));
+			// In case there are debit and credit on the same account, create two lines
+			if ($row->debit && $row->credit) {
+				$transaction->addLine(Line::create($account_id, $row->credit, 0, $label, $row->line_reference));
+				$transaction->addLine(Line::create($account_id, 0, $row->debit, $label, $row->line_reference));
+			}
+			else {
+				$transaction->addLine(Line::create($account_id, $row->credit, $row->debit, $label, $row->line_reference));
+			}
+		}
+
+		if (count($errors)) {
+			ErrorManager::reportExceptionSilent(new \LogicException('POS sync errors: ' . implode("\n", $errors)));
+			throw new UserException(implode("\n", $errors));
 		}
 
 		if ($transaction && $row) {
@@ -148,111 +272,6 @@ class POS
 		$db->commit();
 
 		return $count;
-	}
-
-	static public function iterateSessions(\DateTime $start, \DateTime $end, bool $errors_only = false)
-	{
-		$db = DB::getInstance();
-
-		$errors_only = $errors_only ? 'AND account IS NULL' : '';
-
-		$sql = 'SELECT
-			NULL AS id,
-			\'Avancé\' AS type,
-			NULL AS status,
-			\'Session de caisse n°\' || s.id AS label,
-			strftime(\'%d/%m/%Y\', s.closed) AS date,
-			NULL AS notes,
-			\'POS-SESSION-\' || s.id AS reference,
-			NULL AS line_id,
-			lines.account,
-			-- Flip debit/credit if negative
-			CASE
-				WHEN SUM(lines.debit) < 0 THEN ABS(SUM(lines.debit))
-				WHEN SUM(lines.credit) < 0 THEN 0
-				ELSE SUM(lines.credit)
-			END AS credit,
-			CASE
-				WHEN SUM(lines.credit) < 0 THEN ABS(SUM(lines.credit))
-				WHEN SUM(lines.debit) < 0 THEN 0
-				ELSE SUM(lines.debit)
-			END AS debit,
-			lines.reference AS line_reference,
-			NULL AS line_label,
-			0 AS reconciled,
-			s.id AS sid
-			FROM @PREFIX_sessions s
-			INNER JOIN (
-				SELECT session, account, SUM(price * qty) AS credit, 0 AS debit, NULL AS reference
-				FROM @PREFIX_tabs_items ti
-				INNER JOIN @PREFIX_tabs t ON t.id = ti.tab
-				GROUP BY t.session, account
-				UNION ALL
-				SELECT session, account, 0 AS credit, SUM(amount) AS debit, reference
-				FROM @PREFIX_tabs_payments tp
-				INNER JOIN @PREFIX_tabs t ON t.id = tp.tab
-				GROUP BY t.session, account, reference
-				) AS lines
-				ON lines.session = s.id
-			WHERE s.closed IS NOT NULL
-				AND date(s.closed) >= date(?) AND date(s.closed) <= date(?)
-				' . $errors_only . '
-			GROUP BY s.id, lines.account, lines.reference
-			HAVING SUM(lines.debit) != 0 OR SUM(lines.credit) != 0
-			ORDER BY s.id, lines.account, lines.reference;';
-
-		$sql = POS::sql($sql);
-
-		return $db->iterate($sql, $start, $end);
-	}
-
-	static public function exportSessionsCSV(\DateTime $start, \DateTime $end, bool $localized_header = false)
-	{
-		$name = sprintf('Export caisse compta - %s à %s', $start->format('d-m-Y'), $end->format('d-m-Y'));
-
-		header('Content-type: application/csv');
-		header(sprintf('Content-Disposition: attachment; filename="%s.csv"', $name));
-
-		$fp = fopen('php://output', 'w');
-
-		if ($localized_header) {
-			fputcsv($fp, ['Numéro d\'écriture', 'Type', 'Statut', 'Libellé', 'Date', 'Remarques', 'Numéro pièce comptable',
-				'Numéro ligne', 'Compte', 'Crédit', 'Débit', 'Référence ligne', 'Libellé ligne', 'Rapprochement']);
-		}
-		else {
-			fputcsv($fp, ['id', 'type', 'status', 'label', 'date', 'notes', 'reference',
-				'line_id', 'account', 'credit', 'debit', 'line_reference', 'line_label', 'reconciled']);
-		}
-
-		$id = null;
-
-		$money = function (int $value): string {
-			if (!$value) {
-				return '0';
-			}
-
-			$decimals = substr($value, -2);
-			$digits = substr($value, 0, -2) ?: '0';
-			return $digits . ',' . $decimals;
-		};
-
-		foreach (self::iterateSessions($start, $end) as $row) {
-			if (null !== $id && $row->sid === $id) {
-				$row->type = $row->status = $row->label = $row->date = $row->reference = null;
-			}
-
-			if (null === $id || $row->sid !== $id) {
-				$id = $row->sid;
-			}
-
-			$row->credit = $money($row->credit);
-			$row->debit = $money($row->debit);
-
-			unset($row->sid);
-			fputcsv($fp, (array) $row);
-		}
-
-		fclose($fp);
 	}
 
 }

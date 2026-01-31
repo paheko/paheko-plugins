@@ -1,18 +1,18 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
-use Garradin\Plugin\Stock_Velos\Velos;
+use Paheko\Plugin\Stock_Velos\Velos;
 
 require_once __DIR__ . '/_inc.php';
 
 $velo = Velos::get(qg('id'));
 
 if (!$velo)
-    throw new UserException('Ce vélo n\'existe pas !');
+	throw new UserException('Ce vélo n\'existe pas !');
 
 if (!empty($velo->date_sortie))
-    throw new UserException('Ce vélo ne peut être racheté.');
+	throw new UserException('Ce vélo ne peut être racheté.');
 
 $tpl->assign('velo', $velo);
 $tpl->assign('prix', qg('prix'));

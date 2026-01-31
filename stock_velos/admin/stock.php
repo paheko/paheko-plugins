@@ -1,20 +1,22 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
 require_once __DIR__ . '/_inc.php';
 
-$stock = $velos->listEtiquettes();
-$en_vente = $a_demonter = $autres = array();
+$stock = $velos->listStock();
+$en_vente = $a_demonter = $autres = [];
 
-foreach ($stock as $num=>$prix)
-{
-    if ($prix == $velos::A_DEMONTER)
-        $a_demonter[] = $num;
-    elseif ($prix > 0)
-        $en_vente[$num] = $prix;
-    elseif ($prix !== false)
-        $autres[] = $num;
+foreach ($stock as $row) {
+	if ($row->prix == $velos::A_DEMONTER) {
+		$a_demonter[] = $row;
+	}
+	elseif ($row->prix > 0) {
+		$en_vente[] = $row;
+	}
+	elseif ($row->prix !== false) {
+		$autres[] = $row;
+	}
 }
 
 $valeur = $velos->getValeurStock();

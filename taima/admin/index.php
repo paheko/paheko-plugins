@@ -1,15 +1,16 @@
 <?php
 
-namespace Garradin\Plugin\Taima;
+namespace Paheko\Plugin\Taima;
 
-use Garradin\Plugin\Taima\Tracking;
-use Garradin\Plugin\Taima\Entities\Entry;
+use Paheko\Plugin\Taima\Tracking;
+use Paheko\Plugin\Taima\Entities\Entry;
 
-use Garradin\Utils;
+use Paheko\Utils;
+use Paheko\Users\Session;
 
-use function Garradin\{f, qg};
+use function Paheko\{f, qg};
 
-use DateTime;
+use KD2\DB\Date;
 
 require_once __DIR__ . '/_inc.php';
 
@@ -17,35 +18,14 @@ if ($plugin->needUpgrade()) {
 	$plugin->upgrade();
 }
 
+// If there is no user id
+if (!Session::getUserId()) {
+	Utils::redirect('./all.php');
+}
+
 Tracking::autoStopRunningTimers();
 
 $csrf_key = 'plugin_taima_sheet';
-
-$form->runIf('add', function () use ($day, $user_id) {
-	$entry = new Entry;
-	$entry->setDate($day);
-	$entry->user_id = $user_id;
-	$entry->importForm();
-	$entry->setDuration(f('duration'));
-	$entry->save();
-}, $csrf_key, taima_url($day));
-
-$form->runIf('edit', function () {
-	if (!is_array(f('edit')) || !count(f('edit'))) {
-		throw new \LogicException('Not an array');
-	}
-
-	$id = key(f('edit'));
-	$entry = Tracking::get((int) $id);
-
-	if (!$entry) {
-		return;
-	}
-
-	$entry->importForm();
-	$entry->setDuration(f('duration'));
-	$entry->save();
-}, $csrf_key, taima_url($day));
 
 $form->runIf('delete', function () {
 	if (!is_array(f('delete')) || !count(f('delete'))) {
@@ -107,9 +87,15 @@ $entries = Tracking::listUserEntries($day, $user_id);
 $tasks = ['' => '--'] + Tracking::listTasks();
 
 $is_today = $day->format('Ymd') == $today->format('Ymd');
+$day_date = $day->format('Y-m-d');
 
 $running_timers = Tracking::listUserRunningTimers($user_id, $day);
+$animated_icon = Tracking::animatedIcon(32);
+$fixed_icon = Tracking::fixedIcon(24);
 
-$tpl->assign(compact('is_today', 'tasks', 'entries', 'week_total', 'weekdays', 'prev_url', 'next_url', 'today_url', 'day', 'year', 'week', 'csrf_key', 'running_timers'));
+$tpl->assign(compact('is_today', 'tasks', 'entries', 'week_total', 'weekdays',
+	'prev_url', 'next_url', 'today_url',
+	'day', 'day_date', 'year', 'week', 'csrf_key',
+	'running_timers', 'animated_icon', 'fixed_icon'));
 
 $tpl->display(__DIR__ . '/../templates/index.tpl');

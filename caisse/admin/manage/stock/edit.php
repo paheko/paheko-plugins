@@ -1,8 +1,8 @@
 <?php
 
-namespace Garradin;
-use Garradin\Plugin\Caisse\Stock;
-use Garradin\Plugin\Caisse\Entities\StockEvent;
+namespace Paheko;
+use Paheko\Plugin\Caisse\Stock;
+use Paheko\Plugin\Caisse\Entities\StockEvent;
 
 require __DIR__ . '/../_inc.php';
 
@@ -37,7 +37,8 @@ else {
 	$form->runIf('save', function () use ($event) {
 		$event->importForm();
 		$event->save();
-	}, $csrf_key, './');
+		Utils::redirectParent('./details.php?id=' . $event->id());
+	}, $csrf_key);
 
 	$tpl->display(PLUGIN_ROOT . '/templates/manage/stock/edit.tpl');
 }

@@ -8,10 +8,10 @@
 {literal}
 function fillSortieToday()
 {
-    var d = new Date();
-    document.getElementById('f_date_sortie_d').value = d.getDate();
-    document.getElementById('f_date_sortie_m').value = d.getMonth() + 1;
-    document.getElementById('f_date_sortie_y').value = d.getFullYear();
+	var d = new Date();
+	document.getElementById('f_date_sortie_d').value = d.getDate();
+	document.getElementById('f_date_sortie_m').value = d.getMonth() + 1;
+	document.getElementById('f_date_sortie_y').value = d.getFullYear();
 }
 {/literal}
 </script>

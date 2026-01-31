@@ -1,39 +1,29 @@
 <?php
 
-namespace Garradin\Plugin\Test;
+namespace Paheko\Plugin\Test;
 
-use Garradin\Plugin;
-use Garradin\Users\Session;
-use Garradin\UserTemplate\CommonFunctions;
+use Paheko\Plugins;
+use Paheko\Entities\Plugin;
+use Paheko\Entities\Signal;
+use Paheko\Users\Session;
+use Paheko\UserTemplate\CommonFunctions;
 
 class Test
 {
-	static public function homeButton(array $params, array &$buttons): void
+	static public function homeButton(Signal $signal, Plugin $plugin): void
 	{
-		$plugin = new Plugin('test');
-
 		// Désactiver l'affichage du bouton
-		if (!$plugin->getConfig('display_button')) {
+		if (empty($plugin->config->display_button)) {
 			return;
 		}
+
+		$html = CommonFunctions::linkbutton([
+			'label' => 'Test !',
+			'icon' => Plugins::getPrivateURL('test', 'icon.svg'),
+			'href' => Plugins::getPrivateURL('test'),
+		]);
 
 		// On ajoute notre bouton sur la page d'accueil
-		$buttons['test'] = CommonFunctions::linkbutton([
-			'label' => 'Test !',
-			'shape' => 'settings',
-			'href' => Plugin::getURL('test'),
-		]);
+		$signal->setOut('test', $html);
 	}
-
-
-	static public function menuItem(array $params, array &$list): void
-	{
-		// On exige que l'utilisateur connecté ait accès en lecture aux membres
-		if (!Session::getInstance()->canAccess(Session::SECTION_USERS, Session::ACCESS_READ)) {
-			return;
-		}
-
-		$list['plugin_test'] = sprintf('<a href="%s">Test !</a>', Plugin::getURL('test'));
-	}
-
 }

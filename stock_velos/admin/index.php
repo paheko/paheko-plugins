@@ -1,6 +1,6 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
 if ($plugin->needUpgrade())
 {
@@ -8,12 +8,6 @@ if ($plugin->needUpgrade())
 }
 
 require_once __DIR__ . '/_inc.php';
-
-if (qg('id'))
-{
-    require_once __DIR__ . '/fiche.php';
-    exit;
-}
 
 $list = $velos->listVelosStock();
 $list->loadFromQueryString();

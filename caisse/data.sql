@@ -1,17 +1,19 @@
-INSERT INTO @PREFIX_categories VALUES (1, "Adhésion", NULL);
-INSERT INTO @PREFIX_products VALUES (NULL, 1, "Adhésion normale", NULL, 1500, 1, NULL, NULL);
-INSERT INTO @PREFIX_products VALUES (NULL, 1, "Adhésion réduite", NULL, 1000, 1, NULL, NULL);
+INSERT INTO @PREFIX_categories (id, name, account) VALUES (1, "Adhésion", '756');
+INSERT INTO @PREFIX_products (category, name, price) VALUES (1, "Adhésion normale", 1500);
+INSERT INTO @PREFIX_products (category, name, price) VALUES (1, "Adhésion réduite", 1000);
 
-INSERT INTO @PREFIX_categories VALUES (4, "Pièces de vélo d'occasion", NULL);
+INSERT INTO @PREFIX_categories (id, name, account) VALUES (4, 'Pièces de vélo neuves (exemple)', '707');
 INSERT INTO @PREFIX_products (category, name, price) VALUES
-	(4, "Dérailleur (avant, arrière)", 300),
-	(4, "Panier", 500);
+	(4, "Dérailleur (avant, arrière)", 1200),
+	(4, "Panier", 1500);
 
-INSERT INTO @PREFIX_methods VALUES (1, 'Espèces', 1, NULL, NULL, '530', 1);
-INSERT INTO @PREFIX_methods VALUES (2, 'Chèque', 0, NULL, NULL, '5112', 1);
+INSERT INTO @PREFIX_methods (id, name, type, account, is_default, enabled) VALUES (1, 'Espèces', 1, '530', 1, 1);
+INSERT INTO @PREFIX_methods (id, name, type, account, is_default, enabled) VALUES (2, 'Chèque', 0, '5112', 0, 1);
+INSERT INTO @PREFIX_methods (id, name, type, account, is_default, enabled) VALUES (3, 'Ardoise', 2, '4110', 0, 1);
 
--- Ajout espèces/chèque
-INSERT INTO @PREFIX_products_methods SELECT id, 1 FROM @PREFIX_products;
-INSERT INTO @PREFIX_products_methods SELECT id, 2 FROM @PREFIX_products;
+-- Ajout espèces/chèque/dette
+INSERT INTO @PREFIX_products_methods (product, method) SELECT id, 1 FROM @PREFIX_products;
+INSERT INTO @PREFIX_products_methods (product, method) SELECT id, 2 FROM @PREFIX_products;
+INSERT INTO @PREFIX_products_methods (product, method) SELECT id, 3 FROM @PREFIX_products;
 
 UPDATE @PREFIX_products SET stock = 0 WHERE category IN (3, 4, 5);

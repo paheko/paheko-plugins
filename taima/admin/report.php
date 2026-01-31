@@ -1,40 +1,63 @@
 <?php
 
-namespace Garradin\Plugin\Taima;
+namespace Paheko\Plugin\Taima;
 
-use Garradin\Plugin\Taima\Tracking;
-use Garradin\Accounting\Years;
-use Garradin\Utils;
-use Garradin\UserException;
-use Garradin\Users\Session;
+use Paheko\Plugin\Taima\Tracking;
+use Paheko\Accounting\Years;
+use Paheko\Entity;
+use Paheko\Utils;
+use Paheko\UserException;
+use Paheko\Users\Session;
 
-use function Garradin\{f, qg};
+use KD2\DB\Date;
+
+use function Paheko\{f, qg};
 
 require_once __DIR__ . '/_inc.php';
 
 $session = Session::getInstance();
-$session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
+$session->requireAccess($session::SECTION_USERS, $session::ACCESS_WRITE);
 $session->requireAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE);
 
 $csrf_key = 'taima_report';
-$year = Years::getCurrentOpenYear();
+$years = Years::listOpenAssoc();
 
-if (!$year) {
+if (!count($years)) {
 	throw new UserException('Aucun exercice n\'est ouvert, il n\'est donc pas possible de valoriser le temps bénévole.');
 }
 
-$start = f('start') ? Utils::get_datetime(f('start')) : $year->start_date;
-$end = f('end') ? Utils::get_datetime(f('end')) : $year->end_date;
+$year = null;
 
-$form->runIf('save', function () use ($year, $start, $end) {
-	$id_user = Session::getUserId();
-	$t = Tracking::createReport($year, $start, $end, $id_user);
-	$t->save();
-	Utils::redirect(Utils::getSelfURI(['ok' => $t->id()]));
-}, $csrf_key);
+if (f('id_year')) {
+	$year = Years::get((int)f('id_year'));
+}
+elseif (count($years) == 1) {
+	$year = Years::getCurrentOpenYear();
+}
 
-$report = Tracking::getFinancialReport($year, $start, $end);
+if ($year) {
+	$start = qg('start') ? Utils::parseDateTime(qg('start')) : ($year->start_date ?? null);
+	$end = qg('end') ? Utils::parseDateTime(qg('end')) : ($year->end_date ?? null);
 
-$tpl->assign(compact('report', 'year', 'csrf_key'));
+	if ($start) {
+		$start = Date::createFromInterface($start);
+		$end = Date::createFromInterface($end);
+	}
+
+	$form->runIf('save', function () use ($year, $start, $end) {
+		$id_user = Session::getInstance()->getUser()->id;
+		$t = Tracking::createReport($year, $start, $end, $id_user);
+		$t->save();
+		Utils::redirect(Utils::getSelfURI(['ok' => $t->id()]));
+	}, $csrf_key);
+
+	$list = Tracking::getFinancialReport($year, $start, $end);
+	$list->loadFromQueryString();
+
+	$tpl->assign(compact('year', 'csrf_key', 'start', 'end', 'list'));
+}
+else {
+	$tpl->assign(compact('years', 'csrf_key'));
+}
 
 $tpl->display(__DIR__ . '/../templates/report.tpl');

@@ -1,20 +1,21 @@
 <?php
 
-namespace Garradin\Plugin\Taima;
+namespace Paheko\Plugin\Taima;
 
-use Garradin\Entities\Accounting\Account;
+use Paheko\Entities\Accounting\Account;
 
-use Garradin\Plugin\Taima\Entities\Task;
-use Garradin\Plugin\Taima\Tracking;
+use Paheko\Plugin\Taima\Entities\Task;
+use Paheko\Plugin\Taima\Tracking;
 
-use Garradin\Utils;
+use Paheko\Accounting\Projects;
+use Paheko\Utils;
 use KD2\DB\EntityManager as EM;
 
-use function Garradin\{f, qg};
+use function Paheko\{f, qg};
 
-use DateTime;
-
-$session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
+if ($plugin->needUpgrade()) {
+	$plugin->upgrade();
+}
 
 $csrf_key = 'plugin_taima_config';
 $url = Utils::plugin_url(['query' => '', 'file' => 'config.php']);
@@ -38,11 +39,13 @@ $form->runIf('delete', function () {
 
 
 $tpl->assign(compact('csrf_key'));
-$tpl->assign('account_targets', Account::TYPE_VOLUNTEERING_EXPENSE);
+$tpl->assign('account_types', Account::TYPE_VOLUNTEERING_EXPENSE);
 
 if (qg('edit')) {
 	$task = EM::findOneById(Task::class, (int) qg('edit'));
-	$tpl->assign(compact('task'));
+	$projects = Projects::listAssoc();
+	$account = $task->account ? [$task->account => $task->account] : null;
+	$tpl->assign(compact('task', 'projects', 'account'));
 	$tpl->display(__DIR__ . '/../templates/config_edit.tpl');
 }
 elseif (qg('delete')) {
