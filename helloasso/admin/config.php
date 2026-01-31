@@ -1,11 +1,11 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
-use Garradin\Plugin\HelloAsso\HelloAsso;
+use Paheko\Plugin\HelloAsso\HelloAsso;
 
 // FIXME
-Utils::redirect(PLUGIN_URL . 'config_client.php');
+Utils::redirect('./config_client.php');
 
 $session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
 

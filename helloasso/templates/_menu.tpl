@@ -24,8 +24,3 @@
 	</ul>
 	{/if}
 </nav>
-
-
-{if !empty($restricted)}
-	<p class="alert block">Cette version est limitée, et ne pourra importer que les 5 premiers résultats depuis HelloAsso.<br />Merci de réaliser une contribution à Garradin pour débloquer l'extension et participer au financement du projet :)</p>
-{/if}

@@ -1,14 +1,14 @@
 <?php
 
-namespace Garradin\Plugin\HelloAsso;
+namespace Paheko\Plugin\HelloAsso;
 
-use Garradin\UserException;
+use Paheko\UserException;
 
 use KD2\HTTP;
 
 class API
 {
-	const BASE_URL = 'https://api.helloasso.com/';
+	const BASE_URL = 'https://api.helloasso-sandbox.com/';
 
 	protected $ha;
 	protected $oauth;
@@ -55,7 +55,7 @@ class API
 		$headers = [
 			'Authorization' => sprintf('Bearer %s', $token),
 			'Accept'        => 'application/json',
-			'User-Agent'    => 'Garradin',
+			'User-Agent'    => 'Paheko',
 		];
 
 		if ($type == 'GET') {
@@ -91,7 +91,8 @@ class API
 		}
 		elseif ($this->oauth->expiry - 10 <= time()) {
 			$this->oauth = $this->refreshToken($this->oauth->refresh_token);
-			$this->ha->plugin()->setConfig('oauth', $this->oauth);
+			$this->ha->plugin()->setConfigProperty('oauth', $this->oauth);
+			$this->ha->plugin()->save();
 		}
 
 		return $this->oauth->access_token;
@@ -102,8 +103,9 @@ class API
 		$this->client_id = trim($client_id);
 		$this->oauth = $this->createToken(trim($secret));
 
-		$this->ha->plugin()->setConfig('client_id', $this->client_id);
-		$this->ha->plugin()->setConfig('oauth', $this->oauth);
+		$this->ha->plugin()->setConfigProperty('client_id', $this->client_id);
+		$this->ha->plugin()->setConfigProperty('oauth', $this->oauth);
+		$this->ha->plugin()->save();
 		return true;
 	}
 
@@ -227,7 +229,7 @@ class API
 			$this->assert(isset($r->date));
 			$this->assert(strtotime($r->date));
 			$this->assert(isset($r->id));
-			$this->assert(!isset($r->amount->total) || ctype_digit($r->amount->total)); // This can be empty if it's free
+			$this->assert(!isset($r->amount->total) || is_int($r->amount->total)); // This can be empty if it's free
 		}
 	}
 
@@ -258,7 +260,7 @@ class API
 			$this->assert(isset($r->state));
 			$this->assert(isset($r->id));
 			$this->assert(isset($r->paymentReceiptUrl));
-			$this->assert(isset($r->amount) && ctype_digit($r->amount));
+			$this->assert(isset($r->amount) && is_int($r->amount));
 		}
 	}
 
@@ -290,7 +292,7 @@ class API
 			$this->assert(isset($r->state));
 			$this->assert(isset($r->type));
 			$this->assert(isset($r->id));
-			$this->assert(isset($r->amount) && ctype_digit($r->amount));
+			$this->assert(isset($r->amount) && is_int($r->amount));
 		}
 	}
 

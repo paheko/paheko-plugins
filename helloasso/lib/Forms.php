@@ -1,11 +1,11 @@
 <?php
 
-namespace Garradin\Plugin\HelloAsso;
+namespace Paheko\Plugin\HelloAsso;
 
-use Garradin\Plugin\HelloAsso\Entities\Form;
-use Garradin\Plugin\HelloAsso\API;
+use Paheko\Plugin\HelloAsso\Entities\Form;
+use Paheko\Plugin\HelloAsso\API;
 
-use Garradin\DB;
+use Paheko\DB;
 
 use KD2\DB\EntityManager as EM;
 

@@ -1,14 +1,13 @@
 <?php
 
-namespace Garradin\Plugin\HelloAsso;
+namespace Paheko\Plugin\HelloAsso;
 
-use Garradin\Config;
-use Garradin\DB;
-use Garradin\Plugin;
+use Paheko\Config;
+use Paheko\DB;
+use Paheko\Plugins;
+use Paheko\Entities\Plugin;
 
-use Garradin\Plugin\HelloAsso\Entities\Form;
-
-use function Garradin\garradin_contributor_license;
+use Paheko\Plugin\HelloAsso\Entities\Form;
 
 class HelloAsso
 {
@@ -39,7 +38,7 @@ class HelloAsso
 
 	protected function __construct()
 	{
-		$this->plugin = new Plugin('helloasso');
+		$this->plugin = Plugins::get('helloasso');
 		$this->config = $this->plugin->getConfig();
 	}
 
@@ -70,19 +69,21 @@ class HelloAsso
 			Items::sync($org_slug);
 		}
 
-		$this->plugin->setConfig('last_sync', (new \DateTime)->format(\DATE_ISO8601));
+		$this->plugin->setConfigProperty('last_sync', (new \DateTime)->format(\DATE_ISO8601));
+		$this->plugin->save();
 	}
 
 	public function getClientId(): ?string
 	{
-		return $this->config->client_id;
+		return $this->config->client_id ?? null;
 	}
 
 	public function saveClient(string $client_id, string $client_secret): void
 	{
 		$client_id = trim($client_id);
 
-		if ($client_id !== $this->config->client_id) {
+		if (isset($this->config->client_id)
+			&& $client_id !== $this->config->client_id) {
 			// Clear everything!
 			$this->reset();
 		}
@@ -99,9 +100,10 @@ class HelloAsso
 
 	public function saveConfig(array $map, $merge_names, $match_email_field): void
 	{
-		$this->plugin->setConfig('merge_names', (int) $merge_names);
-		$this->plugin->setConfig('match_email_field', (bool) $match_email_field);
-		$this->plugin->setConfig('map_user_fields', $map);
+		$this->plugin->setConfigProperty('merge_names', (int) $merge_names);
+		$this->plugin->setConfigProperty('match_email_field', (bool) $match_email_field);
+		$this->plugin->setConfigProperty('map_user_fields', $map);
+		$this->plugin->save();
 	}
 
 	public function isConfigured(): bool
@@ -188,34 +190,10 @@ class HelloAsso
 	}
 */
 
-	static public function cron() {
-	}
-
-	/**
-	 * Toutes ces lignes de code ne se sont pas écrites toutes seules…
-	 * Merci de contribuer à Garradin ;)
-	 */
-	const LEVEL_REQUIRED = 50;
-	const PER_PAGE_TRIAL = 5;
-
 
 	static public function getPageSize(): int
 	{
-		return self::isTrial() ? self::PER_PAGE_TRIAL : self::PER_PAGE;
+		return self::PER_PAGE;
 	}
 
-	/**
-	 * Merci de contribuer à Garradin pour obtenir une licence :)
-	 */
-	static public function isTrial(): bool
-	{
-		$level = 100;//\Garradin\garradin_contributor_license();
-
-		if ($level < self::LEVEL_REQUIRED) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
 }

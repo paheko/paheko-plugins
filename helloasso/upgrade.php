@@ -1,10 +1,10 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
 $db = DB::getInstance();
 
-$old_version = $plugin->getInfos('version');
+$old_version = $plugin->version;
 
 if (version_compare($old_version, '0.3.3', '<')) {
 	$db->import(__DIR__ . '/uninstall.sql');

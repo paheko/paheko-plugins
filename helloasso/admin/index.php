@@ -1,8 +1,8 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
-use Garradin\Plugin\HelloAsso\Forms;
+use Paheko\Plugin\HelloAsso\Forms;
 
 require __DIR__ . '/_inc.php';
 
@@ -11,10 +11,9 @@ if ($plugin->needUpgrade()) {
 }
 
 if (!$ha->getLastSync()) {
-	Utils::redirect(PLUGIN_URL . 'sync.php');
+	Utils::redirect('./sync.php');
 }
 
 $tpl->assign('list', Forms::list());
-$tpl->assign('restricted', $ha::isTrial());
 
 $tpl->display(PLUGIN_ROOT . '/templates/index.tpl');

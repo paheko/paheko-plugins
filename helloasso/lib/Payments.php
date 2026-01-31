@@ -1,15 +1,15 @@
 <?php
 
-namespace Garradin\Plugin\HelloAsso;
+namespace Paheko\Plugin\HelloAsso;
 
-use Garradin\Plugin\HelloAsso\Entities\Form;
-use Garradin\Plugin\HelloAsso\Entities\Order;
-use Garradin\Plugin\HelloAsso\Entities\Payment;
-use Garradin\Plugin\HelloAsso\API;
+use Paheko\Plugin\HelloAsso\Entities\Form;
+use Paheko\Plugin\HelloAsso\Entities\Order;
+use Paheko\Plugin\HelloAsso\Entities\Payment;
+use Paheko\Plugin\HelloAsso\API;
 
-use Garradin\DB;
-use Garradin\DynamicList;
-use Garradin\Utils;
+use Paheko\DB;
+use Paheko\DynamicList;
+use Paheko\Utils;
 
 use KD2\DB\EntityManager as EM;
 
@@ -114,10 +114,6 @@ class Payments
 				// This API endpoint does not return Pending payments
 				self::syncPayment($payment);
 			}
-
-			if (HelloAsso::isTrial()) {
-				break;
-			}
 		}
 	}
 
@@ -173,11 +169,6 @@ class Payments
 	{
 		$per_page = self::PER_PAGE;
 
-		if ($this->isTrial()) {
-			$per_page = self::PER_PAGE_TRIAL;
-			$page = 1;
-		}
-
 		$result = $this->api->listFormPayments($form->org_slug, $form->form_type, $form->form_slug, $page, $per_page);
 
 		$count = $result->pagination->totalCount;
@@ -194,11 +185,6 @@ class Payments
 	public function listOrganizationPayments(string $org_slug, int $page = 1, &$count = null): array
 	{
 		$per_page = self::PER_PAGE;
-
-		if ($this->isTrial()) {
-			$per_page = self::PER_PAGE_TRIAL;
-			$page = 1;
-		}
 
 		$result = $this->api->listOrganizationPayments($org_slug, $page, $per_page);
 

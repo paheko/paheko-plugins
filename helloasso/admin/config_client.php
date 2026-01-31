@@ -1,8 +1,8 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
-use Garradin\Plugin\HelloAsso\HelloAsso;
+use Paheko\Plugin\HelloAsso\HelloAsso;
 
 $session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
 
@@ -18,7 +18,6 @@ $tpl->assign([
 	'client_id'  => $ha->getClientId(),
 	'secret'     => '',
 	'csrf_key'   => $csrf_key,
-	'restricted' => $ha->isTrial(),
 ]);
 
 $tpl->display(PLUGIN_ROOT . '/templates/config_client.tpl');

@@ -1,10 +1,10 @@
 <?php
 
-namespace Garradin;
+namespace Paheko;
 
-use Garradin\Plugin\HelloAsso\Orders;
-use Garradin\Plugin\HelloAsso\Payments;
-use Garradin\Plugin\HelloAsso\Items;
+use Paheko\Plugin\HelloAsso\Orders;
+use Paheko\Plugin\HelloAsso\Payments;
+use Paheko\Plugin\HelloAsso\Items;
 
 require __DIR__ . '/_inc.php';
 

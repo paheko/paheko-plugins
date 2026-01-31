@@ -1,16 +1,16 @@
 <?php
 
-namespace Garradin\Plugin\HelloAsso;
+namespace Paheko\Plugin\HelloAsso;
 
-use Garradin\Plugin\HelloAsso\Entities\Form;
-use Garradin\Plugin\HelloAsso\Entities\Item;
-use Garradin\Plugin\HelloAsso\Entities\Order;
-use Garradin\Plugin\HelloAsso\Entities\Payment;
-use Garradin\Plugin\HelloAsso\API;
+use Paheko\Plugin\HelloAsso\Entities\Form;
+use Paheko\Plugin\HelloAsso\Entities\Item;
+use Paheko\Plugin\HelloAsso\Entities\Order;
+use Paheko\Plugin\HelloAsso\Entities\Payment;
+use Paheko\Plugin\HelloAsso\API;
 
-use Garradin\DB;
-use Garradin\DynamicList;
-use Garradin\Utils;
+use Paheko\DB;
+use Paheko\DynamicList;
+use Paheko\Utils;
 
 use KD2\DB\EntityManager as EM;
 
@@ -105,10 +105,6 @@ class Items
 
 			foreach ($result->data as $order) {
 				self::syncItem($order);
-			}
-
-			if (HelloAsso::isTrial()) {
-				break;
 			}
 		}
 	}
