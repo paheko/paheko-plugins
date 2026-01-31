@@ -1,6 +1,6 @@
 {include file="_head.tpl" title="Commande n°%s — %s"|args:$order.id:$order.person}
 
-{include file="./_menu.tpl" current="home"}
+{include file="./_menu.tpl" current="home" current_sub="orders"}
 
 <h2 class="ruler">Informations de la commande</h2>
 

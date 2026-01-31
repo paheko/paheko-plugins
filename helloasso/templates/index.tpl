@@ -30,8 +30,8 @@
 			<td class="actions">
 				{if $item.type === 'Membership'}
 					{linkbutton href="tiers.php?id=%d"|args:$item.id label="Tarifs" shape="menu" target="_dialog"}
+					{linkbutton href="form.php?id=%d"|args:$item.id label="Configurer" shape="settings" target="_dialog"}
 				{/if}
-				{linkbutton href="form.php?id=%d"|args:$item.id label="Configurer" shape="settings" target="_dialog"}
 			</td>
 			{/if}
 		</tr>

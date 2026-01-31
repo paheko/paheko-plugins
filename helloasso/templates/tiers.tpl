@@ -17,7 +17,7 @@
 			<th scope="row">{if $tier.label}{$tier.label}{else}<em>(pas de nom défini)</em>{/if}</th>
 			<td class="money">{$tier.amount|money_currency|raw}</td>
 			<td class="actions">
-				{linkbutton shape="edit" label="Modifier" href="form_tier.php?id=%d"|args:$tier.id}
+				{linkbutton shape="edit" label="Modifier" href="tier.php?id=%d"|args:$tier.id}
 			</td>
 		</tr>
 		{/foreach}

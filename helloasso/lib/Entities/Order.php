@@ -7,6 +7,8 @@ use Paheko\Entity;
 use Paheko\ValidationException;
 use Paheko\Users\Users;
 
+use Paheko\Plugin\HelloAsso\Forms;
+
 use DateTime;
 use stdClass;
 

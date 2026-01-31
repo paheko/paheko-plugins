@@ -22,6 +22,11 @@ class Forms
 		return EM::findOneById(Form::class, $id);
 	}
 
+	static public function getTier(int $id): ?Tier
+	{
+		return EM::findOneById(Tier::class, $id);
+	}
+
 	static public function getId(string $org_slug, string $form_slug): ?int
 	{
 		if (!isset(self::$forms_ids)) {
@@ -115,7 +120,13 @@ class Forms
 					$t->label = $tier->label ?? null;
 					$t->amount = $tier->price ?? null;
 					$t->type = $tier->tierType;
-					$t->custom_fields = HelloAsso::normalizeCustomFields($tier->customFields ?? null);
+					$custom_fields = [];
+
+					foreach ($tier->customFields ?? [] as $field) {
+						$custom_fields[$field->id] = $field->label;
+					}
+
+					$t->custom_fields = $custom_fields;
 					$t->save();
 
 					foreach ($tier->extraOptions ?? [] as $option) {

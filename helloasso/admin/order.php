@@ -34,6 +34,9 @@ else {
 	$mapped_user = null;
 }
 
-$tpl->assign(compact('order', 'payments', 'items', 'payer_infos', 'found_user', 'mapped_user'));
+$f = $order->form();
+$type = $f->type;
+
+$tpl->assign(compact('order', 'payments', 'items', 'payer_infos', 'found_user', 'mapped_user', 'f', 'type'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/order.tpl');
