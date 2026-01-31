@@ -41,10 +41,18 @@ class Forms
 		return self::$forms_names[$id] ?? null;
 	}
 
-	static public function list(): array
+	static public function listByType(?string $type): array
 	{
-		$sql = sprintf('SELECT * FROM %s ORDER BY state = \'Disabled\', type, org_name COLLATE NOCASE, name COLLATE NOCASE;', Form::TABLE);
-		$list = DB::getInstance()->get($sql);
+		$params = [];
+		$where = '';
+
+		if ($type) {
+			$where = 'WHERE type = ?';
+			$params[] = $type;
+		}
+
+		$sql = sprintf('SELECT * FROM %s %s ORDER BY state = \'Disabled\', type, org_name COLLATE NOCASE, name COLLATE NOCASE;', Form::TABLE, $where);
+		$list = DB::getInstance()->get($sql, ...$params);
 
 		foreach ($list as &$row) {
 			$row->state_label = Form::STATES[$row->state] ?? '';

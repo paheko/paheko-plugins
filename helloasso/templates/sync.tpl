@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="HelloAsso"}
+{include file="_head.tpl" title="Synchronisation des données avec HelloAsso"}
 
 {include file="%s/templates/_menu.tpl"|args:$plugin_root current="sync"}
 

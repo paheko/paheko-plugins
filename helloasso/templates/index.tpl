@@ -1,4 +1,9 @@
-{include file="_head.tpl" title="HelloAsso"}
+{if $type}
+	{assign var="title" value="HelloAsso"}
+{else}
+	{assign var="title" value="HelloAsso — Toutes les campagnes"}
+{/if}
+{include file="_head.tpl" title="HelloAsso — Toutes les campagnes"}
 
 {include file="./_menu.tpl" current="home" current_sub=null}
 
@@ -9,15 +14,26 @@
 			<th>Formulaire</th>
 			<td>Type</td>
 			<td>Statut</td>
+			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
+			<td class="actions"></td>
+			{/if}
 		</tr>
 	</thead>
 	<tbody>
-		{foreach from=$list item="form"}
-		<tr{if $form.state == 'Disabled'} class="disabled"{/if}>
-			<td>{$form.org_name}</td>
-			<th><a href="orders.php?id={$form.id}">{$form.name}</a></th>
-			<td>{$form.type_label}</td>
-			<td>{tag color=$form.state_color label=$form.state_label}</td>
+		{foreach from=$list item="item"}
+		<tr{if $item.state === 'Disabled'} class="disabled"{/if}>
+			<td>{$item.org_name}</td>
+			<th><a href="orders.php?id={$item.id}">{$item.name}</a></th>
+			<td>{$item.type_label}</td>
+			<td>{tag color=$item.state_color label=$item.state_label}</td>
+			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
+			<td class="actions">
+				{if $item.type === 'Membership'}
+					{linkbutton href="tiers.php?id=%d"|args:$item.id label="Tarifs" shape="menu" target="_dialog"}
+				{/if}
+				{linkbutton href="form.php?id=%d"|args:$item.id label="Configurer" shape="settings" target="_dialog"}
+			</td>
+			{/if}
 		</tr>
 		{/foreach}
 	</tbody>

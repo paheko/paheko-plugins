@@ -25,7 +25,7 @@ class Tier extends Entity
 	const TYPES = Item::TYPES;
 	const TYPES_COLORS = Item::TYPES_COLORS;
 
-	public function canMatchUser(): bool
+	public function canMatchUsers(): bool
 	{
 		return !empty($this->fields_map) || $this->use_payer_fallback_info;
 	}

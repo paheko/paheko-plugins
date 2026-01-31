@@ -1,6 +1,11 @@
 {include file="_head.tpl" title="Connexion à HelloAsso"}
 
-{include file="./_menu.tpl" current="config_client"}
+<nav class="tabs">
+	<ul>
+		<li><a href="config.php?{$dialog_qs}">Configuration</a></li>
+		<li class="current"><a href="config_client.php?{$dialog_qs}">Connexion à HelloAsso</a></li>
+	</ul>
+</nav>
 
 {if isset($_GET['ok'])}
 <p class="confirm block">

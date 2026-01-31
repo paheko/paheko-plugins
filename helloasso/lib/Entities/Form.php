@@ -32,7 +32,7 @@ class Form extends Entity
 		'Membership'   => 'Adhésion',
 		'Event'        => 'Billetteries',
 		'Donation'     => 'Dons',
-		'PaymentForm'  => 'Ventes',
+		'PaymentForm'  => 'FlexiPaiement',
 		'Checkout'     => 'Encaissement',
 		'Shop'         => 'Boutique',
 	];

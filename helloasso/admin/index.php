@@ -14,6 +14,13 @@ if (!$ha->getLastSync()) {
 	Utils::redirect('./sync.php');
 }
 
-$tpl->assign('list', Forms::list());
+$type = $_GET['type'] ?? null;
+$list = Forms::listByType($type);
+
+if (count($list) === 1) {
+	Utils::redirect('./orders.php?id=' . $list[0]->id);
+}
+
+$tpl->assign(compact('list', 'type'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/index.tpl');

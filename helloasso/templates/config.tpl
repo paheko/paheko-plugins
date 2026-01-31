@@ -1,13 +1,11 @@
 {include file="_head.tpl" title="Configuration"}
 
-{include file="./_menu.tpl" current="config"}
-
-{if $_GET.ok !== null}
-<p class="confirm block">
-	Configuration enregistrée.
-</p>
-{/if}
-
+<nav class="tabs">
+	<ul>
+		<li class="current"><a href="config.php?{$dialog_qs}">Configuration</a></li>
+		<li><a href="config_client.php?{$dialog_qs}">Connexion à HelloAsso</a></li>
+	</ul>
+</nav>
 
 {form_errors}
 

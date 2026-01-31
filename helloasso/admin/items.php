@@ -16,7 +16,7 @@ if (!$f) {
 $list = Items::list($f);
 $list->loadFromQueryString();
 
-$tpl->assign('form', $f);
-$tpl->assign(compact('list'));
+$tpl->assign(compact('list', 'f'));
+$tpl->assign('type', $f->type);
 
 $tpl->display(PLUGIN_ROOT . '/templates/items.tpl');

@@ -1,32 +1,36 @@
 <nav class="tabs">
+	{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
+		<aside>
+			{linkbutton href="config.php" label="Configuration" shape="settings" target="_dialog"}
+		</aside>
+	{/if}
+
 	<ul>
-		<li{if $current == 'home'} class="current"{/if}><a href="./">Formulaires</a></li>
+		<?php $type ??= null; ?>
+		<li{if $current == 'home' && !$type} class="current"{/if}><a href="./">Campagnes</a></li>
+		<li{if $current == 'home' && $type === 'Membership'} class="current"{/if}><a href="./?type=Membership">Adhésions</a></li>
+		<li{if $current == 'home' && $type === 'Donation'} class="current"{/if}><a href="./?type=Donation">Dons</a></li>
 		<li{if $current == 'sync'} class="current"{/if}><a href="sync.php">Synchronisation</a></li>
-		{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
-			<li{if $current == 'config'} class="current"{/if}><a href="config.php">Configuration</a></li>
-		{/if}
 	</ul>
 
-	{if $current === 'config'}
-		<ul class="sub">
-			<li{if $current == 'config'} class="current"{/if}><a href="config.php">Configuration</a></li>
-			<li{if $current == 'config_client'} class="current"{/if}><a href="config_client.php">Connexion à HelloAsso</a></li>
-		</ul>
-	{elseif !empty($form.name)}
+	{if isset($f->name)}
 		<aside>
 			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
-				{linkbutton shape="settings" label="Configurer le formulaire" href="form.php?id=%d"|args:$form.id}
+				{if $f.type === 'Membership'}
+					{linkbutton href="tiers.php?id=%d"|args:$f.id label="Configurer les tarifs" shape="menu" target="_dialog"}
+				{/if}
+				{linkbutton href="form.php?id=%d"|args:$f.id label="Configurer le formulaire" shape="edit" target="_dialog"}
 			{/if}
-			{if !empty($show_export)}
-				{exportmenu right=true}
-			{/if}
+		{if !empty($show_export)}
+			{exportmenu right=true}
+		{/if}
 		</aside>
 
 		<ul class="sub">
-			<li class="title">{$form.name}</li>
-			<li{if $current_sub == 'orders'} class="current"{/if}>{link href="orders.php?id=%d"|args:$form.id label="Commandes"}</li>
-			<li{if $current_sub == 'payments'} class="current"{/if}>{link href="payments.php?id=%d"|args:$form.id label="Paiements"}</li>
-			<li{if $current_sub == 'items'} class="current"{/if}>{link href="items.php?id=%d"|args:$form.id label="Articles"}</li>
+			<li class="title">{$f.name}</li>
+			<li{if $current_sub == 'orders'} class="current"{/if}>{link href="orders.php?id=%d"|args:$f.id label="Commandes"}</li>
+			<li{if $current_sub == 'payments'} class="current"{/if}>{link href="payments.php?id=%d"|args:$f.id label="Paiements"}</li>
+			<li{if $current_sub == 'items'} class="current"{/if}>{link href="items.php?id=%d"|args:$f.id label="Articles"}</li>
 		</ul>
 	{/if}
 </nav>

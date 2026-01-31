@@ -17,12 +17,11 @@ $csrf_key = 'helloasso_form_' . $f->id();
 
 $form->runIf('save', function () use ($f) {
 	$ha->saveConfig(f('fields_map'), f('merge_names_order'), f('match_email_field'));
-}, $csrf_key, '?ok');
+}, $csrf_key, './orders.php?id=' . $f->id());
 
 $tiers = $f->listTiers();
 $years_assoc = Years::listOpenAssoc();
 
-$tpl->assign(compact('tiers', 'csrf_key', 'years_assoc'));
-$tpl->assign('haform', $f);
+$tpl->assign(compact('tiers', 'csrf_key', 'years_assoc', 'f'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/form.tpl');
