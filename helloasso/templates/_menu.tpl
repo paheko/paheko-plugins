@@ -1,14 +1,18 @@
 <nav class="tabs">
 	<ul>
 		<li{if $current == 'home'} class="current"{/if}><a href="./">Formulaires</a></li>
-		{*<li{if $current == 'targets'} class="current"{/if}><a href="targets.php">Synchronisation</a></li>*}
+		<li{if $current == 'targets'} class="current"{/if}><a href="sync.php">Synchronisation</a></li>
 		{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
-			{*<li{if $current == 'config'} class="current"{/if}><a href="config.php">Configuration</a></li>*}
-			<li{if $current == 'config_client'} class="current"{/if}><a href="config_client.php">Connexion à HelloAsso</a></li>
+			<li{if $current == 'config'} class="current"{/if}><a href="config.php">Configuration</a></li>
 		{/if}
 	</ul>
 
-	{if !empty($form.name)}
+	{if $current === 'config'}
+	<ul class="sub">
+		<li{if $current == 'config'} class="current"{/if}><a href="config.php">Configuration</a></li>
+		<li{if $current == 'config_client'} class="current"{/if}><a href="config_client.php">Connexion à HelloAsso</a></li>
+	</ul>
+	{elseif !empty($form.name)}
 		{if !empty($show_export)}
 		<aside>
 			{exportmenu right=true}
