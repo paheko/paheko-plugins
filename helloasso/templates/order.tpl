@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Commande n°%s — %s"|args:$order.id,$order.person}
+{include file="_head.tpl" title="Commande n°%s — %s"|args:$order.id:$order.person}
 
 {include file="./_menu.tpl" current="home"}
 
@@ -17,7 +17,7 @@
 	<dd>{if $order.status}Payée{else}Paiement incomplet{/if}</dd>
 </dl>
 
-<h2 class="ruler">Éléments de la commande</h2>
+<h2 class="ruler">Articles de la commande</h2>
 
 {include file="%s/templates/_items_list.tpl"|args:$plugin_root list=$items details=false}
 
@@ -40,7 +40,6 @@
 	{/foreach}
 </dl>
 
-{*
 {if $found_user}
 <p class="block confirm">
 	Membre correspondant trouvé : <a href="{$admin_url}users/details.php?id={$found_user.id}">{$found_user.identity}</a>
@@ -56,6 +55,5 @@
 </p>
 </form>
 {/if}
-*}
 
 {include file="_foot.tpl"}

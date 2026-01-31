@@ -7,7 +7,7 @@
 			<td class="num">{if $row.id_transaction}{link href="!acc/transactions/details.php?id=%d"|args:$row.id_transaction label="#%d"|args:$row.id_transaction}{/if}</td>
 			<td>{$row.date|date}</td>
 			<td class="money">{$row.amount|money_currency|raw}</td>
-			<td>{$row.label}</td>
+			<td>{$row.person}</td>
 			<td>{$row.state}</td>
 			<td>{$row.transferred}</td>
 			<td class="actions">

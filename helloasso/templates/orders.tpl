@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="%s — %s"|args:$form.org_name,$form.name}
+{include file="_head.tpl" title="%s — %s"|args:$form.org_name:$form.name}
 
 {include file="./_menu.tpl" current="home" current_sub="orders" show_export=true}
 
@@ -10,7 +10,7 @@
 			<th class="num"><a href="order.php?id={$row.id}">{$row.id}</a></th>
 			<td>{$row.date|date}</td>
 			<td class="money">{$row.amount|money_currency|raw}</td>
-			<td>{$row.label}</td>
+			<td>{$row.person}</td>
 			<td>{if $row.status}Payé{else}Paiement incomplet{/if}</td>
 			<td class="actions">
 				{linkbutton href="order.php?id=%s"|args:$row.id shape="help" label="Détails"}
