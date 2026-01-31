@@ -1,0 +1,202 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rsm:CrossIndustryInvoice
+	xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100"
+	xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"
+	xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100">
+	<rsm:ExchangedDocumentContext>
+		<ram:GuidelineSpecifiedDocumentContextParameter>
+			<ram:ID>urn:cen.eu:en16931:2017</ram:ID>
+		</ram:GuidelineSpecifiedDocumentContextParameter>
+	</rsm:ExchangedDocumentContext>
+	<rsm:ExchangedDocument>
+		<ram:ID>{$number}</ram:ID> <!-- Invoice number, free text -->
+		<!--
+    	'invoice': '380', (facture)
+    	'refund': '381', (avoir)
+		-->
+		<ram:TypeCode>380</ram:TypeCode>
+		<ram:IssueDateTime>
+			<udt:DateTimeString format="102">{$date|date_format:'Ymd'}</udt:DateTimeString> <!-- 102 = YYYYMMDD -->
+		</ram:IssueDateTime>
+	</rsm:ExchangedDocument>
+	<rsm:SupplyChainTradeTransaction>
+		<!-- Lignes de la facture -->
+		{foreach from=$lines item="line" key="id"}
+		<ram:IncludedSupplyChainTradeLineItem>
+			<ram:AssociatedDocumentLineDocument>
+				<ram:LineID>{$id}</ram:LineID><!-- Numéro unique de la ligne -->
+				<ram:IncludedNote>
+					<ram:Content>{$line.notes}</ram:Content>
+				</ram:IncludedNote>
+			</ram:AssociatedDocumentLineDocument>
+			<ram:SpecifiedTradeProduct>
+				<ram:SellerAssignedID>{$line.ref}</ram:SellerAssignedID><!-- Ref vendeur -->
+				<ram:Name>{$line.label}{if $line.qty_name} (/{$line.qty_name}){/if}</ram:Name>
+				<ram:Description>{$line.description}</ram:Description>
+			</ram:SpecifiedTradeProduct>
+			<ram:SpecifiedLineTradeAgreement>
+				<ram:BuyerOrderReferencedDocument>
+					<ram:LineID>{$id}</ram:LineID>
+				</ram:BuyerOrderReferencedDocument>
+				<ram:NetPriceProductTradePrice>
+					<ram:ChargeAmount>{$line.price|money_raw_us}</ram:ChargeAmount><!-- Prix unitaire net (hors taxe) -->
+				</ram:NetPriceProductTradePrice>
+			</ram:SpecifiedLineTradeAgreement>
+			<ram:SpecifiedLineTradeDelivery>
+				<ram:BilledQuantity unitCode="C62">{$line.qty}</ram:BilledQuantity>
+				<!-- Quantité, C62 = unité, penser à indiquer l'unité dans la description de la ligne -->
+			</ram:SpecifiedLineTradeDelivery>
+			<ram:SpecifiedLineTradeSettlement>
+				<ram:ApplicableTradeTax>
+					<ram:TypeCode>VAT</ram:TypeCode>
+					<ram:CategoryCode>{if !$line.vat_rate}E{else}S{/if}</ram:CategoryCode>
+					<!-- Taux de TVA:
+					S = Taux de TVA standard
+					Z = Taux de TVA égal à 0 (non applicable en France)
+					E = Exempté de TVA
+					AE = Autoliquidation de TVA
+					K = Autoliquidation pour cause de livraison intracommunautaire
+					G = Exempté de TVA pour Export hors UE
+					O = Hors du périmètre d'application de la TVA
+					L = Iles Canaries
+					M = Ceuta et Mellila
+					-->
+					<ram:RateApplicablePercent>{$line.vat_rate}</ram:RateApplicablePercent>
+				</ram:ApplicableTradeTax>
+				<ram:SpecifiedTradeSettlementLineMonetarySummation>
+					<ram:LineTotalAmount>{$line.net_total|money_raw_us}</ram:LineTotalAmount> <!-- Montant net total de la ligne (HT) -->
+				</ram:SpecifiedTradeSettlementLineMonetarySummation>
+			</ram:SpecifiedLineTradeSettlement>
+		</ram:IncludedSupplyChainTradeLineItem>
+		<ram:ApplicableHeaderTradeAgreement>
+			<ram:BuyerReference>{$buyer_ref}</ram:BuyerReference> <!-- Référence acheteur. "Service exécutant" Code service pour Chorus Pro. Obligatoire pour les entités publiques marquées « Service obligatoire » dans Chorus Pro. -->
+			<ram:SellerTradeParty>
+				<ram:Name>{$seller_name}</ram:Name>
+				{if $seller.country === 'FR' && $seller.number}
+					<ram:SpecifiedLegalOrganization>
+						<ram:ID schemeID="0002">{$seller.number}</ram:ID> <!-- Seller SIRET -->
+					</ram:SpecifiedLegalOrganization>
+				{/if}
+				<ram:PostalTradeAddress>
+					<ram:CountryID>{$seller.country}</ram:CountryID>
+				</ram:PostalTradeAddress>
+				<ram:URIUniversalCommunication>
+					<ram:URIID schemeID="EM">{$seller.email}</ram:URIID><!-- Adresse e-mail du vendeur -->
+				</ram:URIUniversalCommunication>
+				{if $seller.vat_number}
+					<ram:SpecifiedTaxRegistration>
+						<ram:ID schemeID="VA">{$seller.vat_number}</ram:ID> <!-- numéro TVA -->
+					</ram:SpecifiedTaxRegistration>
+				{/if}
+			</ram:SellerTradeParty>
+			<ram:BuyerTradeParty>
+				<ram:Name>{$buyer_name}</ram:Name><!-- Nom client -->
+				{if $buyer.country === 'FR' && $buyer.number}
+					<ram:SpecifiedLegalOrganization>
+						<!-- Numéro d'entreprise client. SchemeIDs: https://docs.peppol.eu/poacc/billing/3.0/codelist/ICD/ -->
+						<ram:ID schemeID="0002">{$buyer.number}</ram:ID>
+					</ram:SpecifiedLegalOrganization>
+				{/if}
+				<!--
+				<ram:DefinedTradeContact>
+					<ram:PersonName>Buyer contact name</ram:PersonName>
+					<ram:DepartmentName>Buyer dep</ram:DepartmentName>
+					<ram:TelephoneUniversalCommunication>
+						<ram:CompleteNumber>01 01 25 45 87</ram:CompleteNumber>
+					</ram:TelephoneUniversalCommunication>
+					<ram:EmailURIUniversalCommunication>
+						<ram:URIID>buyer@buyer.com</ram:URIID>
+					</ram:EmailURIUniversalCommunication>
+				</ram:DefinedTradeContact>
+				-->
+				<ram:PostalTradeAddress>
+					<!--
+					<ram:PostcodeCode>{$buyer.postcode}</ram:PostcodeCode>
+					<ram:LineOne>{$buyer.address}</ram:LineOne>
+					<ram:CityName>{$buyer.city}</ram:CityName>
+				-->
+					<ram:CountryID>{$buyer.country}</ram:CountryID>
+				</ram:PostalTradeAddress>
+				<ram:URIUniversalCommunication>
+					<ram:URIID schemeID="EM">{$buyer.email}</ram:URIID><!-- Adresse e-mail du client -->
+				</ram:URIUniversalCommunication>
+				{if $buyer.vat_number}
+					<!-- Numéro TVA de l'acheteur -->
+					<ram:SpecifiedTaxRegistration>
+						<ram:ID schemeID="VA">{$buyer.vat_number}</ram:ID>
+					</ram:SpecifiedTaxRegistration>
+				{/if}
+			</ram:BuyerTradeParty>
+
+			<ram:BuyerOrderReferencedDocument>
+				<ram:IssuerAssignedID>{$issuer_assigned_id}</ram:IssuerAssignedID><!-- Numéro commande acheteur. "Numéro d'engagement juridique" Texte libre. Pour Chorus Pro, indiquer ici le numéro d'engagement. Obligatoire pour les entités publiques marquées « Engagement obligatoire » dans Chorus Pro. -->
+			</ram:BuyerOrderReferencedDocument>
+		</ram:ApplicableHeaderTradeAgreement>
+		<ram:ApplicableHeaderTradeDelivery/>
+		<ram:ApplicableHeaderTradeSettlement>
+			<ram:InvoiceCurrencyCode>{$currency}</ram:InvoiceCurrencyCode>
+			<!-- Facultatif ?
+			<ram:PayeeTradeParty>
+				<!-<ram:GlobalID schemeID="0088">587451236586</ram:GlobalID>->
+				<ram:Name>PAYEE NAME</ram:Name>
+				<ram:SpecifiedLegalOrganization>
+					<ram:ID schemeID="0002">303656847</ram:ID>
+				</ram:SpecifiedLegalOrganization>
+			</ram:PayeeTradeParty>
+			-->
+			<!--
+			<ram:SpecifiedTradeSettlementPaymentMeans>
+				<ram:TypeCode>30</ram:TypeCode>
+				<ram:Information>Virement</ram:Information>
+				<ram:PayerPartyDebtorFinancialAccount>
+					<ram:IBANID>FRDEBIT</ram:IBANID>
+				</ram:PayerPartyDebtorFinancialAccount>
+				<ram:PayeePartyCreditorFinancialAccount>
+					<ram:IBANID>FR20 1254 2547 2569 8542 5874 698</ram:IBANID>
+					<ram:AccountName>MON COMPTE BANCAIRE</ram:AccountName>
+				</ram:PayeePartyCreditorFinancialAccount>
+				<ram:PayeeSpecifiedCreditorFinancialInstitution>
+					<ram:BICID>BIC_MONCOMPTE</ram:BICID>
+				</ram:PayeeSpecifiedCreditorFinancialInstitution>
+			</ram:SpecifiedTradeSettlementPaymentMeans>
+			-->
+			<!-- Blocs de TVA, un bloc par taux de TVA -->
+			{foreach from=$invoice.vat_rates item="vat"}
+			<ram:ApplicableTradeTax>
+				<ram:CalculatedAmount>{$vat.amount|money_raw_us}</ram:CalculatedAmount>
+				<ram:TypeCode>VAT</ram:TypeCode>
+				{if !$vat.rate}
+				<!-- Si exempté de TVA, alors il faut indiquer une raison de l'exemption de TVA -->
+				<!-- Codes : https://docs.peppol.eu/poacc/billing/3.0/codelist/vatex/ -->
+				<ram:ExemptionReason>{$vat.exemption_reason}</ram:ExemptionReason>
+				{/if}
+				<ram:BasisAmount>{$vat.basis_amount|money_raw_us}</ram:BasisAmount>
+				<ram:CategoryCode>{if !$vat.rate}E{else}S{/if}</ram:CategoryCode>
+				<!-- Ce code ne peut être présent si la date d'exigibilité est fournie directement
+				dans l'élément ""Date d'exigibilité de la taxe sur la valeur ajoutée"" (BT-7).
+				Ce code doit être choisi parmi les valeurs suivantes issues de l'UNTDID 2475 (au lieu de UNTDID 2005 [6]):
+				5 : Date de la facture (TVA sur DEBITS)
+				29 : Date de livraison (TVA sur DEBITS)
+				72 : Date de paiement (TVA sur ENCAISSEMENTS) -->
+				<ram:DueDateTypeCode>5</ram:DueDateTypeCode>
+				<ram:RateApplicablePercent>{$vat.rate}</ram:RateApplicablePercent>
+			</ram:ApplicableTradeTax>
+			{/foreach}
+			<ram:SpecifiedTradePaymentTerms>
+				<ram:Description>{$payment_instructions}</ram:Description>
+				<ram:DueDateDateTime>
+					<udt:DateTimeString format="102">{$due_date|date_format:'Ymd'}</udt:DateTimeString><!-- Date d'échéance de paiement -->
+				</ram:DueDateDateTime>
+				<!-- Identifiant RUM pour prélèvement SEPA
+				<ram:DirectDebitMandateID>ICS XXXX</ram:DirectDebitMandateID>-->
+			</ram:SpecifiedTradePaymentTerms>
+			<ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+				<ram:LineTotalAmount>{$net_total|money_raw_us}</ram:LineTotalAmount>
+				<ram:TaxBasisTotalAmount>{$net_total|money_raw_us}</ram:TaxBasisTotalAmount> <!-- Total HT -->
+				<ram:TaxTotalAmount currencyID="{$currency}">{$vat_total|money_raw_us}</ram:TaxTotalAmount><!-- TVA -->
+				<ram:GrandTotalAmount>{$total|money_raw_us}</ram:GrandTotalAmount><!-- total TTC -->
+				<ram:DuePayableAmount>{$due_total|money_raw_us}</ram:DuePayableAmount><!-- Reste à payer -->
+			</ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+		</ram:ApplicableHeaderTradeSettlement>
+	</rsm:SupplyChainTradeTransaction>
+</rsm:CrossIndustryInvoice>

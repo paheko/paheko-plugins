@@ -2,7 +2,6 @@
 
 namespace Paheko\Plugin\Welcome;
 
-use Paheko\Entities\Plugins;
 use Paheko\Entities\Signal;
 
 use Paheko\Template;

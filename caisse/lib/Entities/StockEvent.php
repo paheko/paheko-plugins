@@ -14,15 +14,18 @@ class StockEvent extends Entity
 	protected \DateTime $date;
 	protected int $type = 0;
 	protected string $label = '';
+	protected ?string $description = null;
 	protected bool $applied = false;
 
 	const TYPE_OTHER = 0;
 	const TYPE_INVENTORY = 1;
 	const TYPE_ORDER_RECEIVED = 2;
+	const TYPE_LOSS = 3;
 
 	const TYPES = [
 		self::TYPE_INVENTORY => 'Inventaire',
 		self::TYPE_ORDER_RECEIVED => 'Réception de commande',
+		self::TYPE_LOSS => 'Perte / vol / destruction',
 		self::TYPE_OTHER => 'Autre',
 	];
 
@@ -84,7 +87,7 @@ class StockEvent extends Entity
 		$sql = POS::sql('SELECT
 			c.name AS category_name, p.name AS product_name, p.stock AS current_stock,
 			h.change AS change, p.id AS product_id,
-			SUM(p.price * h.change) AS value
+			SUM(p.purchase_price * h.change) AS value
 			FROM @PREFIX_products_stock_history h
 			LEFT JOIN @PREFIX_products p ON p.id = h.product
 			LEFT JOIN @PREFIX_categories c ON c.id = p.category
@@ -136,7 +139,7 @@ class StockEvent extends Entity
 		$p->product = $id;
 		$p->event = $this->id();
 		$p->date = new \DateTime;
-		$p->change = $qty;
+		$p->change = ($this->type === self::TYPE_LOSS) ? $qty * -1 : $qty;
 		$p->save();
 		return $p;
 	}

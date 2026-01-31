@@ -3,6 +3,7 @@
 namespace Paheko;
 
 use Paheko\Users\Session;
+use Paheko\Plugin\Caisse\POS;
 use Paheko\Plugin\Caisse\Sessions;
 use function Paheko\Plugin\Caisse\get_amount;
 

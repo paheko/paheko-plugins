@@ -4,9 +4,9 @@
 
 <form method="get" action="user_tabs.php">
 	<fieldset>
-		<legend>Rechercher les notes associées à un membre</legend>
+		<legend>Rechercher les notes</legend>
 		<dl>
-			{input type="text" name="q" label="Numéro ou nom de membre" required=true}
+			{input type="text" name="q" label="Numéro ou nom de membre, ou nom de la note" required=true}
 		</dl>
 	</fieldset>
 	<p class="submit">

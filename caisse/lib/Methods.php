@@ -2,12 +2,14 @@
 
 namespace Paheko\Plugin\Caisse;
 
-use Paheko\DB;
-use Paheko\Utils;
 use Paheko\Config;
+use Paheko\DB;
+use Paheko\DynamicList;
+use Paheko\Utils;
 use KD2\DB\EntityManager as EM;
 
 use Paheko\Plugin\Caisse\Entities\Method;
+use Paheko\Plugin\Caisse\Entities\Tab;
 
 class Methods
 {
@@ -23,29 +25,115 @@ class Methods
 		return $m;
 	}
 
-	static public function list(): array
+	static public function getList(bool $with_location): DynamicList
 	{
-		return EM::getInstance(Method::class)->all('SELECT * FROM @TABLE ORDER BY name;');
-	}
+		$columns = [
+			'id' => ['select' => 'm.id'],
+			'name' => [
+				'label' => 'Nom',
+				'select' => 'm.name',
+			],
+			'location' => [
+				'label' => 'Lieu',
+				'select' => 'CASE WHEN id_location IS NULL THEN NULL ELSE l.name END',
+			],
+			'type' => [
+				'label' => 'Type',
+			],
+			'account' => [
+				'label' => 'Compte',
+			],
+			'enabled' => [
+				'label' => 'Activé',
+			],
+		];
 
-	static public function getStatsPerMonth(?int $year = null, bool $cash_out = false): array
-	{
-		$sql = 'SELECT strftime(\'%%Y-%%m\', p.date) AS month, date, m.name AS method, COUNT(p.id) AS count, SUM(amount) AS sum
-			FROM @PREFIX_tabs_payments p
-			INNER JOIN @PREFIX_methods m ON m.id = p.method
-			WHERE 1 %s %s
-			GROUP BY strftime(\'%%Y-%%m\', p.date), m.id
-			ORDER BY month, m.name;';
-		$sql = sprintf($sql, $year ? 'AND strftime(\'%Y\', p.date) = ?' : '', $cash_out ? 'AND amount < 0' : 'AND amount > 0');
-		$sql = POS::sql($sql);
-
-		$args = [];
-
-		if ($year) {
-			$args[] = (string)$year;
+		if (!$with_location) {
+			unset($columns['location']);
 		}
 
-		return DB::getInstance()->get($sql, $args);
+		$tables = '@PREFIX_methods m LEFT JOIN @PREFIX_locations l ON l.id = m.id_location';
+
+		$list = POS::DynamicList($columns, $tables);
+		$list->orderBy('name', false);
+		$list->setModifier(function (&$row) {
+			$row->type = Method::TYPES_LABELS[$row->type];
+		});
+		return $list;
+	}
+
+	static public function listSales(int $year, string $period = 'year', ?int $location = null): DynamicList
+	{
+		$columns = [
+			'method' => [
+				'label' => 'Méthode',
+				'select' => 'm.name',
+			],
+			'count' => [
+				'label' => 'Nombres de paiements',
+				'select' => 'COUNT(p.id)',
+			],
+			'sum' => [
+				'label' => 'Montant total',
+				'select' => 'SUM(amount)',
+			],
+		];
+
+		$tables = '@PREFIX_tabs_payments p
+			INNER JOIN @PREFIX_methods m ON m.id = p.method';
+
+		$list = POS::DynamicList($columns, $tables, 'strftime(\'%Y\', p.date) = :year AND amount > 0');
+		$list->groupBy('m.id');
+		$list->orderBy('method', true);
+		$list->setParameter('year', (string)$year);
+		$list->setTitle(sprintf('Paiements encaissés %d, par moyen de paiement', $year));
+		POS::applyPeriodToList($list, $period, 'p.date', 'p.id');
+
+		if ($location) {
+			$list->addTables(POS::sql('INNER JOIN @PREFIX_tabs t ON p.tab = t.id
+				INNER JOIN @PREFIX_sessions s ON t.session = s.id'));
+			$list->addConditions(sprintf(' AND s.id_location = %d', $location));
+		}
+
+		// List all sales
+		if ($period === 'all') {
+			unset($columns['count']);
+			$columns['sum'] = [
+				'select' => 'amount',
+				'label' => 'Montant',
+			];
+			$columns['reference'] = [
+				'select' => 'p.reference',
+				'label' => 'Référence de paiement',
+			];
+			$columns['date'] = [
+				'select' => 'p.date',
+				'label'  => 'Date',
+			];
+			$columns['tab'] = [
+				'select' => 'p.tab',
+				'label'  => 'Note',
+			];
+			$list->setColumns($columns);
+			$list->setModifier(function (&$row) {
+				$row->date = new \DateTime($row->date);
+			});
+		}
+
+		return $list;
+	}
+
+	static public function listExits(int $year, string $period = 'year', ?int $location = null): DynamicList
+	{
+		$list = self::listSales($year, $period, $location);
+		$list->setConditions('strftime(\'%Y\', p.date) = :year AND amount < 0');
+
+		if ($location) {
+			$list->addConditions(sprintf(' AND s.id_location = %d', $location));
+		}
+
+		$list->setTitle(sprintf('Paiements décaissés %d, par moyen de paiement', $year));
+		return $list;
 	}
 
 	static public function graphStatsPerMonth(int $year): string
@@ -75,5 +163,22 @@ class Methods
 		unset($value);
 
 		return POS::plotGraph(null, $data);
+	}
+
+	static public function listCreditMethodsAssoc(): array
+	{
+		$sql = 'SELECT id, name FROM @PREFIX_methods WHERE enabled = 1 AND type = ' . Method::TYPE_CREDIT;
+		return DB::getInstance()->getAssoc(POS::sql($sql));
+	}
+
+	static public function getDefaultMethodId(): int
+	{
+		$sql = 'SELECT id FROM @PREFIX_methods WHERE enabled = 1 AND is_default = 1';
+		return DB::getInstance()->firstColumn(POS::sql($sql));
+	}
+
+	static public function hasCreditMethods(): bool
+	{
+		return DB::getInstance()->test(Method::TABLE, 'enabled = 1 AND type = ' . Method::TYPE_CREDIT);
 	}
 }

@@ -14,7 +14,9 @@ else {
 	$csrf_key = 'cat_edit_' . $cat->id();
 }
 
-$tpl->assign(compact('cat', 'csrf_key'));
+$account = $cat->account ? [$cat->account => $cat->account] : null;
+
+$tpl->assign(compact('cat', 'account', 'csrf_key'));
 
 if (qg('delete') !== null) {
 	$form->runIf('delete', function () use ($cat) {

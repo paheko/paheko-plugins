@@ -1,53 +1,53 @@
-{include file="_head.tpl" title="Import Bénévalibre"}
+{include file="_head.tpl" title="Import de tâches"}
 
-{include file="./_nav.tpl" current="config"}
+{include file="./_nav.tpl"}
 {form_errors}
 
-{if isset($_GET['ok'])}
-<p class="block confirm">L'import est terminé.</p>
+{if $_GET.msg === 'OK'}
+	<p class="block confirm">L'import est terminé.</p>
 {/if}
 
-{if !empty($add)}
-<form method="post" action="">
 
+<form method="post" action="" enctype="multipart/form-data">
+{if $csv->ready() && $categories === null}
 	<table class="list">
 		<thead>
 			<tr>
 				<td class="num">Ligne</td>
-				<th>Tâche</th>
+				<th>Catégorie</th>
 				<td>Date</td>
 				<td>Durée</td>
 				<td>Membre</td>
 				<td>Description</td>
-				<td class="actions"></td>
 			</tr>
 		</thead>
 		<tbody>
-			{foreach from=$add key="l" item="row"}
+			{foreach from=$rows key="i" item="row"}
 			<tr>
-				<td class="num"><?=$l+1?></td>
+				<td class="num">{$i}</td>
 				<th>
-					<?=htmlspecialchars($tasks[$row['entry']->task_id]??'--')?>
-					<input type="hidden" name="entries[task_id][]" value="{$row.entry.task_id}" />
+					{if $row.task_id}
+						{$tasks[$row.task_id]}
+					{else}
+						— Non spécifié —
+					{/if}
 				</th>
 				<td>
-					{$row.entry.date|date_short}
-					<input type="hidden" name="entries[date][]" value="{$row.entry.date|date_format:"%Y-%m-%d"}" />
+					{$row.date|date_short}
 				</td>
 				<td>
-					{$row.entry.duration|taima_minutes}
-					<input type="hidden" name="entries[duration][]" value="{$row.entry.duration}" />
+					{$row.duration|taima_minutes}
 				</td>
 				<td>
-					{if $row.entry.user_id}{$row['Bénévole']}{else}Non trouvé<br /><small>({$row['Bénévole']})</small>{/if}
-					<input type="hidden" name="entries[user_id][]" value="{$row.entry.user_id}" />
+					{if !$row.user_id}
+						{tag color="darkred" label="Non trouvé"}
+					{else}
+						<?php $users_names[$row->user_id] ??= $row->user_name(); ?>
+						{$users_names[$row.user_id]}
+					{/if}
 				</td>
 				<td>
-					{$row.entry.notes|escape|nl2br}
-					<input type="hidden" name="entries[notes][]" value="{$row.entry.notes}" />
-				</td>
-				<td class="actions">
-					{button shape="delete" label="Supprimer cette ligne" onclick="this.parentNode.parentNode.remove();"}
+					{$row.notes|escape|nl2br}
 				</td>
 			</tr>
 			{/foreach}
@@ -55,47 +55,73 @@
 	</table>
 
 	<p class="submit">
+		{foreach from=$categories_match key="label" item="id"}
+			{input type="hidden" name="categories[%s]"|args:$label default=$id}
+		{/foreach}
 		{csrf_field key=$csrf_key}
-		{linkbutton href="?cancel" label="Annuler" shape="left"}
-		{button type="submit" name="save" label="Terminer l'import" shape="right" class="main"}
+		{linkbutton href="?" label="Retour" shape="left"}
+		{button type="submit" name="import" label="Terminer l'import" shape="right" class="main"}
 	</p>
-</form>
-{elseif !empty($links)}
-<form method="post" action="">
 
+{elseif $csv->ready()}
 	<fieldset>
-		<legend>Associer les tâches aux catégories, projets et niveaux</legend>
+		<legend>Correspondance des catégories</legend>
 		<table class="list auto">
-			{foreach from=$links key="item" item="task"}
-			<tr>
-				<th>{$item}</th>
-				<td>{input type="select" name="links[%s]"|args:$item options=$tasks default=$task}</td>
-			</tr>
-			{/foreach}
+			<thead>
+				<tr>
+					<td>Catégorie du fichier</td>
+					<td>Catégorie existante</td>
+				</tr>
+			<tbody>
+				{foreach from=$categories key="label" item="match"}
+				<tr>
+					<td>{$label}</td>
+					<td>{input type="select" name="categories[%s]"|args:$label options=$tasks default=$match default_empty="— Non spécifiée —"}</td>
+				</tr>
+				{/foreach}
+			</tbody>
 		</table>
 	</fieldset>
 
 	<p class="submit">
 		{csrf_field key=$csrf_key}
-		{linkbutton href="?cancel" label="Annuler" shape="left"}
+		{button type="submit" name="cancel" value="1" label="Annuler" shape="left"}
 		{button type="submit" name="preview" label="Prévisualiser" shape="right" class="main"}
 	</p>
-</form>
-{else}
-<p class="help">
-	L'import tentera de faire le rapprochement entre la catégorie, le niveau ou le projet indiqué dans Bénévalibre et les tâches de Tāima. De même pour les membres. Si aucun membre n'existe avec le nom fourni dans l'export Bénévalibre, l'entrée n'aura pas de membre associé.
-</p>
+{elseif $csv->loaded()}
 
-<form method="post" action="" enctype="multipart/form-data">
-	<fieldset>
-		<legend>Importer depuis Bénévalibre</legend>
-		<dl>
-			{input type="file" name="json" required=true label="Fichier export au format JSON de Bénévalibre" help="Dans Bénévalibre, cliquer sur le menu 'Exporter les données' et choisir 'Format JSON'."}
-		</dl>
-	</fieldset>
+	{include file="common/_csv_match_columns.tpl"}
+
 	<p class="submit">
 		{csrf_field key=$csrf_key}
-		{button type="submit" name="load" label="Prévisualiser" shape="right" class="main"}
+		{button type="submit" name="cancel" value="1" label="Annuler" shape="left"}
+		{button type="submit" name="set_translation_table" label="Prévisualiser" shape="right" class="main"}
+	</p>
+
+{else}
+	<details class="help block">
+		<summary><h3>Importer depuis Bénévalibre</h3></summary>
+		<p>Cet outil permet d'importer également les données depuis Bénévalibre. {linkbutton href="https://app.benevalibre.org/" target="_blank" label="Application Bénévalibre"}</p>
+		<p>Pour récupérer le fichier depuis l'application Bénévalibre&nbsp;:</p>
+		<ul>
+			<li>cliquer sur <strong>Liste des bénévolats</strong></li>
+			<li>sur la page listant les bénévolats, cliquer sur le bouton en haut <strong>Exporter les données</strong></li>
+			<li>Sélectionner le <strong>Format CSV</strong></li>
+		</ul>
+		<p>Importer ensuite ce fichier ici, l'outil détectera automatiquement le format de Bénévalibre.</p>
+	</details>
+
+	<fieldset>
+		<legend>Importer depuis un fichier</legend>
+		<dl>
+			{input type="file" name="file" label="Fichier à importer" required=true accept="csv"}
+			{include file="common/_csv_help.tpl" csv=$csv}
+		</dl>
+	</fieldset>
+
+	<p class="submit">
+		{csrf_field key=$csrf_key}
+		{button type="submit" name="load" label="Charger le fichier" shape="right" class="main"}
 	</p>
 </form>
 {/if}

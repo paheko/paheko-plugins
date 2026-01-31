@@ -76,3 +76,96 @@ if (version_compare($old_version, '0.6.3', '<')) {
 	$db->exec($sql);
 	$db->commitSchemaUpdate();
 }
+
+if (version_compare($old_version, '0.7.0', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.7.0.sql')));
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.7.1', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.7.1.sql')));
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.8.0', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.0.sql')));
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.8.2', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.2.sql')));
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.8.3', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.3.sql')));
+	try {
+		// Add column that was missing in schema.sql
+		$db->exec(POS::sql('ALTER TABLE @PREFIX_tabs_items ADD COLUMN total INTEGER NOT NULL DEFAULT 0;'));
+	}
+	catch (\Exception $e) {
+		// Ignore error
+	}
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.8.4', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.4.sql')));
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.8.5', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.5.sql')));
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.8.6', '<')) {
+	$db->beginSchemaUpdate();
+	$db->toggleForeignKeys(false);
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.6.sql')));
+	$db->commitSchemaUpdate();
+	$db->toggleForeignKeys(true);
+}
+
+if (version_compare($old_version, '0.8.7', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.7.sql')));
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.8.8', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.8.sql')));
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.8.9', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.9.sql')));
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.8.10', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.10.sql')));
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.8.11', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.11.sql')));
+	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.8.12', '<')) {
+	$db->beginSchemaUpdate();
+	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.12.sql')));
+	$db->commitSchemaUpdate();
+}

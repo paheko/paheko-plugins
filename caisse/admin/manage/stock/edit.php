@@ -37,7 +37,8 @@ else {
 	$form->runIf('save', function () use ($event) {
 		$event->importForm();
 		$event->save();
-	}, $csrf_key, './');
+		Utils::redirectParent('./details.php?id=' . $event->id());
+	}, $csrf_key);
 
 	$tpl->display(PLUGIN_ROOT . '/templates/manage/stock/edit.tpl');
 }

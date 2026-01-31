@@ -12,6 +12,7 @@ use Paheko\Entities\Accounting\Year;
 use Paheko\Accounting\Accounts;
 use Paheko\Accounting\Transactions;
 
+use Paheko\CSV_Custom;
 use Paheko\DB;
 use Paheko\DynamicList;
 use Paheko\Plugins;
@@ -52,10 +53,28 @@ class Tracking
 		return sprintf(self::FIXED_ICON, $size);
 	}
 
+	static public function getWorkingHours(int $hours = 35): array
+	{
+		// 1607 hours = numbers of hours worked in a year for a 35 hour week,
+		// counting holidays
+		// 35*52 = what you would do as simple math
+		// 1596 hours = number of hours worked in a year, without the "solidarity day" (+7 hours)
+		// or the "rounding" (+4 hours)
+		$legal_work_ratio = 1596/(35*52.1429);
+
+		$hours = $hours ?: 35;
+		$week = $hours;
+		$year = $hours * 44.4;
+		$month = $year / 12;
+
+		return compact('hours', 'week', 'year', 'month');
+	}
+
 	static public function homeButton(Signal $signal): void
 	{
 		$url = Plugins::getPrivateURL('taima');
-		$running_timers = self::hasRunningTimers(Session::getUserId());
+		$user_id = Session::getUserId();
+		$running_timers = $user_id ? self::hasRunningTimers($user_id) : false;
 
 		$params = [
 			'label' => $running_timers ? 'Suivi : chrono en cours' : 'Suivi du temps',
@@ -75,8 +94,10 @@ class Tracking
 	static public function menuItem(Signal $signal): void
 	{
 		$icon = '';
+		$user_id = Session::getUserId();
+		$running_timers = $user_id ? self::hasRunningTimers($user_id) : false;
 
-		if (self::hasRunningTimers(Session::getUserId())) {
+		if ($user_id && $running_timers) {
 			$icon = self::animatedIcon(16, '', 'float: right');
 		}
 
@@ -110,18 +131,46 @@ class Tracking
 				AND (strftime(\'%%s\', \'now\') - timer_started) > %2$d*60;', Entry::TABLE, $max));
 	}
 
-	static public function listUserWeeks(int $user_id)
+	static public function listUserYears(int $user_id): array
+	{
+		$sql = sprintf('SELECT year, SUM(duration) AS duration, COUNT(id) AS entries
+			FROM %s
+			WHERE user_id = ?
+			GROUP BY year
+			ORDER BY date DESC;', Entry::TABLE);
+		return DB::getInstance()->get($sql, $user_id);
+	}
+
+	static public function listUserMonths(int $user_id, int $year): array
+	{
+		$sql = sprintf('SELECT year, SUM(duration) AS duration, COUNT(id) AS entries, date
+			FROM %s
+			WHERE user_id = ? AND year = ?
+			GROUP BY strftime(\'%%Y%%m\', date)
+			ORDER BY date DESC;', Entry::TABLE);
+		return DB::getInstance()->get($sql, $user_id, $year);
+	}
+
+	static public function listUserWeeks(int $user_id, int $year)
 	{
 		$sql = sprintf('SELECT year, week, SUM(duration) AS duration, COUNT(id) AS entries,
 			date(date, \'weekday 0\', \'-6 day\') AS first,
 			date(date, \'weekday 0\') AS last
-			FROM %s WHERE user_id = ? GROUP BY year, week ORDER BY year DESC, week DESC;', Entry::TABLE);
-		return DB::getInstance()->get($sql, $user_id);
+			FROM %s
+			WHERE user_id = ? AND year = ?
+			GROUP BY year, week
+			ORDER BY year DESC, week DESC;', Entry::TABLE);
+		return DB::getInstance()->get($sql, $user_id, $year);
 	}
 
 	static public function listTasks()
 	{
 		return DB::getInstance()->getAssoc(sprintf('SELECT id, label FROM %s ORDER BY label COLLATE U_NOCASE;', Task::TABLE));
+	}
+
+	static public function getTaskLabel(int $id): ?string
+	{
+		return DB::getInstance()->firstColumn(sprintf('SELECT label FROM %s WHERE id = ?;', Task::TABLE), $id) ?: null;
 	}
 
 	static public function hasRunningTimers(int $user_id): bool
@@ -187,16 +236,27 @@ class Tracking
 		return $weekdays;
 	}
 
-	static public function getList(?int $id_user = null, ?int $except = null): DynamicList
+	static public function getList(array $filters = []): DynamicList
 	{
 		$columns = [
+			'user_number' => [
+				'label' => 'Numéro de membre',
+				'select' => DynamicFields::getNumberFieldSQL('u'),
+				'export' => true,
+			],
+			'user_name' => [
+				'label' => 'Nom',
+				'select' => DynamicFields::getNameFieldsSQL('u'),
+			],
 			'task' => [
-				'label' => 'Tâche',
+				'label' => 'Catégorie',
 				'select' => 't.label',
 				'order' => 't.label COLLATE U_NOCASE %s',
 			],
 			'notes' => [
 				'select' => 'e.notes',
+				'label' => 'Notes',
+				'export' => true,
 			],
 			'year' => [
 				'label' => 'Année',
@@ -216,9 +276,10 @@ class Tracking
 				'label' => 'Durée',
 				'select' => 'e.duration',
 			],
-			'user_name' => [
-				'label' => 'Nom',
-				'select' => DynamicFields::getNameFieldsSQL('u'),
+			'value' => [
+				'label' => 'Valorisation',
+				'select' => 'ROUND((e.duration/60.0 * t.value) / 100, 2)',
+				'export' => true,
 			],
 			'user_id' => [],
 			'id' => ['select' => 'e.id'],
@@ -229,125 +290,233 @@ class Tracking
 			LEFT JOIN users u ON u.id = e.user_id';
 
 		$conditions = '1';
+		$params = [];
 
-		if ($except) {
-			$conditions = 'e.user_id IS NULL OR e.user_id != ' . $except;
+		if (!empty($filters['except'])) {
+			$conditions = 'e.user_id IS NULL OR e.user_id != ' . (int)$filters['except'];
 		}
-		elseif ($id_user) {
-			$conditions = 'e.user_id = ' . $id_user;
+		elseif (!empty($filters['id_user'])) {
+			$conditions = 'e.user_id = ' . (int)$filters['id_user'];
+		}
+		elseif (!empty($filters['id_task'])) {
+			$conditions = 'e.task_id = ' . (int)$filters['id_task'];
+			$columns['task']['export'] = true;
+			unset($columns['notes']['export']);
+		}
+
+		if (!empty($filters['start']) && ($start = Utils::parseDateTime($filters['start']))) {
+			$conditions .= ' AND e.date >= :start';
+			$params['start'] = $start;
+		}
+
+		if (!empty($filters['end']) && ($end = Utils::parseDateTime($filters['end']))) {
+			$conditions .= ' AND e.date <= :end';
+			$params['end'] = $end;
 		}
 
 		$list = new DynamicList($columns, $tables, $conditions);
+		$list->setParameters($params);
 		$list->orderBy('date', true);
+
+		$list->setExportCallback(function (&$row) {
+			$row->date = \DateTime::createFromFormat('!Y-m-d', $row->date);
+		});
+
 		return $list;
 	}
 
-	static public function listPerInterval(string $grouping = 'week', bool $per_user = false, ?Date $start = null, ?Date $end = null)
+	static public function listPerInterval(string $period = 'week', string $grouping = 'task', array $filters = []): DynamicList
 	{
-		$where = '1';
+		$columns = [];
+		$conditions = '1';
+		$order = 'period';
+		$desc = true;
 		$params = [];
-		$select = '';
-		$join = '';
+		$tables = 'plugin_taima_entries e
+			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
+			LEFT JOIN users u ON u.id = e.user_id';
 
-		if ($grouping == 'week') {
+		if ($period === 'week') {
+			$columns['period'] = [
+				'label' => 'Semaine',
+				'select' => 'e.year || e.week',
+				'order' => 'e.year %s, e.week %1$s',
+			];
+			$columns['week'] = ['select' => 'e.week'];
+			$columns['year'] = ['select' => 'e.year'];
+
 			$group = 'e.year, e.week';
-			$order = 'e.year DESC, e.week DESC';
-			$criteria = '(e.year || e.week)';
 		}
-		elseif ($grouping == 'year') {
+		elseif ($period === 'year') {
+			$columns['period'] = [
+				'label' => 'Année',
+				'order' => 'e.year %s',
+				'select' => 'e.year',
+			];
+
 			$group = 'e.year';
-			$order = 'e.year DESC';
-			$criteria = 'e.year';
 		}
-		elseif ($grouping == 'month') {
+		elseif ($period === 'month') {
+			$columns['period'] = [
+				'label' => 'Mois',
+				'order' => 'e.date %s',
+				'select' => 'strftime(\'%Y%m\', e.date)',
+			];
+			$columns['date'] = ['select' => 'e.date'];
+
 			$group = 'e.year, strftime(\'%m\', e.date)';
-			$order = 'e.year DESC, strftime(\'%m\', e.date) DESC';
-			$criteria = 'strftime(\'%Y%m\', e.date)';
 		}
-		elseif ($grouping == 'accounting') {
+		elseif ($period === 'accounting') {
+			$columns['period'] = [
+				'label' => 'Exercice',
+				'order' => 'y.start_date %s',
+				'select' => 'y.label',
+			];
+
 			$group = 'y.id';
-			$order = 'y.start_date DESC';
-			$criteria = 'y.id';
-			$select = ', y.label AS year_label';
-			$join = 'INNER JOIN acc_years AS y ON e.date >= y.start_date AND e.date <= y.end_date';
+			$tables .= ' INNER JOIN acc_years AS y ON e.date >= y.start_date AND e.date <= y.end_date';
 		}
 
-		if ($per_user) {
+		if ($grouping === 'user') {
+			$columns['group'] = [
+				'label' => 'Membre',
+				'select' => DynamicFields::getNameFieldsSQL('u'),
+				'order' => '"period" %s, "group" COLLATE U_NOCASE %1$s',
+			];
+			$columns['user_id'] = ['select' => 'e.user_id'];
+
 			$group .= ', e.user_id';
 		}
 		else {
+			$columns['group'] = [
+				'label' => 'Tâche',
+				'select' => 't.label',
+				'order' => '"period" %s, "group" COLLATE U_NOCASE %1$s',
+			];
+			$columns['task_id'] = ['select' => 'e.task_id'];
+
 			$group .= ', e.task_id';
 		}
 
-		if ($start) {
-			$where .= ' AND e.date >= ?';
-			$params[] = $start;
+		$columns['duration'] = [
+			'label' => 'Temps cumulé',
+			'select' => 'SUM(e.duration)',
+			'order' => '"period" %s, SUM(e.duration) %1$s',
+		];
+
+		$hours = self::getWorkingHours();
+
+		$columns['etp'] = [
+			'label' => sprintf('Équivalent temps plein %dh', $hours['hours']),
+			'select' => sprintf('ROUND(SUM(e.duration) / %d.0, 2)', ($hours[$period] ?? $hours['year']) * 60),
+			'order' => null,
+		];
+
+		if (!empty($filters['start']) && ($start = Utils::parseDateTime($filters['start']))) {
+			$conditions .= ' AND e.date >= :start';
+			$params['start'] = $start;
 		}
 
-		if ($end) {
-			$where .= ' AND e.date <= ?';
-			$params[] = $end;
+		if (!empty($filters['end']) && ($end = Utils::parseDateTime($filters['end']))) {
+			$conditions .= ' AND e.date <= :end';
+			$params['end'] = $end;
 		}
 
-		$id_field = DynamicFields::getNameFieldsSQL('u');
-		$sql = 'SELECT e.*, t.label AS task_label, %s AS user_name, SUM(duration) AS duration, %s AS criteria %s
-			FROM plugin_taima_entries e
-			%s
-			LEFT JOIN plugin_taima_tasks t ON t.id = e.task_id
-			LEFT JOIN users u ON u.id = e.user_id
-			WHERE %s
-			GROUP BY %s
-			ORDER BY %s, SUM(duration) DESC;';
+		$list = new DynamicList($columns, $tables, $conditions);
+		$list->groupBy($group);
+		$list->orderBy($order, $desc);
+		$list->setParameters($params);
+		$list->setPageSize(null);
 
-		$sql = sprintf($sql, $id_field, $criteria, $select, $join, $where, $group, $order);
+		$current = null;
+		$total = 0;
+		$total_etp = 0;
 
-		$db = DB::getInstance();
-
-		$item = $criteria = null;
-
-		foreach ($db->iterate($sql, ...$params) as $row) {
-			if ($criteria != $row->criteria) {
-				if ($item !== null) {
-					$total = 0;
-					foreach ($item['entries'] as $entry) {
-						$total += $entry->duration;
-					}
-
-					$item['entries'][] = (object) ['task_label' => 'Total', 'duration' => $total];
-					yield $item;
+		$list->setModifier(function (&$row) use (&$current, &$total, &$total_etp) {
+			if ($row->period !== $current) {
+				if ($current !== null) {
+					yield ['group' => 'total', 'duration' => $total, 'etp' => $total_etp];
 				}
 
-				$criteria = $row->criteria;
-				$item = (array)$row;
-				$item['entries'] = [];
+				$current = $row->period;
+				$total = 0;
+				$total_etp = 0;
+				$row->header = true;
 			}
 
-			$item['entries'][] = $row;
-		}
+			$total += $row->duration;
+			$total_etp += $row->etp;
+		});
 
-		if ($item !== null) {
-			$total = 0;
-			foreach ($item['entries'] as $entry) {
-				$total += $entry->duration;
+		$list->setFinalGenerator(function () use (&$total, &$total_etp) {
+			if ($total) {
+				yield ['group' => 'total', 'duration' => $total, 'etp' => $total_etp];
 			}
+		});
 
-			$item['entries'][] = (object) ['task_label' => 'Total', 'duration' => $total];
-			yield $item;
-		}
+		return $list;
 	}
 
-	static public function getFinancialReport(Year $year, Date $start, Date $end)
+	static public function getFinancialReport(Year $year, Date $start, Date $end): DynamicList
 	{
-		$sql = 'SELECT
-				t.label, SUM(e.duration) / 60 AS hours, SUM(e.duration) / 60 * t.value AS total, t.value AS value,
-				t.account AS account_code, a.label AS account_label, a.id AS id_account
-			FROM plugin_taima_entries e
+		$columns = [
+			'label' => [
+				'label' => 'Catégorie',
+				'select' => 't.label',
+				'order' => 't.label COLLATE U_NOCASE %s',
+			],
+			'hours' => [
+				'label' => 'Nombre d\'heures',
+				'select' => 'SUM(e.duration) / 60',
+			],
+			'people' => [
+				'label' => 'Nombre de membres',
+				'select' => 'COUNT(DISTINCT e.user_id)',
+			],
+			'value' => [
+				'label' => 'Valorisation horaire',
+				'select' => 't.value',
+			],
+			'total' => [
+				'label' => 'Valorisation totale',
+				'select' => 'SUM(e.duration) / 60 * t.value',
+			],
+			'account_label' => [
+				'label' => 'Compte',
+				'select' => 'a.label',
+			],
+			'id_account' => [
+				'select' => 'a.id',
+			],
+			'account_code' => [
+				'select' => 'a.code',
+			],
+			'id_task' => [
+				'select' => 't.id',
+			],
+			'id_project' => [
+				'select' => 't.id_project',
+			],
+		];
+
+		$tables = 'plugin_taima_entries e
 			INNER JOIN plugin_taima_tasks t ON t.id = e.task_id
-			LEFT JOIN acc_accounts a ON a.id_chart = ? AND a.code = t.account
-			WHERE t.value IS NOT NULL AND t.account IS NOT NULL
-			AND e.date >= ? AND e.date <= ?
-			GROUP BY t.id;';
-		return DB::getInstance()->get($sql, $year->id_chart, $start, $end);
+			LEFT JOIN acc_accounts a ON a.code = t.account';
+
+		$conditions = 'a.id_chart = :id_chart
+			AND t.value IS NOT NULL
+			AND t.account IS NOT NULL
+			AND e.date >= :start
+			AND e.date <= :end';
+
+		$list = new DynamicList($columns, $tables, $conditions);
+		$list->setParameter('id_chart', $year->id_chart);
+		$list->setParameters(compact('start', 'end'));
+		$list->groupBy('t.id');
+		$list->setPageSize(null);
+		$list->orderBy('label', false);
+
+		return $list;
 	}
 
 	static public function createReport(Year $year, Date $start, Date $end, int $id_creator): Transaction
@@ -370,7 +539,7 @@ class Tracking
 		$t = Transactions::create([
 			'date' => $date,
 			'label' => 'Valorisation du bénévolat',
-			'notes' => 'Écriture créée par Tāima, extension de suivi du temps',
+			'notes' => 'Écriture créée par l\'extension de suivi du temps',
 			'type' => Transaction::TYPE_ADVANCED,
 			'id_year' => $year->id(),
 			'reference' => 'VALORISATION-TAIMA',
@@ -380,8 +549,8 @@ class Tracking
 
 		$report = self::getFinancialReport($year, $start, $end);
 
-		foreach ($report as $row) {
-			if (!$row->id_account) {
+		foreach ($report->iterate() as $row) {
+			if (!$row->id_account || !$row->total) {
 				continue;
 			}
 
@@ -389,6 +558,7 @@ class Tracking
 			$line->debit = $row->total;
 			$line->id_account = $row->id_account;
 			$line->label = sprintf('%s (%d heures à %s / h)', $row->label, $row->hours, Utils::money_format($row->value));
+			$line->id_project = $row->id_project;
 
 			$t->addLine($line);
 		}
@@ -418,5 +588,101 @@ class Tracking
 		$minutes -= $hours * 60;
 
 		return sprintf('%d:%02d', $hours, $minutes);
+	}
+
+	static public function findImportCategories(CSV_Custom $csv, array $tasks): array
+	{
+		$categories = [];
+
+		foreach ($csv->iterate() as $row) {
+			if (isset($row->task)) {
+				$categories[$row->task] = null;
+			}
+		}
+
+		foreach ($categories as $clabel => &$match) {
+			foreach ($tasks as $id => $label) {
+				if (strnatcasecmp($clabel, $label) === 0) {
+					$match = $id;
+				}
+			}
+		}
+
+		unset($match);
+
+		return $categories;
+	}
+
+	static public function saveImport(CSV_Custom $csv, array $categories): void
+	{
+		$db = DB::getInstance();
+		$db->begin();
+
+		foreach (self::createImport($csv, $categories) as $e) {
+			$e->save();
+		}
+
+		$db->commit();
+	}
+
+	static public function createImport(CSV_Custom $csv, array $categories): \Generator
+	{
+		$id_field = DynamicFields::getNameFieldsSQL();
+		$db = DB::getInstance();
+
+		foreach ($csv->iterate() as $i => $row) {
+			$e = new Entry;
+			$e->setDateString($row->date);
+
+			if (isset($row->duration_hours)) {
+				if (!$e->setDuration($row->duration_hours)) {
+					throw new UserException('La durée indiquée est invalide : ' . $row->duration_hours);
+				}
+			}
+			elseif (isset($row->duration)) {
+				$e->set('duration', (int)$row->duration);
+			}
+			else {
+				throw new UserException('Aucune durée n\'est indiquée');
+			}
+
+			if (array_key_exists($row->task, $categories)) {
+				$e->set('task_id', (int)$categories[$row->task]);
+			}
+
+			$id = null;
+			$name = null;
+
+			if (isset($row->name, $row->surname)) {
+				$a = trim($row->name . ' ' . $row->surname);
+				$b = trim($row->surname . ' ' . $row->name);
+				$name = $b;
+				$id = $db->firstColumn(sprintf('SELECT id FROM users WHERE %s = ? COLLATE U_NOCASE OR %1$s = ? COLLATE U_NOCASE;', $id_field), $a, $b);
+			}
+
+			if (isset($row->fullname)) {
+				$name = trim($row->fullname);
+				$id = $db->firstColumn(sprintf('SELECT id FROM users WHERE %s = ? COLLATE U_NOCASE;', $id_field), $name);
+			}
+
+			$e->set('user_id', $id ?: null);
+
+			$notes = [];
+
+			if (!$e->user_id && $name) {
+				$notes[] = $name;
+			}
+
+			if (!empty($row->title)) {
+				$notes[] = trim($row->title);
+			}
+
+			if (!empty($row->notes)) {
+				$notes[] = trim($row->notes);
+			}
+
+			$e->set('notes', implode("\n", $notes) ?: null);
+			yield $i => $e;
+		}
 	}
 }

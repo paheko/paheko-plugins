@@ -16,7 +16,7 @@
 				<th>{$category.name}</th>
 				<td>{$category.account}</td>
 				<td class="actions">
-					{linkbutton href="edit.php?id=%d"|args:$category.id label="Modifier" shape="edit" target="_dialog"}
+					{linkbutton href="edit.php?id=%d"|args:$category.id label="Modifier" shape="edit"}
 					{linkbutton href="edit.php?id=%d&delete"|args:$category.id label="Supprimer" shape="delete" target="_dialog"}
 				</td>
 			</tr>

@@ -4,163 +4,102 @@
 
 {form_errors}
 
-{if $running_timers}
-<div class="block alert">
-	Des chronos sont démarrés&nbsp;:
-	<ul>
-		{foreach from=$running_timers item="timer"}
-		<li><a href="{$timer.date|taima_url}">{$timer.date|taima_date:'EEEE d MMMM yyyy'}</a></li>
-		{/foreach}
-	</ul>
-</div>
-{/if}
-
-<section class="taima-header">
-	<p class="btns">
-		<a href="{$prev_url}" class="icn-btn" title="Semaine précédente">{icon shape="left"}</a>
-		{button id="datepicker" shape="calendar" data-date=$day|date_format:'%Y-%m-%d'}
-		<a href="{$next_url}" class="icn-btn" title="Semaine suivante">{icon shape="right"}</a>
-	</p>
-	<h2>{$day|taima_date:'EEEE d MMMM yyyy'}</h2>
-	{if !$is_today}
-		<a href={$today_url} class="icn-btn">Retour à aujourd'hui</a>
+<div class="taima">
+	{if $running_timers}
+	<div class="block alert">
+		Des chronos sont démarrés&nbsp;:
+		<ul>
+			{foreach from=$running_timers item="timer"}
+			<li><a href="{$timer.date|taima_url}">{$timer.date|taima_date:'EEEE d MMMM yyyy'}</a></li>
+			{/foreach}
+		</ul>
+	</div>
 	{/if}
-</section>
+	<section class="header">
+		<p class="btns">
+			{linkbutton shape="left" title="Semaine précédente" href=$prev_url label=null}
+			{button id="datepicker" shape="calendar" data-date=$day|date_format:'%Y-%m-%d'}
+			{linkbutton shape="right" title="Semaine suivante" href=$next_url label=null}
+		</p>
+		<h2>{$day|taima_date:'EEEE d MMMM yyyy'}</h2>
+		{if !$is_today}
+		<p class="back">
+			{linkbutton shape="left" href=$today_url label="Retour à aujourd'hui"}
+		</p>
+		{/if}
+	</section>
 
-<ul class="taima-weekdays">
-	<li class="week"><strong>Semaine</strong><h3>{$week}</h3></li>
-	{foreach from=$weekdays item="weekday"}
-		<li{if $weekday->day->format('Ymd') == $day->format('Ymd')} class="current"{/if}>
-			<a href="{$weekday.url}">
-				<h3>
-					{$weekday.day|taima_date:'EEEEE'}
-					{if $weekday.timers}{$fixed_icon|raw}{/if}
-				</h3>
-				<strong{if !$weekday.duration} class="empty"{/if}>{$weekday.minutes_formatted}</strong>
-			</a>
-		</li>
-	{/foreach}
-	<li class="total"><span><h3>Total</h3><strong>{$week_total}</strong></span></li>
-	<li class="add">
-		{button shape="plus" data-action="add-entry" label="Nouvelle entrée"}
-	</li>
-</ul>
-
-{if count($entries)}
-	<table class="taima-entries">
-		<tbody>
-		{foreach from=$entries item="entry"}
-			<tr class="<?=($entry->timer_started ? 'running' : '')?>">
-				<th>
-					{if !$entry.task_label}
-						<h3>—Indéfini—</h3>
-					{else}
-						<h4>{$entry.task_label}</h4>
-					{/if}
-				</th>
-				<td>
-					<h2 class="taima-clock">{$entry.timer_running|taima_minutes}</h2>
-				</td>
-				<td>
-					{if $entry.timer_started}
-						<a class="icn-btn stop-timer" href="{$entry.date|taima_url}&amp;stop={$entry.id}">{$animated_icon|raw} Arrêter</a>
-					{elseif $is_today}
-						<a class="icn-btn start-timer" href="?start={$entry.id}">{$fixed_icon|raw} Démarrer</a>
-					{/if}
-				</td>
-				<td>
-					{if !$entry.timer_started}
-					{button data-action="edit-entry" data-entry=$entry|escape:'json' data-entry-time=$entry.timer_running|taima_minutes label="Modifier" shape="edit"}
-					{/if}
-				</td>
-			</tr>
-			{if $entry.notes}
-				<tr class="notes{if $entry.timer_started} running{/if}">
-					<td colspan="4">
-						{$entry.notes|escape|nl2br}
-					</td>
-				</tr>
-			{/if}
+	<ul class="weekdays">
+		<li class="week"><strong>Semaine</strong><h3>{$week}</h3></li>
+		{foreach from=$weekdays item="weekday"}
+			<li class="day {if $weekday->day->format('Ymd') == $day->format('Ymd')}current{/if}">
+				<a href="{$weekday.url}">
+					<h3>
+						{$weekday.day|taima_date:'EEEEE'}
+						{if $weekday.timers}{$fixed_icon|raw}{/if}
+					</h3>
+					<strong {if !$weekday.duration}class="empty"{/if}>{$weekday.minutes_formatted}</strong>
+				</a>
+			</li>
 		{/foreach}
-		</tbody>
-	</table>
+		<li class="total"><span><h3>Total</h3><strong>{$week_total}</strong></span></li>
+	</ul>
 
-{else}
-
-	<p class="alert block">Aucune entrée.</p>
-	<p class="submit">
-		{button type="button" name="add" data-action="add-entry" label="Nouvelle entrée" shape="plus" class="main"}
+	<p class="actions">
+		{linkbutton label="Nouvelle tâche" shape="plus" href="edit.php?date=%s"|args:$day_date target="_dialog"}
 	</p>
 
-{/if}
 
-<template id="taimaDialog">
-	<form method="post" action="{$self_url}" id="taimaEntryForm">
-		<fieldset>
-			<legend>Événement</legend>
-			<dl>
-				{input type="select" options=$tasks name="task_id" label="Tâche"}
-				{input type="text" name="duration" placeholder="0:30" pattern="\d+[:h]\d+|\d+([.,]\d+)?" help="Formats acceptés : 1h30, 1:30, 1.5 ou 1,5. Laisser vide pour démarrer un chrono." label="Durée" size="5"}
-				{input type="textarea" name="notes" label="Notes"}
-			</dl>
-			<p class="submit">
-				{csrf_field key=$csrf_key}
-				<?php $submit_label = $is_today ? 'Démarrer le chrono' : 'Enregistrer'; ?>
-				{button type="submit" name="submit" label=$submit_label class="main" shape="right"}
-				{button type="submit" name="delete" label="Supprimer" shape="delete"}
-			</p>
-			{if $is_today}
-				<p class="help">Si vous oubliez d'arrêter le chrono, celui-ci sera arrêté automatiquement après 13h37 sans interaction.</p>
-			{/if}
-		</fieldset>
-	</form>
-</template>
+	{if count($entries)}
+		<?php $has_timers = false; ?>
+		<section class="entries">
+			{foreach from=$entries item="entry"}
+				<article class="{if $entry.timer_started}running{/if}">
+					<header>
+						{if !$entry.task_label}
+							<h3>—Indéfini—</h3>
+						{else}
+							<h3>{$entry.task_label}</h3>
+						{/if}
+						{if $entry.notes}
+							<p class="notes">
+								{$entry.notes|escape|nl2br}
+							</p>
+						{/if}
+					</header>
+					<div class="clock"><h2>{$entry.timer_running|taima_minutes}</h2></div>
+					<div class="actions">
+						{if $entry.timer_started}
+							<?php $has_timers = true; ?>
+							<a class="icn-btn stop-timer" href="{$entry.date|taima_url}&amp;stop={$entry.id}">{$animated_icon|raw} Arrêter</a>
+						{elseif $is_today}
+							<a class="icn-btn start-timer" href="?start={$entry.id}">{$fixed_icon|raw} Démarrer</a>
+						{/if}
+						{if !$entry.timer_started}
+						<span>
+							{linkbutton label="Modifier" title="Modifier" shape="edit" href="edit.php?date=%s&id=%d"|args:$entry.date:$entry.id target="_dialog"}
+							{linkbutton label="Supprimer" title="Supprimer" shape="delete" href="delete.php?id=%d"|args:$entry.id target="_dialog"}
+						</span>
+						{/if}
+					</div>
+				</article>
+			{/foreach}
+		</section>
+
+		{if $is_today && $has_timers}
+			<p class="help">Si vous oubliez d'arrêter un chrono, celui-ci sera arrêté automatiquement après 13h37 sans interaction.</p>
+		{/if}
+
+	{else}
+
+		<p class="alert block">Aucune tâche.</p>
+
+	{/if}
+</div>
 
 <script type="text/javascript">
 let icon = {$animated_icon|escape:'json'};
 {literal}
-document.querySelectorAll('button[data-action="add-entry"]').forEach((e) => {
-	e.onclick = () => {
-		var c = g.openDialog(document.getElementById('taimaDialog').content);
-		c.querySelector('[name="delete"]').style.display = 'none';
-		var btn = c.querySelector('[type="submit"]');
-		btn.name = 'add';
-
-		let d = c.querySelector('#f_duration');
-
-		d.onkeyup = function (e) {
-			btn.innerText = (e.target.value == '') ? 'Démarrer le chrono' : 'Enregistrer';
-		};
-
-		d.focus();
-
-		return false;
-	};
-});
-
-document.querySelectorAll('button[data-action="edit-entry"]').forEach((e) => {
-	e.onclick = () => {
-		var c = g.openDialog(document.getElementById('taimaDialog').content);
-		var data = JSON.parse(e.dataset.entry);
-
-		var d = c.querySelector('#f_duration');
-		var btn = c.querySelector('[type="submit"]');
-		btn.name = 'edit[' + data.id + ']';
-		btn.innerText = 'Enregistrer';
-
-		d.value = e.dataset.entryTime;
-		d.focus();
-		d.select();
-
-		c.querySelector('#f_notes').value = data.notes;
-		c.querySelector('#f_task_id').value = data.task_id;
-
-		c.querySelector('[name="delete"]').name = 'delete[' + data.id + ']';
-
-		return false;
-	};
-});
-
 function updateTimer(time) {
 	var t = time.firstChild.textContent.split(':');
 	t[1]++;
@@ -173,7 +112,7 @@ function updateTimer(time) {
 	document.title = t.join(':') + ' - Chrono en cours';
 }
 
-var times = document.querySelectorAll('.running .taima-clock');
+var times = document.querySelectorAll('.running .clock');
 
 // Mise à jour des compteurs
 window.setInterval(function () {
@@ -183,7 +122,7 @@ window.setInterval(function () {
 if (times.length) {
 	document.head.querySelector('link[rel="icon"]').remove();
 	updateTimer(times[0]);
-	icon = "data:image/svg+xml;utf8," + encodeURI(icon).replace('#', '%23');
+	icon = "data:image/svg+xml," + encodeURI(icon).replace('#', '%23');
 	document.head.innerHTML += `<link sizes="any" rel="icon" type="image/svg+xml" href="${icon}" />`;
 }
 

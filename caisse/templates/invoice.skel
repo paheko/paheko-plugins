@@ -1,157 +1,111 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
-<head>
-	<meta charset="utf-8" />
-	<title>Reçu</title>
-	<style type="text/css">
-	@page {
-		size: A4;
-		margin: 1.5cm;
-		@bottom {
-			content: "Page " counter(page) " / " counter(pages);
-			font-size: 8pt;
-			margin-bottom: 10mm;
-			text-align: center;
-		}
+{{#capture assign="css"}}
+.details h1 {
+	font-size: 1.2rem;
+}
+.details h2 {
+	font-size: 1rem;
+	font-weight: normal;
+}
+.details h3 {
+	font-size: .8rem;
+	font-weight: normal;
+}
+.details {
+	margin: 1rem 0;
+	text-align: center;
+}
 
-	}
-	* { margin: 0; padding: 0; }
-	body {
-		font-family: Arial, Helvetica, sans-serif;
-		color: #000;
-		font-size: 10pt;
-	}
-	header {
-		border: 2px solid #999;
-		padding-left: 5em;
-		display: flex;
-		flex-direction: row;
-		padding: .4em;
-	}
-	header figure img {
-		max-height: 100px;
-	}
-	header div {
-		text-align: left;
-		margin: 1em;
-	}
-	h1 {
-		font-size: 1.2rem;
-	}
-	h2 {
-		font-size: 1rem;
-		font-weight: normal;
-	}
-	h3 {
-		font-size: .8rem;
-		font-weight: normal;
-	}
-	.details {
-		margin: 1rem 0;
-		text-align: center;
-	}
+.items table th, .items table td {
+	padding: .3rem .6rem;
+	text-align: left;
+	font-weight: normal;
+}
 
-	table {
-		margin: 1rem auto;
-		border-collapse: collapse;
-		width: 100%;
-	}
-	table tr {
-		border: .1rem solid #000;
-	}
+.items table thead {
+	background: #000;
+	color: #fff;
+}
+.items table .number {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	font-feature-settings: "tnum";
+}
+table tfoot {
+	border-top: 4px solid #666;
+}
+table tfoot tr {
+	background: #eee;
+}
+p {
+	margin: .8rem;
+}
+{{/capture}}
 
-	table th, table td {
-		padding: .3rem .6rem;
-		text-align: left;
-		border-right: .1rem dotted #999;
-	}
+{{#capture assign="extra"}}
+	{{:linkbutton shape="mail" href="%s&send=yes"|args:$request_url label="Envoyer"}}
+{{/capture}}
 
-	table thead {
-		background: #000;
-		color: #fff;
-	}
-	table tr.foot {
-		background: #eee;
-		font-size: 12pt;
-	}
-	p {
-		margin: .8rem;
-	}
-	</style>
-</head>
+{{:assign var="name" value=$_POST.name|or:$tab.name}}
 
-<body>
-
-<header>
-	<figure>
-		{{if $config.files.logo}}<img src="{{$config.files.logo}}&150px" alt="" class="logo" />{{/if}}
-	</figure>
-	<div>
-		<h1>{{$config.nom_asso}}</h1>
-		<h2>Association « loi 1901 » à but non lucratif</h2>
-		<h3>{{$config.adresse_asso}}
-			{{if $config.telephone_asso}} — {{$config.telephone_asso}}{{/if}}
-			{{if $config.email_asso}} — {{$config.email_asso}}{{/if}}
-			{{if $config.site_asso}} — {{$config.site_asso}}{{/if}}</h3>
-	</div>
-</header>
+{{:include file="/receipt/_header.html" title="Reçu %06d - %s"|args:$tab.id:$name css=$css buttons=$extra page_size="A5"}}
 
 <section class="details">
-	<h1>Reçu n°{{$tab.id}}</h1>
-	<h2>Adhérent : {{$tab.name}}</h2>
-	<h4>Date : {{$tab.opened|date_short}}</h4>
+	<h1>Caisse — Reçu n°{{$tab.id}}</h1>
+	<h2>{{$name}}</h2>
+	<h4>Date : {{$tab.opened|date_short:true}}</h4>
 </section>
 
 <section class="items">
 	<table class="list">
 		<thead>
 			<th>Dénomination</th>
-			<td>Qté</td>
-			<td>Prix</td>
-			<td>Total</td>
+			<td class="number">Poids</td>
+			<td class="number">Qté</td>
+			<td class="number">Prix</td>
+			<td class="number">Total</td>
 		</thead>
 		<tbody>
-		{{#items}}
+		{{#foreach from=$items}}
 			<tr>
 				<th>{{$name}}</th>
-				<td>{{$qty}}</td>
-				<td>{{$price|raw|money_currency:false}}</td>
-				<td>{{$total|raw|money_currency:false}}</td>
+				<td class="number">
+					{{$weight|weight:false:true}}
+				</td>
+				<td class="number">{{$qty}}</td>
+				<td class="number">{{$price|raw|money_currency:false}}</td>
+				<td class="number">{{$total|raw|money_currency:false}}</td>
 			</tr>
 			{{if $description}}
 			<tr>
-				<td colspan="4">
+				<td colspan="5">
 					{{$description|escape|nl2br}}
 				</td>
 			</tr>
 			{{/if}}
-		{{/items}}
-			<tr class="foot">
-				<th>TVA</th>
-				<td colspan="3"><em>Association exonérée des impôts commerciaux</em></td>
-			</tr>
-			<tr class="foot">
-				<th colspan="3">{{if $tab.total < 0}}Total dû{{else}}Total{{/if}}</th>
-				<td>{{$tab.total|raw|money_currency:false}}</td>
-			</tr>
-			{{#payments}}
-			<tr class="foot">
-				<th>Règlement&nbsp;: {{$method_name}}</th>
-				<td colspan="2">{{if $reference}}<em>Réf. {{$reference}}</em>{{/if}}</td>
-				<td>{{$amount|raw|money_currency:false}}</td>
-			</tr>
-			{{/payments}}
-			<tr class="foot">
-				<th colspan="3">{{if $tab.total < 0}}Reste à régler{{else}}Reste à payer{{/if}}</th>
-				<td>{{$remainder_after|raw|money_currency:false}}</td>
-			</tr>
+		{{/foreach}}
 		</tbody>
+		<tfoot>
+			<tr>
+				<th>TVA</th>
+				<td colspan="4"><em>Association exonérée des impôts commerciaux</em></td>
+			</tr>
+			<tr>
+				<th colspan="4"><strong>{{if $tab.total < 0}}Total dû{{else}}Total{{/if}}</strong></th>
+				<td class="number"><strong>{{$tab.total|raw|money_currency:false}}</strong></td>
+			</tr>
+			{{#foreach from=$payments}}
+			<tr>
+				<th>Règlement&nbsp;: {{$method_name}}</th>
+				<td colspan="3">{{if $reference}}<em>Réf. {{$reference}}</em>{{/if}}</td>
+				<td class="number">{{$amount|raw|money_currency:false}}</td>
+			</tr>
+			{{/foreach}}
+			<tr>
+				<th colspan="4">{{if $tab.total < 0}}Reste à régler{{else}}Reste à payer{{/if}}</th>
+				<td class="number">{{$remainder|raw|money_currency:false}}</td>
+			</tr>
+		</tfoot>
 	</table>
 </section>
 
-<p>Ce reçu n'est pas un reçu fiscal et ne donne pas droit à une réduction d'impôt au titre de l'article 200 du Code Général des Impôts.</p>
-
-<p>Si ce reçu comporte le règlement d'une cotisation, et en cas de paiement non effectif (chèque revenu impayé par exemple), la cotisation sera considérée non payée, et ce reçu sera nul et non-avenu.</p>
-
-</body>
-</html>
+{{:include file="/receipt/_footer.html"}}

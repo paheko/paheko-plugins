@@ -3,7 +3,9 @@
 namespace Paheko\Plugin\Caisse\Entities;
 
 use Paheko\Plugin\Caisse\POS;
+use Paheko\DB;
 use Paheko\Entity;
+use Paheko\Form;
 use Paheko\ValidationException;
 use Paheko\Utils;
 
@@ -14,30 +16,48 @@ class Method extends Entity
 	const TABLE = POS::TABLES_PREFIX . 'methods';
 
 	protected ?int $id;
+	protected ?int $id_location = null;
 	protected string $name = '';
-	protected bool $is_cash = false;
+	protected int $type = self::TYPE_TRACKED;
 	protected ?int $min = null;
 	protected ?int $max = null;
 	protected ?string $account = null;
-	protected bool $enabled = false;
+	protected bool $enabled = true;
+	protected bool $is_default = false;
 
+	const TYPE_TRACKED = 0;
+	const TYPE_CASH = 1;
+	const TYPE_DEBT = 2;
+	const TYPE_CREDIT = 3;
 
-	public function importForm(array $source = null)
+	const TYPES_LABELS = [
+		self::TYPE_TRACKED => 'Suivi',
+		self::TYPE_CASH    => 'Informel',
+		self::TYPE_DEBT    => 'Ardoise',
+		self::TYPE_CREDIT  => 'Porte-monnaie',
+	];
+
+	public function importForm(?array $source = null)
 	{
-		if (null === $source) {
-			$source = $_POST;
-		}
+		$source ??= $_POST;
 
 		if (isset($source['min'])) {
-			$source['min'] = Utils::moneyToInteger($source['min']);
+			$source['min'] = trim($source['min']) === '' ? null : Utils::moneyToInteger($source['min']);
 		}
 
 		if (isset($source['max'])) {
-			$source['max'] = Utils::moneyToInteger($source['max']);
+			$source['max'] = trim($source['max']) === '' ? null : Utils::moneyToInteger($source['max']);
 		}
 
-		$source['is_cash'] = !empty($source['is_cash']);
 		$source['enabled'] = !empty($source['enabled']);
+
+		if (isset($source['account'])) {
+			$source['account'] = Form::getSelectorValue($source['account']);
+		}
+
+		if (isset($source['is_default_present'])) {
+			$source['is_default'] = !empty($source['is_default']);
+		}
 
 		parent::importForm($source);
 	}
@@ -46,6 +66,20 @@ class Method extends Entity
 	public function selfCheck(): void
 	{
 		$this->assert(!empty($this->name) && trim($this->name) !== '', 'Le nom ne peut rester vide.');
+		$this->assert(array_key_exists($this->type, self::TYPES_LABELS));
+	}
+
+	public function save(bool $selfcheck = true): bool
+	{
+		$default_modified = $this->isModified('is_default');
+		$r = parent::save($selfcheck);
+
+		if ($r && $default_modified) {
+			$db = EntityManager::getInstance(static::class)->DB();
+			$db->update(self::TABLE, ['is_default' => 0], 'id != ' . $this->id());
+		}
+
+		return $r;
 	}
 
 	public function delete(): bool

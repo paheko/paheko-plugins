@@ -9,19 +9,17 @@ require_once __DIR__ . '/_inc.php';
 $csrf_key = 'ajout_velo';
 
 $form->runIf('save', function () {
-    $velo = new Velo;
-    $velo->importForm();
-    $velo->save();
+	$velo = new Velo;
+	$velo->importForm();
+	$velo->save();
 
-    utils::redirect(utils::plugin_url(['query' => 'id=' . $velo->id]));
+	utils::redirect(utils::plugin_url(['query' => 'id=' . $velo->id]));
 }, $csrf_key);
 
 $tpl->assign('velo', null);
-$tpl->assign('sources', $velos->listSources());
-$tpl->assign('types', $velos->listTypes());
-$tpl->assign('genres', $velos->listGenres());
-$tpl->assign('roues', $velos->listTailles());
-$tpl->assign('raisons_sortie', [''] + $velos->listRaisonsSortie());
+
+$tpl->assign('fields', $velos->getFields($plugin));
+$tpl->assign('abaques', $velos::ABAQUES);
 
 $tpl->assign('libre', $velos->getEtiquetteLibre());
 

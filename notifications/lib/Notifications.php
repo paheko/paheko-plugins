@@ -98,8 +98,6 @@ class Notifications
 
 	public function list(): array
 	{
-		$out = [];
-
 		foreach ($this->notifications as $n) {
 			$n->signal_label = self::SIGNALS[$n->signal];
 			$n->action_label = self::ACTIONS[$n->action];
@@ -202,7 +200,8 @@ class Notifications
 				return 'Fichier supprimé définitivement.';
 			case 'entity.Users\User.modify.after':
 				$user = $signal->getIn('entity');
-				$out = "Fiche du membre : ". $user->url() . "\n\n";
+				$out = "Fiche du membre : ". $user->url() . "\n";
+				$out .= "Nom : ". $user->name() . "\n\n";
 				$a = $user->asDetailsArray();
 				$b = $signal->getIn('modified_properties');
 
@@ -213,7 +212,7 @@ class Notifications
 						continue;
 					}
 
-					$out .= sprintf("%s :\n- %s\n+ %s\n\n\n", $key, $b[$key], $a[$key]);
+					$out .= sprintf("%s :\n- %s\n+ %s\n\n\n", $key, $value, $a[$key]);
 				}
 
 				return $out;

@@ -1,18 +1,17 @@
-{include file="_head.tpl" title="Export compta"}
+{include file="_head.tpl" title="Export des données comptable"}
 
-{include file="./_nav.tpl" current='export'}
-
-<form method="post" action="{$self_url}">
+<form method="post" action="{$self_url}" data-disable-progress="1">
 	<fieldset>
 		<legend>Intervalle d'export</legend>
 		<dl>
 			{input type="date" label="Date de début" name="start" required=true default=$start}
 			{input type="date" label="Date de fin" name="end" required=true default=$end}
+			<dt>Format</dt>
+			{input type="radio" name="format" value="ods" label="LibreOffice" default="ods"}
+			{input type="radio" name="format" value="csv" label="CSV"}
+			{input type="radio" name="format" value="xlsx" label="Excel"}
 		</dl>
 	</fieldset>
-	<p class="help">
-		Cet export peut ensuite {link href="!acc/years/import.php" label="être importé dans la comptabilité"} en sélectionnant le format «&nbsp;Complet groupé (comptabilité d'engagement)&nbsp;».
-	</p>
 	<p class="submit">
 		{button name="export" label="Créer un export CSV correspondant à ces dates" shape="right" type="submit" class="main"}
 	</p>

@@ -1,10 +1,19 @@
-.taima-header {
+.taima {
+	max-width: 42em;
 	margin: 1em;
+}
+
+.taima .header {
+	clear: both;
+	margin: .5em 0;
 	display: flex;
 	align-items: center;
 }
 
-.taima-header .btns > * {
+.taima .header .back {
+	margin-left: auto;
+}
+.taima .header .btns > * {
 	font-size: 1.2em;
 	text-decoration: none;
 	margin: 0;
@@ -12,76 +21,78 @@
 	padding: .5em;
 }
 
-.taima-header .btns, .taima-header h2 {
+.taima .header .btns, .header h2 {
 	margin-right: 1em;
 }
 
-.taima-weekdays {
-	background: #fff;
+.taima .weekdays {
 	list-style: none;
 	display: flex;
 	align-items: stretch;
+	justify-content: center;
 	padding: 0;
 	border-radius: .5em;
-	border: 1px solid #ccf;
+	border: 1px solid rgba(var(--gSecondColor), 0.7);
 	overflow: hidden;
-	margin: 1em;
+	margin: .5em 0;
 }
 
-.taima-weekdays li a, .taima-weekdays li span {
+.taima .weekdays li.day a, .taima .weekdays li.total span {
 	display: block;
 	padding: .5em 1em;
-	border-right: 1px solid #ccf;
-	background: #eef;
+	border-right: 1px solid rgba(var(--gSecondColor), 0.7);
+	background: rgba(var(--gSecondColor), 0.2);
 	text-decoration: none;
-	color: #000;
+	color: unset;
 	height: 100%;
 }
 
-.taima-weekdays h3 {
+.taima .weekdays li.total span {
+	border: none;
+	background: none;
+}
+
+.taima .weekdays h3 {
 	margin: 0;
 	color: inherit;
 	font-size: 1.5em;
 }
 
-.taima-weekdays svg {
+.taima .weekdays svg {
 	vertical-align: middle;
 	display: inline-block;
 }
 
-.taima-weekdays .empty {
-	color: #999;
+.taima .weekdays .empty {
+	color: var(--gBorderColor);
 	font-weight: normal;
 }
 
-.taima-weekdays .current a {
-	background: #ccf;
+.taima .weekdays li.current a {
+	background: rgba(var(--gSecondColor), 0.4);
 }
 
-.taima-weekdays a:hover {
+.taima .weekdays .day a:hover {
 	background: #fff;
 	text-decoration: none;
 	color: darkred;
 }
 
-.taima-weekdays li {
+.taima .weekdays li.total {
+	color: var(--gBorderColor);
 }
 
-.taima-weekdays li.total {
-	color: #666;
-}
-
-.taima-weekdays li.add {
+.taima .weekdays li.add {
 	padding: .5em;
 }
 
-.taima-weekdays li.week {
+.taima .weekdays li.week {
 	padding: .5em;
 	text-align: center;
-	border-right: 1px solid #ccc;
+	border-right: 1px solid rgba(var(--gSecondColor), 0.7);
 }
 
-.taima-weekdays li.week strong {
+.taima .weekdays li.week strong {
 	font-weight: normal;
 	font-size: 1.1rem;
 }
@@ -90,74 +101,58 @@
 	font-size: 3rem;
 }
 
-.taima-entries {
-	border-collapse: collapse;
-	border: 1px solid #ccc;
-	margin: 1em;
-	max-width: 50rem;
-	width: 100%;
+.taima .entries article {
+	clear: both;
+	padding: .8em;
+	display: flex;
 }
 
-.taima-entries h2, .taima-entries h3, .taima-entries h4 {
+.taima .entries h2, .taima .entries h3 {
 	color: inherit;
 	margin: 0;
 }
 
-.taima-entries tr {
-	border-top: 1px solid #ccc;
-}
-
-.taima-entries td {
-	text-align: center;
-	padding: 1em;
-}
-
-.taima-entries th {
-	padding: 1em;
-}
-
-.taima-entries .running {
-	background: #ffd;
-}
-
-.taima-entries th {
-	font-weight: normal;
-}
-
-.taima-entries .notes {
-	border-top: none;
-}
-
-.taima-entries .notes td {
-	padding-top: 0;
+.taima .entries .notes {
 	font-style: italic;
-	text-align: left
+	margin-top: .5em;
 }
 
-a.start-timer, a.stop-timer {
+.taima a.start-timer, .taima a.stop-timer {
 	font-size: 1.3em;
 	text-decoration: none;
 }
 
-.start-timer svg, .stop-timer svg {
+.taima .entries .actions > span {
+	display: block;
+}
+
+.taima .entries .actions > span a span {
+	display: none;
+}
+
+.taima .entries .actions > span a::before {
+	padding: 0;
+}
+
+.taima .start-timer svg, .taima .stop-timer svg {
 	vertical-align: middle;
 	margin-right: .3em;
 }
 
-.stop-timer svg circle {
+.taima .stop-timer svg circle {
 	stroke: #000;
 }
 
-.stop-timer svg path {
+.taima .stop-timer svg path {
 	stroke: #000;
 	fill: #000;
 }
 
-.taima-weekdays svg circle {
+.taima .weekdays svg circle {
 	stroke: var(--gBorderColor);
 }
 
-.taima-weekdays svg path {
+.taima .weekdays svg path {
 	stroke: var(--gBorderColor);
 	fill: var(--gBorderColor);
 }
@@ -166,82 +161,102 @@ a.start-timer, a.stop-timer {
     to {transform: rotate(360deg);}
 }
 
-.stop-timer svg {
+.taima .stop-timer svg {
 	animation: spinner 3s linear infinite;
 }
 
-#taimaEntryForm {
-	padding: 1em;
-	background: #fff;
-	border-radius: .5em;
+@media screen and (min-width: 800px) {
+	.taima .entries .clock {
+		text-align: right;
+		padding-top: .3em;
+		margin-right: 1em;
+	}
+
+	.taima .entries .actions {
+		width: 12em;
+		text-align: center;
+	}
+
+	.taima .entries header {
+		margin-right: auto;
+	}
+
+	.taima .entries article {
+		border-radius: .5em;
+		border: 1px solid var(--gLightBorderColor);
+		margin: 1em 0;
+	}
+
+	.taima .entries .running {
+		background: rgba(var(--gSecondColor), 0.2);
+		border: 1px solid rgba(var(--gSecondColor), 0.5);
+	}
 }
 
 @media screen and (max-width: 800px) {
-	.taima-weekdays {
-		display: block;
-		text-align: center;
+	.taima .weekdays {
+		flex-wrap: wrap;
+		align-items: center;
+		border: none;
 	}
 
-	.taima-weekdays li {
+	.taima .weekdays li.day a, .taima .weekdays li.week {
+		display: block;
+		border: none;
 		margin: .2em;
+		border-radius: .5em;
+	}
+
+	.taima .header {
+		flex-wrap: wrap;
+	}
+
+	.taima {
+		margin: 1em 0;
+	}
+
+	.taima .entries {
+		border-bottom: 1px solid var(--gLightBorderColor);
+	}
+
+	.taima .entries article {
+		margin: 0;
+		padding: .5em;
+		border-left: 10px solid var(--gLightBorderColor);
+		border-top: 1px solid var(--gLightBorderColor);
+		padding-left: 1em;
+		border-radius: 0;
+		display: grid;
+		align-items: stretch;
+		justify-content: space-between;
+		grid-template-areas:
+			"b c"
+			"a c";
+	}
+
+	.taima .entries article .clock {
+		grid-area: b;
+		margin-bottom: .5em;
+	}
+
+	.taima .entries article .clock h2 {
+		background: var(--gLightBorderColor);
+		border-radius: .5em;
+		padding: .2em;
 		display: inline-block;
 	}
-
-	.taima-weekdays li a, .taima-weekdays li span, .taima-weekdays li.week {
-		border: none;
+	.taima .entries article header {
+		grid-area: a;
+	}
+	.taima .entries article .actions {
+		grid-area: c;
 	}
 
-	.taima-weekdays li.week {
-		display: block;
+	.taima .entries article.running {
+		border-left: 10px solid rgba(var(--gSecondColor), 0.5);
 	}
 
-	.taima-weekdays li.week * {
-		display: inline;
-		margin: 0 .5em;
-	}
-
-	.taima-weekdays li a, .taima-weekdays span {
-		border-radius: .5em;
-	}
-
-	.taima-entries {
-		display: flex;
-		border: none;
-		width: auto;
-		flex-direction: column;
-		margin: 1em;
-	}
-
-	.taima-entries tr {
-		display: flex;
-		flex-direction: column;
-		border: none;
-		align-items: center;
-		border: 1px solid #ccc;
-		border-radius: .5em;
-		margin-bottom: .5em;
-		text-align: center;
-	}
-
-	.taima-entries tr.notes {
-		border-radius: 0;
-		border: none;
-		padding: .5em;
-	}
-
-	.taima-entries tr th {
-	}
-
-	.taima-entries tr td {
-		padding: .2em;
-	}
-
-	.taima-header {
-		display: block;
-		text-align: center;
-	}
-
-	.taima-header .btns, .taima-header h2 {
-		margin: .3em 0;
+	.taima .entries article.running .clock h2 {
+		background: rgba(var(--gSecondColor), 0.5);
 	}
 }

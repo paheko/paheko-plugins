@@ -2,6 +2,7 @@
 
 namespace Paheko\Plugin\Test;
 
+use Paheko\Plugins;
 use Paheko\Entities\Plugin;
 use Paheko\Entities\Signal;
 use Paheko\Users\Session;
@@ -23,6 +24,6 @@ class Test
 		]);
 
 		// On ajoute notre bouton sur la page d'accueil
-		$plugin->setOut('test', $html);
+		$signal->setOut('test', $html);
 	}
 }

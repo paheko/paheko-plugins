@@ -4,6 +4,7 @@ namespace Paheko\Plugin\Taima;
 
 use Paheko\Plugin\Taima\Tracking;
 use Paheko\Accounting\Years;
+use Paheko\Entity;
 use Paheko\Utils;
 use Paheko\UserException;
 use Paheko\Users\Session;
@@ -15,7 +16,7 @@ use function Paheko\{f, qg};
 require_once __DIR__ . '/_inc.php';
 
 $session = Session::getInstance();
-$session->requireAccess($session::SECTION_USERS, $session::ACCESS_ADMIN);
+$session->requireAccess($session::SECTION_USERS, $session::ACCESS_WRITE);
 $session->requireAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE);
 
 $csrf_key = 'taima_report';
@@ -35,8 +36,8 @@ elseif (count($years) == 1) {
 }
 
 if ($year) {
-	$start = f('start') ? Utils::get_datetime(f('start')) : ($year->start_date ?? null);
-	$end = f('end') ? Utils::get_datetime(f('end')) : ($year->end_date ?? null);
+	$start = qg('start') ? Utils::parseDateTime(qg('start')) : ($year->start_date ?? null);
+	$end = qg('end') ? Utils::parseDateTime(qg('end')) : ($year->end_date ?? null);
 
 	if ($start) {
 		$start = Date::createFromInterface($start);
@@ -50,9 +51,10 @@ if ($year) {
 		Utils::redirect(Utils::getSelfURI(['ok' => $t->id()]));
 	}, $csrf_key);
 
-	$report = Tracking::getFinancialReport($year, $start, $end);
+	$list = Tracking::getFinancialReport($year, $start, $end);
+	$list->loadFromQueryString();
 
-	$tpl->assign(compact('report', 'year', 'csrf_key'));
+	$tpl->assign(compact('year', 'csrf_key', 'start', 'end', 'list'));
 }
 else {
 	$tpl->assign(compact('years', 'csrf_key'));

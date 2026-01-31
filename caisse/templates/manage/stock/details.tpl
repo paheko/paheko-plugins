@@ -1,17 +1,21 @@
 {include file="_head.tpl" title="Stock : %s"|args:$event.label}
 
-{include file="../_nav.tpl" current='stock'}
+{include file="../_nav.tpl" current='stock' subcurrent="events"}
 
 {if !$event.applied}
 <p class="help">
-	Sélectionner des produits à droite, puis indiquer {if $event.type == $event::TYPE_INVENTORY}leur stock actuel{else}le changement de stock à effectuer{/if} dans la colonne de gauche.
+	Sélectionner des produits à droite, puis indiquer {if $event.type == $event::TYPE_INVENTORY}leur stock actuel{else}le changement de stock à effectuer{/if} dans la colonne de gauche.<br />
 
-	Terminer en appliquant les changements. Une fois les changements appliqués, il n'est plus possible de modifier les quantités.<br />
-	Note : seuls les produits dont le stock n'est pas illimité sont affichés.
+	Terminer en appliquant les changements. Une fois les changements appliqués, il n'est plus possible de modifier les quantités.<br /><br />
+	Note : seuls sont affichés les produits dont le champ &quot;stock&quot; n'est pas vide.
 </p>
 {/if}
 
 {form_errors}
+
+{if $event.description}
+	<p class="help">{$event.description|escape|nl2br}</p>
+{/if}
 
 <section class="pos">
 	<section class="tab">
@@ -24,7 +28,7 @@
 						<th>Produit</th>
 						<td>Stock enregistré</td>
 						<td>{if $event.type == $event::TYPE_INVENTORY}Stock inventorié{else}Changement de stock{/if}</td>
-						<td>En valeur</td>
+						<td>Valeur d'achat</td>
 						<td></td>
 					</tr>
 				</thead>
@@ -75,22 +79,25 @@
 
 	{if !$event.applied}
 	<section class="products">
-		<input type="text" name="q" placeholder="Recherche rapide" />
+		<input type="text" name="q" placeholder="Recherche rapide" autofocus />
+		{button shape="barcode" label="" title="Scanner un code barre" id="scanbarcode" class="hidden"}
 		<form method="post" action="">
-		{foreach from=$products_categories key="category" item="products"}
+	<?php $category = null; ?>
+	{foreach from=$products_categories item="product"}
+		{if $category !== $product.category}
+			{if $category}</div></section>{/if}
 			<section>
-				<h2 class="ruler">{$category}</h2>
-
+			<?php $category = $product->category; ?>
+			<h2 class="ruler">{$product.category_name}</h2>
 				<div>
-				{foreach from=$products item="product"}
-					<button name="add[{$product.id}]" class="change" value="0">
-						<h3>{$product.name}</h3>
-						<h4>{$product.price|escape|money_currency}</h4>
-					</button>
-				{/foreach}
-				</div>
-			</section>
+		{/if}
+		<button name="add[{$product.id}]" class="change" value="0" data-code="{$product.code}">
+			<h3>{$product.name}</h3>
+			<h4>{$product.price|escape|money_currency}</h4>
+		</button>
 		{/foreach}
+			</div>
+		</section>
 		{csrf_field key=$csrf_key}
 		</form>
 	</section>
@@ -121,5 +128,7 @@ $('#apply-changes').onsubmit = (e) => {
 };
 {/literal}
 </script>
+
+<script type="text/javascript" src="{$plugin_admin_url}product_search.js?{$version_hash}" async="async"></script>
 
 {include file="_foot.tpl"}
