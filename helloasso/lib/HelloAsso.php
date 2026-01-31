@@ -104,9 +104,10 @@ class HelloAsso
 		return $this->config->client_id ?? null;
 	}
 
-	public function saveClient(string $client_id, string $client_secret): void
+	public function saveClient(string $client_id, string $client_secret, bool $sandbox = false): void
 	{
 		$client_id = trim($client_id);
+		$this->plugin->setConfigProperty('sandbox', $sandbox);
 
 		if (isset($this->config->client_id)
 			&& $client_id !== $this->config->client_id) {
@@ -116,6 +117,8 @@ class HelloAsso
 
 		$api = API::getInstance();
 		$api->register($client_id, $client_secret);
+
+		$this->plugin->save();
 	}
 
 	public function reset(): void
@@ -138,11 +141,6 @@ class HelloAsso
 	}
 
 /*
-	public function listTargets(): array
-	{
-		return EM::getInstance(Target::class, 'SELECT * FROM @TABLE ORDER BY label;');
-	}
-
 
 	public function findUserForPayment(\stdClass $payer)
 	{

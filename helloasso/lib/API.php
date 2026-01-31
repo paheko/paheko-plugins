@@ -8,11 +8,13 @@ use KD2\HTTP;
 
 class API
 {
-	const BASE_URL = 'https://api.helloasso-sandbox.com/';
+	const BASE_URL = 'https://api.helloasso.com/';
+	const SANDBOX_URL = 'https://api.helloasso-sandbox.com/';
 
-	protected $ha;
-	protected $oauth;
-	protected $client_id;
+	protected HelloAsso $ha;
+	protected \stdClass $oauth;
+	protected string $client_id;
+	protected bool $sandbox = false;
 
 	static protected $_instance = null;
 
@@ -30,6 +32,7 @@ class API
 		$this->ha = HelloAsso::getInstance();
 		$this->oauth = $this->ha->plugin()->getConfig('oauth');
 		$this->client_id = $this->ha->plugin()->getConfig('client_id');
+		$this->sandbox = $this->ha->plugin()->getConfig('sandbox');
 	}
 
 	private function __clone()
@@ -48,7 +51,8 @@ class API
 
 	protected function request(string $type, string $url, array $data = [])
 	{
-		$url = self::BASE_URL . $url;
+		$base = $this->sandbox ? self::SANDBOX_URL : self::BASE_URL;
+		$url = $base . $url;
 
 		$token = $this->getToken();
 
@@ -105,7 +109,6 @@ class API
 
 		$this->ha->plugin()->setConfigProperty('client_id', $this->client_id);
 		$this->ha->plugin()->setConfigProperty('oauth', $this->oauth);
-		$this->ha->plugin()->save();
 		return true;
 	}
 
@@ -133,7 +136,8 @@ class API
 
 	protected function requestToken(array $params): \stdClass
 	{
-		$url = self::BASE_URL . 'oauth2/token';
+		$url = $this->sandbox ? self::SANDBOX_URL : self::BASE_URL;
+		$url .= 'oauth2/token';
 
 		$response = (new HTTP)->POST($url, $params);
 
