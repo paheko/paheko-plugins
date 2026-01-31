@@ -12,6 +12,7 @@
 			<td class="money">{$row.amount|money_currency|raw}</td>
 			<td>{$row.person}</td>
 			<td>{if $row.status}Payé{else}Paiement incomplet{/if}</td>
+			<td>{if $row.id_user}{linkbutton shape="user" label="Fiche membre" href="!users/details.php?id=%d"|args:$row.id_user}{/if}</td>
 			<td class="actions">
 				{linkbutton href="order.php?id=%s"|args:$row.id shape="help" label="Détails"}
 			</td>

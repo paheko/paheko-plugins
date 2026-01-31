@@ -1,3 +1,4 @@
+<?php $disable_user_sort = !$details; ?>
 {include file="common/dynamic_list_head.tpl"}
 
 	{foreach from=$list->iterate() item="row"}
@@ -10,6 +11,7 @@
 			<td>{$row.person}</td>
 			<td>{$row.state}</td>
 			<td>{$row.transferred}</td>
+			<td>{if $row.id_user}{linkbutton shape="user" label="Fiche membre" href="!users/details.php?id=%d"|args:$row.id_user}{/if}</td>
 			<td class="actions">
 				{if $row.receipt_url}
 					{linkbutton href=$row.receipt_url target="_blank" shape="print" label="Attestation de paiement"}

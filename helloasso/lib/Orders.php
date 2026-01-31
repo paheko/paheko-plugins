@@ -38,6 +38,9 @@ class Orders
 			'status' => [
 				'label' => 'Statut',
 			],
+			'id_user' => [
+				'label' => 'Membre lié',
+			],
 		];
 
 		$tables = Order::TABLE;

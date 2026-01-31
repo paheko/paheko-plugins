@@ -36,6 +36,18 @@ class Item extends Entity
 		'Bonus'           => 'Bonus',
 	];
 
+	const TYPES_COLORS = [
+		'Donation'        => 'darkgreen',
+		'Payment'         => 'CadetBlue',
+		'Registration'    => 'Chocolate',
+		'Membership'      => 'CornflowerBlue',
+		'MonthlyDonation' => 'DarkOliveGreen',
+		'MonthlyPayment'  => 'DarkBlue',
+		'OfflineDonation' => 'DarkSeaGreen',
+		'Contribution'    => 'DarkSlateBlue',
+		'Bonus'           => 'DarkSlateGray',
+	];
+
 	const STATES = [
 		'Waiting'    => 'En attente',
 		'Processed'  => 'Traité',

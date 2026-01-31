@@ -14,9 +14,8 @@ if (!$order) {
 	throw new UserException('Commande inconnue');
 }
 
-if (!empty($_GET['set_user_id'])) {
-	$order->id_user = (int)$_GET['set_user_id'];
-	$order->save();
+if (!empty($_GET['set_user_id']) && !$order->id_user) {
+	$order->setUserId((int) $_GET['set_user_id']);
 	Utils::redirect('./order.php?id=' . $order->id());
 }
 

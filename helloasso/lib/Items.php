@@ -14,6 +14,8 @@ use Paheko\Utils;
 
 use KD2\DB\EntityManager as EM;
 
+use stdClass;
+
 class Items
 {
 	static public function get(int $id): ?Item
@@ -24,17 +26,17 @@ class Items
 	static public function list($for): DynamicList
 	{
 		$columns = [
-			'id' => [
-				'label' => 'Numéro',
-			],
-			'amount' => [
-				'label' => 'Montant',
-			],
 			'type' => [
 				'label' => 'Type',
 			],
+			'id' => [
+				'label' => 'Numéro',
+			],
 			'label' => [
 				'label' => 'Objet',
+			],
+			'amount' => [
+				'label' => 'Montant',
 			],
 			'person' => [
 				'label' => 'Personne',
@@ -42,16 +44,23 @@ class Items
 			'custom_fields' => [
 				'label' => 'Champs',
 			],
+			'options' => [
+				'select' => 'json_extract(raw_data, \'$.options\')',
+			],
 			'state' => [
 				'label' => 'Statut',
 			],
 			'id_order' => [],
+			'card_url' => [
+				'select' => 'json_extract(raw_data, \'$.membershipCardUrl\')',
+			],
 		];
 
 		$tables = Item::TABLE;
 
 		if ($for instanceof Form) {
 			unset($columns['custom_fields']);
+			unset($columns['options']);
 		}
 
 		$list = new DynamicList($columns, $tables);
@@ -68,11 +77,17 @@ class Items
 		}
 
 		$list->setModifier(function ($row) {
-			$row->state = Item::STATES[$row->state] ?? 'Inconnu';
-			$row->type = Item::TYPES[$row->type] ?? 'Inconnu';
+			$row->state_label = Item::STATES[$row->state] ?? 'Inconnu';
+			$row->type_label = Item::TYPES[$row->type] ?? 'Inconnu';
+			$row->type_color = Item::TYPES_COLORS[$row->type] ?? '';
 
 			if (isset($row->custom_fields)) {
 				$row->custom_fields = json_decode($row->custom_fields, true);
+			}
+
+			if (isset($row->options)) {
+				$row->options = json_decode($row->options) ?? [];
+				$row->options = array_map([self::class, 'normalizeOption'], $row->options);
 			}
 		});
 
@@ -88,6 +103,32 @@ class Items
 
 		$list->orderBy('id', true);
 		return $list;
+	}
+
+	static public function normalizeOption(?stdClass $option): ?stdClass
+	{
+		if (null === $option) {
+			return null;
+		}
+
+		return (object) [
+			'id'             => $option->optionId,
+			'amount'         => $option->amount,
+			'price_category' => $option->priceCategory,
+			'label'          => $option->name,
+			'custom_fields'  => self::normalizeCustomFields($option->customFields),
+		];
+	}
+
+	static public function normalizeCustomFields(?array $fields): array
+	{
+		$out = [];
+
+		foreach ($fields as $field) {
+			$out[$field->name] = $field->answer ?? null;
+		}
+
+		return $out;
 	}
 
 	static public function sync(string $org_slug): void
@@ -109,7 +150,7 @@ class Items
 		}
 	}
 
-	static protected function syncItem(\stdClass $data): void
+	static protected function syncItem(stdClass $data): void
 	{
 		$entity = self::get($data->id) ?? new Item;
 

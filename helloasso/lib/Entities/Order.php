@@ -45,6 +45,25 @@ class Order extends Entity
 		return $paid >= $total ? self::STATUS_PAID : self::STATUS_WAITING;
 	}
 
+	public function setUserId(int $id): void
+	{
+		if ($this->id_user) {
+			return;
+		}
+
+		$db = DB::getInstance();
+		$db->begin();
+
+		foreach ($this->listPayments() as $payment) {
+			$payment->set('id_user', $id);
+			$payment->save();
+		}
+
+		$this->set('id_user', $id);
+		$this->save();
+		$db->commit();
+	}
+
 	public function getLinkedUserName(): ?string
 	{
 		if (!$this->id_user) {
@@ -68,6 +87,11 @@ class Order extends Entity
 	public function listItems(): array
 	{
 		return EM::getInstance(Item::class)->all('SELECT * FROM @TABLE WHERE id_order = ? ORDER BY id DESC;', $this->id());
+	}
+
+	public function listPayments(): array
+	{
+		return EM::getInstance(Payment::class)->all('SELECT * FROM @TABLE WHERE id_order = ? ORDER BY id DESC;', $this->id());
 	}
 
 	public function createTransaction(Target $target): Transaction

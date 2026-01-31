@@ -44,6 +44,9 @@ class Payments
 			'transfer_date' => [
 				'label' => 'Versement',
 			],
+			'id_user' => [
+				'label' => 'Membre lié',
+			],
 			'receipt_url' => [],
 			'id_order' => [],
 		];
