@@ -44,11 +44,11 @@ class Items
 			'custom_fields' => [
 				'label' => 'Champs',
 			],
+			'id_user' => [
+				'label' => 'Membre lié',
+			],
 			'options' => [
 				'select' => 'json_extract(raw_data, \'$.options\')',
-			],
-			'state' => [
-				'label' => 'Statut',
 			],
 			'id_order' => [],
 			'card_url' => [
@@ -61,6 +61,7 @@ class Items
 		if ($for instanceof Form) {
 			unset($columns['custom_fields']);
 			unset($columns['options']);
+			unset($columns['id_user']);
 		}
 
 		$list = new DynamicList($columns, $tables);
@@ -77,7 +78,6 @@ class Items
 		}
 
 		$list->setModifier(function ($row) {
-			$row->state_label = Item::STATES[$row->state] ?? 'Inconnu';
 			$row->type_label = Item::TYPES[$row->type] ?? 'Inconnu';
 			$row->type_color = Item::TYPES_COLORS[$row->type] ?? '';
 

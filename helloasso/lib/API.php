@@ -6,14 +6,16 @@ use Paheko\UserException;
 
 use KD2\HTTP;
 
+use stdClass;
+
 class API
 {
 	const BASE_URL = 'https://api.helloasso.com/';
 	const SANDBOX_URL = 'https://api.helloasso-sandbox.com/';
 
 	protected HelloAsso $ha;
-	protected \stdClass $oauth;
-	protected string $client_id;
+	protected ?stdClass $oauth;
+	protected ?string $client_id;
 	protected bool $sandbox = false;
 
 	static protected $_instance = null;
@@ -32,7 +34,7 @@ class API
 		$this->ha = HelloAsso::getInstance();
 		$this->oauth = $this->ha->plugin()->getConfig('oauth');
 		$this->client_id = $this->ha->plugin()->getConfig('client_id');
-		$this->sandbox = $this->ha->plugin()->getConfig('sandbox');
+		$this->sandbox = (bool) $this->ha->plugin()->getConfig('sandbox');
 	}
 
 	private function __clone()
@@ -112,7 +114,7 @@ class API
 		return true;
 	}
 
-	public function createToken(string $secret): \stdClass
+	public function createToken(string $secret): stdClass
 	{
 		$params = [
 			'grant_type'    => 'client_credentials',
@@ -123,7 +125,7 @@ class API
 		return $this->requestToken($params);
 	}
 
-	protected function refreshToken(string $token): \stdClass
+	protected function refreshToken(string $token): stdClass
 	{
 		$params = [
 			'grant_type'    => 'refresh_token',
@@ -134,7 +136,7 @@ class API
 		return $this->requestToken($params);
 	}
 
-	protected function requestToken(array $params): \stdClass
+	protected function requestToken(array $params): stdClass
 	{
 		$url = $this->sandbox ? self::SANDBOX_URL : self::BASE_URL;
 		$url .= 'oauth2/token';
@@ -207,7 +209,17 @@ class API
 		return $result->data;
 	}
 
-	public function listOrganizationOrders(string $organization, array $params = []): \stdClass
+	public function getForm(string $organization, string $form_type, string $form_slug): stdClass
+	{
+		$result = $this->GET(sprintf('v5/organizations/%s/forms/%s/%s/public', $organization, $form_type, $form_slug));
+
+		$this->assert(isset($result->organizationName));
+		$this->assert(!isset($result->tiers) || is_array($result->tiers));
+
+		return $result;
+	}
+
+	public function listOrganizationOrders(string $organization, array $params = []): stdClass
 	{
 		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {
 			throw new \RuntimeException('Invalid organization slug');
@@ -222,7 +234,7 @@ class API
 		return $result;
 	}
 
-	public function assertOrders(\stdClass $result)
+	public function assertOrders(stdClass $result)
 	{
 		$this->assert(isset($result->data));
 		$this->assert(is_array($result->data));
@@ -237,7 +249,7 @@ class API
 		}
 	}
 
-	public function listOrganizationPayments(string $organization, array $params): \stdClass
+	public function listOrganizationPayments(string $organization, array $params): stdClass
 	{
 		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {
 			throw new \RuntimeException('Invalid organization slug');
@@ -268,7 +280,7 @@ class API
 		}
 	}
 
-	public function listOrganizationItems(string $organization, array $params = []): \stdClass
+	public function listOrganizationItems(string $organization, array $params = []): stdClass
 	{
 		if (!preg_match('/^[a-z0-9_-]+$/', $organization)) {
 			throw new \RuntimeException('Invalid organization slug');

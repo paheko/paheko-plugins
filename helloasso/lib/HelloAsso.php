@@ -67,7 +67,7 @@ class HelloAsso
 		$this->config = $this->plugin->getConfig();
 	}
 
-	public function getConfig(): stdClass
+	public function getConfig(): ?stdClass
 	{
 		return $this->config;
 	}

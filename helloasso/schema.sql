@@ -1,4 +1,3 @@
--- Cache list of forms
 CREATE TABLE IF NOT EXISTS plugin_helloasso_forms (
 	id INTEGER PRIMARY KEY,
 
@@ -8,10 +7,46 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms (
 	name TEXT NOT NULL,
 	slug TEXT NOT NULL,
 	type TEXT NOT NULL,
-	state TEXT NOT NULL
+	state TEXT NOT NULL,
+
+	raw_data TEXT NOT NULL,
+
+	id_year INTEGER NULL REFERENCES acc_years(id) ON DELETE SET NULL
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS plugin_helloasso_forms_key ON plugin_helloasso_forms(org_slug, slug);
+
+CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers (
+-- Tiers: elements of a form
+	id INTEGER PRIMARY KEY,
+	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
+	label TEXT NULL,
+	amount INTEGER NULL,
+	type TEXT NOT NULL,
+
+	-- Set to an ID to create a subscription in this fee
+	-- If the fee is linked to accounting, a transaction will be created
+	id_fee INTEGER NULL REFERENCES services_fees(id) ON DELETE SET NULL,
+
+	-- Which account should be used to create the transaction line for this option
+	account_code TEXT NULL,
+
+	-- JSON list of fields for mapping user information
+	fields_map TEXT NULL,
+
+	use_payer_fallback_info INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers_options (
+	id INTEGER PRIMARY KEY,
+	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
+	id_tier INTEGER NOT NULL REFERENCES plugin_helloasso_forms_tiers(id) ON DELETE CASCADE,
+	label TEXT NULL,
+	amount INTEGER NULL,
+
+	-- Which account should be used to create the transaction line for this option
+	account_code TEXT NULL
+);
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_orders (
 	id INTEGER PRIMARY KEY NOT NULL,
@@ -30,6 +65,8 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_items (
 	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
 	id_order INTEGER NOT NULL REFERENCES plugin_helloasso_orders(id) ON DELETE CASCADE,
 	id_user INTEGER NULL REFERENCES users(id) ON DELETE SET NULL,
+	id_subscription INTEGER NULL REFERENCES services_users(id) ON DELETE SET NULL,
+
 	type TEXT NOT NULL,
 	state TEXT NOT NULL,
 	person TEXT NOT NULL,
@@ -38,17 +75,6 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_items (
 	raw_data TEXT NOT NULL,
 	custom_fields TEXT NULL
 );
-
-/*
-CREATE TABLE IF NOT EXISTS plugin_helloasso_options (
-	id INTEGER PRIMARY KEY NOT NULL,
-	id_order INTEGER NOT NULL REFERENCES plugin_helloasso_orders(id) ON DELETE CASCADE,
-	hash TEXT NOT NULL,
-	label TEXT NOT NULL,
-	amount INTEGER NOT NULL,
-	raw_data TEXT NOT NULL
-);
-*/
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_payments (
 	id INTEGER PRIMARY KEY NOT NULL,
@@ -64,51 +90,3 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_payments (
 	receipt_url TEXT NULL,
 	raw_data TEXT NOT NULL
 );
-
-
-CREATE TABLE IF NOT EXISTS plugin_helloasso_targets (
--- List of forms that should create users or subscriptions
-	id INTEGER PRIMARY KEY NOT NULL,
-	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
-
-	label TEXT NOT NULL,
-	last_sync TEXT NULL,
-
-	-- If not null, create a user in this category
-	id_category INTEGER NOT NULL REFERENCES users_categories(id) ON DELETE SET NULL,
-
-	-- If not null, subscribe the user (if found) to this fee, and add payments to the subscription
-	id_fee INTEGER NULL REFERENCES services_fees(id) ON DELETE SET NULL,
-
-	-- If not null, creates transactions in this year
-	id_year INTEGER NULL REFERENCES acc_years(id) ON DELETE SET NULL,
-
-	split_payments INTEGER NOT NULL DEFAULT 0
-);
-
-CREATE TABLE IF NOT EXISTS plugin_helloasso_targets_accounts (
-	id INTEGER NOT NULL PRIMARY KEY,
-	id_target INTEGER NOT NULL REFERENCES plugin_helloasso_targets (id) ON DELETE CASCADE,
-	type TEXT NOT NULL,
-	id_account INTEGER NOT NULL REFERENCES acc_accounts(id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS plugin_helloasso_targets_fields (
-	id INTEGER PRIMARY KEY NOT NULL,
-	id_target INTEGER NOT NULL REFERENCES plugin_helloasso_targets(id) ON DELETE CASCADE,
-	source TEXT NOT NULL,
-	target TEXT NULL
-);
-
--- Make sure we can't link to an invalid account if the linked fee changes its accounting chart
-CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_fee_update AFTER UPDATE OF id_year ON services_fees BEGIN
-    DELETE FROM plugin_helloasso_targets_payments WHERE id_account = NULL AND id_fee = OLD.id;
-END;
-
-CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_fee_delete BEFORE DELETE ON services_fees BEGIN
-    UPDATE plugin_helloasso_targets SET id_account = NULL, id_fee = NULL WHERE id_fee = OLD.id;
-END;
-
-CREATE TRIGGER IF NOT EXISTS plugin_helloasso_targets_year_delete BEFORE DELETE ON acc_years BEGIN
-    DELETE FROM plugin_helloasso_targets_accounts WHERE id_target IN (SELECT id FROM plugin_helloasso_targets WHERE id_year = OLD.id);
-END;

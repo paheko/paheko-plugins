@@ -3,6 +3,8 @@
 namespace Paheko\Plugin\HelloAsso;
 
 use Paheko\Plugin\HelloAsso\Entities\Form;
+use Paheko\Plugin\HelloAsso\Entities\Tier;
+use Paheko\Plugin\HelloAsso\Entities\Option;
 use Paheko\Plugin\HelloAsso\API;
 
 use Paheko\DB;
@@ -63,11 +65,15 @@ class Forms
 	 */
 	static public function sync(): void
 	{
-		$organizations = API::getInstance()->listOrganizations();
+		$api = API::getInstance();
+		$organizations = $api->listOrganizations();
 
-		foreach ($organizations as $o) {
+		$db = DB::getInstance();
+		$db->begin();
+
+		foreach ($organizations as $org) {
 			$existing = [];
-			$list = EM::getInstance(Form::class)->all('SELECT * FROM @TABLE WHERE org_slug = ?;', $o->organizationSlug);
+			$list = EM::getInstance(Form::class)->all('SELECT * FROM @TABLE WHERE org_slug = ?;', $org->organizationSlug);
 
 			foreach ($list as $form) {
 				$existing[$form->slug] = $form;
@@ -75,20 +81,45 @@ class Forms
 
 			unset($list);
 
-			$forms = API::getInstance()->listForms($o->organizationSlug);
+			$forms = $api->listForms($org->organizationSlug);
 
 			foreach ($forms as $form) {
 				$data = $existing[$form->formSlug] ?? new Form;
-				$data->org_name = $o->name;
-				$data->org_slug = $o->organizationSlug;
+				$data->org_name = $org->name;
+				$data->org_slug = $org->organizationSlug;
 
 				$data->name = strip_tags($form->privateTitle ?? $form->title);
 				$data->type = $form->formType;
 				$data->state = $form->state;
 				$data->slug = $form->formSlug;
 
+				$form = $api->getForm($org->organizationSlug, $data->type, $data->slug);
+
+				$data->raw_data = json_encode($form);
 				$data->save();
+
+				// Import tiers and options
+				foreach ($form->tiers ?? [] as $tier) {
+					$t = EM::findOneById(Tier::class, $tier->id) ?? new Tier;
+					$t->id_form = $data->id();
+					$t->label = $tier->label ?? null;
+					$t->amount = $tier->price ?? null;
+					$t->type = $tier->tierType;
+					$t->save();
+
+					foreach ($tier->extraOptions ?? [] as $option) {
+						$o = EM::findOneById(Option::class, $option->id) ?? new Option;
+						$o->id_form = $data->id();
+						$o->id_tier = $t->id();
+						$o->label = $option->label ?? null;
+						$t->amount = $option->price ?? null;
+						$o->save();
+					}
+				}
+
 			}
 		}
+
+		$db->commit();
 	}
 }

@@ -9,7 +9,7 @@
 			<th scope="row">{$row.label}</th>
 			<td class="money">{$row.amount|money_currency|raw}</td>
 			<td>{$row.person}</td>
-			{if property_exists($row, 'custom_fields')}
+			{if $list->hasColumn('custom_fields')}
 			<td>
 				{if $row.custom_fields}
 				<table>
@@ -23,7 +23,20 @@
 				{/if}
 			</td>
 			{/if}
-			<td>{$row.state_label}</td>
+			{if $list->hasColumn('id_user')}
+			<td>
+				{if $row.id_user}
+					{linkbutton shape="user" label="Fiche membre" href="!users/details.php?id=%d"|args:$row.id_user}
+				{elseif $row.custom_fields && isset($order) && $order->canMatchUsers()}
+					{if $user = $order->findMatchingUser($row->custom_fields)}
+						Membre trouvé : {$user.identity}<br />
+						{linkbutton shape="link" href="?id=%d&set_item_user_id=%d"|args:$order.id:$row.id label="Lier cette adhésion à ce membre"}
+					{else}
+						{linkbutton shape="plus" href=$order->getNewUserURL($row->custom_field) label="Créer ce membre"}
+					{/if}
+				{/if}
+			</td>
+			{/if}
 			<td class="actions">
 				{if $details}
 					{linkbutton href="order.php?id=%s"|args:$row.id_order shape="help" label="Détails"}
@@ -56,7 +69,6 @@
 					</table>
 					{/if}
 				</td>
-				<td></td>
 				<td class="actions">
 				</td>
 			</tr>

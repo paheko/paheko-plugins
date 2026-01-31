@@ -15,7 +15,8 @@ class Item extends Entity
 	protected int $id;
 	protected int $id_order;
 	protected int $id_form;
-	protected ?int $id_user;
+	protected ?int $id_user = null;
+	protected ?int $id_subscription = null;
 	protected string $type;
 	protected string $state;
 	protected string $label;
