@@ -7,6 +7,8 @@
 <dl class="describe">
 	<dt>Personne</dt>
 	<dd>{$order.person}</dd>
+	<dt>Membre lié</dt>
+	<dd>{if $order.id_user}{link href="!users/details.php?id=%d"|args:$order.id_user label=$order->getLinkedUserName()}{else}{tag label="Aucun"}{/if}</dd>
 	<dt>Numéro de commande</dt>
 	<dd>{$order.id}</dd>
 	<dt>Montant total</dt>
@@ -38,14 +40,19 @@
 		{/if}
 	</dd>
 	{/foreach}
+	<dt>Membre lié</dt>
+	<dd>{if $order.id_user}{link href="!users/details.php?id=%d"|args:$order.id_user label=$order->getLinkedUserName()}{else}{tag label="Aucun"}{/if}</dd>
 </dl>
 
 {if $found_user}
 <p class="block confirm">
 	Membre correspondant trouvé : <a href="{$admin_url}users/details.php?id={$found_user.id}">{$found_user.identity}</a>
+	{if !$order.id_user}
+		<br />{linkbutton shape="link" label="Lier la commande à ce membre" href="?id=%d&set_user_id=%d"|args:$order.id:$found_user.id}
+	{/if}
 </p>
-{else}
-<form method="post" action="{$admin_url}users/new.php">
+{elseif $mapped_user}
+<form method="post" action="{$admin_url}users/new.php?redirect={$self_url|cat:"&set_user_id=%d"|escape:'url'}">
 <p class="alert block">
 	Aucun membre correspondant n'a été trouvé.<br />
 	{foreach from=$mapped_user key="key" item="value"}

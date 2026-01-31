@@ -12,7 +12,7 @@ $csrf_key = sprintf('config_plugin_%s', $plugin->id);
 $ha = HelloAsso::getInstance();
 
 $form->runIf('save', function () use ($ha) {
-	$ha->saveConfig(f('map'), f('merge_names'), f('match_email_field'));
+	$ha->saveConfig(f('fields_map'), f('merge_names_order'), f('match_email_field'));
 }, $csrf_key, '?ok');
 
 $match_options = [
@@ -20,22 +20,16 @@ $match_options = [
 	1 => 'Adresse e-mail',
 ];
 
-$merge_names_options = $ha::MERGE_NAMES_OPTIONS;
-
-$fields_names = $ha::PAYER_FIELDS;
-
-$fields = DynamicFields::getInstance()->all();
-
-$target_fields = [
-	'' => '— Ne pas importer —',
-];
-
-foreach ($fields as $key => $field) {
-	$target_fields[$key] = $field->label;
-}
-
 $plugin_config = $ha->getConfig();
 
-$tpl->assign(compact('merge_names_options', 'match_options', 'csrf_key', 'fields_names', 'target_fields', 'plugin_config'));
+$merge_names_order_options = $ha::MERGE_NAMES_ORDER_OPTIONS;
+$ha_fields = $ha::PAYER_FIELDS;
+
+$df = DynamicFields::getInstance();
+$fields_assoc = $df->listImportAssocNames();
+$name_fields = $df->getNameFields();
+$name_field = count($name_fields) === 1 ? $df->get(current($name_fields)) : null;
+
+$tpl->assign(compact('merge_names_order_options', 'match_options', 'csrf_key', 'ha_fields', 'fields_assoc', 'name_field', 'plugin_config'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/config.tpl');

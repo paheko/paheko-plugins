@@ -5,8 +5,10 @@ namespace Paheko\Plugin\HelloAsso\Entities;
 use Paheko\DB;
 use Paheko\Entity;
 use Paheko\ValidationException;
+use Paheko\Users\Users;
 
 use DateTime;
+use stdClass;
 
 use KD2\DB\EntityManager as EM;
 
@@ -27,7 +29,7 @@ class Order extends Entity
 	const STATUS_PAID = 1;
 	const STATUS_WAITING = 0;
 
-	static public function getStatus(\stdClass $order)
+	static public function getStatus(stdClass $order)
 	{
 		$total = $order->amount->total ?? 0;
 		$paid = 0;
@@ -43,10 +45,24 @@ class Order extends Entity
 		return $paid >= $total ? self::STATUS_PAID : self::STATUS_WAITING;
 	}
 
+	public function getLinkedUserName(): ?string
+	{
+		if (!$this->id_user) {
+			return null;
+		}
+
+		return Users::getName($this->id_user);
+	}
+
 	public function getPayerInfos(): array
 	{
+		return Payment::getPayerInfos($this->getRawPayerData());
+	}
+
+	public function getRawPayerData(): ?stdClass
+	{
 		$data = json_decode($this->raw_data);
-		return $data ? Payment::getPayerInfos($data->payer) : [];
+		return $data->payer ?? null;
 	}
 
 	public function listItems(): array

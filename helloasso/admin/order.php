@@ -14,14 +14,26 @@ if (!$order) {
 	throw new UserException('Commande inconnue');
 }
 
+if (!empty($_GET['set_user_id'])) {
+	$order->id_user = (int)$_GET['set_user_id'];
+	$order->save();
+	Utils::redirect('./order.php?id=' . $order->id());
+}
+
 $payments = Payments::list($order);
 $items = Items::list($order);
 
 $payer_infos = $order->getPayerInfos();
+$payer = $order->getRawPayerData();
 
-//$found_user = $ha->findUserForPayment($order->payer);
-//$mapped_user = $ha->getMappedUser($order->payer);
-$found_user = $mapped_user = [];
+if (!$order->id_user) {
+	$found_user = $ha->findUserForPayment($payer);
+	$mapped_user = $ha->getMappedUser($payer);
+}
+else {
+	$found_user = null;
+	$mapped_user = null;
+}
 
 $tpl->assign(compact('order', 'payments', 'items', 'payer_infos', 'found_user', 'mapped_user'));
 

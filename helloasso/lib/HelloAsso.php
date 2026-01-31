@@ -6,8 +6,12 @@ use Paheko\Config;
 use Paheko\DB;
 use Paheko\Plugins;
 use Paheko\Entities\Plugin;
+use Paheko\Users\DynamicFields;
 
 use Paheko\Plugin\HelloAsso\Entities\Form;
+
+use DateTime;
+use stdClass;
 
 class HelloAsso
 {
@@ -16,7 +20,7 @@ class HelloAsso
 	const MERGE_NAMES_FIRST_LAST = 0;
 	const MERGE_NAMES_LAST_FIRST = 1;
 
-	const MERGE_NAMES_OPTIONS = [
+	const MERGE_NAMES_ORDER_OPTIONS = [
 		self::MERGE_NAMES_FIRST_LAST => 'Prénom Nom',
 		self::MERGE_NAMES_LAST_FIRST => 'Nom Prénom',
 	];
@@ -27,7 +31,7 @@ class HelloAsso
 		'email'       => 'Courriel',
 		'address'     => 'Adresse postale',
 		'city'        => 'Ville',
-		'zipCode'     => 'Code postale',
+		'zipCode'     => 'Code postal',
 		'country'     => 'Pays',
 		'dateOfBirth' => 'Date de naissance',
 		'company'     => 'Organisme'
@@ -44,7 +48,7 @@ class HelloAsso
 	const FREE_PRICE_CATEGORY = 'Free';
 
 	protected ?Plugin $plugin = null;
-	protected ?\stdClass $config = null;
+	protected ?stdClass $config = null;
 
 	static protected $_instance;
 
@@ -63,7 +67,7 @@ class HelloAsso
 		$this->config = $this->plugin->getConfig();
 	}
 
-	public function getConfig(): \stdClass
+	public function getConfig(): stdClass
 	{
 		return $this->config;
 	}
@@ -127,11 +131,11 @@ class HelloAsso
 		DB::getInstance()->exec($sql);
 	}
 
-	public function saveConfig(array $map, $merge_names, $match_email_field): void
+	public function saveConfig(array $fields_map, int $merge_names_order, bool $match_email_field): void
 	{
-		$this->plugin->setConfigProperty('merge_names', (int) $merge_names);
-		$this->plugin->setConfigProperty('match_email_field', (bool) $match_email_field);
-		$this->plugin->setConfigProperty('map_user_fields', $map);
+		$this->plugin->setConfigProperty('fields_map', $fields_map);
+		$this->plugin->setConfigProperty('merge_names_order', $merge_names_order);
+		$this->plugin->setConfigProperty('match_email_field', $match_email_field);
 		$this->plugin->save();
 	}
 
@@ -140,24 +144,35 @@ class HelloAsso
 		return empty($this->config->oauth) ? false : true;
 	}
 
-/*
-
-	public function findUserForPayment(\stdClass $payer)
+	public function findUserForPayment(stdClass $payer)
 	{
-		$map = $this->config->map_user_fields;
+		$map = $this->config->fields_map;
 		$where = '';
 		$params = [];
+		$email_field = DynamicFields::getFirstEmailField();
+		$identity_field = DynamicFields::getNameFieldsSQL();
+		$db = DB::getInstance();
+		$df = DynamicFields::getInstance();
 
 		if ($this->config->match_email_field) {
-			$where = sprintf('%s = ? COLLATE NOCASE', $map->email);
+			$where = sprintf('%s = ? COLLATE NOCASE', $db->quoteIdentifier($email_field));
 			$params[] = $payer->email;
 		}
 		else {
-			// In case we merge first and last names
-			if ($map->firstName == $map->lastName) {
-				$where = sprintf('%s = ? COLLATE NOCASE', $map->firstName);
+			$order = $this->config->merge_names_order ?? self::MERGE_NAMES_FIRST_LAST;
 
-				if ($this->config->merge_names == self::MERGE_NAMES_FIRST_LAST) {
+			// Make sure the mapped field exists in the fields list
+			if (!isset($map->firstName, $map->lastName)
+				|| !$df->get($map->firstName)
+				|| !$df->get($map->lastName)) {
+				$map->firstName = $map->lastName = DynamicFields::getFirstNameField();
+			}
+
+			// In case we merge first and last names in the same field
+			if ($map->firstName === $map->lastName) {
+				$where = sprintf('%s = ? COLLATE U_NOCASE', $db->quoteIdentifier($map->firstName));
+
+				if ($order === self::MERGE_NAMES_FIRST_LAST) {
 					$params[] = $payer->firstName . ' ' . $payer->lastName;
 				}
 				else {
@@ -165,23 +180,21 @@ class HelloAsso
 				}
 			}
 			else {
-				$where = sprintf('%s = ? AND %s = ?', $map->firstName, $map->lastName);
+				$where = sprintf('%s = ? COLLATE U_NOCASE AND %s = ? COLLATE U_NOCASE', $db->quoteIdentifier($map->firstName), $db->quoteIdentifier($map->lastName));
 				$params[] = $payer->firstName;
 				$params[] = $payer->lastName;
 			}
 		}
 
-		$user_identity = Config::getInstance()->get('champ_identite');
+		$sql = sprintf('SELECT id, %s AS identity FROM users WHERE %s;', $identity_field, $where);
 
-		$sql = sprintf('SELECT id, %s AS identity FROM membres WHERE %s;', $user_identity, $where);
-
-		return DB::getInstance()->first($sql, ...$params);
+		return $db->first($sql, ...$params);
 	}
 
-	public function getMappedUser(\stdClass $payer): array
+	public function getMappedUser(stdClass $payer): array
 	{
 		$out = [];
-		$map = $this->config->map_user_fields;
+		$map = $this->config->fields_map;
 
 		foreach ($map as $key => $target) {
 			if (!$target) {
@@ -192,17 +205,21 @@ class HelloAsso
 				continue;
 			}
 
-			$value = $payer->$key;
+			$value = $payer->$key ?? null;
 
-			if ($key == 'country') {
-				$value = substr($value, 0, 2);
+			if ($key === 'dateOfBirth' && $value) {
+				$value = DateTime::createFromFormat('!Y-m-d', substr($value, 0, strlen(date('Y-m-d'))));
+				$value = $value ? $value->format('d/m/Y') : '';
 			}
 
 			$out[$target] = $value;
 		}
 
-		if ($map->firstName && $map->firstName == $map->lastName) {
-			if ($this->config->merge_names == self::MERGE_NAMES_FIRST_LAST) {
+		if (isset($map->firstName, $map->lastName)
+			&& $map->firstName === $map->lastName) {
+			$order = $this->config->merge_names_order ?? self::MERGE_NAMES_FIRST_LAST;
+
+			if ($order === self::MERGE_NAMES_FIRST_LAST) {
 				$out[$map->firstName] = $payer->firstName . ' ' . $payer->lastName;
 			}
 			else {
@@ -212,8 +229,6 @@ class HelloAsso
 
 		return $out;
 	}
-*/
-
 
 	static public function getPageSize(): int
 	{
