@@ -146,7 +146,7 @@ class HelloAsso
 
 	public function findUserForPayment(stdClass $payer)
 	{
-		$map = $this->config->fields_map;
+		$map = $this->config->fields_map ?? new stdClass;
 		$where = '';
 		$params = [];
 		$email_field = DynamicFields::getFirstEmailField();
@@ -154,7 +154,7 @@ class HelloAsso
 		$db = DB::getInstance();
 		$df = DynamicFields::getInstance();
 
-		if ($this->config->match_email_field) {
+		if ($this->config->match_email_field ?? null) {
 			$where = sprintf('%s = ? COLLATE NOCASE', $db->quoteIdentifier($email_field));
 			$params[] = $payer->email;
 		}
@@ -194,7 +194,7 @@ class HelloAsso
 	public function getMappedUser(stdClass $payer): array
 	{
 		$out = [];
-		$map = $this->config->fields_map;
+		$map = $this->config->fields_map ?? new stdClass;
 
 		foreach ($map as $key => $target) {
 			if (!$target) {
@@ -235,4 +235,19 @@ class HelloAsso
 		return self::PER_PAGE;
 	}
 
+
+	static public function normalizeCustomFields(?array $fields): ?array
+	{
+		if ($fields === null) {
+			return null;
+		}
+
+		$out = [];
+
+		foreach ($fields as $field) {
+			$out[$field->label] = $field->answer ?? null;
+		}
+
+		return $out;
+	}
 }

@@ -6,6 +6,8 @@ use Paheko\DB;
 use Paheko\Entity;
 use Paheko\ValidationException;
 
+use KD2\DB\EntityManager as EM;
+
 use DateTime;
 
 class Form extends Entity
@@ -48,4 +50,9 @@ class Form extends Entity
 		'Private'  => 'darkred',
 		'Disabled' => 'black',
 	];
+
+	public function listTiers(): array
+	{
+		return EM::getInstance(Tier::class)->all('SELECT * FROM @TABLE WHERE id_form = ? ORDER BY label COLLATE U_NOCASE, amount;', $this->id());
+	}
 }

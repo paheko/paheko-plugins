@@ -29,6 +29,9 @@ class Order extends Entity
 	const STATUS_PAID = 1;
 	const STATUS_WAITING = 0;
 
+	protected ?Form $_form = null;
+	protected array $_tiers = [];
+
 	static public function getStatus(stdClass $order)
 	{
 		$total = $order->amount->total ?? 0;
@@ -43,6 +46,18 @@ class Order extends Entity
 		}
 
 		return $paid >= $total ? self::STATUS_PAID : self::STATUS_WAITING;
+	}
+
+	public function form(): Form
+	{
+		$this->_form ??= Forms::get($this->id_form);
+		return $this->_form;
+	}
+
+	public function tier(int $tier_id): ?Tier
+	{
+		$this->_tiers[$tier_id] ??= EM::findOne(Tier::class, 'SELECT * FROM @TABLE WHERE id = ? AND id_form = ?;', $tier_id, $this->id_form);
+		return $this->_tiers[$tier_id];
 	}
 
 	public function setUserId(int $id): void

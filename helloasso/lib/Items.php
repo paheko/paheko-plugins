@@ -7,6 +7,7 @@ use Paheko\Plugin\HelloAsso\Entities\Item;
 use Paheko\Plugin\HelloAsso\Entities\Order;
 use Paheko\Plugin\HelloAsso\Entities\Payment;
 use Paheko\Plugin\HelloAsso\API;
+use Paheko\Plugin\HelloAsso\HelloAsso;
 
 use Paheko\DB;
 use Paheko\DynamicList;
@@ -51,6 +52,7 @@ class Items
 				'select' => 'json_extract(raw_data, \'$.options\')',
 			],
 			'id_order' => [],
+			'id_tier' => [],
 			'card_url' => [
 				'select' => 'json_extract(raw_data, \'$.membershipCardUrl\')',
 			],
@@ -116,19 +118,8 @@ class Items
 			'amount'         => $option->amount,
 			'price_category' => $option->priceCategory,
 			'label'          => $option->name,
-			'custom_fields'  => self::normalizeCustomFields($option->customFields),
+			'custom_fields'  => HelloAsso::normalizeCustomFields($option->customFields),
 		];
-	}
-
-	static public function normalizeCustomFields(?array $fields): array
-	{
-		$out = [];
-
-		foreach ($fields as $field) {
-			$out[$field->name] = $field->answer ?? null;
-		}
-
-		return $out;
 	}
 
 	static public function sync(string $org_slug): void
@@ -164,14 +155,13 @@ class Items
 			$entity->set('id_form', Forms::getId($data->org_slug, $data->form_slug));
 		}
 
+		$entity->set('id_tier', $data->tierId ?? null);
 		$entity->set('amount', $data->amount);
 		$entity->set('state', $data->state);
 		$entity->set('type', $data->type);
 		$entity->set('person', $data->user_name ?? $data->payer_name);
 		$entity->set('label', $data->name ?? Forms::getName($entity->id_form));
 		$entity->set('custom_fields', count($data->fields) ? json_encode($data->fields) : null);
-
-		// FIXME: handle options
 
 		$entity->save();
 	}

@@ -6,6 +6,7 @@ use Paheko\Plugin\HelloAsso\Entities\Form;
 use Paheko\Plugin\HelloAsso\Entities\Tier;
 use Paheko\Plugin\HelloAsso\Entities\Option;
 use Paheko\Plugin\HelloAsso\API;
+use Paheko\Plugin\HelloAsso\HelloAsso;
 
 use Paheko\DB;
 
@@ -101,14 +102,17 @@ class Forms
 				// Import tiers and options
 				foreach ($form->tiers ?? [] as $tier) {
 					$t = EM::findOneById(Tier::class, $tier->id) ?? new Tier;
+					$t->id ??= $tier->id;
 					$t->id_form = $data->id();
 					$t->label = $tier->label ?? null;
 					$t->amount = $tier->price ?? null;
 					$t->type = $tier->tierType;
+					$t->custom_fields = HelloAsso::normalizeCustomFields($tier->customFields ?? null);
 					$t->save();
 
 					foreach ($tier->extraOptions ?? [] as $option) {
 						$o = EM::findOneById(Option::class, $option->id) ?? new Option;
+						$o->id ??= $option->id;
 						$o->id_form = $data->id();
 						$o->id_tier = $t->id();
 						$o->label = $option->label ?? null;

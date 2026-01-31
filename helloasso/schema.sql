@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers (
 	amount INTEGER NULL,
 	type TEXT NOT NULL,
 
+	custom_fields TEXT NULL,
+
 	-- Set to an ID to create a subscription in this fee
 	-- If the fee is linked to accounting, a transaction will be created
 	id_fee INTEGER NULL REFERENCES services_fees(id) ON DELETE SET NULL,
@@ -64,6 +66,7 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_items (
 	id INTEGER PRIMARY KEY NOT NULL,
 	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
 	id_order INTEGER NOT NULL REFERENCES plugin_helloasso_orders(id) ON DELETE CASCADE,
+	id_tier INTEGER NULL REFERENCES plugin_helloasso_forms_tiers(id) ON DELETE SET NULL,
 	id_user INTEGER NULL REFERENCES users(id) ON DELETE SET NULL,
 	id_subscription INTEGER NULL REFERENCES services_users(id) ON DELETE SET NULL,
 
