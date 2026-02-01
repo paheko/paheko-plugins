@@ -4,6 +4,7 @@ namespace Paheko\Plugin\HelloAsso;
 
 use Paheko\Plugin\HelloAsso\Entities\Form;
 use Paheko\Plugin\HelloAsso\Entities\Item;
+use Paheko\Plugin\HelloAsso\Entities\ItemOption;
 use Paheko\Plugin\HelloAsso\Entities\Order;
 use Paheko\Plugin\HelloAsso\Entities\Payment;
 use Paheko\Plugin\HelloAsso\Entities\Tier;
@@ -220,7 +221,10 @@ class Items
 			);
 
 			$o ??= new ItemOption;
-			$o->import($option);
+			$o->import((array)$option);
+			$o->set('id_form', $entity->id_form);
+			$o->set('id_order', $entity->id_order);
+			$o->set('id_item', $entity->id());
 			$o->save();
 		}
 	}

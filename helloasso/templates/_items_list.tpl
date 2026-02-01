@@ -24,14 +24,12 @@
 			</td>
 			{/if}
 			{if $list->hasColumn('id_user')}
-			<td>
+			<td class="user">
 				{if $row.id_user}
 					{linkbutton shape="user" label="Fiche membre" href="!users/details.php?id=%d"|args:$row.id_user}
 				{elseif $row.matching_user}
-					<p class="block confirm">
-						Membre trouvé : {$row.matching_user.identity}<br />
-						{linkbutton shape="link" href="?id=%d&item_id=%d&item_set_user_id=%d"|args:$order.id:$row.id:$row.matching_user.id label="Lier à ce membre"}
-					</p>
+					<span class="confirm">Membre trouvé&nbsp;: <strong>{$row.matching_user.identity}</strong></span>
+					{linkbutton shape="link" href="?id=%d&item_id=%d&item_set_user_id=%d"|args:$order.id:$row.id:$row.matching_user.id label="Lier à ce membre"}
 				{elseif $row.new_user_url}
 					{linkbutton shape="plus" href=$row.new_user_url|cat:"&set_item="|cat:$row.id|cat:"&set_item_user_id=%d" label="Créer ce membre"}
 				{/if}

@@ -5,6 +5,7 @@ namespace Paheko;
 use Paheko\Plugin\HelloAsso\Orders;
 use Paheko\Plugin\HelloAsso\Payments;
 use Paheko\Plugin\HelloAsso\Items;
+use Paheko\Users\Session;
 
 require __DIR__ . '/_inc.php';
 
@@ -28,6 +29,11 @@ if (!empty($_GET['item_set_user_id'])) {
 
 	Utils::redirect('./order.php?id=' . $order->id());
 }
+
+$form->runIf('create_transaction', function () use ($ha, $order) {
+	$id_creator = Session::getUserId();
+	$order->importData($ha, $id_creator, false, false, true);
+}, null, './order.php?id=' . $order->id());
 
 $payments = Payments::list($order);
 $items = Items::list($order, $ha);

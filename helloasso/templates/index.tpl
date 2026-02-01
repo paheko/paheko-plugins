@@ -11,7 +11,7 @@
 	<thead>
 		<tr>
 			<td>Organisme</td>
-			<th>Formulaire</th>
+			<th>Campagne</th>
 			<td>Type</td>
 			<td>Statut</td>
 			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}

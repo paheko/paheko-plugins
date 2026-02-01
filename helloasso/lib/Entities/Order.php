@@ -4,10 +4,16 @@ namespace Paheko\Plugin\HelloAsso\Entities;
 
 use Paheko\DB;
 use Paheko\Entity;
-use Paheko\ValidationException;
+use Paheko\UserException;
+use Paheko\Utils;
+use Paheko\Accounting\Years;
 use Paheko\Users\Users;
+use Paheko\Entities\Accounting\Transaction;
+use Paheko\Entities\Accounting\Line;
 
 use Paheko\Plugin\HelloAsso\Forms;
+use Paheko\Plugin\HelloAsso\HelloAsso;
+use Paheko\Plugin\HelloAsso\Items;
 
 use DateTime;
 use stdClass;
@@ -116,18 +122,23 @@ class Order extends Entity
 		return EM::getInstance(Payment::class)->all('SELECT * FROM @TABLE WHERE id_order = ? ORDER BY id DESC;', $this->id());
 	}
 
-	public function createTransaction(): Transaction
+	public function createTransaction(HelloAsso $ha, ?int $id_creator = null): Transaction
 	{
+		$config = $ha->getConfig();
 		$form = $this->form();
 		$db = DB::getInstance();
 
 		if (!$form->id_year) {
-			throw new \RuntimeException('Cannot create transaction: no year has been specified');
+			throw new UserException('La campagne n\'est pas configurée pour synchroniser avec un exercice comptable. Il faut d\'abord la configurer.');
 		}
+
+		$year = Years::get($form->id_year);
 
 		if ($this->id_transaction) {
 			throw new \RuntimeException('This order already has a transaction');
 		}
+
+		$accounts = $year->accounts();
 
 		$get_account = function (string $code) use ($accounts, $year): int {
 			static $list = [];
@@ -142,27 +153,29 @@ class Order extends Entity
 
 		$transaction = new Transaction;
 		$transaction->type = Transaction::TYPE_ADVANCED;
-		$transaction->id_creator = null;
-		$transaction->id_year = $target->id_year;
+		$transaction->id_creator = $id_creator;
+		$transaction->id_year = $year->id;
 
 		$transaction->date = $this->date;
 		$transaction->label = 'Commande HelloAsso n°' . $this->id();
 		$transaction->reference = 'HELLOASSO-' . $this->id;
 
+		$sum = 0;
+
 		// List all items, skip free items
-		$sql = 'SELECT t.account_code, i.*
+		$sql = 'SELECT t.account_code, t.label AS tier_label, i.*
 			FROM plugin_helloasso_items i
 			LEFT JOIN plugin_helloasso_forms_tiers t ON t.id = i.id_tier
 			WHERE i.amount > 0 AND i.id_order = ?;';
 
 		foreach ($db->iterate($sql, $this->id()) as $item) {
 			if (!$item->id_tier) {
+				continue;
 				throw new \LogicException('Item does not have a tier ID: ' . $item->raw_data);
-				//continue;
 			}
 
 			if (!$item->account_code) {
-				throw new \RuntimeException('No account has been specified for this type: ' . $item->type);
+				throw new UserException(sprintf("Aucun compte de recette n'a été configuré pour le tarif \"%s\".\nIl faut lui affecter un compte pour que l'écriture puisse être créée.", $item->tier_label ?? $item->label));
 			}
 
 			$line = new Line;
@@ -176,9 +189,9 @@ class Order extends Entity
 		}
 
 		// List all options, skip free options
-		$sql = 'SELECT to.account_code, o.*
+		$sql = 'SELECT t.account_code, o.*
 			FROM plugin_helloasso_items_options o
-			LEFT JOIN plugin_helloasso_forms_tiers_options to ON to.id = o.id_option
+			LEFT JOIN plugin_helloasso_forms_tiers_options AS t ON t.id = o.id_tier_option
 			WHERE o.amount > 0 AND o.id_order = ?;';
 
 		foreach ($db->iterate($sql, $this->id()) as $option) {
@@ -213,7 +226,7 @@ class Order extends Entity
 		return $transaction;
 	}
 
-	public function syncData(HelloAsso $ha): void
+	public function importData(HelloAsso $ha, ?int $id_creator, bool $create_users = true, bool $create_subscriptions = true, bool $create_transaction = true): void
 	{
 		$list = Items::list($this, $ha);
 		$list->setPageSize(null);
@@ -225,8 +238,10 @@ class Order extends Entity
 
 		foreach ($list->iterate() as $item) {
 			// Find or create user ID
-			if ($item->id_user
+			if ($create_users
+				&& !$item->id_user
 				&& $item->create_user !== Tier::NO_USER_ACTION) {
+
 				if ($item->matching_user) {
 					$item->id_user = $item->matching_user->id;
 				}
@@ -243,7 +258,8 @@ class Order extends Entity
 			}
 
 			// Create subscription
-			if (!$item->id_subscription
+			if ($create_subscriptions
+				&& !$item->id_subscription
 				&& $item->id_user
 				&& $item->id_fee) {
 				$sub = Services_User::createFromFee($item->id_fee, $item->id_user, null, true);
@@ -257,8 +273,9 @@ class Order extends Entity
 
 		$users = array_unique($users);
 
-		if (!$this->id_transaction) {
-			$transaction = $this->createTransaction();
+		if ($create_transaction
+			&& !$this->id_transaction) {
+			$transaction = $this->createTransaction($ha, $id_creator);
 
 			$transaction->save();
 			$transaction->updateLinkedUsers($users);

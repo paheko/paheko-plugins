@@ -12,7 +12,7 @@ class ItemOption extends Entity
 	protected int $id_form;
 	protected int $id_order;
 	protected int $id_item;
-	protected int $id_option;
+	protected int $id_tier_option;
 
 	protected ?string $label;
 	protected ?int $amount;

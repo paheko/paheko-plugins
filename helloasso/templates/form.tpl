@@ -7,7 +7,7 @@
 		<legend>Synchronisation avec la comptabilité</legend>
 		<dl>
 			{input type="select" options=$years_assoc name="id_year" source=$f required=false label="Exercice comptable" default_empty="— Ne pas synchroniser —"}
-			<dd class="help">Si un exercice est sélectionné, les commandes passées avec ce formulaire et ayant été payées seront transformées en écritures comptables selon la configuration des tarifs et options.</dd>
+			<dd class="help">Si un exercice est sélectionné, les commandes passées avec cette campagne et ayant été payées seront transformées en écritures comptables selon la configuration des tarifs et options.</dd>
 		</dl>
 	</fieldset>
 

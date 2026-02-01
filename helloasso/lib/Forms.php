@@ -130,7 +130,7 @@ class Forms
 					$t->save();
 
 					foreach ($tier->extraOptions ?? [] as $option) {
-						$o = EM::findOneById(TierOption::class, $option->id) ?? new Option;
+						$o = EM::findOneById(TierOption::class, $option->id) ?? new TierOption;
 						$o->id ??= $option->id;
 						$o->id_form = $data->id();
 						$o->id_tier = $t->id();
