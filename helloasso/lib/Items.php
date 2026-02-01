@@ -6,6 +6,7 @@ use Paheko\Plugin\HelloAsso\Entities\Form;
 use Paheko\Plugin\HelloAsso\Entities\Item;
 use Paheko\Plugin\HelloAsso\Entities\Order;
 use Paheko\Plugin\HelloAsso\Entities\Payment;
+use Paheko\Plugin\HelloAsso\Entities\Tier;
 use Paheko\Plugin\HelloAsso\API;
 use Paheko\Plugin\HelloAsso\HelloAsso;
 
@@ -29,47 +30,63 @@ class Items
 		$columns = [
 			'type' => [
 				'label' => 'Type',
+				'select' => 'i.type',
 			],
 			'id' => [
 				'label' => 'Numéro',
+				'select' => 'i.id',
 			],
 			'label' => [
 				'label' => 'Objet',
+				'select' => 'i.label',
 			],
 			'amount' => [
 				'label' => 'Montant',
+				'select' => 'i.amount',
 			],
 			'person' => [
 				'label' => 'Personne',
+				'select' => 'i.person',
 			],
 			'custom_fields' => [
 				'label' => 'Champs',
+				'select' => 'i.custom_fields',
 			],
 			'id_user' => [
 				'label' => 'Membre lié',
-			],
-			'options' => [
-				'select' => 'json_extract(raw_data, \'$.options\')',
+				'select' => 'i.id_user',
 			],
 			'id_order' => [],
 			'id_tier' => [],
-			'card_url' => [
-				'select' => 'json_extract(raw_data, \'$.membershipCardUrl\')',
-			],
-			'first_name' => [
-				'select' => 'json_extract(raw_data, \'$.user.firstName\')',
-			],
-			'last_name' => [
-				'select' => 'json_extract(raw_data, \'$.user.lastName\')',
-			],
 		];
 
-		$tables = Item::TABLE;
+		$tables = sprintf('%s AS i LEFT JOIN %s AS t ON t.id = i.id_tier', Item::TABLE, Tier::TABLE);
 
-		if ($for instanceof Form) {
-			unset($columns['custom_fields']);
-			unset($columns['options']);
-			unset($columns['id_user']);
+		if ($for instanceof Order) {
+			$columns = array_merge($columns, [
+				'options' => [
+					'select' => 'json_extract(i.raw_data, \'$.options\')',
+				],
+				'card_url' => [
+					'select' => 'json_extract(i.raw_data, \'$.membershipCardUrl\')',
+				],
+				'first_name' => [
+					'select' => 'json_extract(i.raw_data, \'$.user.firstName\')',
+				],
+				'last_name' => [
+					'select' => 'json_extract(i.raw_data, \'$.user.lastName\')',
+				],
+				'create_user' => [
+					'select' => 't.create_user',
+				],
+				'extra_fields_map' => [
+					'select' => 't.fields_map',
+				],
+				'id_fee' => [
+					'select' => 't.id_fee',
+				],
+				'id_subscription' => [],
+			]);
 		}
 
 		$list = new DynamicList($columns, $tables);
@@ -113,6 +130,8 @@ class Items
 					$tiers[$row->id_tier] ??= Forms::getTier($row->id_tier);
 					$data = array_merge($data, $row->custom_fields);
 					$user = $ha->getMappedUser((object)$data, $tiers[$row->id_tier]->fields_map);
+					$row->new_user = $user;
+
 					$user['redirect'] = sprintf('%s&item_id=%d&item_set_user_id=%%d', Utils::getSelfURI(), $row->id);
 					$row->new_user_url = '!users/new.php?' . http_build_query($user);
 				}

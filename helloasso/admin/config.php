@@ -5,6 +5,8 @@ namespace Paheko;
 use Paheko\Plugin\HelloAsso\HelloAsso;
 use Paheko\Users\DynamicFields;
 
+require_once __DIR__ . '/_inc.php';
+
 $session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
 
 $csrf_key = sprintf('config_plugin_%s', $plugin->id);

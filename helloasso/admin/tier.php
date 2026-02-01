@@ -4,6 +4,7 @@ namespace Paheko;
 
 use Paheko\Plugin\HelloAsso\Forms;
 use Paheko\Users\DynamicFields;
+use Paheko\Services\Services;
 
 $session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
 
@@ -17,7 +18,8 @@ $csrf_key = 'helloasso_tier_' . $tier->id();
 $f = $tier->form();
 
 $form->runIf('save', function () use ($tier) {
-	$ha->saveConfig(f('fields_map'), f('merge_names_order'), f('match_email_field'));
+	$tier->importForm();
+	$tier->save();
 }, $csrf_key, './orders.php?id=' . $f->id());
 
 $options = $tier->listOptions();
@@ -26,8 +28,10 @@ $ha_fields = $tier->custom_fields;
 $df = DynamicFields::getInstance();
 $fields_assoc = $df->listImportAssocNames();
 
+$fees = Services::listGroupedWithFeesForSelect(false);
+
 $account = $tier->account_code ? [$tier->account_code => $tier->account_code] : null;
 
-$tpl->assign(compact('tier', 'csrf_key', 'f', 'ha_fields', 'fields_assoc', 'account'));
+$tpl->assign(compact('tier', 'csrf_key', 'f', 'ha_fields', 'fields_assoc', 'account', 'fees'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/tier.tpl');

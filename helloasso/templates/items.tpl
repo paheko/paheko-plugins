@@ -2,8 +2,14 @@
 
 {include file="./_menu.tpl" current="home" current_sub="items" show_export=true}
 
-{include file="./_items_list.tpl" details=true}
+{if !$list->count()}
+	<p class="alert block">Il n'y a aucun article pour cette campagne.</p>
+{else}
 
-{$list->getHTMLPagination()|raw}
+	{include file="./_items_list.tpl" details=true}
+
+	{$list->getHTMLPagination()|raw}
+
+{/if}
 
 {include file="_foot.tpl"}

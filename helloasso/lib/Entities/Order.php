@@ -119,6 +119,7 @@ class Order extends Entity
 	public function createTransaction(): Transaction
 	{
 		$form = $this->form();
+		$db = DB::getInstance();
 
 		if (!$form->id_year) {
 			throw new \RuntimeException('Cannot create transaction: no year has been specified');
@@ -148,8 +149,6 @@ class Order extends Entity
 		$transaction->label = 'Commande HelloAsso n°' . $this->id();
 		$transaction->reference = 'HELLOASSO-' . $this->id;
 
-		$tiers = [];
-
 		// List all items, skip free items
 		$sql = 'SELECT t.account_code, i.*
 			FROM plugin_helloasso_items i
@@ -169,7 +168,7 @@ class Order extends Entity
 			$line = new Line;
 			$line->label = $item->label;
 			$line->reference = 'I' . $item->id;
-			$line->id_account = $get_account($tier->account_code);
+			$line->id_account = $get_account($item->account_code);
 			$line->credit = $item->amount;
 			$transaction->addLine($line);
 
@@ -211,8 +210,63 @@ class Order extends Entity
 			throw new \LogicException('Unbalanced transaction');
 		}
 
-		$transaction->save();
-		$this->set('id_transaction', $transaction->id());
-		$this->save();
+		return $transaction;
+	}
+
+	public function syncData(HelloAsso $ha): void
+	{
+		$list = Items::list($this, $ha);
+		$list->setPageSize(null);
+
+		$db = DB::getInstance();
+		$db->begin();
+
+		$users = [];
+
+		foreach ($list->iterate() as $item) {
+			// Find or create user ID
+			if ($item->id_user
+				&& $item->create_user !== Tier::NO_USER_ACTION) {
+				if ($item->matching_user) {
+					$item->id_user = $item->matching_user->id;
+				}
+				elseif ($item->create_user === Tier::CREATE_UPDATE_USER && $item->new_user) {
+					$user = Users::create();
+					$user->importForm($item->new_user);
+					$user->save();
+					$item->id_user = $user->id();
+				}
+
+				if ($item->id_user) {
+					$db->preparedQuery(sprintf('UPDATE %s SET id_user = ? WHERE id = ? AND id_user IS NULL;', Item::TABLE), $item->id_user, $item->id);
+				}
+			}
+
+			// Create subscription
+			if (!$item->id_subscription
+				&& $item->id_user
+				&& $item->id_fee) {
+				$sub = Services_User::createFromFee($item->id_fee, $item->id_user, null, true);
+				$sub->save();
+				$item->id_subscription = $sub->id();
+				$db->preparedQuery(sprintf('UPDATE %s SET id_subscription = ? WHERE id = ? AND id_subscription IS NULL;', Item::TABLE), $item->id_subscription, $item->id);
+			}
+
+			$users[] = $item->id_user;
+		}
+
+		$users = array_unique($users);
+
+		if (!$this->id_transaction) {
+			$transaction = $this->createTransaction();
+
+			$transaction->save();
+			$transaction->updateLinkedUsers($users);
+
+			$this->set('id_transaction', $transaction->id());
+			$this->save();
+		}
+
+		$db->commit();
 	}
 }

@@ -16,7 +16,8 @@ if (!$f) {
 $csrf_key = 'helloasso_form_' . $f->id();
 
 $form->runIf('save', function () use ($f) {
-	$ha->saveConfig(f('fields_map'), f('merge_names_order'), f('match_email_field'));
+	$f->set('id_year', intval($_POST['id_year'] ?? 0));
+	$f->save();
 }, $csrf_key, './orders.php?id=' . $f->id());
 
 $tiers = $f->listTiers();

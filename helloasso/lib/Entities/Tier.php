@@ -56,4 +56,15 @@ class Tier extends Entity
 	{
 		return EM::getInstance(Option::class)->all('SELECT * FROM @TABLE WHERE id_tier = ? ORDER BY label COLLATE U_NOCASE, amount;', $this->id());
 	}
+
+	public function importForm(?array $source = null)
+	{
+		$source ??= $_POST;
+
+		if (isset($source['account_code']) && is_array($source['account_code'])) {
+			$source['account_code'] = key($source['account_code']);
+		}
+
+		parent::importForm($source);
+	}
 }
