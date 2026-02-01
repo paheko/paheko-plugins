@@ -28,8 +28,10 @@
 				{if $row.id_user}
 					{linkbutton shape="user" label="Fiche membre" href="!users/details.php?id=%d"|args:$row.id_user}
 				{elseif $row.matching_user}
-					Membre trouvé : {$row.matching_user.identity}<br />
-					{linkbutton shape="link" href="?id=%d&item_id=%d&item_set_user_id=%d"|args:$order.id:$row.id:$row.matching_user.id label="Lier cette adhésion à ce membre"}
+					<p class="block confirm">
+						Membre trouvé : {$row.matching_user.identity}<br />
+						{linkbutton shape="link" href="?id=%d&item_id=%d&item_set_user_id=%d"|args:$order.id:$row.id:$row.matching_user.id label="Lier à ce membre"}
+					</p>
 				{elseif $row.new_user_url}
 					{linkbutton shape="plus" href=$row.new_user_url|cat:"&set_item="|cat:$row.id|cat:"&set_item_user_id=%d" label="Créer ce membre"}
 				{/if}
@@ -50,7 +52,7 @@
 		{if $row.options}
 			{foreach from=$row.options item="option"}
 			<tr>
-				<td>{icon shape="right"} {tag label="Option" color="DarkMagenta"}</td>
+				<td>↳&nbsp;{tag label="Option" color="DarkMagenta"}</td>
 				<td class="num">{$option.id}</td>
 				<th scope="row">{$option.label}</th>
 				<td class="money">{$option.amount|money_currency:false|raw}</td>

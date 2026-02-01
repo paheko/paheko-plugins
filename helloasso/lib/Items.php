@@ -24,7 +24,7 @@ class Items
 		return EM::findOneById(Item::class, $id);
 	}
 
-	static public function list($for, Helloasso $ha): DynamicList
+	static public function list($for, ?Helloasso $ha = null): DynamicList
 	{
 		$columns = [
 			'type' => [
@@ -102,7 +102,8 @@ class Items
 
 			$row->new_user_url = '';
 
-			if ($row->type === 'Membership'
+			if ($ha
+				&& $row->type === 'Membership'
 				&& !isset($row->id_user)
 				&& isset($row->first_name, $row->last_name)) {
 				$data = ['firstName' => $row->first_name, 'lastName' => $row->last_name];

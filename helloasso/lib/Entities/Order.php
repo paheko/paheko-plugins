@@ -116,9 +116,11 @@ class Order extends Entity
 		return EM::getInstance(Payment::class)->all('SELECT * FROM @TABLE WHERE id_order = ? ORDER BY id DESC;', $this->id());
 	}
 
-	public function createTransaction(Target $target): Transaction
+	public function createTransaction(): Transaction
 	{
-		if (!$target->id_year) {
+		$form = $this->form();
+
+		if (!$form->id_year) {
 			throw new \RuntimeException('Cannot create transaction: no year has been specified');
 		}
 
@@ -126,11 +128,16 @@ class Order extends Entity
 			throw new \RuntimeException('This order already has a transaction');
 		}
 
-		$accounts = $target->listAccountsByType();
+		$get_account = function (string $code) use ($accounts, $year): int {
+			static $list = [];
+			$list[$code] ??= $accounts->getIdFromCode($code);
 
-		if (!isset($accounts[TargetAccount::TYPE_THIRDPARTY])) {
+			if (!$list[$code]) {
+				throw new UserException(sprintf('Le compte "%s" n\'existe pas dans le plan comptable "%s"', $code, $year->chart()->label));
+			}
 
-		}
+			return $list[$code];
+		};
 
 		$transaction = new Transaction;
 		$transaction->type = Transaction::TYPE_ADVANCED;
@@ -139,23 +146,69 @@ class Order extends Entity
 
 		$transaction->date = $this->date;
 		$transaction->label = 'Commande HelloAsso n°' . $this->id();
-		$transaction->reference = $this->id;
+		$transaction->reference = 'HELLOASSO-' . $this->id;
 
-		foreach ($this->listItems() as $item) {
-			if (!isset($accounts[$item->type])) {
+		$tiers = [];
+
+		// List all items, skip free items
+		$sql = 'SELECT t.account_code, i.*
+			FROM plugin_helloasso_items i
+			LEFT JOIN plugin_helloasso_forms_tiers t ON t.id = i.id_tier
+			WHERE i.amount > 0 AND i.id_order = ?;';
+
+		foreach ($db->iterate($sql, $this->id()) as $item) {
+			if (!$item->id_tier) {
+				throw new \LogicException('Item does not have a tier ID: ' . $item->raw_data);
+				//continue;
+			}
+
+			if (!$item->account_code) {
 				throw new \RuntimeException('No account has been specified for this type: ' . $item->type);
 			}
 
 			$line = new Line;
 			$line->label = $item->label;
-			$line->reference = $item->id;
-			$line->id_account = $accounts[$item->type];
+			$line->reference = 'I' . $item->id;
+			$line->id_account = $get_account($tier->account_code);
+			$line->credit = $item->amount;
 			$transaction->addLine($line);
 
-			$sum = $transaction->sum();
+			$sum += $item->amount;
+		}
 
+		// List all options, skip free options
+		$sql = 'SELECT to.account_code, o.*
+			FROM plugin_helloasso_items_options o
+			LEFT JOIN plugin_helloasso_forms_tiers_options to ON to.id = o.id_option
+			WHERE o.amount > 0 AND o.id_order = ?;';
+
+		foreach ($db->iterate($sql, $this->id()) as $option) {
 			$line = new Line;
-			$line->label = '';
+			$line->label = $option->label ?? 'Option';
+			$line->reference = 'O' . $item->id;
+			$line->id_account = $get_account($option->account_code);
+			$line->credit = $option->amount;
+			$transaction->addLine($line);
+
+			$sum += $option->amount;
+		}
+
+		// List all payments
+		$sql = 'SELECT * FROM plugin_helloasso_payments WHERE id_order = ?;';
+
+		foreach ($db->iterate($sql, $this->id()) as $payment) {
+			$line = new Line;
+			$line->label = sprintf('Paiement du %s', Utils::shortDate($payment->date));
+			$line->reference = 'P' . $payment->id;
+			$line->id_account = $get_account($config->provider_account_code);
+			$line->debit = $payment->amount;
+			$transaction->addLine($line);
+
+			$sum -= $payment->amount;
+		}
+
+		if ($sum !== 0) {
+			throw new \LogicException('Unbalanced transaction');
 		}
 
 		$transaction->save();
