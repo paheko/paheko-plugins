@@ -37,7 +37,7 @@ class Order extends Entity
 	const STATUS_PAID = 1;
 	const STATUS_WAITING = 0;
 
-	const PROMO_ACCOUNT_CODE = '709';
+	//const PROMO_ACCOUNT_CODE = '709';
 
 	protected ?Form $_form = null;
 	protected array $_tiers = [];
@@ -124,11 +124,20 @@ class Order extends Entity
 		return EM::getInstance(Payment::class)->all('SELECT * FROM @TABLE WHERE id_order = ? ORDER BY id DESC;', $this->id());
 	}
 
-	public function createTransaction(HelloAsso $ha, ?int $id_creator = null): Transaction
+	public function createTransaction(HelloAsso $ha, ?int $id_creator = null): ?Transaction
 	{
 		$config = $ha->getConfig();
 		$form = $this->form();
 		$db = DB::getInstance();
+
+		$ref = 'HELLOASSO-C' . $this->id;
+
+		// Stop here if transaction already exists
+		$found = EM::findOne(Transaction::class, 'SELECT * FROM @TABLE WHERE reference = ? LIMIT 1;', $ref);
+
+		if ($found) {
+			return $found;
+		}
 
 		if (!$form->id_year) {
 			throw new UserException('La campagne n\'est pas configurée pour synchroniser avec un exercice comptable. Il faut d\'abord la configurer.');
@@ -172,7 +181,7 @@ class Order extends Entity
 
 		$transaction->date = $this->date;
 		$transaction->label = 'Commande HelloAsso n°' . $this->id();
-		$transaction->reference = 'HELLOASSO-' . $this->id;
+		$transaction->reference = $ref;
 
 		$sum = 0;
 
@@ -216,6 +225,7 @@ class Order extends Entity
 			}
 
 			/*
+			// Currently we don't count discounts, but we could, in the future
 			if (!empty($data->discount)) {
 				$line = new Line;
 				$line->label = 'Code promo ' . ($data->discount->code ?? 'inconnu');
@@ -233,7 +243,7 @@ class Order extends Entity
 
 			// Process options directly from JSON, we don't store them
 			foreach ($data->options as $option) {
-				if (!isset($option->optionId, $option->amount)) {
+				if (!isset($option->optionId, $option->amount) || empty($option->amount)) {
 					continue;
 				}
 
@@ -266,8 +276,6 @@ class Order extends Entity
 		}
 
 		if ($sum !== 0) {
-			echo '<pre>';
-			var_dump($transaction->asDetailsArray(), $sum); exit;
 			throw new \LogicException('Unbalanced transaction');
 		}
 
