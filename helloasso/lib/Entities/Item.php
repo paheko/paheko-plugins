@@ -26,6 +26,22 @@ class Item extends Entity
 	protected ?string $custom_fields;
 	protected string $raw_data;
 
+	/**
+	 * Says what type of account should be used
+	 */
+	const TYPES_ACCOUNTS = [
+		'Donation'        => 'donation',
+		'Payment'         => 'payment',
+		'Registration'    => 'payment',
+		'Membership'      => 'payment',
+		'MonthlyDonation' => 'donation',
+		'MonthlyPayment'  => 'payment',
+		'OfflineDonation' => 'donation',
+		'Contribution'    => 'payment',
+		'Bonus'           => 'payment',
+		'Product'         => 'payment',
+	];
+
 	const TYPES = [
 		'Donation'        => 'Don',
 		'Payment'         => 'Paiement',
@@ -36,6 +52,7 @@ class Item extends Entity
 		'OfflineDonation' => 'Don hors-ligne',
 		'Contribution'    => 'Contribution',
 		'Bonus'           => 'Bonus',
+		'Product'         => 'Produit',
 	];
 
 	const TYPES_COLORS = [
@@ -48,6 +65,7 @@ class Item extends Entity
 		'OfflineDonation' => 'DarkSeaGreen',
 		'Contribution'    => 'DarkSlateBlue',
 		'Bonus'           => 'DarkSlateGray',
+		'Product'         => 'CadetBlue',
 	];
 
 	const STATES = [
@@ -59,6 +77,9 @@ class Item extends Entity
 		'Unknown'    => 'Inconnu',
 		'Canceled'   => 'Annulé',
 		'Contested'  => 'Contesté',
+		'Unknow'     => 'Inconnu', // Typo de l'API HelloASSO
+		'Refused'    => 'Refusé',
+		'Abandoned'  => 'Abandonné',
 	];
 
 	public function setUserId(int $id): void

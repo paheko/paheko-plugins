@@ -16,10 +16,8 @@
 	{if isset($f->name)}
 		<aside>
 			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
-				{if $f.type === 'Membership'}
-					{linkbutton href="tiers.php?id=%d"|args:$f.id label="Configurer les tarifs" shape="menu" target="_dialog"}
-					{linkbutton href="form.php?id=%d"|args:$f.id label="Configurer la campagne" shape="edit" target="_dialog"}
-				{/if}
+				{linkbutton href="tiers.php?id=%d"|args:$f.id label="Configurer les tarifs" shape="menu" target="_dialog"}
+				{linkbutton href="form.php?id=%d"|args:$f.id label="Configurer la campagne" shape="edit" target="_dialog"}
 			{/if}
 		{if !empty($show_export)}
 			{exportmenu right=true}

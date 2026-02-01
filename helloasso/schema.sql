@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms (
 
 	raw_data TEXT NOT NULL,
 
-	id_year INTEGER NULL REFERENCES acc_years(id) ON DELETE SET NULL
+	id_year INTEGER NULL REFERENCES acc_years(id) ON DELETE SET NULL,
+	payment_account_code TEXT NULL
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS plugin_helloasso_forms_key ON plugin_helloasso_forms(org_slug, slug);
@@ -42,12 +43,18 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers (
 CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers_options (
 	id INTEGER PRIMARY KEY,
 	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
-	id_tier INTEGER NOT NULL REFERENCES plugin_helloasso_forms_tiers(id) ON DELETE CASCADE,
 	label TEXT NULL,
 	amount INTEGER NULL,
 
 	-- Which account should be used to create the transaction line for this option
 	account_code TEXT NULL
+);
+
+CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers_options_links (
+-- An option can be linked to more than one tier
+	id_tier INTEGER NOT NULL REFERENCES plugin_helloasso_forms_tiers(id) ON DELETE CASCADE,
+	id_tier_option INTEGER NOT NULL REFERENCES plugin_helloasso_forms_tiers_options(id) ON DELETE CASCADE,
+	PRIMARY KEY(id_tier, id_tier_option)
 );
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_orders (
@@ -79,6 +86,7 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_items (
 	custom_fields TEXT NULL
 );
 
+/*
 CREATE TABLE IF NOT EXISTS plugin_helloasso_items_options (
 	id INTEGER PRIMARY KEY NOT NULL,
 	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
@@ -91,6 +99,7 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_items_options (
 	raw_data TEXT NOT NULL,
 	custom_fields TEXT NULL
 );
+*/
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_payments (
 	id INTEGER PRIMARY KEY NOT NULL,

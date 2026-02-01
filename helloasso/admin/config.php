@@ -34,6 +34,7 @@ $name_field = count($name_fields) === 1 ? $df->get(current($name_fields)) : null
 
 $bank_account = !empty($plugin_config->bank_account_code) ? [$plugin_config->bank_account_code => $plugin_config->bank_account_code] : null;
 $provider_account = !empty($plugin_config->provider_account_code) ? [$plugin_config->provider_account_code => $plugin_config->provider_account_code] : null;
+$donation_account = !empty($plugin_config->donation_account_code) ? [$plugin_config->donation_account_code => $plugin_config->donation_account_code] : null;
 
 $tpl->assign(compact(
 	'csrf_key',
@@ -44,7 +45,8 @@ $tpl->assign(compact(
 	'name_field',
 	'plugin_config',
 	'bank_account',
-	'provider_account'
+	'provider_account',
+	'donation_account'
 ));
 
 $tpl->display(PLUGIN_ROOT . '/templates/config.tpl');

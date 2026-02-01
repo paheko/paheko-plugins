@@ -4,7 +4,6 @@ namespace Paheko\Plugin\HelloAsso;
 
 use Paheko\Plugin\HelloAsso\Entities\Form;
 use Paheko\Plugin\HelloAsso\Entities\Item;
-use Paheko\Plugin\HelloAsso\Entities\ItemOption;
 use Paheko\Plugin\HelloAsso\Entities\Order;
 use Paheko\Plugin\HelloAsso\Entities\Payment;
 use Paheko\Plugin\HelloAsso\Entities\Tier;
@@ -93,12 +92,12 @@ class Items
 		$list = new DynamicList($columns, $tables);
 
 		if ($for instanceof Form) {
-			$conditions = sprintf('id_form = %d', $for->id);
+			$conditions = sprintf('i.id_form = %d', $for->id);
 			$list->setConditions($conditions);
 			$list->setTitle(sprintf('%s - Items', $for->name));
 		}
 		elseif ($for instanceof Order) {
-			$conditions = sprintf('id_order = %d', $for->id);
+			$conditions = sprintf('i.id_order = %d', $for->id);
 			$list->setConditions($conditions);
 			$list->setTitle(sprintf('Commande - %d - Items', $for->id));
 		}
@@ -209,24 +208,6 @@ class Items
 		$entity->set('label', $data->name ?? Forms::getName($entity->id_form));
 		$entity->set('custom_fields', count($data->fields) ? json_encode($data->fields) : null);
 		$entity->save();
-
-		// Save options
-		foreach ($data->options ?? [] as $option) {
-			$option = self::normalizeOption($option);
-
-			$o = EM::findOne(ItemOption::class,
-				'SELECT * FROM @TABLE WHERE id_tier_option = ? AND id_item = ?;',
-				$option->id_tier_option,
-				$entity->id()
-			);
-
-			$o ??= new ItemOption;
-			$o->import((array)$option);
-			$o->set('id_form', $entity->id_form);
-			$o->set('id_order', $entity->id_order);
-			$o->set('id_item', $entity->id());
-			$o->save();
-		}
 	}
 
 	static protected function transform(\stdClass $data): \stdClass

@@ -139,6 +139,7 @@ class HelloAsso
 			'match_email_field'     => 'bool',
 			'bank_account_code'     => 'string',
 			'provider_account_code' => 'string',
+			'donation_account_code' => 'string',
 		];
 
 		foreach ($properties as $name => $type) {
@@ -146,7 +147,7 @@ class HelloAsso
 
 			if ($type === 'string') {
 				if (is_array($value)) {
-					$value = key($value);
+					$value = (string) key($value);
 				}
 			}
 			elseif ($type === 'bool') {
@@ -155,6 +156,7 @@ class HelloAsso
 			elseif ($type === 'int') {
 				$value = (int) $value;
 			}
+
 
 			if (get_debug_type($value) !== $type) {
 				continue;

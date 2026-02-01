@@ -37,6 +37,8 @@ class Order extends Entity
 	const STATUS_PAID = 1;
 	const STATUS_WAITING = 0;
 
+	const PROMO_ACCOUNT_CODE = '709';
+
 	protected ?Form $_form = null;
 	protected array $_tiers = [];
 
@@ -132,10 +134,22 @@ class Order extends Entity
 			throw new UserException('La campagne n\'est pas configurée pour synchroniser avec un exercice comptable. Il faut d\'abord la configurer.');
 		}
 
+		if (!$form->payment_account_code) {
+			throw new UserException('La campagne n\'a pas de compte configuré pour les paiements.');
+		}
+
+		if (!isset($config->donation_account_code)) {
+			throw new UserException('Aucun compte n\'est sélectionné pour les dons, dans la configuration de l\'extension.');
+		}
+
+		if (!isset($config->provider_account_code)) {
+			throw new UserException('Aucun compte n\'est sélectionné pour le prestataire HelloAsso, dans la configuration de l\'extension.');
+		}
+
 		$year = Years::get($form->id_year);
 
 		if ($this->id_transaction) {
-			throw new \RuntimeException('This order already has a transaction');
+			throw new UserException('Cette commande a déjà une écriture liée');
 		}
 
 		$accounts = $year->accounts();
@@ -162,6 +176,8 @@ class Order extends Entity
 
 		$sum = 0;
 
+		$options_codes = $db->getAssoc('SELECT id, account_code FROM plugin_helloasso_forms_tiers_options WHERE id_form = ?;', $form->id());
+
 		// List all items, skip free items
 		$sql = 'SELECT t.account_code, t.label AS tier_label, i.*
 			FROM plugin_helloasso_items i
@@ -169,40 +185,70 @@ class Order extends Entity
 			WHERE i.amount > 0 AND i.id_order = ?;';
 
 		foreach ($db->iterate($sql, $this->id()) as $item) {
-			if (!$item->id_tier) {
-				continue;
-				throw new \LogicException('Item does not have a tier ID: ' . $item->raw_data);
-			}
+			$type = Item::TYPES_ACCOUNTS[$item->type];
 
-			if (!$item->account_code) {
-				throw new UserException(sprintf("Aucun compte de recette n'a été configuré pour le tarif \"%s\".\nIl faut lui affecter un compte pour que l'écriture puisse être créée.", $item->tier_label ?? $item->label));
+			// If the item has configured account for its tier
+			if ($item->account_code) {
+				$code = $item->account_code;
+			}
+			// If the item is some kind of donation
+			elseif ($type === 'donation') {
+				$code = $config->donation_account_code;
+			}
+			// Fallback to payment
+			else {
+				$code = $form->payment_account_code;
 			}
 
 			$line = new Line;
 			$line->label = $item->label;
 			$line->reference = 'I' . $item->id;
-			$line->id_account = $get_account($item->account_code);
+			$line->id_account = $get_account($code);
 			$line->credit = $item->amount;
 			$transaction->addLine($line);
 
 			$sum += $item->amount;
-		}
 
-		// List all options, skip free options
-		$sql = 'SELECT t.account_code, o.*
-			FROM plugin_helloasso_items_options o
-			LEFT JOIN plugin_helloasso_forms_tiers_options AS t ON t.id = o.id_tier_option
-			WHERE o.amount > 0 AND o.id_order = ?;';
+			$data = json_decode($item->raw_data);
 
-		foreach ($db->iterate($sql, $this->id()) as $option) {
-			$line = new Line;
-			$line->label = $option->label ?? 'Option';
-			$line->reference = 'O' . $item->id;
-			$line->id_account = $get_account($option->account_code);
-			$line->credit = $option->amount;
-			$transaction->addLine($line);
+			if (!$data || !is_object($data)) {
+				continue;
+			}
 
-			$sum += $option->amount;
+			/*
+			if (!empty($data->discount)) {
+				$line = new Line;
+				$line->label = 'Code promo ' . ($data->discount->code ?? 'inconnu');
+				$line->id_account = $get_account(self::PROMO_ACCOUNT_CODE);
+				$line->debit = $data->discount->amount;
+				$transaction->addLine($line);
+
+				$sum -= $data->discount->amount;
+			}
+			*/
+
+			if (!isset($data->options) || !is_array($data->options)) {
+				continue;
+			}
+
+			// Process options directly from JSON, we don't store them
+			foreach ($data->options as $option) {
+				if (!isset($option->optionId, $option->amount)) {
+					continue;
+				}
+
+				$id = $option->optionId;
+				$code = $options_codes[$id] ?? $form->payment_account_code;
+
+				$line = new Line;
+				$line->label = $option->name ?? 'Option';
+				$line->reference = 'O' . $id;
+				$line->id_account = $get_account($code);
+				$line->credit = $option->amount;
+				$transaction->addLine($line);
+
+				$sum += $option->amount;
+			}
 		}
 
 		// List all payments
@@ -220,6 +266,8 @@ class Order extends Entity
 		}
 
 		if ($sum !== 0) {
+			echo '<pre>';
+			var_dump($transaction->asDetailsArray(), $sum); exit;
 			throw new \LogicException('Unbalanced transaction');
 		}
 
@@ -268,7 +316,9 @@ class Order extends Entity
 				$db->preparedQuery(sprintf('UPDATE %s SET id_subscription = ? WHERE id = ? AND id_subscription IS NULL;', Item::TABLE), $item->id_subscription, $item->id);
 			}
 
-			$users[] = $item->id_user;
+			if ($item->id_user) {
+				$users[] = $item->id_user;
+			}
 		}
 
 		$users = array_unique($users);

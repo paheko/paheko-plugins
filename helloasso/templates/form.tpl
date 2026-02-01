@@ -8,6 +8,7 @@
 		<dl>
 			{input type="select" options=$years_assoc name="id_year" source=$f required=false label="Exercice comptable" default_empty="— Ne pas synchroniser —"}
 			<dd class="help">Si un exercice est sélectionné, les commandes passées avec cette campagne et ayant été payées seront transformées en écritures comptables selon la configuration des tarifs et options.</dd>
+			{input type="list" target="!acc/charts/accounts/selector.php?types=6&key=code" name="payment_account_code" label="Compte de recette pour les paiements reçus" default=$payment_account}
 		</dl>
 	</fieldset>
 

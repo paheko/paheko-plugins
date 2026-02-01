@@ -133,10 +133,12 @@ class Forms
 						$o = EM::findOneById(TierOption::class, $option->id) ?? new TierOption;
 						$o->id ??= $option->id;
 						$o->id_form = $data->id();
-						$o->id_tier = $t->id();
 						$o->label = $option->label ?? null;
-						$t->amount = $option->price ?? null;
+						$o->amount = $option->price ?? null;
 						$o->save();
+
+						// Add link between option and tier
+						$o->linkTo($tier->id);
 					}
 				}
 

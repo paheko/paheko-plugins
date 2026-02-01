@@ -26,6 +26,7 @@ class Form extends Entity
 	protected string $raw_data;
 
 	protected ?int $id_year;
+	protected ?string $payment_account_code;
 
 	const TYPES = [
 		'CrowdFunding' => 'Crowdfunding',
@@ -54,5 +55,16 @@ class Form extends Entity
 	public function listTiers(): array
 	{
 		return EM::getInstance(Tier::class)->all('SELECT * FROM @TABLE WHERE id_form = ? ORDER BY label COLLATE U_NOCASE, amount;', $this->id());
+	}
+
+	public function importForm(?array $source = null)
+	{
+		$source ??= $_POST;
+
+		if (isset($source['payment_account_code']) && is_array($source['payment_account_code'])) {
+			$source['payment_account_code'] = key($source['payment_account_code']);
+		}
+
+		parent::importForm($source);
 	}
 }
