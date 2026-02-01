@@ -134,10 +134,10 @@ class HelloAsso
 	public function saveConfig(array $data): void
 	{
 		static $properties = [
-			'fields_map' => 'array',
-			'merge_names_order' => 'int',
-			'match_email_field' => 'bool',
-			'bank_account_code' => 'string',
+			'fields_map'            => 'array',
+			'merge_names_order'     => 'int',
+			'match_email_field'     => 'bool',
+			'bank_account_code'     => 'string',
 			'provider_account_code' => 'string',
 		];
 

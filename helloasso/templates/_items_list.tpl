@@ -53,7 +53,7 @@
 			{foreach from=$row.options item="option"}
 			<tr>
 				<td>↳&nbsp;{tag label="Option" color="DarkMagenta"}</td>
-				<td class="num">{$option.id}</td>
+				<td class="num">{$option.id_tier_option}</td>
 				<th scope="row">{$option.label}</th>
 				<td class="money">{$option.amount|money_currency:false|raw}</td>
 				<td></td>

@@ -159,11 +159,11 @@ class Items
 		}
 
 		return (object) [
-			'id'             => $option->optionId,
+			'id_tier_option' => $option->optionId,
 			'amount'         => $option->amount,
-			'price_category' => $option->priceCategory,
 			'label'          => $option->name,
 			'custom_fields'  => HelloAsso::normalizeCustomFields($option->customFields),
+			'raw_data'       => json_encode($option),
 		];
 	}
 
@@ -207,8 +207,22 @@ class Items
 		$entity->set('person', $data->user_name ?? $data->payer_name);
 		$entity->set('label', $data->name ?? Forms::getName($entity->id_form));
 		$entity->set('custom_fields', count($data->fields) ? json_encode($data->fields) : null);
-
 		$entity->save();
+
+		// Save options
+		foreach ($data->options ?? [] as $option) {
+			$option = self::normalizeOption($option);
+
+			$o = EM::findOne(ItemOption::class,
+				'SELECT * FROM @TABLE WHERE id_tier_option = ? AND id_item = ?;',
+				$option->id_tier_option,
+				$entity->id()
+			);
+
+			$o ??= new ItemOption;
+			$o->import($option);
+			$o->save();
+		}
 	}
 
 	static protected function transform(\stdClass $data): \stdClass

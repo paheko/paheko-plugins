@@ -4,7 +4,7 @@ namespace Paheko\Plugin\HelloAsso\Entities;
 
 use Paheko\Entity;
 
-class Option extends Entity
+class TierOption extends Entity
 {
 	const TABLE = 'plugin_helloasso_forms_tiers_options';
 

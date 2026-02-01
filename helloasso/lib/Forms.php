@@ -4,7 +4,7 @@ namespace Paheko\Plugin\HelloAsso;
 
 use Paheko\Plugin\HelloAsso\Entities\Form;
 use Paheko\Plugin\HelloAsso\Entities\Tier;
-use Paheko\Plugin\HelloAsso\Entities\Option;
+use Paheko\Plugin\HelloAsso\Entities\TierOption;
 use Paheko\Plugin\HelloAsso\API;
 use Paheko\Plugin\HelloAsso\HelloAsso;
 
@@ -130,7 +130,7 @@ class Forms
 					$t->save();
 
 					foreach ($tier->extraOptions ?? [] as $option) {
-						$o = EM::findOneById(Option::class, $option->id) ?? new Option;
+						$o = EM::findOneById(TierOption::class, $option->id) ?? new Option;
 						$o->id ??= $option->id;
 						$o->id_form = $data->id();
 						$o->id_tier = $t->id();
