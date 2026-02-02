@@ -60,18 +60,25 @@ class Orders
 	static public function sync(string $org_slug): void
 	{
 		$params = [
-			'pageSize'  => HelloAsso::getPageSize(),
+			'pageSize'    => HelloAsso::getPageSize(),
+			'withDetails' => 'true',
+			'sortOrder'   => 'desc',
 		];
 
-		$page_count = 1;
+		$max = 20;
+		$i = 0;
 
-		for ($i = 1; $i <= $page_count; $i++) {
-			$params['pageIndex'] = $i;
+		while ($i++ < $max) {
 			$result = API::getInstance()->listOrganizationOrders($org_slug, $params);
-			$page_count = $result->pagination->totalPages;
 
 			foreach ($result->data as $order) {
 				self::syncOrder($order);
+			}
+
+			$params['continuationToken'] = $result->pagination->continuationToken ?? null;
+
+			if (!$params['continuationToken']) {
+				break;
 			}
 		}
 	}
