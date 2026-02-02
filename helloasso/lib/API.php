@@ -2,6 +2,7 @@
 
 namespace Paheko\Plugin\HelloAsso;
 
+use Paheko\Security;
 use Paheko\UserException;
 
 use KD2\HTTP;
@@ -92,16 +93,37 @@ class API
 	/******* OAUTH METHODS ********/
 	protected function getToken(): string
 	{
-		if (empty($this->oauth->access_token) || empty($this->oauth->expiry)) {
-			throw new UserException('Authentification à l\'API impossible, merci de renseigner les informations de connexion à l\'API dans la configuration.');
-		}
-		elseif ($this->oauth->expiry - 10 <= time()) {
-			$this->oauth = $this->refreshToken($this->oauth->refresh_token);
-			$this->ha->plugin()->setConfigProperty('oauth', $this->oauth);
-			$this->ha->plugin()->save();
+		$plugin = $this->ha->plugin();
+
+		if (!empty($this->oauth->expiry)
+			&& $this->oauth->expiry - 10 <= time()) {
+			$token = Security::decryptWithPassword(null, $this->oauth->refresh_token ?? '');
+
+			if (!$token) {
+				$this->oauth = null;
+			}
+			else {
+				$this->oauth = $this->refreshToken($token);
+			}
+
+			$plugin->setConfigProperty('oauth', $this->oauth);
+			$plugin->save();
+
+			if (!$this->oauth) {
+				throw new UserException('Renouvellement de clé API impossible, merci de renseigner les informations de connexion à l\'API dans la configuration.');
+			}
 		}
 
-		return $this->oauth->access_token;
+		$token = Security::decryptWithPassword(null, $this->oauth->access_token ?? '');
+
+		if (!$token) {
+			$this->oauth = null;
+			$plugin->setConfigProperty('oauth', $this->oauth);
+			$plugin->save();
+			throw new UserException('Authentification à l\'API impossible, merci de renseigner les informations de connexion à l\'API dans la configuration.');
+		}
+
+		return $token;
 	}
 
 	public function register(string $client_id, string $secret): bool
@@ -159,6 +181,10 @@ class API
 		}
 
 		$oauth->expiry = time() + $oauth->expires_in;
+
+		// Encrypt data before storing in DB
+		$oauth->access_token = Security::encryptWithPassword(null, $oauth->access_token);
+		$oauth->refresh_token = Security::encryptWithPassword(null, $oauth->refresh_token);
 
 		return $oauth;
 	}
