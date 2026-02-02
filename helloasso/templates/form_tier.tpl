@@ -18,8 +18,8 @@
 	<fieldset>
 		<legend>Synchronisation avec la comptabilité</legend>
 		<dl>
-			{input type="list" target="!acc/charts/accounts/selector.php?types=6&key=code" name="account_code" label="Compte de recette" default=$account}
-			<dd class="help">Si un compte est sélectionné, une écriture sera créée pour chaque paiement correspondant à ce tarif. Laisser vide pour ne pas synchroniser avec la comptabilité.</dd>
+			{input type="list" target="!acc/charts/accounts/selector.php?types=6&key=code" name="account_code" label="Compte de recette" default=$account can_delete=true}
+			<dd class="help">Laisser vide pour utiliser le compte défini pour la campagne.</dd>
 		</dl>
 	</fieldset>
 

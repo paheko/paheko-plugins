@@ -17,6 +17,10 @@ class HelloAsso
 {
 	const PER_PAGE = 100;
 
+	const NO_USER_ACTION = 0;
+	const CREATE_UPDATE_USER = 1;
+	const UPDATE_USER = 2;
+
 	const MERGE_NAMES_FIRST_LAST = 0;
 	const MERGE_NAMES_LAST_FIRST = 1;
 

@@ -30,6 +30,11 @@ if (!empty($_GET['item_set_user_id'])) {
 	Utils::redirect('./order.php?id=' . $order->id());
 }
 
+$form->runIf('sync_all', function () use ($ha, $order) {
+	$id_creator = Session::getUserId();
+	$order->importData($ha, $id_creator, true, true, true);
+}, null, './order.php?id=' . $order->id());
+
 $form->runIf('create_transaction', function () use ($ha, $order) {
 	$id_creator = Session::getUserId();
 	$order->importData($ha, $id_creator, false, false, true);
@@ -37,7 +42,7 @@ $form->runIf('create_transaction', function () use ($ha, $order) {
 
 $form->runIf('create_subscriptions', function () use ($ha, $order) {
 	$id_creator = Session::getUserId();
-	$order->importData($ha, $id_creator, true, true, false);
+	$order->importData($ha, $id_creator, false, true, false);
 }, null, './order.php?id=' . $order->id());
 
 $payments = Payments::list($order);

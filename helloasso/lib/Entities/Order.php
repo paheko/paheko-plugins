@@ -285,25 +285,42 @@ class Order extends Entity
 
 	public function importData(HelloAsso $ha, ?int $id_creator, bool $create_users = true, bool $create_subscriptions = true, bool $create_transaction = true): void
 	{
-		$list = Items::list($this, $ha);
-		$list->setPageSize(null);
-
 		$db = DB::getInstance();
 		$db->begin();
 
 		$users = [];
 
+		// Create payer user
+		if ($create_users
+			&& !$this->id_user
+			&& $this->form()->create_payer_user !== HelloAsso::NO_USER_ACTION) {
+			$payer = $this->getRawPayerData();
+
+			if ($user = $ha->findMatchingUser($payer)) {
+				$this->set('id_user', $user->id);
+			}
+			elseif ($mapped_user = $ha->getMappedUser($payer)) {
+				$user = Users::create();
+				$user->importForm($mapped_user);
+				$user->save();
+				$this->set('id_user', $user->id());
+			}
+		}
+
+		$list = Items::list($this, $ha);
+		$list->setPageSize(null);
+
 		foreach ($list->iterate() as $item) {
 			// Find or create user ID
 			if ($create_users
 				&& !$item->id_user
-				&& $item->create_user !== Tier::NO_USER_ACTION) {
+				&& $item->create_user !== HelloAsso::NO_USER_ACTION) {
 
 				if (isset($item->matching_user)) {
 					$item->id_user = $item->matching_user->id;
 				}
 				elseif (isset($item->new_user)
-					&& $item->create_user === Tier::CREATE_UPDATE_USER) {
+					&& $item->create_user === HelloAsso::CREATE_UPDATE_USER) {
 					$user = Users::create();
 					$user->importForm($item->new_user);
 					$user->save();
@@ -347,9 +364,9 @@ class Order extends Entity
 			$transaction->updateLinkedUsers($users);
 
 			$this->set('id_transaction', $transaction->id());
-			$this->save();
 		}
 
+		$this->save();
 		$db->commit();
 	}
 

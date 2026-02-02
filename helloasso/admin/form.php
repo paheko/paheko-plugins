@@ -30,6 +30,6 @@ $options = $f->listOptions();
 $ha = HelloAsso::getInstance();
 $plugin_config = $ha->getConfig();
 
-$tpl->assign(compact('tiers', 'csrf_key', 'years_assoc', 'f', 'payment_account', 'tiers', 'options', 'plugin_config'));
+$tpl->assign(compact('tiers', 'csrf_key', 'years_assoc', 'f', 'payment_account', 'tiers', 'options', 'plugin_config', 'ha'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/form.tpl');

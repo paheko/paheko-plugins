@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms (
 	raw_data TEXT NOT NULL,
 
 	id_year INTEGER NULL REFERENCES acc_years(id) ON DELETE SET NULL,
-	payment_account_code TEXT NULL
+	payment_account_code TEXT NULL,
+	create_payer_user INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS plugin_helloasso_forms_key ON plugin_helloasso_forms(org_slug, slug);

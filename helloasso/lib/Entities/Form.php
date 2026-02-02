@@ -6,6 +6,8 @@ use Paheko\DB;
 use Paheko\Entity;
 use Paheko\ValidationException;
 
+use Paheko\Plugin\HelloAsso\HelloAsso;
+
 use KD2\DB\EntityManager as EM;
 
 use DateTime;
@@ -27,6 +29,8 @@ class Form extends Entity
 
 	protected ?int $id_year;
 	protected ?string $payment_account_code;
+
+	protected int $create_payer_user = HelloAsso::NO_USER_ACTION;
 
 	const TYPES = [
 		'CrowdFunding' => 'Crowdfunding',

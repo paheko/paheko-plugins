@@ -26,15 +26,11 @@ class Tier extends Entity
 	protected ?string $account_code = null;
 	protected ?array $fields_map = null;
 
-	protected int $create_user = self::NO_USER_ACTION;
+	protected int $create_user = HelloAsso::NO_USER_ACTION;
 
 	const TYPES = Item::TYPES;
 	const TYPES_ACCOUNTS = Item::TYPES_ACCOUNTS;
 	const TYPES_COLORS = Item::TYPES_COLORS;
-
-	const NO_USER_ACTION = 0;
-	const CREATE_UPDATE_USER = 1;
-	const UPDATE_USER = 2;
 
 	protected Form $_form;
 

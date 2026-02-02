@@ -6,7 +6,18 @@
 
 <h2 class="ruler">Synchronisation</h2>
 
+{if ($f.create_payer_user !== $ha::NO_USER_ACTION && !$order.id_user)
+	|| ($f.id_year && !$order.id_transaction)
+	|| !$has_all_subscriptions}
+<form method="post" action="">
+	<p class="actions-center">
+		{button shape="reload" label="Tout synchroniser" name="sync_all" value=1 type="submit" class="main"}
+	</p>
+</form>
+{/if}
+
 <section class="sync">
+	{if $f.create_payer_user !== $ha::NO_USER_ACTION}
 	<article class="{if $order.id_user}ok{else}missing{/if}">
 		<h3>Membre lié (paiement)</h3>
 		{if $order.id_user}
@@ -26,7 +37,7 @@
 				Aucun membre correspondant n'a été trouvé.
 			</p>
 			<form method="post" action="{$admin_url}users/new.php?redirect={$self_url|cat:"&set_user_id=%d"|escape:'url'}">
-					<p class="actions">
+				<p class="actions">
 					{foreach from=$mapped_user key="key" item="value"}
 					<input type="hidden" name="{$key}" value="{$value}" />
 					{/foreach}
@@ -35,6 +46,7 @@
 			</form>
 		{/if}
 	</article>
+	{/if}
 
 	<article class="{if $order.id_transaction}ok{else}missing{/if}">
 		<h3>Écriture comptable</h3>

@@ -33,9 +33,9 @@
 			<td class="money">{if $tier->getTypeAccount() === 'donation' && !$tier.amount}(libre){else}{$tier.amount|money_currency|raw}{/if}</td>
 			<td class="num">{if $account}{tag color="darkgreen" label=$account}{/if}</td>
 			<td class="num">
-				{if $tier.create_user === $tier::NO_USER_ACTION}
+				{if $tier.create_user === $ha::NO_USER_ACTION}
 					{tag label="Pas de lien avec les membres"}
-				{elseif $tier.create_user === $tier::CREATE_UPDATE_USER}
+				{elseif $tier.create_user === $ha::CREATE_UPDATE_USER}
 					{tag label="Oui" color="darkorange"}
 				{else}
 					{tag label="Non" color="darkgreen"}
@@ -85,8 +85,19 @@
 		<dl>
 			{input type="select" options=$years_assoc name="id_year" source=$f required=false label="Exercice comptable" default_empty="— Ne pas synchroniser —"}
 			<dd class="help">Si un exercice est sélectionné, les commandes passées avec cette campagne et ayant été payées seront transformées en écritures comptables selon la configuration des tarifs et options.</dd>
-			{input type="list" target="!acc/charts/accounts/selector.php?types=6&key=code" name="payment_account_code" label="Compte de recette pour les paiements reçus" default=$payment_account}
+			{input type="list" target="!acc/charts/accounts/selector.php?types=6&key=code" name="payment_account_code" label="Compte de recette par défaut" default=$payment_account help="Ce compte sera utilisé seulement si un tarif ou une option n'a pas de compte de recette." can_delete=true}
 		</dl>
+	</fieldset>
+
+
+	<fieldset>
+		<legend>Que faire avec les informations de la personne ayant réalisé le paiement&nbsp;?</legend>
+		<dl>
+			{input type="radio-btn" name="create_payer_user" value=0 source=$f label="Ne pas chercher à lier aux membres" prefix_title="Liaison de la personne ayant réalisé le paiement" prefix_required=true required=true}
+			{input type="radio-btn" name="create_payer_user" value=1 source=$f label="Chercher à lier à un membre existant, sinon créer un nouveau membre" help="Le lien sera effectué en utilisant l'adresse e-mail, ou le nom, selon ce qui a été choisi dans la configuration de l'extension."}
+			{input type="radio-btn" name="create_payer_user" value=2 source=$f label="Seulement chercher à lier un membre existant, sinon ne rien faire"}
+		</dl>
+		<p class="help">Attention : la personne ayant effectué le paiement est parfois différente de la personne qui adhère à l'association.</p>
 	</fieldset>
 
 	<p class="submit">
