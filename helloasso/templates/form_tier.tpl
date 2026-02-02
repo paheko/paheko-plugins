@@ -45,10 +45,10 @@
 			</thead>
 			<tbody>
 				{foreach from=$ha_fields key="key" item="label"}
-				<?php $selected = $tier->fields_map[$key] ?? null; ?>
+				<?php $selected = $tier->fields_map[$label] ?? null; ?>
 				<tr>
 					<th scope="row">{$label}</th>
-					<td>{input type="select" name="fields_map[%s]"|args:$key options=$fields_assoc default_empty="— Ne pas utiliser —" default=$selected}</td>
+					<td>{input type="select" name="fields_map[%s]"|args:$label options=$fields_assoc default_empty="— Ne pas utiliser —" default=$selected}</td>
 				</tr>
 				{/foreach}
 			</tbody>

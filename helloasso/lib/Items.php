@@ -85,7 +85,9 @@ class Items
 				'id_fee' => [
 					'select' => 't.id_fee',
 				],
-				'id_subscription' => [],
+				'id_subscription' => [
+					'label' => 'Activité',
+				],
 			]);
 		}
 

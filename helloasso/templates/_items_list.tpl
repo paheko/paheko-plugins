@@ -35,6 +35,13 @@
 				{/if}
 			</td>
 			{/if}
+			{if $list->hasColumn('id_subscription')}
+				<td>
+					{if $row.id_subscription}
+						{icon shape="check"} Inscrit
+					{/if}
+				</td>
+			{/if}
 			<td class="actions">
 				{if $details}
 					{linkbutton href="order.php?id=%s"|args:$row.id_order shape="help" label="Détails"}

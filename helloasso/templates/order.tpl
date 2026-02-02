@@ -52,6 +52,22 @@
 			</form>
 		{/if}
 	</article>
+
+	{if $f.type === 'Membership'}
+	<article class="{if $has_all_subscriptions}ok{else}missing{/if}">
+		<h3>Inscriptions aux activités</h3>
+		{if $has_all_subscriptions}
+			<p class="status">Toutes les inscriptions ont été effectuées.</p>
+		{else}
+			<p class="status">Il manque des inscriptions.</p>
+			<form method="post" action="">
+			<p class="actions">
+				{button shape="link" label="Créer les inscriptions manquantes" name="create_subscriptions" value=1 type="submit"}
+			</p>
+			</form>
+		{/if}
+	</article>
+	{/if}
 </section>
 
 <h2 class="ruler">Informations de la commande</h2>

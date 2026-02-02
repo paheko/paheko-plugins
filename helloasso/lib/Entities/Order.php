@@ -10,6 +10,7 @@ use Paheko\Accounting\Years;
 use Paheko\Users\Users;
 use Paheko\Entities\Accounting\Transaction;
 use Paheko\Entities\Accounting\Line;
+use Paheko\Services\Services_User;
 
 use Paheko\Plugin\HelloAsso\Forms;
 use Paheko\Plugin\HelloAsso\HelloAsso;
@@ -298,10 +299,11 @@ class Order extends Entity
 				&& !$item->id_user
 				&& $item->create_user !== Tier::NO_USER_ACTION) {
 
-				if ($item->matching_user) {
+				if (isset($item->matching_user)) {
 					$item->id_user = $item->matching_user->id;
 				}
-				elseif ($item->create_user === Tier::CREATE_UPDATE_USER && $item->new_user) {
+				elseif (isset($item->new_user)
+					&& $item->create_user === Tier::CREATE_UPDATE_USER) {
 					$user = Users::create();
 					$user->importForm($item->new_user);
 					$user->save();
@@ -318,7 +320,9 @@ class Order extends Entity
 				&& !$item->id_subscription
 				&& $item->id_user
 				&& $item->id_fee) {
-				$sub = Services_User::createFromFee($item->id_fee, $item->id_user, null, true);
+				$id_service = $db->firstColumn('SELECT id_service FROM services_fees WHERE id = ?;', $item->id_fee);
+				$sub = Services_User::create($item->id_user, $id_service, $item->id_fee);
+				$sub->importForm(['id_service' => $id_service, 'date' => $this->date]);
 				$sub->save();
 				$item->id_subscription = $sub->id();
 				$db->preparedQuery(sprintf('UPDATE %s SET id_subscription = ? WHERE id = ? AND id_subscription IS NULL;', Item::TABLE), $item->id_subscription, $item->id);
@@ -347,5 +351,16 @@ class Order extends Entity
 		}
 
 		$db->commit();
+	}
+
+	public function hasAllSubscriptions(): ?bool
+	{
+		if ($this->form()->type !== 'Membership') {
+			return null;
+		}
+
+		$db = DB::getInstance();
+		$sql = sprintf('SELECT 1 FROM %s i INNER JOIN %s t ON i.id_tier = t.id WHERE t.id_fee IS NOT NULL AND i.id_subscription IS NULL AND i.type = \'Membership\' AND i.id_order = ?;', Item::TABLE, Tier::TABLE);
+		return $db->firstColumn($sql, $this->id()) ? false : true;
 	}
 }

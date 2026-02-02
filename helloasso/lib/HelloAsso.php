@@ -224,7 +224,8 @@ class HelloAsso
 	public function getMappedUser(stdClass $data, ?array $map_extra = null): array
 	{
 		$out = [];
-		$map = $this->config->fields_map ?? new stdClass;
+		$map = (array) ($this->config->fields_map ?? []);
+		$map = array_merge($map, $map_extra ?? []);
 
 		foreach ($map as $key => $target) {
 			if (!$target) {
@@ -249,15 +250,15 @@ class HelloAsso
 			$out[$target] = $value;
 		}
 
-		if (isset($map->firstName, $map->lastName)
-			&& $map->firstName === $map->lastName) {
+		if (isset($map['firstName'], $map['lastName'])
+			&& $map['firstName'] === $map['lastName']) {
 			$order = $this->config->merge_names_order ?? self::MERGE_NAMES_FIRST_LAST;
 
 			if ($order === self::MERGE_NAMES_FIRST_LAST) {
-				$out[$map->firstName] = $data->firstName . ' ' . $data->lastName;
+				$out[$map['firstName']] = $data->firstName . ' ' . $data->lastName;
 			}
 			else {
-				$out[$map->firstName] = $data->lastName . ' ' . $data->firstName;
+				$out[$map['firstName']] = $data->lastName . ' ' . $data->firstName;
 			}
 		}
 

@@ -35,6 +35,11 @@ $form->runIf('create_transaction', function () use ($ha, $order) {
 	$order->importData($ha, $id_creator, false, false, true);
 }, null, './order.php?id=' . $order->id());
 
+$form->runIf('create_subscriptions', function () use ($ha, $order) {
+	$id_creator = Session::getUserId();
+	$order->importData($ha, $id_creator, true, true, false);
+}, null, './order.php?id=' . $order->id());
+
 $payments = Payments::list($order);
 $items = Items::list($order, $ha);
 
@@ -52,7 +57,8 @@ else {
 
 $f = $order->form();
 $type = $f->type;
+$has_all_subscriptions = $order->hasAllSubscriptions();
 
-$tpl->assign(compact('order', 'payments', 'items', 'payer_infos', 'found_user', 'mapped_user', 'f', 'type', 'ha'));
+$tpl->assign(compact('order', 'payments', 'items', 'payer_infos', 'found_user', 'mapped_user', 'f', 'type', 'ha', 'has_all_subscriptions'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/order.tpl');
