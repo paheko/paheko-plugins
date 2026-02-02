@@ -30,7 +30,7 @@
 			<td>{$item.year_label}</td>
 			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
 			<td class="actions">
-				{linkbutton href="form.php?id=%d"|args:$item.id label="Configurer" shape="settings" target="_dialog"}
+				{linkbutton href="form.php?id=%d"|args:$item.id label="Configurer" shape="settings"}
 			</td>
 			{/if}
 		</tr>

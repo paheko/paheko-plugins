@@ -4,7 +4,7 @@
 		<li{if $current == 'home' && !$type} class="current"{/if}><a href="./">Campagnes</a></li>
 		<li{if $current == 'home' && $type === 'Membership'} class="current"{/if}><a href="./?type=Membership">Adhésions</a></li>
 		<li{if $current == 'home' && $type === 'Donation'} class="current"{/if}><a href="./?type=Donation">Dons</a></li>
-		<li{if $current == 'sync'} class="current"{/if}><a href="sync.php">Synchronisation</a></li>
+		<li{if $current == 'sync'} class="current"{/if}><a href="sync.php">Rechargement des données</a></li>
 	{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
 		<li{if $current == 'config'} class="current"{/if}><a href="config.php">Configuration</a></li>
 	{/if}
