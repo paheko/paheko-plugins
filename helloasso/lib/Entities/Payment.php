@@ -20,7 +20,6 @@ class Payment extends Entity
 	protected int $amount;
 	protected string $state;
 	protected ?\DateTime $transfer_date;
-	protected string $person;
 	protected \DateTime $date;
 	protected ?string $receipt_url;
 	protected string $raw_data;
@@ -34,7 +33,7 @@ class Payment extends Entity
 		'Error'                 => 'Erreur',
 		'Refunded'              => 'Remboursé',
 		'Abandoned'             => 'Abandonné',
-		'Refunding'             => 'En remboursement',
+		'Refunding'             => 'En cours de remboursement',
 		'Canceled'              => 'Annulé',
 		'Contested'             => 'Contesté',
 		'WaitingBankValidation' => 'Attente de validation de la banque',

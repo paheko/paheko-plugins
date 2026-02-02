@@ -21,7 +21,6 @@ class Item extends Entity
 	protected string $type;
 	protected string $state;
 	protected string $label;
-	protected string $person;
 	protected int $amount;
 	protected ?string $custom_fields;
 	protected string $raw_data;

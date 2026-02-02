@@ -94,6 +94,14 @@ class Orders
 		$entity->set('date', $data->date);
 		$entity->set('person', $data->payer_name);
 		$entity->save();
+
+		foreach ($data->payments as $payment) {
+			Payments::syncPayment($payment, $entity);
+		}
+
+		foreach ($data->items as $item) {
+			Items::syncItem($item, $entity);
+		}
 	}
 
 	static protected function transform(\stdClass $data): \stdClass

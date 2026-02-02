@@ -25,42 +25,54 @@ class Payments
 		$columns = [
 			'id' => [
 				'label' => 'Numéro',
+				'select' => 'p.id',
 			],
 			'id_transaction' => [
 				'label' => 'Écriture',
+				'select' => 'p.id_transaction',
 			],
 			'date' => [
 				'label' => 'Date',
+				'select' => 'p.date',
 			],
 			'amount' => [
 				'label' => 'Montant',
+				'select' => 'p.amount',
 			],
 			'person' => [
 				'label' => 'Personne',
+				'select' => 'o.person',
 			],
 			'state' => [
 				'label' => 'Statut',
+				'select' => 'p.state',
 			],
 			'transfer_date' => [
 				'label' => 'Versement',
+				'select' => 'p.transfer_date',
 			],
 			'id_user' => [
 				'label' => 'Membre lié',
+				'select' => 'p.id_user',
 			],
-			'receipt_url' => [],
-			'id_order' => [],
+			'receipt_url' => [
+				'select' => 'p.receipt_url',
+			],
+			'id_order' => [
+				'select' => 'p.id_order',
+			],
 		];
 
-		$tables = Payment::TABLE;
+		$tables = sprintf('%s AS p INNER JOIN %s o ON o.id = p.id_order', Payment::TABLE, Order::TABLE);
 		$list = new DynamicList($columns, $tables);
 
 		if ($for instanceof Form) {
-			$conditions = sprintf('id_form = %d', $for->id);
+			$conditions = sprintf('p.id_form = %d', $for->id);
 			$list->setConditions($conditions);
 			$list->setTitle(sprintf('%s - Paiements', $for->name));
 		}
 		elseif ($for instanceof Order) {
-			$conditions = sprintf('id_order = %d', $for->id);
+			$conditions = sprintf('p.id_order = %d', $for->id);
 			$list->setConditions($conditions);
 			$list->setTitle(sprintf('Commande - %d - Paiements', $for->id));
 		}
@@ -91,6 +103,7 @@ class Payments
 		return $date;
 	}
 
+/*
 	static public function sync(string $org_slug): void
 	{
 		$last_payment = self::getLastPaymentDate();
@@ -119,8 +132,9 @@ class Payments
 			}
 		}
 	}
+	*/
 
-	static protected function syncPayment(\stdClass $data): void
+	static public function syncPayment(\stdClass $data, ?Order $order): void
 	{
 		$entity = self::get($data->id) ?? new Payment;
 
@@ -130,15 +144,14 @@ class Payments
 
 		if (!$entity->exists()) {
 			$entity->set('id', $data->id);
-			$entity->set('id_order', $data->order_id);
-			$entity->set('id_form', Forms::getId($data->org_slug, $data->form_slug));
+			$entity->set('id_order', $order->id);
+			$entity->set('id_form', $order->id_form);
 		}
 
 		$entity->set('amount', $data->amount);
 		$entity->set('state', $data->state);
 		$entity->set('date', $data->date);
 		$entity->set('transfer_date', $data->transfer_date);
-		$entity->set('person', $data->payer_name);
 		$entity->set('receipt_url', $data->paymentReceiptUrl ?? null);
 
 		$entity->save();
@@ -147,15 +160,10 @@ class Payments
 	static public function transform(\stdClass $data): \stdClass
 	{
 		$data->id = (int) $data->id;
-		$data->order_id = (int) $data->order->id ?: null;
 		$data->date = new \DateTime($data->date);
 		$data->status = Payment::STATES[$data->state] ?? '--';
 		$data->transferred = isset($data->cashOutState) && $data->cashOutState == Payment::CASH_OUT_OK ? true : false;
 		$data->transfer_date = isset($data->cashOutDate) ? new \DateTime($data->cashOutDate) : null;
-		$data->payer_name = isset($data->payer) ? Payment::getPayerName($data->payer) : null;
-		$data->payer_infos = isset($data->payer) ? Payment::getPayerInfos($data->payer) : null;
-		$data->form_slug = $data->order->formSlug;
-		$data->org_slug = $data->order->organizationSlug;
 
 		return $data;
 	}

@@ -79,27 +79,11 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_items (
 
 	type TEXT NOT NULL,
 	state TEXT NOT NULL,
-	person TEXT NOT NULL,
 	label TEXT NOT NULL,
 	amount INTEGER NOT NULL,
 	raw_data TEXT NOT NULL,
 	custom_fields TEXT NULL
 );
-
-/*
-CREATE TABLE IF NOT EXISTS plugin_helloasso_items_options (
-	id INTEGER PRIMARY KEY NOT NULL,
-	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
-	id_order INTEGER NOT NULL REFERENCES plugin_helloasso_orders(id) ON DELETE CASCADE,
-	id_item INTEGER NOT NULL REFERENCES plugin_helloasso_items(id) ON DELETE CASCADE,
-	id_tier_option INTEGER NOT NULL REFERENCES plugin_helloasso_forms_tiers_options(id) ON DELETE CASCADE,
-
-	label TEXT NOT NULL,
-	amount INTEGER NOT NULL,
-	raw_data TEXT NOT NULL,
-	custom_fields TEXT NULL
-);
-*/
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_payments (
 	id INTEGER PRIMARY KEY NOT NULL,
@@ -110,7 +94,6 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_payments (
 	amount INTEGER NOT NULL,
 	state TEXT NOT NULL,
 	transfer_date TEXT NULL,
-	person TEXT NULL,
 	date TEXT NOT NULL,
 	receipt_url TEXT NULL,
 	raw_data TEXT NOT NULL

@@ -46,7 +46,7 @@ class Items
 			],
 			'person' => [
 				'label' => 'Personne',
-				'select' => 'i.person',
+				'select' => 'o.person',
 			],
 			'custom_fields' => [
 				'label' => 'Champs',
@@ -60,7 +60,7 @@ class Items
 			'id_tier' => [],
 		];
 
-		$tables = sprintf('%s AS i LEFT JOIN %s AS t ON t.id = i.id_tier', Item::TABLE, Tier::TABLE);
+		$tables = sprintf('%s AS i INNER JOIN %s o ON o.id = i.id_order LEFT JOIN %s AS t ON t.id = i.id_tier', Item::TABLE, Order::TABLE, Tier::TABLE);
 
 		if ($for instanceof Order) {
 			$columns = array_merge($columns, [
@@ -167,6 +167,7 @@ class Items
 		];
 	}
 
+/*
 	static public function sync(string $org_slug): void
 	{
 		$params = [
@@ -185,8 +186,9 @@ class Items
 			}
 		}
 	}
+	*/
 
-	static protected function syncItem(stdClass $data): void
+	static public function syncItem(stdClass $data, Order $order): void
 	{
 		$entity = self::get($data->id) ?? new Item;
 
@@ -196,15 +198,14 @@ class Items
 
 		if (!$entity->exists()) {
 			$entity->set('id', $data->id);
-			$entity->set('id_order', $data->order_id);
-			$entity->set('id_form', Forms::getId($data->org_slug, $data->form_slug));
+			$entity->set('id_order', $order->id());
+			$entity->set('id_form', $order->id_form);
 		}
 
 		$entity->set('id_tier', $data->tierId ?? null);
 		$entity->set('amount', $data->amount);
 		$entity->set('state', $data->state);
 		$entity->set('type', $data->type);
-		$entity->set('person', $data->user_name ?? $data->payer_name);
 		$entity->set('label', $data->name ?? Forms::getName($entity->id_form));
 		$entity->set('custom_fields', count($data->fields) ? json_encode($data->fields) : null);
 		$entity->save();
@@ -213,13 +214,8 @@ class Items
 	static protected function transform(\stdClass $data): \stdClass
 	{
 		$data->id = (int) $data->id;
-		$data->order_id = (int) $data->order->id;
-		$data->payer_name = isset($data->payer) ? Payment::getPayerName($data->payer) : null;
-		$data->payer_infos = isset($data->payer) ? Payment::getPayerInfos($data->payer) : null;
 		$data->user_name = isset($data->user) ? Payment::getPayerName($data->user) : null;
 		$data->amount = (int) $data->amount;
-		$data->form_slug = $data->order->formSlug;
-		$data->org_slug = $data->order->organizationSlug;
 		$data->fields = [];
 
 		if (!empty($data->user)) {
