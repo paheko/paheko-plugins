@@ -38,7 +38,9 @@
 
 	<article class="{if $order.id_transaction}ok{else}missing{/if}">
 		<h3>Écriture comptable</h3>
-		{if $order.id_transaction}
+		{if $order.status === $order::STATUS_WAITING}
+			<p class="alert block"><strong>Paiement incomplet</strong><br />Il n'est pas possible de créer une écriture pour cette commande.</p>
+		{elseif $order.id_transaction}
 			<p class="status">
 				{link class="num" href="!acc/transactions/details.php?id=%d"|args:$order.id_transaction label="#%d"|args:$order.id_transaction}
 			</p>

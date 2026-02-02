@@ -241,6 +241,10 @@ class HelloAsso
 				$value = DateTime::createFromFormat('!Y-m-d', substr($value, 0, strlen(date('Y-m-d'))));
 				$value = $value ? $value->format('d/m/Y') : '';
 			}
+			// HelloAsso is using 3 letters country code
+			elseif ($key === 'country' && $value) {
+				$value = substr($value, 0, 2);
+			}
 
 			$out[$target] = $value;
 		}

@@ -1,5 +1,7 @@
 {include file="_head.tpl" title="%s — Configurer le tarif"|args:$tier.label}
 
+{include file="./_menu.tpl" current="home" current_sub="config"}
+
 {form_errors}
 
 <form method="post" action="{$self_url}">
@@ -30,6 +32,7 @@
 		</dl>
 	</fieldset>
 
+	{if count($ha_fields)}
 	<fieldset>
 		<legend>Correspondance des champs des fiches de membres</legend>
 		<p class="help">Indiquer ici à quels champs de la fiche membre les informations fournies par HelloaAsso doivent correspondre.</p>
@@ -52,6 +55,7 @@
 			<p class="help">Note : le nom et le prénom sont toujours automatiquement associés selon la configuration de l'extension.</p>
 		</table>
 	</fieldset>
+	{/if}
 
 	<p class="submit">
 		{csrf_field key=$csrf_key}

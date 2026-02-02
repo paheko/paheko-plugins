@@ -54,7 +54,12 @@ class Form extends Entity
 
 	public function listTiers(): array
 	{
-		return EM::getInstance(Tier::class)->all('SELECT * FROM @TABLE WHERE id_form = ? ORDER BY label COLLATE U_NOCASE, amount;', $this->id());
+		return EM::getInstance(Tier::class)->all('SELECT * FROM @TABLE WHERE id_form = ? ORDER BY type, label COLLATE U_NOCASE, amount;', $this->id());
+	}
+
+	public function listOptions(): array
+	{
+		return EM::getInstance(Option::class)->all('SELECT * FROM @TABLE WHERE id_form = ? ORDER BY label COLLATE U_NOCASE, amount;', $this->id());
 	}
 
 	public function importForm(?array $source = null)

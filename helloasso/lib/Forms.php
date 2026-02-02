@@ -4,7 +4,7 @@ namespace Paheko\Plugin\HelloAsso;
 
 use Paheko\Plugin\HelloAsso\Entities\Form;
 use Paheko\Plugin\HelloAsso\Entities\Tier;
-use Paheko\Plugin\HelloAsso\Entities\TierOption;
+use Paheko\Plugin\HelloAsso\Entities\Option;
 use Paheko\Plugin\HelloAsso\API;
 use Paheko\Plugin\HelloAsso\HelloAsso;
 
@@ -25,6 +25,11 @@ class Forms
 	static public function getTier(int $id): ?Tier
 	{
 		return EM::findOneById(Tier::class, $id);
+	}
+
+	static public function getOption(int $id): ?Option
+	{
+		return EM::findOneById(Option::class, $id);
 	}
 
 	static public function getId(string $org_slug, string $form_slug): ?int
@@ -56,7 +61,10 @@ class Forms
 			$params[] = $type;
 		}
 
-		$sql = sprintf('SELECT * FROM %s %s ORDER BY state = \'Disabled\', type, org_name COLLATE NOCASE, name COLLATE NOCASE;', Form::TABLE, $where);
+		$sql = sprintf('SELECT f.*, y.label AS year_label
+			FROM %s AS f
+			LEFT JOIN acc_years y ON y.id = f.id_year %s
+			ORDER BY f.state = \'Disabled\', f.type, f.org_name COLLATE NOCASE, f.name COLLATE U_NOCASE;', Form::TABLE, $where);
 		$list = DB::getInstance()->get($sql, ...$params);
 
 		foreach ($list as &$row) {
@@ -130,7 +138,7 @@ class Forms
 					$t->save();
 
 					foreach ($tier->extraOptions ?? [] as $option) {
-						$o = EM::findOneById(TierOption::class, $option->id) ?? new TierOption;
+						$o = EM::findOneById(Option::class, $option->id) ?? new Option;
 						$o->id ??= $option->id;
 						$o->id_form = $data->id();
 						$o->label = $option->label ?? null;

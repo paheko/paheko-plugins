@@ -2,6 +2,7 @@
 
 namespace Paheko\Plugin\HelloAsso\Entities;
 
+use Paheko\Plugin\HelloAsso\HelloAsso;
 use Paheko\Plugin\HelloAsso\Forms;
 
 use Paheko\Entity;
@@ -28,6 +29,7 @@ class Tier extends Entity
 	protected int $create_user = self::NO_USER_ACTION;
 
 	const TYPES = Item::TYPES;
+	const TYPES_ACCOUNTS = Item::TYPES_ACCOUNTS;
 	const TYPES_COLORS = Item::TYPES_COLORS;
 
 	const NO_USER_ACTION = 0;
@@ -35,6 +37,11 @@ class Tier extends Entity
 	const UPDATE_USER = 2;
 
 	protected Form $_form;
+
+	public function getTypeAccount(): string
+	{
+		return self::TYPES_ACCOUNTS[$this->type];
+	}
 
 	public function getTypeLabel(): string
 	{
@@ -46,15 +53,25 @@ class Tier extends Entity
 		return self::TYPES_COLORS[$this->type];
 	}
 
+	public function getAccountCode(): ?string
+	{
+		if ($this->account_code) {
+			return $this->account_code;
+		}
+		elseif ($this->form()->payment_account_code) {
+			return $this->form()->payment_account_code;
+		}
+		elseif ($this->getTypeAccount() === 'donation') {
+			return HelloAsso::getInstance()->getConfig()->donation_account_code ?? null;
+		}
+
+		return null;
+	}
+
 	public function form(): Form
 	{
 		$this->_form ??= Forms::get($this->id_form);
 		return $this->_form;
-	}
-
-	public function listOptions(): array
-	{
-		return EM::getInstance(TierOption::class)->all('SELECT * FROM @TABLE WHERE id_tier = ? ORDER BY label COLLATE U_NOCASE, amount;', $this->id());
 	}
 
 	public function importForm(?array $source = null)

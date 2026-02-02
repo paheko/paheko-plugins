@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers (
 	create_user INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers_options (
+CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_options (
 	id INTEGER PRIMARY KEY,
 	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
 	label TEXT NULL,
@@ -53,8 +53,8 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers_options (
 CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers_options_links (
 -- An option can be linked to more than one tier
 	id_tier INTEGER NOT NULL REFERENCES plugin_helloasso_forms_tiers(id) ON DELETE CASCADE,
-	id_tier_option INTEGER NOT NULL REFERENCES plugin_helloasso_forms_tiers_options(id) ON DELETE CASCADE,
-	PRIMARY KEY(id_tier, id_tier_option)
+	id_option INTEGER NOT NULL REFERENCES plugin_helloasso_forms_options(id) ON DELETE CASCADE,
+	PRIMARY KEY(id_tier, id_option)
 );
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_orders (

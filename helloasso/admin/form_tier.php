@@ -20,9 +20,8 @@ $f = $tier->form();
 $form->runIf('save', function () use ($tier) {
 	$tier->importForm();
 	$tier->save();
-}, $csrf_key, './orders.php?id=' . $f->id());
+}, $csrf_key, './form.php?id=' . $f->id());
 
-$options = $tier->listOptions();
 $ha_fields = $tier->custom_fields;
 
 $df = DynamicFields::getInstance();
@@ -34,4 +33,4 @@ $account = $tier->account_code ? [$tier->account_code => $tier->account_code] : 
 
 $tpl->assign(compact('tier', 'csrf_key', 'f', 'ha_fields', 'fields_assoc', 'account', 'fees'));
 
-$tpl->display(PLUGIN_ROOT . '/templates/tier.tpl');
+$tpl->display(PLUGIN_ROOT . '/templates/form_tier.tpl');

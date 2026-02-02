@@ -49,7 +49,7 @@ class Order extends Entity
 
 		if (isset($order->payments)) {
 			foreach ($order->payments as $payment) {
-				if ($payment->state == Payment::STATE_OK) {
+				if ($payment->state === Payment::STATE_OK) {
 					$paid += $payment->amount;
 				}
 			}
@@ -185,7 +185,7 @@ class Order extends Entity
 
 		$sum = 0;
 
-		$options_codes = $db->getAssoc('SELECT id, account_code FROM plugin_helloasso_forms_tiers_options WHERE id_form = ?;', $form->id());
+		$options_codes = $db->getAssoc('SELECT id, account_code FROM plugin_helloasso_forms_options WHERE id_form = ?;', $form->id());
 
 		// List all items, skip free items
 		$sql = 'SELECT t.account_code, t.label AS tier_label, i.*
@@ -327,6 +327,10 @@ class Order extends Entity
 			if ($item->id_user) {
 				$users[] = $item->id_user;
 			}
+		}
+
+		if ($this->id_user) {
+			$users[] = $this->id_user;
 		}
 
 		$users = array_unique($users);

@@ -17,6 +17,5 @@ $list = Orders::list($f);
 $list->loadFromQueryString();
 
 $tpl->assign(compact('list', 'f'));
-$tpl->assign('type', $f->type);
 
 $tpl->display(PLUGIN_ROOT . '/templates/orders.tpl');

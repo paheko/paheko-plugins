@@ -1,15 +1,11 @@
-{include file="_head.tpl" title="Configuration"}
+{include file="_head.tpl" title="Synchronisation des membres"}
 
-<nav class="tabs">
-	<ul>
-		<li class="current"><a href="config.php?{$dialog_qs}">Configuration</a></li>
-		<li><a href="config_client.php?{$dialog_qs}">Connexion à HelloAsso</a></li>
-	</ul>
-</nav>
+{include file="./_menu.tpl" current="config" sub_current="users"}
 
 {form_errors}
 
 <form method="post" action="{$self_url}">
+
 	<fieldset>
 		<legend>Correspondance des membres</legend>
 		<dl>
@@ -40,15 +36,6 @@
 				{/foreach}
 			</tbody>
 		</table>
-	</fieldset>
-
-	<fieldset>
-		<legend>Comptabilité</legend>
-		<dl>
-			{input type="list" target="!acc/charts/accounts/selector.php?types=1&key=code" name="provider_account_code" label="Compte de HelloAsso" default=$provider_account help="HelloAsso étant un établissement bancaire ou assimilé, généralement on crée un compte 512, par exemple '512HA' pour les paiements qui sont reçus par ce prestataire, en attendant qu'il les reverse sur le vrai compte bancaire de l'association."}
-			{input type="list" target="!acc/charts/accounts/selector.php?types=1&key=code" name="bank_account_code" label="Compte de banque des versements" default=$bank_account help="Sélectionner ici le compte bancaire qui reçoit les versements effectués par HelloAsso."}
-			{input type="list" target="!acc/charts/accounts/selector.php?types=6&key=code" name="donation_account_code" label="Compte de recette pour les dons reçus" default=$donation_account}
-		</dl>
 	</fieldset>
 
 	<p class="submit">

@@ -159,11 +159,11 @@ class Items
 		}
 
 		return (object) [
-			'id_tier_option' => $option->optionId,
-			'amount'         => $option->amount,
-			'label'          => $option->name,
-			'custom_fields'  => HelloAsso::normalizeCustomFields($option->customFields),
-			'raw_data'       => json_encode($option),
+			'id_option'     => $option->optionId,
+			'amount'        => $option->amount,
+			'label'         => $option->name,
+			'custom_fields' => HelloAsso::normalizeCustomFields($option->customFields),
+			'raw_data'      => json_encode($option),
 		];
 	}
 

@@ -14,6 +14,7 @@
 			<th>Campagne</th>
 			<td>Type</td>
 			<td>Statut</td>
+			<td>Exercice comptable</td>
 			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
 			<td class="actions"></td>
 			{/if}
@@ -26,12 +27,10 @@
 			<th><a href="orders.php?id={$item.id}">{$item.name}</a></th>
 			<td>{$item.type_label}</td>
 			<td>{tag color=$item.state_color label=$item.state_label}</td>
+			<td>{$item.year_label}</td>
 			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
 			<td class="actions">
-				{if $item.type === 'Membership'}
-					{linkbutton href="tiers.php?id=%d"|args:$item.id label="Tarifs" shape="menu" target="_dialog"}
-					{linkbutton href="form.php?id=%d"|args:$item.id label="Configurer" shape="settings" target="_dialog"}
-				{/if}
+				{linkbutton href="form.php?id=%d"|args:$item.id label="Configurer" shape="settings" target="_dialog"}
 			</td>
 			{/if}
 		</tr>
