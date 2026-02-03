@@ -14,7 +14,7 @@ $ha = HelloAsso::getInstance();
 
 $form->runIf('save', function () use ($ha) {
 	$ha->saveConfig($_POST ?? []);
-}, $csrf_key, '?ok');
+}, $csrf_key, '?msg=SAVED');
 
 $match_options = [
 	0 => 'Nom et prénom',

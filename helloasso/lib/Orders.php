@@ -68,6 +68,17 @@ class Orders
 		$max = 20;
 		$i = 0;
 
+		$db = DB::getInstance();
+		$db->begin();
+
+		$last_sync = HelloAsso::getInstance()->getLastSync();
+
+		if ($last_sync) {
+			$last_sync->modify('-1 month');
+			$params['from'] = $last_sync->format('Y-m-d H:i:00');
+			//$params['from'] = $last_sync->format('Y-m-d H:i:00');
+		}
+
 		while ($i++ < $max) {
 			$result = API::getInstance()->listOrganizationOrders($org_slug, $params);
 
@@ -77,10 +88,12 @@ class Orders
 
 			$params['continuationToken'] = $result->pagination->continuationToken ?? null;
 
-			if (!$params['continuationToken']) {
+			if (empty($params['continuationToken'])) {
 				break;
 			}
 		}
+
+		$db->commit();
 	}
 
 	static protected function syncOrder(\stdClass $data): void

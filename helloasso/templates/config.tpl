@@ -2,6 +2,12 @@
 
 {include file="./_menu.tpl" current="config" sub_current="users"}
 
+{if $_GET.msg === 'SAVED'}
+<p class="confirm block">
+	Configuration enregistrée.
+</p>
+{/if}
+
 {form_errors}
 
 <form method="post" action="{$self_url}">

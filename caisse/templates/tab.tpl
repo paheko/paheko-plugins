@@ -22,6 +22,8 @@
 		{linkbutton href="?session=%d&new"|args:$pos_session.id label="Nouvelle note" shape="plus"}
 		{linkbutton href="session.php?id=%d"|args:$pos_session.id label="Résumé" shape="menu"}
 		{linkbutton href="session_close.php?id=%d"|args:$pos_session.id label="Clôturer la caisse" shape="delete"}
+	{else}
+		{linkbutton href="session.php?id=%d"|args:$pos_session.id label="Résumé" shape="menu"}
 	{/if}
 
 	<aside>{linkbutton class="plus" shape="eye" href="" label="Afficher toutes les notes" id="showBtn"}</aside>

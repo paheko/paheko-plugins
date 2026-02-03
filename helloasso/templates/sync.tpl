@@ -21,6 +21,15 @@
 	<p class="alert block">Il n'est pas possible d'effectuer plus d'un rechargement manuel par heure.</p>
 {else}
 	<form method="post" action="{$self_url}">
+		{if $sync}
+		<fieldset>
+			<legend>Données à recharger</legend>
+			<dl>
+				{input type="checkbox" name="forms" value=1 label="Campagnes" help="nécessaire si vous avez ajouté ou modifié une campagne"}
+				{input type="checkbox" name="orders" value=1 label="Commandes et paiements" default=1}
+			</dl>
+		</fieldset>
+		{/if}
 		<p class="submit">
 			{csrf_field key=$csrf_key}
 			{button type="submit" name="sync" value=1 label="Recharger les données" shape="right" class="main"}

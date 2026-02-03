@@ -92,13 +92,18 @@ class HelloAsso
 		return $date;
 	}
 
-	public function sync(): void
+	public function sync(bool $forms, bool $orders): void
 	{
-		Forms::sync();
+		if ($forms) {
+			Forms::sync();
+		}
+
 		$organizations = array_keys(Forms::listOrganizations());
 
 		foreach ($organizations as $org_slug) {
-			Orders::sync($org_slug);
+			if ($orders) {
+				Orders::sync($org_slug);
+			}
 			// Only sync data from orders
 			//Payments::sync($org_slug);
 			//Items::sync($org_slug);
@@ -145,6 +150,7 @@ class HelloAsso
 			'bank_account_code'     => 'string',
 			'provider_account_code' => 'string',
 			'donation_account_code' => 'string',
+			'payment_account_code'  => 'string',
 		];
 
 		foreach ($properties as $name => $type) {
@@ -161,7 +167,6 @@ class HelloAsso
 			elseif ($type === 'int') {
 				$value = (int) $value;
 			}
-
 
 			if (get_debug_type($value) !== $type) {
 				continue;
@@ -180,7 +185,7 @@ class HelloAsso
 
 	public function findMatchingUser(stdClass $data): ?stdClass
 	{
-		$map = $this->config->fields_map ?? new stdClass;
+		$map = (array) ($this->config->fields_map ?? []);
 		$where = '';
 		$params = [];
 		$email_field = DynamicFields::getFirstEmailField();
@@ -196,15 +201,15 @@ class HelloAsso
 			$order = $this->config->merge_names_order ?? self::MERGE_NAMES_FIRST_LAST;
 
 			// Make sure the mapped field exists in the fields list
-			if (!isset($map->firstName, $map->lastName)
-				|| !$df->get($map->firstName)
-				|| !$df->get($map->lastName)) {
-				$map->firstName = $map->lastName = DynamicFields::getFirstNameField();
+			if (!isset($map['firstName'], $map['lastName'])
+				|| !$df->get($map['firstName'])
+				|| !$df->get($map['lastName'])) {
+				$map['firstName'] = $map['lastName'] = DynamicFields::getFirstNameField();
 			}
 
 			// In case we merge first and last names in the same field
-			if ($map->firstName === $map->lastName) {
-				$where = sprintf('%s = ? COLLATE U_NOCASE', $db->quoteIdentifier($map->firstName));
+			if ($map['firstName'] === $map['lastName']) {
+				$where = sprintf('%s = ? COLLATE U_NOCASE', $db->quoteIdentifier($map['firstName']));
 
 				if ($order === self::MERGE_NAMES_FIRST_LAST) {
 					$params[] = $data->firstName . ' ' . $data->lastName;
@@ -214,7 +219,11 @@ class HelloAsso
 				}
 			}
 			else {
-				$where = sprintf('%s = ? COLLATE U_NOCASE AND %s = ? COLLATE U_NOCASE', $db->quoteIdentifier($map->firstName), $db->quoteIdentifier($map->lastName));
+				$where = sprintf('%s = ? COLLATE U_NOCASE AND %s = ? COLLATE U_NOCASE',
+					$db->quoteIdentifier($map['firstName']),
+					$db->quoteIdentifier($map['lastName'])
+				);
+
 				$params[] = $data->firstName;
 				$params[] = $data->lastName;
 			}

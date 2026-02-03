@@ -144,8 +144,10 @@ class Order extends Entity
 			throw new UserException('La campagne n\'est pas configurée pour synchroniser avec un exercice comptable. Il faut d\'abord la configurer.');
 		}
 
-		if (!$form->payment_account_code) {
-			throw new UserException('La campagne n\'a pas de compte configuré pour les paiements.');
+		$default_payment_code = $form->payment_account_code ?? ($config->payment_account_code ?? null);
+
+		if (!$default_payment_code) {
+			throw new UserException('Aucun compte n\'est sélectionné pour les paiements, dans la configuration de l\'extension.');
 		}
 
 		if (!isset($config->donation_account_code)) {
@@ -207,7 +209,7 @@ class Order extends Entity
 			}
 			// Fallback to payment
 			else {
-				$code = $form->payment_account_code;
+				$code = $default_payment_code;
 			}
 
 			$line = new Line;
@@ -249,7 +251,7 @@ class Order extends Entity
 				}
 
 				$id = $option->optionId;
-				$code = $options_codes[$id] ?? $form->payment_account_code;
+				$code = $options_codes[$id] ?? $default_payment_code;
 
 				$line = new Line;
 				$line->label = $option->name ?? 'Option';
@@ -285,6 +287,10 @@ class Order extends Entity
 
 	public function importData(HelloAsso $ha, ?int $id_creator, bool $create_users = true, bool $create_subscriptions = true, bool $create_transaction = true): void
 	{
+		if ($this->status !== self::STATUS_PAID) {
+			throw new \LogicException('Cannot sync a non-paid order');
+		}
+
 		$db = DB::getInstance();
 		$db->begin();
 
