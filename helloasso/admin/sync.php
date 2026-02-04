@@ -9,7 +9,7 @@ $last_sync = $ha->getLastSync();
 
 $sync = [
 	'forms' => !$last_sync || !empty($_POST['forms']),
-	'orders' => !$last_sync || !empty($_POST['orders']),
+	'orders' => true,
 ];
 
 $form->runIf('sync', function() use ($ha, $sync) {

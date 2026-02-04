@@ -25,8 +25,9 @@
 		<fieldset>
 			<legend>Données à recharger</legend>
 			<dl>
-				{input type="checkbox" name="forms" value=1 label="Campagnes" help="nécessaire si vous avez ajouté ou modifié une campagne"}
-				{input type="checkbox" name="orders" value=1 label="Commandes et paiements" default=1}
+				{input type="checkbox" name="forms" value=1 label="Campagnes" help="nécessaire si vous avez ajouté ou modifié une campagne" source=$sync}
+				{input type="checkbox" name="orders" value=1 label="Commandes" source=$sync}
+				{*input type="checkbox" name="payments" value=1 label="Remboursements, paiements en 3 fois, et paiements mensuels" default=1*}
 			</dl>
 		</fieldset>
 		{/if}

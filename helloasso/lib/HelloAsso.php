@@ -92,7 +92,7 @@ class HelloAsso
 		return $date;
 	}
 
-	public function sync(bool $forms, bool $orders): void
+	public function sync(bool $forms, bool $orders, bool $payments = false): void
 	{
 		if ($forms) {
 			Forms::sync();
@@ -104,9 +104,10 @@ class HelloAsso
 			if ($orders) {
 				Orders::sync($org_slug);
 			}
-			// Only sync data from orders
-			//Payments::sync($org_slug);
-			//Items::sync($org_slug);
+
+			if ($payments) {
+				//Payments::sync($org_slug);
+			}
 		}
 
 		$this->plugin->setConfigProperty('last_sync', (new \DateTime)->format(\DATE_ISO8601));

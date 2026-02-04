@@ -16,9 +16,9 @@
 			Pour renseigner ces informations, rendez-vous dans <a href="https://admin.helloasso.com/" target="_blank">votre administration HelloAsso</a> et allez dans <em>«&nbsp;Mon compte&nbsp;»</em>, puis <em>«&nbsp;Intégrations et API&nbsp;»</em> et recopiez ici les valeurs indiquées.
 		</p>
 		<dl>
-			{input type="text" name="client_id" default=$client_id label="ID (Mon clientId)" required=true}
-			{input type="password" name="client_secret" value="1" label="Secret (Mon clientSecret)" required=true}
-			{input type="checkbox" name="sandbox" value=1 label="Utiliser l'environnement de test (sandbox)" default=$sandbox}
+			{input type="text" name="client_id" default=$client_id label="Client ID" required=true}
+			{input type="password" name="client_secret" value="1" label="Client Secret" required=true}
+			{input type="checkbox" name="sandbox" value=1 label="Utiliser l'environnement de test (sandbox)" default=$sandbox help="pour les développeurs ou pour expérimenter"}
 			<dd class="help">Note : les comptes de l'environnement de test sont complètement différents, il faut donc <a href="https://www.helloasso-sandbox.com" target="_blank">se re-créer un compte sur helloasso-sandbox.com</a>.</dd>
 		</dl>
 	</fieldset>
