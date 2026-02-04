@@ -1,0 +1,220 @@
+<?php
+
+namespace Paheko\Plugin\HelloAsso;
+
+use Paheko\Plugin\HelloAsso\Entities\Form;
+use Paheko\Plugin\HelloAsso\Entities\Order;
+use Paheko\Plugin\HelloAsso\Entities\Payment;
+use Paheko\Plugin\HelloAsso\API;
+
+use Paheko\DB;
+use Paheko\DynamicList;
+use Paheko\Utils;
+
+use KD2\DB\EntityManager as EM;
+
+class Payments
+{
+	static public function get(int $id): ?Payment
+	{
+		return EM::findOneById(Payment::class, $id);
+	}
+
+	static public function list($for): DynamicList
+	{
+		$columns = [
+			'id' => [
+				'label' => 'Numéro',
+				'select' => 'p.id',
+			],
+			'id_transaction' => [
+				'label' => 'Écriture',
+				'select' => 'p.id_transaction',
+			],
+			'date' => [
+				'label' => 'Date',
+				'select' => 'p.date',
+			],
+			'amount' => [
+				'label' => 'Montant',
+				'select' => 'p.amount',
+			],
+			'person' => [
+				'label' => 'Personne',
+				'select' => 'o.person',
+			],
+			'state' => [
+				'label' => 'Statut',
+				'select' => 'p.state',
+			],
+			'transfer_date' => [
+				'label' => 'Versement',
+				'select' => 'p.transfer_date',
+			],
+			'id_user' => [
+				'label' => 'Membre lié',
+				'select' => 'p.id_user',
+			],
+			'receipt_url' => [
+				'select' => 'p.receipt_url',
+			],
+			'id_order' => [
+				'select' => 'p.id_order',
+			],
+		];
+
+		$tables = sprintf('%s AS p INNER JOIN %s o ON o.id = p.id_order', Payment::TABLE, Order::TABLE);
+		$list = new DynamicList($columns, $tables);
+
+		if ($for instanceof Form) {
+			$conditions = sprintf('p.id_form = %d', $for->id);
+			$list->setConditions($conditions);
+			$list->setTitle(sprintf('%s - Paiements', $for->name));
+		}
+		elseif ($for instanceof Order) {
+			$conditions = sprintf('p.id_order = %d', $for->id);
+			$list->setConditions($conditions);
+			$list->setTitle(sprintf('Commande - %d - Paiements', $for->id));
+		}
+		else {
+			throw new \RuntimeException('Invalid target');
+		}
+
+		$list->setModifier(function ($row) {
+			$row->state = Payment::STATES[$row->state] ?? 'Inconnu';
+		});
+
+		$list->setExportCallback(function (&$row) {
+			$row->amount = $row->amount ? Utils::money_format($row->amount, '.', '', false) : null;
+		});
+
+		$list->orderBy('date', true);
+		return $list;
+	}
+
+	static public function getLastPaymentDate(): ?\DateTime
+	{
+		$date = DB::getInstance()->firstColumn(sprintf('SELECT MAX(date) FROM %s WHERE state = ?;', Payment::TABLE), Payment::STATE_OK);
+
+		if ($date) {
+			$date = \DateTime::createFromFormat('!Y-m-d H:i:s', $date);
+		}
+
+		return $date;
+	}
+
+	/*
+	static public function sync(string $org_slug, DateTime $since): void
+	{
+		$last_payment = self::getLastPaymentDate();
+
+		$params = [
+			'pageSize'  => HelloAsso::getPageSize(),
+			// Only return new Authorized payments, we are no expecting
+			'sortOrder' => 'Desc',
+			'sortField' => 'UpdateDate',
+			// We can't use from here, see https://dev.helloasso.com/discuss/698243a4b6e65ad68eb180be
+			// Si vous utilisez from=2026-02-01, l'API ne retournera que les paiements dont la date
+			// de transaction est comprise dans cette période.
+			// Un paiement ayant eu lieu en janvier, mais dont le statut changerait aujourd'hui
+			// (passant par exemple de Authorized à Refund), ne remontera pas dans ce flux car
+			// sa date d'origine reste en janvier.
+		];
+
+		$max = 20;
+		$i = 0;
+
+		while ($i++ < $max) {
+			$result = API::getInstance()->listOrganizationPayments($org_slug, $params);
+
+			foreach ($result->data as $payment) {
+				self::syncPayment($payment);
+			}
+
+			$params['continuationToken'] = $result->pagination->continuationToken ?? null;
+
+			if (empty($params['continuationToken'])) {
+				break;
+			}
+		}
+	}
+	*/
+
+
+	static public function syncPayment(\stdClass $data, ?Order $order): void
+	{
+		$entity = self::get($data->id) ?? new Payment;
+
+		$entity->set('raw_data', json_encode($data));
+
+		$data = self::transform($data);
+
+		if (!$entity->exists()) {
+			$entity->set('id', $data->id);
+			$entity->set('id_order', $order->id);
+			$entity->set('id_form', $order->id_form);
+		}
+
+		$entity->set('amount', $data->amount);
+		$entity->set('state', $data->state);
+		$entity->set('date', $data->date);
+		$entity->set('transfer_date', $data->transfer_date);
+		$entity->set('receipt_url', $data->paymentReceiptUrl ?? null);
+
+		$entity->save();
+	}
+
+	static public function transform(\stdClass $data): \stdClass
+	{
+		$data->id = (int) $data->id;
+		$data->date = new \DateTime($data->date);
+		$data->status = Payment::STATES[$data->state] ?? '--';
+		$data->transferred = isset($data->cashOutState) && $data->cashOutState == Payment::CASH_OUT_OK ? true : false;
+		$data->transfer_date = isset($data->cashOutDate) ? new \DateTime($data->cashOutDate) : null;
+
+		return $data;
+	}
+
+/*
+
+
+	public function getPayment(string $id): \stdClass
+	{
+		$data = $this->api->getPayment($id);
+		return $this->transformPayment($data);
+	}
+	public function listPayments(\stdClass $form, int $page = 1, &$count = null): array
+	{
+		$per_page = self::PER_PAGE;
+
+		$result = $this->api->listFormPayments($form->org_slug, $form->form_type, $form->form_slug, $page, $per_page);
+
+		$count = $result->pagination->totalCount;
+
+		foreach ($result->data as &$row) {
+			$row = $this->transformPayment($row);
+		}
+
+		unset($row);
+
+		return $result->data;
+	}
+
+	public function listOrganizationPayments(string $org_slug, int $page = 1, &$count = null): array
+	{
+		$per_page = self::PER_PAGE;
+
+		$result = $this->api->listOrganizationPayments($org_slug, $page, $per_page);
+
+		$count = $result->pagination->totalCount;
+
+		foreach ($result->data as &$row) {
+			$row = $this->transformPayment($row);
+		}
+
+		unset($row);
+
+		return $result->data;
+	}
+*/
+}

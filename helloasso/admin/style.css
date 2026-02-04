@@ -1,0 +1,51 @@
+section.sync {
+	display: flex;
+	gap: 1em;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+section.sync article {
+	width: 20em;
+	margin: .5em;
+	background: rgba(var(--gSecondColor), 0.2);
+	border-radius: .5em;
+	border: 2px solid rgba(var(--gSecondColor), 0.5);
+	padding: .5em;
+	color: var(--gBorderColor);
+	text-align: center;
+}
+
+section.sync article.missing {
+	background: #ffe;
+	border-color: #cc9;
+}
+
+section.sync article.ok {
+	background: #efe;
+	border-color: #9c9;
+}
+
+section.sync article p, section.sync article p.actions {
+	margin: .8em 0;
+	text-align: center;
+	float: none;
+}
+
+section.sync article h3 {
+	text-align: center;
+	color: #000;
+}
+
+table span.confirm {
+	border: 2px solid #9c9;
+	background: #efe;
+	padding: .5em;
+	display: block;
+	border-radius: .5em;
+	text-align: center;
+}
+
+table td.user {
+	text-align: center;
+}
