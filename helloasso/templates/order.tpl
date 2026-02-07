@@ -98,13 +98,15 @@
 	<dd>{if $order.status}Payée{else}Paiement incomplet{/if}</dd>
 </dl>
 
-<h2 class="ruler">Articles de la commande</h2>
+{if $items->count()}
+	<h2 class="ruler">Articles de la commande</h2>
+	{include file="%s/templates/_items_list.tpl"|args:$plugin_root list=$items details=false}
+{/if}
 
-{include file="%s/templates/_items_list.tpl"|args:$plugin_root list=$items details=false}
-
-<h2 class="ruler">Paiements</h2>
-
-{include file="%s/templates/_payments_list.tpl"|args:$plugin_root list=$payments details=false}
+{if $payments->count()}
+	<h2 class="ruler">Paiements</h2>
+	{include file="%s/templates/_payments_list.tpl"|args:$plugin_root list=$payments details=false}
+{/if}
 
 <h2 class="ruler">Personne ayant effectué le paiement</h2>
 
