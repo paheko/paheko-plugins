@@ -146,8 +146,8 @@ class HelloAsso
 	{
 		static $properties = [
 			'fields_map'            => 'array',
-			'merge_names_order'     => 'int',
-			'match_email_field'     => 'bool',
+			'merge_names_order'     => 'integer', //FIXME: switch to get_debug_type and 'int' with PHP8.0+
+			'match_email_field'     => 'boolean', //FIXME: switch to get_debug_type and 'bool' with PHP8.0+
 			'bank_account_code'     => 'string',
 			'provider_account_code' => 'string',
 			'donation_account_code' => 'string',
@@ -169,7 +169,7 @@ class HelloAsso
 				$value = (int) $value;
 			}
 
-			if (get_debug_type($value) !== $type) {
+			if (gettype($value) !== $type) {
 				continue;
 			}
 
