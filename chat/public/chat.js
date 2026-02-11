@@ -80,6 +80,7 @@
 			sse.onerror = () => setTimeout(chatConnect, 5000);
 			sse.addEventListener('message', function(event) {
 				var data = JSON.parse(event.data);
+				console.log(data);
 				var element = document.getElementById('msg-' + data.message.id);
 
 				if (element) {

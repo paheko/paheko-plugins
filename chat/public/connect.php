@@ -47,8 +47,8 @@ while (true) {
 		break;
 	}
 
-	//$refresh = false;
-	$refresh = true;
+	$refresh = false;
+	//$refresh = true;
 
 	foreach ($channel->getEventsSince($last_seen_ts, $last_seen_id, $me) as $event) {
 		if ($event['type'] === 'message') {
@@ -58,7 +58,7 @@ while (true) {
 
 		echo "event: " . $event['type'] . "\r\n";
 		echo "data: " . json_encode($event['data']) . "\r\n\r\n";
-		//$refresh = true;
+		$refresh = true;
 	}
 
 	// TODO: add events for list of chats the user is part of (left-side pane),
