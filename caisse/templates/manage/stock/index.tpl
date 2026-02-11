@@ -23,7 +23,7 @@
 		<tr>
 			<th>Produit</th>
 			<td>Prix unitaire</td>
-			<td>Quantité par défaut</td>
+			<td>Stock</td>
 			<td>Valeur à la vente</td>
 			<td>Valeur du stock (à l'achat)</td>
 			<td></td>

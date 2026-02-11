@@ -64,7 +64,7 @@ class Products
 	{
 		$list = self::getList($archived, $search);
 		$list->addConditions(' AND p.stock IS NOT NULL');
-		$list->addColumn('sale_value', ['select' => 'p.stock * p.price', 'label' => 'Valeur à la vente']);
+		$list->addColumn('sale_value', ['select' => 'CASE WHEN p.stock >= 0 THEN p.stock * p.price ELSE NULL END', 'label' => 'Valeur à la vente']);
 		$list->addColumn('stock_value', ['select' => 'p.stock * p.purchase_price', 'label' => 'Valeur du stock (à l\'achat)']);
 		return $list;
 	}
