@@ -27,6 +27,25 @@ class Forms
 		return EM::findOneById(Tier::class, $id);
 	}
 
+	static public function getOrCreateTier(int $id, int $id_form, ?string $label, ?int $amount, string $type): Tier
+	{
+		static $tiers = [];
+
+		$tiers[$id] ??= self::getTier($id);
+
+		if ($tiers[$id]) {
+			return $tiers[$id];
+		}
+
+		$tier = new Tier;
+		$tier->import(compact('id', 'id_form', 'label', 'amount', 'type'));
+		$tier->id($id);
+		$tier->save();
+
+		$tiers[$id] = $tier;
+		return $tier;
+	}
+
 	static public function getOption(int $id): ?Option
 	{
 		return EM::findOneById(Option::class, $id);

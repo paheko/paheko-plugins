@@ -197,25 +197,35 @@ class Items
 		$entity->set('raw_data', json_encode($data));
 
 		$data = self::transform($data);
+		$name = $data->name ?? Forms::getName($order->id_form);
+		$tier = null;
 
 		if (!$entity->exists()) {
 			$entity->set('id', $data->id);
 			$entity->set('id_order', $order->id());
 			$entity->set('id_form', $order->id_form);
+			$entity->set('id_tier', $data->id_tier);
+
+			// Some orders have items linked to tiers that have been deleted, so we can't find them
+			// and we need to create them now
+			if ($data->id_tier) {
+				$tier = Forms::getOrCreateTier($data->id_tier, $order->id_form, $name, $data->amount, $data->type);
+			}
 		}
 
-		$entity->set('id_tier', $data->tierId ?? null);
 		$entity->set('amount', $data->amount);
 		$entity->set('state', $data->state);
 		$entity->set('type', $data->type);
-		$entity->set('label', $data->name ?? Forms::getName($entity->id_form));
+		$entity->set('label', $name);
 		$entity->set('custom_fields', count($data->fields) ? json_encode($data->fields) : null);
+
 		$entity->save();
 	}
 
 	static protected function transform(\stdClass $data): \stdClass
 	{
 		$data->id = (int) $data->id;
+		$data->id_tier = $data->tierId ?? null;
 		$data->user_name = isset($data->user) ? Payment::getPayerName($data->user) : null;
 		$data->amount = (int) $data->amount;
 		$data->fields = [];

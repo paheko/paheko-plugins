@@ -21,7 +21,7 @@
 	<p class="alert block">Il n'est pas possible d'effectuer plus d'un rechargement manuel par heure.</p>
 {else}
 	<form method="post" action="{$self_url}">
-		{if $sync}
+		{if $last_sync}
 		<fieldset>
 			<legend>Données à recharger</legend>
 			<dl>
