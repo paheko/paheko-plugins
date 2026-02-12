@@ -206,8 +206,8 @@ class Chat
 			INNER JOIN plugin_chat_users_channels a ON a.id_channel = c.id AND a.id_user = ?
 			INNER JOIN plugin_chat_users_channels b ON b.id_channel = c.id AND b.id_user = ?
 			WHERE c.access = ? GROUP BY c.id LIMIT 1;',
-			$me->id,
-			$recipient->id,
+			min($me->id, $recipient->id),
+			max($me->id, $recipient->id),
 			Channel::ACCESS_DIRECT
 		);
 
@@ -219,11 +219,10 @@ class Chat
 			$channel->save();
 
 			$channel->addUser($me);
-
-			// Don't add myself twice if the channel is with myself
-			if ($recipient->id !== $me->id) {
-				$channel->addUser($recipient);
-			}
+			$channel->addUser($recipient);
+		}
+		else {
+			$channel->setPresenceForAll(true);
 		}
 
 		return $channel;
@@ -261,14 +260,15 @@ class Chat
 			$private_access = sprintf('OR access = \'%s\'', Channel::ACCESS_PRIVATE);
 		}
 
-		$sql = sprintf('SELECT c.id, c.access, COALESCE(u2.name, c.name) AS name
-			FROM plugin_chat_channels c
-			LEFT JOIN plugin_chat_users_channels uc1 ON c.access = \'direct\' AND uc1.id_channel = c.id AND uc1.id_user = %d
-			LEFT JOIN plugin_chat_users_channels uc2 ON c.access = \'direct\' AND uc2.id_channel = c.id AND uc2.rowid != uc1.rowid
-			LEFT JOIN plugin_chat_users u2 ON u2.id = uc2.id_user
-			WHERE c.access = \'direct\' OR (access = \'public\' %s)
-			GROUP BY c.id
-			ORDER BY access = \'direct\', name COLLATE NOCASE;', $user->id, $private_access);
+		$sql = sprintf('SELECT * FROM (SELECT id, access, name FROM plugin_chat_channels WHERE access = \'public\' %s
+			UNION ALL
+			SELECT c.id, c.access, CASE WHEN uc1.id_user = uc2.id_user THEN NULL ELSE u2.name END FROM plugin_chat_channels c
+			INNER JOIN plugin_chat_users_channels uc1 ON uc1.id_channel = c.id AND uc1.presence = 1 AND uc1.id_user = %d
+			INNER JOIN plugin_chat_users_channels uc2 ON uc2.id_channel = uc1.id_channel AND uc2.rowid != uc1.rowid AND uc2.presence = 1
+			INNER JOIN plugin_chat_users u2 ON u2.id = uc2.id_user
+			WHERE c.access = \'direct\'
+			GROUP BY c.id)
+			ORDER BY access = \'direct\', name COLLATE NOCASE;', $private_access, $user->id);
 
 		return DB::getInstance()->get($sql);
 	}

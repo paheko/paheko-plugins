@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS plugin_chat_users_channels (
 	id_channel INTEGER NOT NULL REFERENCES plugin_chat_channels ON DELETE CASCADE,
 	id_user INTEGER NOT NULL REFERENCES plugin_chat_users (id) ON DELETE CASCADE,
 	last_seen_message_id INTEGER NULL, -- No foreign key: doesn't matter if ID doesn't exit anymore, it's just used to know if we have unread messages
-	last_connect INTEGER NULL -- Last time the channel was joined, used to join back last opened channel
+	last_connect INTEGER NULL, -- Last time the channel was joined, used to join back last opened channel
+	presence INTEGER NOT NULL DEFAULT 1 -- Set to 0 if user has left DM channel
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS plugin_chat_users_channels_unique ON plugin_chat_users_channels (id_channel, id_user);

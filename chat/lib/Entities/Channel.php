@@ -233,12 +233,21 @@ class Channel extends Entity
 
 	public function leave(User $user)
 	{
-		if ($this->access === self::ACCESS_DIRECT) {
-			throw new \LogicException('Cannot leave a DM, or the other person might continue talking without seeing that you have left and cannot see the messages.');
-		}
+		$db = DB::getInstance();
 
-		// Not sure being able to leave is useful?
-		$db->delete('plugin_chat_users_channels', 'id_user = ? AND id_channel = ?', $user->id(), $this->id());
+		if ($this->access === self::ACCESS_DIRECT) {
+			// This is a soft-leave, or else re-opening a chat with this user would create a new channel
+			$db->preparedQuery('UPDATE plugin_chat_users_channels SET presence = 0 WHERE id_user = ? AND id_channel = ?;', $user->id(), $this->id());
+		}
+		else {
+			$db->delete('plugin_chat_users_channels', 'id_user = ? AND id_channel = ?', $user->id(), $this->id());
+		}
+	}
+
+	public function setPresenceForAll(bool $presence): void
+	{
+		$db = DB::getInstance();
+		$db->preparedQuery('UPDATE plugin_chat_users_channels SET presence = 1 WHERE id_channel = ?;', $this->id());
 	}
 
 	public function public_storage_root(): string
