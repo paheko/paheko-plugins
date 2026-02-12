@@ -260,13 +260,21 @@ class Chat
 			$private_access = sprintf('OR access = \'%s\'', Channel::ACCESS_PRIVATE);
 		}
 
-		$sql = sprintf('SELECT * FROM (SELECT id, access, name FROM plugin_chat_channels WHERE access = \'public\' %s
+		$sql = sprintf('SELECT * FROM (
+			SELECT id, access, name,
+				(SELECT 1 FROM plugin_chat_messages WHERE id > uc.last_seen_message_id LIMIT 1) AS has_new_messages
+				FROM plugin_chat_channels c
+				LEFT JOIN plugin_chat_users_channels uc ON uc.id_channel = c.id AND uc.id_user = %2$d
+				WHERE access = \'public\' %s
 			UNION ALL
-			SELECT c.id, c.access, CASE WHEN uc1.id_user = uc2.id_user THEN NULL ELSE u2.name END FROM plugin_chat_channels c
-			INNER JOIN plugin_chat_users_channels uc1 ON uc1.id_channel = c.id AND uc1.presence = 1 AND uc1.id_user = %d
-			INNER JOIN plugin_chat_users_channels uc2 ON uc2.id_channel = uc1.id_channel AND uc2.rowid != uc1.rowid AND uc2.presence = 1
-			INNER JOIN plugin_chat_users u2 ON u2.id = uc2.id_user
-			WHERE c.access = \'direct\'
+			SELECT c.id, c.access,
+				CASE WHEN uc1.id_user = uc2.id_user THEN NULL ELSE u2.name END,
+				(SELECT 1 FROM plugin_chat_messages WHERE id > uc1.last_seen_message_id LIMIT 1) AS has_new_messages
+				FROM plugin_chat_channels c
+				INNER JOIN plugin_chat_users_channels uc1 ON uc1.id_channel = c.id AND uc1.presence = 1 AND uc1.id_user = %d
+				INNER JOIN plugin_chat_users_channels uc2 ON uc2.id_channel = uc1.id_channel AND uc2.rowid != uc1.rowid AND uc2.presence = 1
+				INNER JOIN plugin_chat_users u2 ON u2.id = uc2.id_user
+				WHERE c.access = \'direct\'
 			GROUP BY c.id)
 			ORDER BY access = \'direct\', name COLLATE NOCASE;', $private_access, $user->id);
 

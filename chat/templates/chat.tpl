@@ -18,7 +18,7 @@
 		<ul>
 		{foreach from=$channels item="c"}
 			<?php $c->name ??= '(Notes personnelles)'; ?>
-			<li class="{if $c.id === $channel.id}current{/if} {$c.access}">{link href="./?id=%d"|args:$c.id label=$c.name}</li>
+			<li class="{if $c.id === $channel.id}current{/if} {$c.access} {if $c.has_new_messages}new{/if}">{link href="./?id=%d"|args:$c.id label=$c.name}</li>
 		{/foreach}
 		</ul>
 	</nav>

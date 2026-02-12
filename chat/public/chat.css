@@ -183,6 +183,11 @@ body.public:has(#chat) footer.public {
 	content: "👤";
 }
 
+.channels ul li.new a::after {
+	content: "!";
+	display: block;
+}
+
 .chatbox form {
 	display: flex;
 	align-items: stretch;
