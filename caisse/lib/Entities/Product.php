@@ -21,7 +21,7 @@ class Product extends Entity
 	protected int $category = 0;
 	protected string $name = '';
 	protected ?string $description = null;
-	protected int $price = 0;
+	protected int $price;
 	protected ?int $purchase_price = null;
 	protected int $qty = 1;
 	protected ?int $stock = null;
