@@ -76,7 +76,7 @@
 		</dl>
 		<dl>
 			{if !$product->isLinked()}
-				{input type="list" name="linked_products" target="list_for_linking.php?id=%d"|args:$product.id multiple=true label="Produits associés" required=false default=$linked_products}
+				{input type="list" name="linked_products" target="list_for_linking.php?id=%d"|args:$product.id multiple=true label="Produits liés" required=false default=$linked_products}
 				<dd class="help">
 					Chaque produit indiqué ici sera automatiquement ajouté à la note lors de l'ajout de ce produit.<br />
 					Les produits liés ne pourront être supprimés de la note sans supprimer le produit "parent".<br />
