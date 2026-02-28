@@ -30,19 +30,22 @@ if (!empty($_GET['item_set_user_id'])) {
 	Utils::redirect('./order.php?id=' . $order->id());
 }
 
-$form->runIf('sync_all', function () use ($ha, $order) {
-	$id_creator = Session::getUserId();
-	$order->importData($ha, $id_creator, true, true, true);
+$id_creator = Session::getUserId();
+
+$form->runIf('sync_all', function () use ($order, $id_creator) {
+	$order->importAll($id_creator);
 }, null, './order.php?id=' . $order->id());
 
-$form->runIf('create_transaction', function () use ($ha, $order) {
-	$id_creator = Session::getUserId();
-	$order->importData($ha, $id_creator, false, false, true);
+$form->runIf('create_transaction', function () use ($order, $id_creator) {
+	$order->importTransaction($id_creator);
 }, null, './order.php?id=' . $order->id());
 
-$form->runIf('create_subscriptions', function () use ($ha, $order) {
-	$id_creator = Session::getUserId();
-	$order->importData($ha, $id_creator, false, true, false);
+$form->runIf('create_users', function () use ($order, $id_creator) {
+	$order->importMembershipUsers($id_creator);
+}, null, './order.php?id=' . $order->id());
+
+$form->runIf('create_subscriptions', function () use ($order, $id_creator) {
+	$order->importMembershipSubscriptions($id_creator);
 }, null, './order.php?id=' . $order->id());
 
 $payments = Payments::list($order);
@@ -63,7 +66,8 @@ else {
 $f = $order->form();
 $type = $f->type;
 $has_all_subscriptions = $order->hasAllSubscriptions();
+$has_all_users = $order->hasAllUsers();
 
-$tpl->assign(compact('order', 'payments', 'items', 'payer_infos', 'found_user', 'mapped_user', 'f', 'type', 'ha', 'has_all_subscriptions'));
+$tpl->assign(compact('order', 'payments', 'items', 'payer_infos', 'found_user', 'mapped_user', 'f', 'type', 'ha', 'has_all_subscriptions', 'has_all_users'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/order.tpl');

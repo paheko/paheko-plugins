@@ -217,14 +217,11 @@ class HelloAsso
 
 			// In case we merge first and last names in the same field
 			if ($map['firstName'] === $map['lastName']) {
-				$where = sprintf('%s = ? COLLATE U_NOCASE', $db->quoteIdentifier($map['firstName']));
+				$where = sprintf('%s = ? COLLATE U_NOCASE OR %1$s = ? COLLATE U_NOCASE OR %1$s = ? COLLATE U_NOCASE', $db->quoteIdentifier($map['firstName']));
 
-				if ($order === self::MERGE_NAMES_FIRST_LAST) {
-					$params[] = $data->firstName . ' ' . $data->lastName;
-				}
-				else {
-					$params[] = $data->lastName . ' ' . $data->firstName;
-				}
+				$params[] = $data->firstName . ' ' . $data->lastName;
+				$params[] = $data->lastName . ' ' . $data->firstName;
+				$params[] = $data->lastName;
 			}
 			else {
 				$where = sprintf('%s = ? COLLATE U_NOCASE AND %s = ? COLLATE U_NOCASE',
@@ -238,7 +235,7 @@ class HelloAsso
 		}
 
 		$identity_field = DynamicFields::getNameFieldsSQL();
-		$sql = sprintf('SELECT id, %s AS identity FROM users WHERE %s;', $identity_field, $where);
+		$sql = sprintf('SELECT id, %s AS identity FROM users WHERE %s LIMIT 1;', $identity_field, $where);
 
 		return $db->first($sql, ...$params) ?: null;
 	}

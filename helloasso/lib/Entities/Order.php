@@ -285,8 +285,30 @@ class Order extends Entity
 		return $transaction;
 	}
 
-	public function importData(HelloAsso $ha, ?int $id_creator, bool $create_users = true, bool $create_subscriptions = true, bool $create_transaction = true): void
+	public function importMembershipSubscriptions(?int $id_creator): array
 	{
+		return $this->importData($id_creator, false, false, true, false);
+	}
+
+	public function importMembershipUsers(?int $id_creator): array
+	{
+		return $this->importData($id_creator, false, true, false, false);
+	}
+
+	public function importTransaction(?int $id_creator): array
+	{
+		return $this->importData($id_creator, false, false, false, true);
+	}
+
+	public function importAll(?int $id_creator): array
+	{
+		return $this->importData($id_creator, true, true, true, true);
+	}
+
+	public function importData(?int $id_creator, bool $create_order_user, bool $create_items_users, bool $create_subscriptions, bool $create_transaction): array
+	{
+		$ha = HelloAsso::getInstance();
+
 		if ($this->status !== self::STATUS_PAID) {
 			throw new \LogicException('Cannot sync a non-paid order');
 		}
@@ -295,21 +317,25 @@ class Order extends Entity
 		$db->begin();
 
 		$users = [];
+		$report = [];
 
-		// Create payer user
-		if ($create_users
+		// Create or link payer user
+		if ($create_order_user
 			&& !$this->id_user
 			&& $this->form()->create_payer_user !== HelloAsso::NO_USER_ACTION) {
 			$payer = $this->getRawPayerData();
 
 			if ($user = $ha->findMatchingUser($payer)) {
 				$this->set('id_user', $user->id);
+				$report[] = ['status' => 'linked', 'message' => sprintf('Commande associée à : %s', $user->identity)];
 			}
-			elseif ($mapped_user = $ha->getMappedUser($payer)) {
+			elseif ($this->form()->create_payer_user === HelloAsso::CREATE_UPDATE_USER
+				&& ($mapped_user = $ha->getMappedUser($payer))) {
 				$user = Users::create();
 				$user->importForm($mapped_user);
 				$user->save();
 				$this->set('id_user', $user->id());
+				$report[] = ['status' => 'created', 'message' => sprintf('Membre créé pour la commande : %s', $user->name())];
 			}
 		}
 
@@ -317,13 +343,14 @@ class Order extends Entity
 		$list->setPageSize(null);
 
 		foreach ($list->iterate() as $item) {
-			// Find or create user ID
-			if ($create_users
+			// Find or create user ID for item
+			if ($create_items_users
 				&& !$item->id_user
 				&& $item->create_user !== HelloAsso::NO_USER_ACTION) {
 
 				if (isset($item->matching_user)) {
 					$item->id_user = $item->matching_user->id;
+					$report[] = ['status' => 'linked', 'message' => sprintf('Article "%s" associé à : %s', $item->label, $item->matching_user->identity)];
 				}
 				elseif (isset($item->new_user)
 					&& $item->create_user === HelloAsso::CREATE_UPDATE_USER) {
@@ -331,6 +358,7 @@ class Order extends Entity
 					$user->importForm($item->new_user);
 					$user->save();
 					$item->id_user = $user->id();
+					$report[] = ['status' => 'created', 'message' => sprintf('Membre créé pour l\'article "%s" : %s', $item->label, $user->name())];
 				}
 
 				if ($item->id_user) {
@@ -349,6 +377,7 @@ class Order extends Entity
 				$sub->save();
 				$item->id_subscription = $sub->id();
 				$db->preparedQuery(sprintf('UPDATE %s SET id_subscription = ? WHERE id = ? AND id_subscription IS NULL;', Item::TABLE), $item->id_subscription, $item->id);
+				$report[] = ['status' => 'created', 'message' => sprintf('Inscription faite pour l\'article "%s"', $item->label)];
 			}
 
 			if ($item->id_user) {
@@ -370,10 +399,28 @@ class Order extends Entity
 			$transaction->updateLinkedUsers($users);
 
 			$this->set('id_transaction', $transaction->id());
+			$report[] = ['status' => 'created', 'message' => 'Écriture comptable créée'];
 		}
 
 		$this->save();
 		$db->commit();
+		return $report;
+	}
+
+	public function hasAllUsers(): ?bool
+	{
+		if ($this->form()->type !== 'Membership') {
+			return null;
+		}
+
+		$db = DB::getInstance();
+		$sql = sprintf('SELECT 1 FROM %s i
+			INNER JOIN %s t ON i.id_tier = t.id
+			WHERE t.id_fee IS NOT NULL
+				AND i.id_user IS NULL
+				AND i.type = \'Membership\'
+				AND i.id_order = ?;', Item::TABLE, Tier::TABLE);
+		return $db->firstColumn($sql, $this->id()) ? false : true;
 	}
 
 	public function hasAllSubscriptions(): ?bool
@@ -383,7 +430,13 @@ class Order extends Entity
 		}
 
 		$db = DB::getInstance();
-		$sql = sprintf('SELECT 1 FROM %s i INNER JOIN %s t ON i.id_tier = t.id WHERE t.id_fee IS NOT NULL AND i.id_subscription IS NULL AND i.type = \'Membership\' AND i.id_order = ?;', Item::TABLE, Tier::TABLE);
+		$sql = sprintf('SELECT 1 FROM %s i
+			INNER JOIN %s t ON i.id_tier = t.id
+			WHERE t.id_fee IS NOT NULL
+				AND i.id_subscription IS NULL
+				AND i.id_user IS NOT NULL
+				AND i.type = \'Membership\'
+				AND i.id_order = ?;', Item::TABLE, Tier::TABLE);
 		return $db->firstColumn($sql, $this->id()) ? false : true;
 	}
 }

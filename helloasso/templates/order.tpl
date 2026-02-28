@@ -67,19 +67,35 @@
 	</article>
 
 	{if $f.type === 'Membership'}
-	<article class="{if $has_all_subscriptions}ok{else}missing{/if}">
-		<h3>Inscriptions aux activités</h3>
-		{if $has_all_subscriptions}
-			<p class="status">Toutes les inscriptions ont été effectuées.</p>
-		{else}
-			<p class="status">Il manque des inscriptions.</p>
-			<form method="post" action="">
-			<p class="actions">
-				{button shape="link" label="Créer les inscriptions manquantes" name="create_subscriptions" value=1 type="submit"}
-			</p>
-			</form>
-		{/if}
-	</article>
+		<article class="{if $has_all_users}ok{else}missing{/if}">
+			<h3>Adhésions</h3>
+			{if $has_all_users}
+				<p class="alert">Tous les adhésions sont liées à des membres.</p>
+			{else}
+				<p class="alert block">Certaines adhésions ne sont pas liées à des membres.</p>
+				<form method="post" action="">
+				<p class="actions">
+					{button shape="link" label="Créer ou lier les membres" name="create_users" value=1 type="submit"}
+				</p>
+				</form>
+			{/if}
+		</article>
+
+		<article class="{if $has_all_subscriptions && $has_all_users}ok{else}missing{/if}">
+			<h3>Inscriptions aux activités</h3>
+			{if !$has_all_users}
+				<p class="alert block">Certaines adhésions ne sont pas liées à des membres.</p>
+			{elseif $has_all_subscriptions}
+				<p class="status">Toutes les inscriptions ont été effectuées.</p>
+			{else}
+				<p class="status">Il manque des inscriptions.</p>
+				<form method="post" action="">
+				<p class="actions">
+					{button shape="link" label="Créer les inscriptions manquantes" name="create_subscriptions" value=1 type="submit"}
+				</p>
+				</form>
+			{/if}
+		</article>
 	{/if}
 </section>
 
