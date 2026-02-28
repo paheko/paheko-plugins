@@ -67,7 +67,7 @@
 		<article class="{if $has_all_users}ok{else}missing{/if}">
 			<h3>Adhésions</h3>
 			{if $has_all_users}
-				<p class="alert">Tous les adhésions sont liées à des membres.</p>
+				<p class="alert">Toutes les adhésions sont liées à des membres.</p>
 			{else}
 				<p class="alert block">Certaines adhésions ne sont pas liées à des membres.</p>
 				<form method="post" action="">
