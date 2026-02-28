@@ -186,19 +186,26 @@ class HelloAsso
 
 	public function findMatchingUser(stdClass $data): ?stdClass
 	{
-		$map = (array) ($this->config->fields_map ?? []);
 		$where = '';
 		$params = [];
-		$email_field = DynamicFields::getFirstEmailField();
-		$identity_field = DynamicFields::getNameFieldsSQL();
 		$db = DB::getInstance();
-		$df = DynamicFields::getInstance();
 
 		if ($this->config->match_email_field ?? null) {
+			if (empty($data->email)) {
+				return null;
+			}
+
+			$email_field = DynamicFields::getFirstEmailField();
 			$where = sprintf('%s = ? COLLATE NOCASE', $db->quoteIdentifier($email_field));
 			$params[] = $data->email;
 		}
 		else {
+			if (!isset($data->firstName, $data->lastName)) {
+				return null;
+			}
+
+			$map = (array) ($this->config->fields_map ?? []);
+			$df = DynamicFields::getInstance();
 			$order = $this->config->merge_names_order ?? self::MERGE_NAMES_FIRST_LAST;
 
 			// Make sure the mapped field exists in the fields list
@@ -230,6 +237,7 @@ class HelloAsso
 			}
 		}
 
+		$identity_field = DynamicFields::getNameFieldsSQL();
 		$sql = sprintf('SELECT id, %s AS identity FROM users WHERE %s;', $identity_field, $where);
 
 		return $db->first($sql, ...$params) ?: null;
