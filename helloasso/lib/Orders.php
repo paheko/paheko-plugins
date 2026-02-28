@@ -3,8 +3,10 @@
 namespace Paheko\Plugin\HelloAsso;
 
 use Paheko\Plugin\HelloAsso\Entities\Form;
+use Paheko\Plugin\HelloAsso\Entities\Item;
 use Paheko\Plugin\HelloAsso\Entities\Order;
 use Paheko\Plugin\HelloAsso\Entities\Payment;
+use Paheko\Plugin\HelloAsso\Entities\Tier;
 use Paheko\Plugin\HelloAsso\API;
 
 use Paheko\DB;
@@ -25,26 +27,45 @@ class Orders
 		$columns = [
 			'id' => [
 				'label' => 'Numéro',
+				'select' => 'o.id',
 			],
 			'date' => [
 				'label' => 'Date',
+				'select' => 'o.date',
 			],
 			'amount' => [
 				'label' => 'Montant',
+				'select' => 'o.amount',
 			],
 			'person' => [
 				'label' => 'Personne',
+				'select' => 'o.person',
 			],
 			'status' => [
-				'label' => 'Statut',
+				'label' => 'Paiement',
+				'select' => 'o.status',
 			],
 			'id_user' => [
 				'label' => 'Membre lié',
+				'select' => 'o.id_user',
+			],
+			'id_transaction' => [
+				'label' => 'Écriture',
+				'select' => 'o.id_transaction',
 			],
 		];
 
-		$tables = Order::TABLE;
-		$conditions = sprintf('id_form = %d', $form->id);
+		$tables = sprintf('%s AS o', Order::TABLE);
+		$conditions = sprintf('o.id_form = %d', $form->id);
+
+		if ($form->type === 'Membership') {
+			$columns['has_all_users'] = [
+				'label' => 'Adhésions',
+				'select' => 'CASE WHEN iu.has_missing_users IS NOT NULL THEN 0 ELSE 1 END',
+			];
+
+			$tables .= sprintf(' LEFT JOIN (SELECT 1 AS has_missing_users, i.id_order FROM %s i INNER JOIN %s t ON t.id = i.id_tier AND t.create_user != %d WHERE i.id_user IS NULL GROUP BY i.id_order) AS iu ON iu.id_order = o.id', Item::TABLE, Tier::TABLE, HelloAsso::NO_USER_ACTION);
+		}
 
 		$list = new DynamicList($columns, $tables, $conditions);
 		$list->setTitle(sprintf('%s - Commandes', $form->name));
@@ -53,6 +74,7 @@ class Orders
 			$row->amount = $row->amount ? Utils::money_format($row->amount, '.', '', false) : null;
 		});
 
+		$list->groupBy('o.id');
 		$list->orderBy('date', true);
 		return $list;
 	}
