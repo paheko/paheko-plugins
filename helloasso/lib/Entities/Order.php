@@ -373,7 +373,7 @@ class Order extends Entity
 				&& $item->id_fee) {
 				$id_service = $db->firstColumn('SELECT id_service FROM services_fees WHERE id = ?;', $item->id_fee);
 				$sub = Services_User::create($item->id_user, $id_service, $item->id_fee);
-				$sub->importForm(['id_service' => $id_service, 'date' => $this->date]);
+				$sub->importForm(['id_service' => $id_service, 'date' => $this->date, 'paid' => true]);
 				$sub->save();
 				$item->id_subscription = $sub->id();
 				$db->preparedQuery(sprintf('UPDATE %s SET id_subscription = ? WHERE id = ? AND id_subscription IS NULL;', Item::TABLE), $item->id_subscription, $item->id);
