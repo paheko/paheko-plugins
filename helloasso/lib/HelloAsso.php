@@ -162,10 +162,10 @@ class HelloAsso
 					$value = (string) key($value);
 				}
 			}
-			elseif ($type === 'bool') {
+			elseif ($type === 'boolean') {
 				$value = (bool) $value;
 			}
-			elseif ($type === 'int') {
+			elseif ($type === 'integer') {
 				$value = (int) $value;
 			}
 
