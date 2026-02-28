@@ -8,7 +8,9 @@
 			<td class="num">{if $details}{link href="order.php?id=%d"|args:$row.id_order label=$row.id}{else}{$row.id}{/if}</td>
 			<th scope="row">{$row.label}</th>
 			<td class="money">{$row.amount|money_currency|raw}</td>
+			{if $list->hasColumn('person')}
 			<td>{$row.person}</td>
+			{/if}
 			{if $list->hasColumn('custom_fields')}
 			<td>
 				{if $row.custom_fields}

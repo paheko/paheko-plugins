@@ -63,6 +63,8 @@ class Items
 		$tables = sprintf('%s AS i INNER JOIN %s o ON o.id = i.id_order LEFT JOIN %s AS t ON t.id = i.id_tier', Item::TABLE, Order::TABLE, Tier::TABLE);
 
 		if ($for instanceof Order) {
+			unset($columns['person']);
+
 			$columns = array_merge($columns, [
 				'options' => [
 					'select' => 'json_extract(i.raw_data, \'$.options\')',

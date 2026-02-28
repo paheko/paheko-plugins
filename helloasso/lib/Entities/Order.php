@@ -419,7 +419,8 @@ class Order extends Entity
 			WHERE t.create_user != ?
 				AND i.id_user IS NULL
 				AND i.type = \'Membership\'
-				AND i.id_order = ?;',
+				AND i.id_order = ?
+			LIMIT 1;',
 			Item::TABLE,
 			Tier::TABLE
 		);
@@ -440,7 +441,12 @@ class Order extends Entity
 				AND i.id_subscription IS NULL
 				AND i.id_user IS NOT NULL
 				AND i.type = \'Membership\'
-				AND i.id_order = ?;', Item::TABLE, Tier::TABLE);
+				AND i.id_order = ?
+			LIMIT 1;',
+			Item::TABLE,
+			Tier::TABLE
+		);
+
 		return $db->firstColumn($sql, $this->id()) ? false : true;
 	}
 
