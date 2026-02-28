@@ -34,6 +34,7 @@
 					{linkbutton shape="link" href="?id=%d&item_id=%d&item_set_user_id=%d"|args:$order.id:$row.id:$row.matching_user.id label="Lier à ce membre"}
 				{elseif $row.new_user_url}
 					{linkbutton shape="plus" href=$row.new_user_url|cat:"&set_item="|cat:$row.id|cat:"&set_item_user_id=%d" label="Créer ce membre"}
+					{button shape="search" label="Lier à un membre" onclick="openUserSelectorForItem(%d)"|args:$row.id}
 				{/if}
 			</td>
 			{/if}

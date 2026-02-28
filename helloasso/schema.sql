@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_orders (
 );
 
 CREATE INDEX IF NOT EXISTS plugin_helloasso_orders_form ON plugin_helloasso_orders(id_form, date DESC);
+CREATE INDEX IF NOT EXISTS plugin_helloasso_orders_form_id ON plugin_helloasso_orders(id_form, id);
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_items (
 	id INTEGER PRIMARY KEY NOT NULL,
@@ -95,13 +96,13 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_items (
 CREATE INDEX IF NOT EXISTS plugin_helloasso_items_order ON plugin_helloasso_items(id_order);
 CREATE INDEX IF NOT EXISTS plugin_helloasso_items_tier ON plugin_helloasso_items(id_tier);
 CREATE INDEX IF NOT EXISTS plugin_helloasso_items_form ON plugin_helloasso_items(id_form);
+CREATE INDEX IF NOT EXISTS plugin_helloasso_items_user ON plugin_helloasso_items(id_user);
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_payments (
 	id INTEGER PRIMARY KEY NOT NULL,
 	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
 	id_order INTEGER NOT NULL REFERENCES plugin_helloasso_orders(id) ON DELETE CASCADE,
 	id_user INTEGER NULL REFERENCES users(id) ON DELETE SET NULL,
-	id_transaction INTEGER NULL REFERENCES acc_transactions(id) ON DELETE SET NULL,
 	amount INTEGER NOT NULL,
 	state TEXT NOT NULL,
 	transfer_date TEXT NULL,

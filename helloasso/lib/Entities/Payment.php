@@ -16,7 +16,6 @@ class Payment extends Entity
 	protected int $id_order;
 	protected int $id_form;
 	protected ?int $id_user;
-	protected ?int $id_transaction;
 	protected int $amount;
 	protected string $state;
 	protected ?\DateTime $transfer_date;

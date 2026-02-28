@@ -31,22 +31,34 @@ if (!empty($_GET['item_set_user_id'])) {
 }
 
 $id_creator = Session::getUserId();
+$csrf_key = 'order_' . $order->id;
 
 $form->runIf('sync_all', function () use ($order, $id_creator) {
 	$order->importAll($id_creator);
-}, null, './order.php?id=' . $order->id());
+}, $csrf_key, './order.php?id=' . $order->id());
 
 $form->runIf('create_transaction', function () use ($order, $id_creator) {
 	$order->importTransaction($id_creator);
-}, null, './order.php?id=' . $order->id());
+}, $csrf_key, './order.php?id=' . $order->id());
 
 $form->runIf('create_users', function () use ($order, $id_creator) {
 	$order->importMembershipUsers($id_creator);
-}, null, './order.php?id=' . $order->id());
+}, $csrf_key, './order.php?id=' . $order->id());
 
 $form->runIf('create_subscriptions', function () use ($order, $id_creator) {
 	$order->importMembershipSubscriptions($id_creator);
-}, null, './order.php?id=' . $order->id());
+}, $csrf_key, './order.php?id=' . $order->id());
+
+$form->runIf('link_id_user', function () use ($order) {
+	$item = $order->getItem(intval($_POST['id_item'] ?? 0));
+
+	if (!$item) {
+		throw new UserException('Article introuvable');
+	}
+
+	$item->set('id_user', intval($_POST['link_id_user'] ?? 0));
+	$item->save();
+}, $csrf_key, './order.php?id=' . $order->id());
 
 $payments = Payments::list($order);
 $items = Items::list($order, $ha);
@@ -81,7 +93,8 @@ $tpl->assign(compact(
 	'ha',
 	'has_all_subscriptions',
 	'has_all_users',
-	'is_synced'
+	'is_synced',
+	'csrf_key',
 ));
 
 $tpl->display(PLUGIN_ROOT . '/templates/order.tpl');

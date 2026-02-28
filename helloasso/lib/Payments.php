@@ -27,10 +27,6 @@ class Payments
 				'label' => 'Numéro',
 				'select' => 'p.id',
 			],
-			'id_transaction' => [
-				'label' => 'Écriture',
-				'select' => 'p.id_transaction',
-			],
 			'date' => [
 				'label' => 'Date',
 				'select' => 'p.date',
@@ -55,6 +51,10 @@ class Payments
 				'label' => 'Membre lié',
 				'select' => 'p.id_user',
 			],
+			'id_transaction' => [
+				'label' => 'Écriture',
+				'select' => 'o.id_transaction',
+			],
 			'receipt_url' => [
 				'select' => 'p.receipt_url',
 			],
@@ -75,6 +75,7 @@ class Payments
 			$conditions = sprintf('p.id_order = %d', $for->id);
 			$list->setConditions($conditions);
 			$list->setTitle(sprintf('Commande - %d - Paiements', $for->id));
+			unset($columns['id_transaction']);
 		}
 		else {
 			throw new \RuntimeException('Invalid target');
@@ -175,46 +176,4 @@ class Payments
 		return $data;
 	}
 
-/*
-
-
-	public function getPayment(string $id): \stdClass
-	{
-		$data = $this->api->getPayment($id);
-		return $this->transformPayment($data);
-	}
-	public function listPayments(\stdClass $form, int $page = 1, &$count = null): array
-	{
-		$per_page = self::PER_PAGE;
-
-		$result = $this->api->listFormPayments($form->org_slug, $form->form_type, $form->form_slug, $page, $per_page);
-
-		$count = $result->pagination->totalCount;
-
-		foreach ($result->data as &$row) {
-			$row = $this->transformPayment($row);
-		}
-
-		unset($row);
-
-		return $result->data;
-	}
-
-	public function listOrganizationPayments(string $org_slug, int $page = 1, &$count = null): array
-	{
-		$per_page = self::PER_PAGE;
-
-		$result = $this->api->listOrganizationPayments($org_slug, $page, $per_page);
-
-		$count = $result->pagination->totalCount;
-
-		foreach ($result->data as &$row) {
-			$row = $this->transformPayment($row);
-		}
-
-		unset($row);
-
-		return $result->data;
-	}
-*/
 }

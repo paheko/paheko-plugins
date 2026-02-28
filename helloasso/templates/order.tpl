@@ -9,6 +9,7 @@
 {if !$is_synced}
 <form method="post" action="">
 	<p class="actions-center">
+		{csrf_field key=$csrf_key}
 		{button shape="reload" label="Tout synchroniser" name="sync_all" value=1 type="submit" class="main"}
 	</p>
 </form>
@@ -57,6 +58,7 @@
 		{else}
 			<form method="post" action="">
 			<p class="actions">
+				{csrf_field key=$csrf_key}
 				{button shape="plus" label="Créer l'écriture comptable" name="create_transaction" value=1 type="submit"}
 			</p>
 			</form>
@@ -72,6 +74,7 @@
 				<p class="alert block">Certaines adhésions ne sont pas liées à des membres.</p>
 				<form method="post" action="">
 				<p class="actions">
+					{csrf_field key=$csrf_key}
 					{button shape="link" label="Créer ou lier les membres" name="create_users" value=1 type="submit"}
 				</p>
 				</form>
@@ -88,6 +91,7 @@
 				<p class="status">Il manque des inscriptions.</p>
 				<form method="post" action="">
 				<p class="actions">
+					{csrf_field key=$csrf_key}
 					{button shape="link" label="Créer les inscriptions manquantes" name="create_subscriptions" value=1 type="submit"}
 				</p>
 				</form>
@@ -135,5 +139,29 @@
 	</dd>
 	{/foreach}
 </dl>
+
+<form method="post" action="" class="hidden" id="link_form">
+	{csrf_field key=$csrf_key}
+	<input type="hidden" name="id_item" />
+	<input type="hidden" name="link_id_user" />
+</form>
+
+<script type="text/javascript">
+var selector_url = {"!users/selector.php?_dialog"|local_url|escape:'json'};
+{literal}
+var f = $('#link_form');
+window.openUserSelectorForItem = function(id) {
+	f.id_item.value = id;
+	g.openFrameDialog(selector_url);
+}
+
+window.g.inputListSelected = function(id_user, label) {
+	g.closeDialog();
+	f.link_id_user.value = id_user;
+	f.submit();
+}
+{/literal}
+</script>
+
 
 {include file="_foot.tpl"}
