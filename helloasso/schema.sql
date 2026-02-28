@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers (
 	create_user INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE INDEX IF NOT EXISTS plugin_helloasso_tiers_form ON plugin_helloasso_forms_tiers(id_form);
+
 CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_options (
 	id INTEGER PRIMARY KEY,
 	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
@@ -50,6 +52,8 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_options (
 	-- Which account should be used to create the transaction line for this option
 	account_code TEXT NULL
 );
+
+CREATE INDEX IF NOT EXISTS plugin_helloasso_options_form ON plugin_helloasso_forms_options(id_form);
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers_options_links (
 -- An option can be linked to more than one tier
@@ -70,6 +74,8 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_orders (
 	raw_data TEXT NOT NULL
 );
 
+CREATE INDEX IF NOT EXISTS plugin_helloasso_orders_form ON plugin_helloasso_orders(id_form, date DESC);
+
 CREATE TABLE IF NOT EXISTS plugin_helloasso_items (
 	id INTEGER PRIMARY KEY NOT NULL,
 	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
@@ -86,6 +92,10 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_items (
 	custom_fields TEXT NULL
 );
 
+CREATE INDEX IF NOT EXISTS plugin_helloasso_items_order ON plugin_helloasso_items(id_order);
+CREATE INDEX IF NOT EXISTS plugin_helloasso_items_tier ON plugin_helloasso_items(id_tier);
+CREATE INDEX IF NOT EXISTS plugin_helloasso_items_form ON plugin_helloasso_items(id_form);
+
 CREATE TABLE IF NOT EXISTS plugin_helloasso_payments (
 	id INTEGER PRIMARY KEY NOT NULL,
 	id_form INTEGER NOT NULL REFERENCES plugin_helloasso_forms(id) ON DELETE CASCADE,
@@ -99,3 +109,5 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_payments (
 	receipt_url TEXT NULL,
 	raw_data TEXT NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS plugin_helloasso_payments_order ON plugin_helloasso_payments(id_order, date DESC);
