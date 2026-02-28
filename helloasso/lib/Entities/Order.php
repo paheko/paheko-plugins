@@ -416,11 +416,15 @@ class Order extends Entity
 		$db = DB::getInstance();
 		$sql = sprintf('SELECT 1 FROM %s i
 			INNER JOIN %s t ON i.id_tier = t.id
-			WHERE t.id_fee IS NOT NULL
+			WHERE t.create_user != ?
 				AND i.id_user IS NULL
 				AND i.type = \'Membership\'
-				AND i.id_order = ?;', Item::TABLE, Tier::TABLE);
-		return $db->firstColumn($sql, $this->id()) ? false : true;
+				AND i.id_order = ?;',
+			Item::TABLE,
+			Tier::TABLE
+		);
+
+		return $db->firstColumn($sql, HelloAsso::NO_USER_ACTION, $this->id()) ? false : true;
 	}
 
 	public function hasAllSubscriptions(): ?bool
@@ -438,5 +442,38 @@ class Order extends Entity
 				AND i.type = \'Membership\'
 				AND i.id_order = ?;', Item::TABLE, Tier::TABLE);
 		return $db->firstColumn($sql, $this->id()) ? false : true;
+	}
+
+	public function isSynced(?bool $has_all_users = null, ?bool $has_all_subscriptions = null): ?bool
+	{
+		// Cannot sync a non-paid order
+		if ($this->status !== self::STATUS_PAID) {
+			return null;
+		}
+
+		$form = $this->form();
+
+		if (!$this->id_user
+			&& $form->create_payer_user !== HelloAsso::NO_USER_ACTION) {
+			return false;
+		}
+
+		if ($form->id_year && !$this->id_transaction) {
+			return false;
+		}
+
+		$has_all_users ??= $this->hasAllUsers();
+
+		if ($has_all_users === false) {
+			return false;
+		}
+
+		$has_all_subscriptions ??= $this->hasAllSubscriptions();
+
+		if ($has_all_subscriptions === false) {
+			return false;
+		}
+
+		return true;
 	}
 }

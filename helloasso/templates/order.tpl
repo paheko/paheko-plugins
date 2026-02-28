@@ -6,10 +6,7 @@
 
 <h2 class="ruler">Synchronisation</h2>
 
-{if $order.status === $order::STATUS_PAID
-	&& (($f.create_payer_user !== $ha::NO_USER_ACTION && !$order.id_user)
-	|| ($f.id_year && !$order.id_transaction)
-	|| !$has_all_subscriptions)}
+{if !$is_synced}
 <form method="post" action="">
 	<p class="actions-center">
 		{button shape="reload" label="Tout synchroniser" name="sync_all" value=1 type="submit" class="main"}

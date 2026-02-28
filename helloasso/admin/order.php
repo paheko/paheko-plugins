@@ -65,9 +65,23 @@ else {
 
 $f = $order->form();
 $type = $f->type;
-$has_all_subscriptions = $order->hasAllSubscriptions();
 $has_all_users = $order->hasAllUsers();
+$has_all_subscriptions = $order->hasAllSubscriptions();
+$is_synced = $order->isSynced($has_all_users, $has_all_subscriptions);
 
-$tpl->assign(compact('order', 'payments', 'items', 'payer_infos', 'found_user', 'mapped_user', 'f', 'type', 'ha', 'has_all_subscriptions', 'has_all_users'));
+$tpl->assign(compact(
+	'order',
+	'payments',
+	'items',
+	'payer_infos',
+	'found_user',
+	'mapped_user',
+	'f',
+	'type',
+	'ha',
+	'has_all_subscriptions',
+	'has_all_users',
+	'is_synced'
+));
 
 $tpl->display(PLUGIN_ROOT . '/templates/order.tpl');
