@@ -435,6 +435,20 @@ class Order extends Entity
 		}
 
 		$db = DB::getInstance();
+		$subscription_items_count = $db->firstColumn(sprintf('SELECT COUNT(*)
+			FROM %s i INNER JOIN %s t ON i.id_tier = t.id
+			WHERE i.id_order = ?
+				AND i.type = \'Membership\'
+				AND t.id_fee IS NOT NULL;',
+			Item::TABLE,
+			Tier::TABLE),
+			$this->id()
+		);
+
+		if (!$subscription_items_count) {
+			return null;
+		}
+
 		$sql = sprintf('SELECT 1 FROM %s i
 			INNER JOIN %s t ON i.id_tier = t.id
 			WHERE t.id_fee IS NOT NULL

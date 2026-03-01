@@ -83,8 +83,8 @@
 
 		<article class="{if $has_all_subscriptions && $has_all_users}ok{else}missing{/if}">
 			<h3>Inscriptions aux activités</h3>
-			{if !$has_all_users}
-				<p class="alert block">Certaines adhésions ne sont pas liées à des membres.</p>
+			{if $has_all_subscriptions === null}
+				<p class="status">Aucun tarif de la commande n'est configuré pour les inscriptions.</p>
 			{elseif $has_all_subscriptions}
 				<p class="status">Toutes les inscriptions ont été effectuées.</p>
 			{else}
