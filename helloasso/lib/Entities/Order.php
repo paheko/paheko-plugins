@@ -417,6 +417,20 @@ class Order extends Entity
 		$sql = sprintf('SELECT 1 FROM %s i
 			INNER JOIN %s t ON i.id_tier = t.id
 			WHERE t.create_user != ?
+				AND i.type = \'Membership\'
+				AND i.id_order = ?
+			LIMIT 1;',
+			Item::TABLE,
+			Tier::TABLE
+		);
+
+		if (!$db->firstColumn($sql, HelloAsso::NO_USER_ACTION, $this->id())) {
+			return null;
+		}
+
+		$sql = sprintf('SELECT 1 FROM %s i
+			INNER JOIN %s t ON i.id_tier = t.id
+			WHERE t.create_user != ?
 				AND i.id_user IS NULL
 				AND i.type = \'Membership\'
 				AND i.id_order = ?
@@ -435,17 +449,18 @@ class Order extends Entity
 		}
 
 		$db = DB::getInstance();
-		$subscription_items_count = $db->firstColumn(sprintf('SELECT COUNT(*)
-			FROM %s i INNER JOIN %s t ON i.id_tier = t.id
-			WHERE i.id_order = ?
+		$sql = sprintf('SELECT 1 FROM %s i
+			INNER JOIN %s t ON i.id_tier = t.id
+			WHERE t.id_fee IS NOT NULL
+				AND i.id_user IS NOT NULL
 				AND i.type = \'Membership\'
-				AND t.id_fee IS NOT NULL;',
+				AND i.id_order = ?
+			LIMIT 1;',
 			Item::TABLE,
-			Tier::TABLE),
-			$this->id()
+			Tier::TABLE
 		);
 
-		if (!$subscription_items_count) {
+		if (!$db->firstColumn($sql, $this->id())) {
 			return null;
 		}
 

@@ -68,7 +68,9 @@
 	{if $f.type === 'Membership'}
 		<article class="{if $has_all_users}ok{else}missing{/if}">
 			<h3>Adhésions</h3>
-			{if $has_all_users}
+			{if $has_all_users === null}
+				<p class="status">Aucun tarif de la commande n'est configuré pour synchroniser les adhésions.</p>
+			{elseif $has_all_users}
 				<p class="alert">Toutes les adhésions sont liées à des membres.</p>
 			{else}
 				<p class="alert block">Certaines adhésions ne sont pas liées à des membres.</p>
