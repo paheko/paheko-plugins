@@ -41,6 +41,7 @@
 					{if count($balances) == 1}
 					<dd class="help">Ne compter que les espèces, pas les chèques.</dd>
 					{/if}
+					<dd>{linkbutton shape="money" label="Calculette de fond de caisse" href="./till_calculator.php?id=%d"|args:$balance.id target="_dialog"}</dd>
 				</dl>
 			</fieldset>
 		{/foreach}
