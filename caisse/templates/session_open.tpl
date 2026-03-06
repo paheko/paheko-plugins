@@ -38,10 +38,10 @@
 				<legend>{$balance.name}</legend>
 				<dl>
 					{input type="money" name="balances[%d]"|args:$balance.id label="Solde à l'ouverture" required=true}
+					<dd>{linkbutton shape="money" label="Calculette de fond de caisse" href="./till_calculator.php?id=%d"|args:$balance.id target="_dialog"}</dd>
 					{if count($balances) == 1}
 					<dd class="help">Ne compter que les espèces, pas les chèques.</dd>
 					{/if}
-					<dd>{linkbutton shape="money" label="Calculette de fond de caisse" href="./till_calculator.php?id=%d"|args:$balance.id target="_dialog"}</dd>
 				</dl>
 			</fieldset>
 		{/foreach}
