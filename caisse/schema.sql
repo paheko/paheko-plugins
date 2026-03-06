@@ -146,7 +146,7 @@ CREATE TABLE IF NOT EXISTS @PREFIX_tabs_items (
 	type INTEGER NOT NULL DEFAULT 0,
 	pricing INTEGER NOT NULL DEFAULT 0,
 	id_fee INTEGER NULL REFERENCES services_fees (id) ON DELETE SET NULL,
-	id_subscription INTEGER NULL REFERENCES services_users (id) ON DELETE SET NULL,
+	id_subscription INTEGER NULL REFERENCES services_subscriptions (id) ON DELETE SET NULL,
 	id_parent_item INTEGER NULL REFERENCES @PREFIX_tabs_items (id) ON DELETE CASCADE,
 	id_method INTEGER NULL REFERENCES @PREFIX_methods (id) ON DELETE RESTRICT
 );
