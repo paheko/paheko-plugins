@@ -26,7 +26,7 @@
 	<fieldset>
 		<legend>Liaison ou création de membre</legend>
 		<dl>
-			{input type="radio-btn" name="create_user" value=0 source=$tier label="Ne pas chercher à lier aux membres" prefix_title="Liaison avec les membres" prefix_required=true required=true}
+			{input type="radio-btn" name="create_user" value=0 source=$tier label="Ne pas chercher à lier aux membres" prefix_label="Liaison avec les membres" prefix_required=true required=true}
 			{input type="radio-btn" name="create_user" value=1 source=$tier label="Chercher à lier un membre existant, sinon créer un nouveau membre"}
 			{input type="radio-btn" name="create_user" value=2 source=$tier label="Seulement chercher à lier un membre existant, sinon ne rien faire"}
 		</dl>

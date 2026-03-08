@@ -11,7 +11,7 @@
 		<legend>{$title}</legend>
 		<dl>
 			{input type="text" label="Nom" required=true name="name" source=$channel maxlength=49 pattern="[a-zA-Z0-9\p{L}_\-]{1,49}" help="Seules les lettres, chiffres et tirets sont autorisés." oninput="this.value = this.value.replace(/[^a-zA-Z0-9\p{L}_\-]+/ug, '_').toLowerCase();"}
-			{input type="radio-btn" name="access" value=$channel::ACCESS_PRIVATE label="Discussion privée" help="Seuls les membres connectés pourront accéder à cette discussion." source=$channel prefix_title="Accès" prefix_required=true}
+			{input type="radio-btn" name="access" value=$channel::ACCESS_PRIVATE label="Discussion privée" help="Seuls les membres connectés pourront accéder à cette discussion." source=$channel prefix_label="Accès" prefix_required=true}
 			{*FIXME
 			{input type="radio-btn" name="access" value=$channel::ACCESS_INVITE label="Discussion privée, sur invitation uniquement" help="Seuls les membres invités, et personnes externes invitées pourront accéder à la discussion." source=$channel}
 			*}

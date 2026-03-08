@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_items (
 	id_order INTEGER NOT NULL REFERENCES plugin_helloasso_orders(id) ON DELETE CASCADE,
 	id_tier INTEGER NULL REFERENCES plugin_helloasso_forms_tiers(id) ON DELETE SET NULL,
 	id_user INTEGER NULL REFERENCES users(id) ON DELETE SET NULL,
-	id_subscription INTEGER NULL REFERENCES services_users(id) ON DELETE SET NULL,
+	id_subscription INTEGER NULL REFERENCES services_subscriptions(id) ON DELETE SET NULL,
 
 	type TEXT NOT NULL,
 	state TEXT NOT NULL,
