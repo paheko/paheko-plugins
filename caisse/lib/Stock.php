@@ -54,9 +54,29 @@ class Stock
 		return new StockEvent;
 	}
 
-	static public function listEvents(): array
+	static public function getEventsList(): DynamicList
 	{
-		return EM::getInstance(StockEvent::class)->all('SELECT * FROM @TABLE ORDER BY date DESC;');
+		$columns = [
+			'id' => [],
+			'date' => [
+				'label' => 'Date',
+			],
+			'type' => [
+				'label' => 'Type',
+			],
+			'label' => [
+				'label' => 'Événement',
+			]
+		];
+
+		$list = new DynamicList($columns, POS::tbl('stock_events'));
+		$list->orderBy('date', true);
+
+		$list->setModifier(function (&$row) {
+			$row->type_label = StockEvent::TYPES[$row->type];
+		});
+
+		return $list;
 	}
 
 	static public function listCategoriesValue(): array

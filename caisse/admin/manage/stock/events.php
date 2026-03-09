@@ -5,6 +5,9 @@ use Paheko\Plugin\Caisse\Stock;
 
 require __DIR__ . '/../_inc.php';
 
-$tpl->assign('list', Stock::listEvents());
+$list = Stock::getEventsList();
+$list->loadFromQueryString();
+
+$tpl->assign(compact('list'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/manage/stock/events.tpl');
