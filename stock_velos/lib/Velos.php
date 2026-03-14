@@ -518,7 +518,7 @@ class Velos
 
 		$current = null;
 		$total = 0;
-		$total_etp = 0;
+		$total_weight = 0;
 
 		$list->setModifier(function (&$row) use (&$current, &$total, &$total_weight) {
 			if ($row->period !== $current) {
@@ -528,7 +528,7 @@ class Velos
 
 				$current = $row->period;
 				$total = 0;
-				$total_etp = 0;
+				$total_weight = 0;
 				$row->header = true;
 			}
 
