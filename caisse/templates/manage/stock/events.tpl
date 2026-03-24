@@ -15,8 +15,10 @@
 			</td>
 		</tr>
 	{/foreach}
-	</tbody>
-</table>
+		</tbody>
+	</table>
+
+	{$list->getHTMLPagination()|raw}
 {else}
 	<p class="alert block">Aucun événement</p>
 {/if}
