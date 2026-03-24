@@ -133,7 +133,7 @@ span.coin.large {
 var f = document.forms[0];
 f.onsubmit = () => {
 	var id = 'f_balances' + f.id.value;
-	var bal = window.parent.document.getElementById(id);
+	var bal = window.parent.document.querySelector('#' + id + ', #' + id + 'amount');
 	bal.value = $('#total').innerText;
 	window.parent.g.closeDialog();
 	return false;
