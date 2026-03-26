@@ -15,6 +15,13 @@ $fields = array(
 	'bicycode'       =>  'Bicycode',
 );
 
+$veloFields = $velos->getFields();
+foreach ($fields as $key => $label) {
+	if (isset($veloFields[$key]) && !$veloFields[$key]->enabled) {
+		unset($fields[$key]);
+	}
+}
+
 if (qg('f') && !array_key_exists(qg('f'), $fields))
 {
 	$_GET['f'] = '';
