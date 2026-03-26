@@ -3,17 +3,14 @@
 {include file="./_nav.tpl" current="index"}
 
 <form method="get" action="fiche.php" class="fastFind">
-	<fieldset class="shortFormRight">
-		<legend>Trouver un vélo par numéro unique</legend>
-		<p>
-			<input type="number" size="5" name="id" />
-			<input type="submit" value="Trouver" />
-		</p>
-	</fieldset>
 	<fieldset>
-		<legend>Trouver un vélo par numéro d'étiquette</legend>
+		<legend>Trouver un vélo par numéro {if $fields.etiquette.enabled}d'étiquette{else}unique{/if}</legend>
 		<p>
+			{if $fields.etiquette.enabled}
 			<input type="number" size="5" name="etiquette" />
+			{else}
+			<input type="number" size="5" name="id" />
+			{/if}
 			<input type="submit" value="Trouver" />
 			{linkbutton shape="search" href="recherche.php" label="Recherche avancée"}
 		</p>

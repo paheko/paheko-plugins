@@ -8,7 +8,7 @@
 		<h2 class="ruler">{$a_demonter|count} à démonter</h2>
 		<p>
 			{foreach from=$a_demonter item="r"}
-			<a href="fiche.php?id={$r.id}" class="a_demonter">{if $r.etiquette}{$r.etiquette}{else}&#x1F6B2;{/if}</a>
+			<a href="fiche.php?id={$r.id}" class="a_demonter">{if $fields.etiquette.enabled && $r.etiquette}{$r.etiquette}{elseif $r.id}{$r.id}{else}&#x1F6B2;{/if}</a>
 			{/foreach}
 		</p>
 	</article>
@@ -17,7 +17,7 @@
 		<h3>(valeur : {$valeur_vente|escape} €, prix moyen d'un vélo : {$prix_moyen|escape} €)</h3>
 		<p>
 			{foreach from=$en_vente item="r"}
-			<a href="fiche.php?id={$r.id}" class="en_vente">{if $r.etiquette}{$r.etiquette}{else}&#x1F6B2;{/if} <i>{$r.prix}&nbsp;€</i></a>
+			<a href="fiche.php?id={$r.id}" class="en_vente">{if $fields.etiquette.enabled && $r.etiquette}{$r.etiquette}{elseif $r.id}{$r.id}{else}&#x1F6B2;{/if} <i>{$r.prix}&nbsp;€</i></a>
 			{/foreach}
 		</p>
 	</article>
@@ -25,7 +25,7 @@
 		<h2 class="ruler">{$autres|count} divers en stock</h2>
 		<p>
 			{foreach from=$autres item="r"}
-			<a href="fiche.php?id={$r.id}" class="en_stock">{if $r.etiquette}{$r.etiquette}{else}&#x1F6B2;{/if}</a>
+			<a href="fiche.php?id={$r.id}" class="en_stock">{if $fields.etiquette.enabled && $r.etiquette}{$r.etiquette}{elseif $r.id}{$r.id}{else}&#x1F6B2;{/if}</a>
 			{/foreach}
 		</p>
 	</article>
