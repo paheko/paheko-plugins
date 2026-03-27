@@ -16,7 +16,6 @@
 		<p>
 			<input type="number" size="5" name="etiquette" />
 			<input type="submit" value="Trouver" />
-			{linkbutton shape="search" href="recherche.php" label="Recherche avancée"}
 		</p>
 	</fieldset>
 	{/if}
