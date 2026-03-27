@@ -11,6 +11,10 @@ foreach ($velos->getFields() as $field) {
 		continue;
 	}
 
+	if (false !== strpos($field->name, 'date')) {
+		continue;
+	}
+
 	$fields[$field->name] = $field->label;
 }
 
