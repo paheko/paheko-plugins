@@ -12,19 +12,22 @@
 * Rendu Markdown de base (listes, gras, italique, barré, code, citation), comme [Slack](https://www.markdownguide.org/tools/slack/)
 * Transformation automatique des URLs en liens
 * Messages sur plusieurs lignes avec Ctrl+Entrée, ou Shift+Entrée
-* Envoi de fichier
+* Envoi de fichier (image, autre)
 * Envoi et lecture de messages audio, au format Opus (léger, environ 7 Mo par heure de discussion, soit le poids de 2 photos !)
 * Ouverture de visioconférence directement depuis un salon (en utilisant Jitsi)
 * Très faible empreinte écologique
 * Suppression de message
 * Messages éphémères : suppression automatique des messages après un certain délai
 * Limitation du nombre de messages enregistrés dans le salon
-* Lien permanent vers un message de la discussion
 * Suppression des fichiers lors de la suppression du salon
 
-## Fonctionnalités prévues
+## Fonctionnalités manquantes
 
-* Mettre à 
+* Bug : la date du jour est reproduite plusieurs fois
+* Afficher le nombre de messages non lus par salon
+* Pouvoir copier/coller des images
+* Lien permanent vers un message de la discussion
+
 
 * Fils de discussion :
 	* Possibilité de répondre à un message en particulier
