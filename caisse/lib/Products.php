@@ -53,7 +53,7 @@ class Products
 		return $db->get(POS::sql(sprintf('SELECT p.*, c.name AS category_name, p.stock * p.price AS sale_value, p.stock * p.purchase_price AS stock_value
 			FROM @PREFIX_products p %s
 			INNER JOIN @PREFIX_categories c ON c.id = p.category
-			WHERE 1 %s
+			WHERE p.archived = 0 %s
 			GROUP BY p.id ORDER BY category_name COLLATE U_NOCASE, name COLLATE U_NOCASE;', $join, $where)));
 	}
 

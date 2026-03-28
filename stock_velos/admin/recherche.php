@@ -4,16 +4,19 @@ namespace Paheko;
 
 require_once __DIR__ . '/_inc.php';
 
-$fields = array(
-	'etiquette'      =>  'Étiquette',
-	'couleur'        =>  'Couleur',
-	'modele'         =>  'Marque et modèle',
-	'source_details' =>  'Détails sur la source',
-	'details_sortie' =>  'Détails sur la sortie',
-	'raison_sortie'  =>  'Motif de sortie',
-	'notes'          =>  'Notes et remarques',
-	'bicycode'       =>  'Bicycode',
-);
+$fields = [];
+
+foreach ($velos->getFields() as $field) {
+	if (!$field->enabled) {
+		continue;
+	}
+
+	if (false !== strpos($field->name, 'date')) {
+		continue;
+	}
+
+	$fields[$field->name] = $field->label;
+}
 
 if (qg('f') && !array_key_exists(qg('f'), $fields))
 {

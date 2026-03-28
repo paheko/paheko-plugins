@@ -10,14 +10,15 @@
 			<input type="submit" value="Trouver" />
 		</p>
 	</fieldset>
+	{if $fields.etiquette.enabled}
 	<fieldset>
 		<legend>Trouver un vélo par numéro d'étiquette</legend>
 		<p>
 			<input type="number" size="5" name="etiquette" />
 			<input type="submit" value="Trouver" />
-			{linkbutton shape="search" href="recherche.php" label="Recherche avancée"}
 		</p>
 	</fieldset>
+	{/if}
 </form>
 
 {include file="common/dynamic_list_head.tpl"}

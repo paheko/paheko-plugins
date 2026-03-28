@@ -6,7 +6,11 @@
 	<legend>Général</legend>
 	<dl>
 		<dt>Numéro unique du vélo</dt>
-		<dd>(Sera donné automatiquement à l'enregistrement du vélo.)</dd>
+		{if $velo.id}
+			<dd>{$velo.id}</dd>
+		{else}
+			<dd>(Sera donné automatiquement à l'enregistrement du vélo.)</dd>
+		{/if}
 		{if $fields.etiquette.enabled}
 			{input type="number" name="etiquette" label="Numéro étiquette" required=$fields.etiquette.required source=$velo}
 			{if !$velo.id}

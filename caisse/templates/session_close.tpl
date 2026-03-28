@@ -48,6 +48,7 @@
 					{/if}
 				</dd>
 				{input type="money" name="balances[%d][amount]"|args:$balance.id data-expected=$balance.expected_total required=true label="Solde constaté à la fermeture" help="Merci de compter le contenu de la caisse."}
+				<dd>{linkbutton shape="money" label="Calculette de fond de caisse" href="./till_calculator.php?id=%d"|args:$balance.id target="_dialog"}</dd>
 			</dl>
 			<div class="balance-error hidden">
 				<p class="error block">
