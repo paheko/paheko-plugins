@@ -97,7 +97,7 @@ class Tabs
 						WHEN su.expiry_date >= date() THEN 1
 						ELSE 0
 					END AS status
-				FROM (SELECT *, MAX(expiry_date) AS expiry_date FROM services_users WHERE id_user = ? GROUP BY id_service) AS su
+				FROM (SELECT *, MAX(expiry_date) AS expiry_date FROM services_subscriptions WHERE id_user = ? GROUP BY id_service) AS su
 				INNER JOIN services s ON su.id_service = s.id
 				WHERE s.end_date IS NULL OR s.end_date >= date()
 				ORDER BY status DESC, s.label COLLATE U_NOCASE;', (int) $u->id);

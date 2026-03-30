@@ -13,7 +13,7 @@ use Paheko\Utils;
 use Paheko\ValidationException;
 use Paheko\Users\Users;
 use Paheko\Users\DynamicFields;
-use Paheko\Services\Services_User;
+use Paheko\Services\Subscriptions;
 
 use const Paheko\PLUGIN_ROOT;
 
@@ -164,7 +164,7 @@ class Session extends Entity
 
 		foreach ($db->iterate($sql, $this->id) as $row) {
 			try {
-				$su = Services_User::createFromFee($row->id_fee, $row->user_id, $row->total, true, $row->qty);
+				$su = Subscriptions::createFromFee($row->id_fee, $row->user_id, $row->total, true, $row->qty);
 
 				// Ignore duplicates
 				if ($su->isDuplicate()) {

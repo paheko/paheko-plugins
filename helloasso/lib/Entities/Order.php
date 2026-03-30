@@ -10,7 +10,7 @@ use Paheko\Accounting\Years;
 use Paheko\Users\Users;
 use Paheko\Entities\Accounting\Transaction;
 use Paheko\Entities\Accounting\Line;
-use Paheko\Services\Services_User;
+use Paheko\Services\Subscriptions;
 
 use Paheko\Plugin\HelloAsso\Forms;
 use Paheko\Plugin\HelloAsso\HelloAsso;
@@ -372,7 +372,7 @@ class Order extends Entity
 				&& $item->id_user
 				&& $item->id_fee) {
 				$id_service = $db->firstColumn('SELECT id_service FROM services_fees WHERE id = ?;', $item->id_fee);
-				$sub = Services_User::create($item->id_user, $id_service, $item->id_fee);
+				$sub = Subscriptions::create($item->id_user, $id_service, $item->id_fee);
 				$sub->importForm(['id_service' => $id_service, 'date' => $this->date, 'paid' => true]);
 				$sub->save();
 				$item->id_subscription = $sub->id();
