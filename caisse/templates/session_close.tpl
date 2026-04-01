@@ -1,5 +1,9 @@
 {include file="_head.tpl"}
 
+<p class="actions">
+	{linkbutton shape="left" href="tab.php" label="Retour à la caisse"}
+</p>
+
 {if $open_notes}
 <p class="error block">
 	Cette caisse a des notes qui ne sont pas closes, il ne sera pas possible de la clôturer.
