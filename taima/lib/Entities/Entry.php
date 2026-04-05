@@ -87,7 +87,7 @@ class Entry extends Entity
 			$minutes = (int) $match[1] * 60;
 
 			if (!empty($match[2])) {
-				$minutes += 60 * ((int) $match[2] / 100);
+				$minutes += 60 * (str_pad($match[2], 2, '0', STR_PAD_RIGHT)  / 100);
 			}
 		}
 		else {
