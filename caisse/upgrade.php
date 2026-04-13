@@ -10,63 +10,63 @@ $db = DB::getInstance();
 $old_version = $plugin->oldVersion();
 
 if (version_compare($old_version, '0.2.0', '<')) {
-	$db->toggleForeignKeys(false);
+	$db->beginSchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.2.0.sql')));
-	$db->toggleForeignKeys(true);
+	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.3.0', '<')) {
-	$db->toggleForeignKeys(false);
+	$db->beginSchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.3.0.sql')));
-	$db->toggleForeignKeys(true);
+	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.3.1', '<')) {
-	$db->toggleForeignKeys(false);
+	$db->beginSchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.3.1.sql')));
-	$db->toggleForeignKeys(true);
+	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.3.3', '<')) {
-	$db->toggleForeignKeys(false);
+	$db->beginSchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.3.3.sql')));
-	$db->toggleForeignKeys(true);
+	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.3.4', '<')) {
-	$db->toggleForeignKeys(false);
+	$db->beginSchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.3.4.sql')));
-	$db->toggleForeignKeys(true);
+	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.4.1', '<')) {
-	$db->toggleForeignKeys(false);
+	$db->beginSchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.4.1.sql')));
-	$db->toggleForeignKeys(true);
+	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.5.0', '<')) {
-	$db->toggleForeignKeys(false);
+	$db->beginSchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.5.0.sql')));
-	$db->toggleForeignKeys(true);
+	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.5.1', '<')) {
-	$db->toggleForeignKeys(false);
+	$db->beginSchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.5.1.sql')));
-	$db->toggleForeignKeys(true);
+	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.5.3', '<')) {
-	$db->toggleForeignKeys(false);
+	$db->beginSchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.5.3.sql')));
-	$db->toggleForeignKeys(true);
+	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.5.4', '<')) {
-	$db->toggleForeignKeys(false);
+	$db->beginSchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.5.4.sql')));
-	$db->toggleForeignKeys(true);
+	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.6.3', '<')) {
@@ -128,10 +128,8 @@ if (version_compare($old_version, '0.8.5', '<')) {
 
 if (version_compare($old_version, '0.8.6', '<')) {
 	$db->beginSchemaUpdate();
-	$db->toggleForeignKeys(false);
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.6.sql')));
 	$db->commitSchemaUpdate();
-	$db->toggleForeignKeys(true);
 }
 
 if (version_compare($old_version, '0.8.7', '<')) {
