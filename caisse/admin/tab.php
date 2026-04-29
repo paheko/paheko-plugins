@@ -137,7 +137,7 @@ $tabs = Tabs::listForSession($current_pos_session->id);
 $tpl->assign('pos_session', $current_pos_session);
 $tpl->assign('tab_id', $tab ? $tab->id : null);
 
-$tpl->assign('products_categories', Products::listBuyableByCategory());
+$tpl->assign('products_categories', Products::listBuyableByCategory($current_pos_session->id_location));
 $tpl->assign('has_weight', Products::checkUserWeightIsRequired());
 $tpl->assign('tabs', $tabs);
 $has_credit_methods = Methods::hasCreditMethods();

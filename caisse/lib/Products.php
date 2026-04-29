@@ -10,17 +10,27 @@ use Paheko\Plugin\Caisse\Entities\Product;
 
 class Products
 {
-	static public function listBuyableByCategory(): array
+	static public function listBuyableByCategory(?int $id_location = null): array
 	{
-		$db = DB::getInstance();
-		$sql = POS::sql('SELECT p.*, c.name AS category_name, c.id AS category_id
+		$where = '';
+
+		if ($id_location) {
+			$where .= ' AND m.id_location = ' . (int) $id_location;
+		}
+
+		$sql = sprintf('SELECT p.*, c.name AS category_name, c.id AS category_id
 			FROM @PREFIX_products p
 			INNER JOIN @PREFIX_products_methods pm ON pm.product = p.id
 			INNER JOIN @PREFIX_methods m ON m.id = pm.method AND m.enabled = 1
 			INNER JOIN @PREFIX_categories c ON c.id = p.category
-			WHERE p.archived = 0
+			WHERE p.archived = 0 %s
 			GROUP BY p.id
-			ORDER BY category_name COLLATE U_NOCASE, name COLLATE U_NOCASE;');
+			ORDER BY category_name COLLATE U_NOCASE, name COLLATE U_NOCASE;',
+			$where
+		);
+
+		$db = DB::getInstance();
+		$sql = POS::sql($sql);
 
 		$list = [];
 
