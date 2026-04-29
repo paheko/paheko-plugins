@@ -66,7 +66,10 @@ if (q) {
 		g.toggle('.pos .products ul', search.length === 0);
 	}
 
-	q.focus();
+	if (!('ontouchstart' in window)) {
+		q.focus();
+	}
+
 	enableBarcodeScanner();
 }
 
