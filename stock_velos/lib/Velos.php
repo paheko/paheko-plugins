@@ -116,7 +116,7 @@ class Velos
 			return $this->fields;
 		}
 
-		static $exclude_require = ['raison_sortie', 'date_sortie'];
+		static $exclude_require = ['raison_sortie', 'date_sortie', 'date_entree'];
 		$statuses = (array)($this->plugin->getConfig('fields') ?? []);
 		$defaults = (array)($this->plugin->getConfig('defaults') ?? []);
 		$out = [];
@@ -154,12 +154,12 @@ class Velos
 		$db = DB::getInstance();
 
 		$data = [
-			'source' => trim($source),
+			'source'         => trim($source),
 			'source_details' => trim($source_details) ?: null,
-			'date_entree' => gmdate('Y-m-d'),
-			'etat_entree' => 'À démonter',
-			'date_sortie' => gmdate('Y-m-d'),
-			'raison_sortie' => 'Démonté',
+			'date_entree'    => gmdate('Y-m-d'),
+			'etat_entree'    => 'À démonter',
+			'date_sortie'    => gmdate('Y-m-d'),
+			'raison_sortie'  => 'Démonté',
 			'details_sortie' => 'Saisie rapide de plusieurs vélos démontés',
 		];
 

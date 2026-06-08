@@ -98,7 +98,7 @@
 		<legend>Entrée du vélo</legend>
 		<dl>
 		{if $fields.date_entree.enabled}
-			{input type="date" label="Date d'entrée dans le stock" name="date_entree" required=$fields.date_entree.required default=$now source=$velo}
+			{input type="date" label="Date d'entrée dans le stock" name="date_entree" required=true default=$now source=$velo}
 		{/if}
 		{if $fields.etat_entree.enabled}
 			{input type="text" label="État à l'entrée dans le stock" name="etat_entree" required=$fields.etat_entree.required source=$velo}
