@@ -111,9 +111,15 @@
 	<fieldset>
 		<legend>Sortie du vélo</legend>
 		<dl>
-			{input type="date" label="Date de sortie" name="date_sortie" source=$velo}
-			{input type="select" label="Motif de sortie" name="raison_sortie" options=$fields.raison_sortie.options source=$velo}
-			{input type="text" label="Détails de sortie" name="details_sortie" help="Inscrire le numéro d'adhérent en cas de vente" source=$velo}
+			{if $fields.date_sortie.enabled}
+				{input type="date" label="Date de sortie" name="date_sortie" source=$velo}
+			{/if}
+			{if $fields.raison_sortie.enabled}
+				{input type="select" label="Motif de sortie" name="raison_sortie" options=$fields.raison_sortie.options source=$velo}
+			{/if}
+			{if $fields.details_sortie.enabled}
+				{input type="text" label="Détails de sortie" name="details_sortie" help="Inscrire le numéro d'adhérent en cas de vente" source=$velo required=$fields.details_sortie.required}
+			{/if}
 		</dl>
 	</fieldset>
 {/if}
