@@ -303,8 +303,8 @@ class Event extends Entity
 		// In VEVENT, when event is for a full day, the end date is the next day
 		if (!$obj->DTSTART->hasTime()) {
 			$all_day = true;
-			$start->setTime(0, 0, 0);
-			$end->setTime(0, 0, 0);
+			$start = $start->setTime(0, 0, 0);
+			$end = $end->setTime(0, 0, 0);
 			$end = $end->modify('-1 day');
 		}
 		else {
