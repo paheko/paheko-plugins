@@ -34,6 +34,8 @@ class AFNOR
 
 		$r = json_decode($r->body);
 
+		Plugins::fire('invoice.sent', ['id' => $r->flowId, 'provider' => $provider->name]);
+
 		$document->setSubmitted($provider->name, $r->flowId, new DateTime($r->submittedAt));
 	}
 
@@ -42,6 +44,9 @@ class AFNOR
 	 */
 	public function updateInvoiceDetails(Provider $provider)
 	{
-
+		if (!$invoice) {
+			// Log received invoice that wasn't seen before
+			Plugins::fire('invoice.received', ['id' => $r->flowId, 'provider' => $provider->name]);
+		}
 	}
 }
