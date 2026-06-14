@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice
+	xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+	xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+	xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
+	<cbc:UBLVersionID>2.0</cbc:UBLVersionID>
+	<cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0</cbc:CustomizationID>
+	<cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>
+	<cbc:ID>{$invoice.number}</cbc:ID><!-- Invoice number -->
+	<cbc:IssueDate>{$invoice.issue_date}</cbc:IssueDate>
+	<cbc:DueDate>{$invoice.payment_due_date}</cbc:DueDate>
+	<cbc:InvoiceTypeCode>{$invoice.type_code}</cbc:InvoiceTypeCode>
+	<cbc:Note>{$invoice.notes[0].note}</cbc:Note>
+	<!-- A textual note that gives unstructured information that is relevant to the Invoice as a whole.Such as the reason for any correction or assignment note in case the invoice has been factored. The element is not repeatable, except when both the Buyer and Seller are German, in which case the element can be repeated to meet specific legal requirements. -->
+	<!-- <cbc:TaxPointDate>2005-06-21</cbc:TaxPointDate> The date when the VAT becomes accountable for the Seller and for the Buyer in so far as that date can be determined and differs from the date of issue of the invoice, according to the VAT directive.This element is required if the Value added tax point date is different from the Invoice issue date. -->
+	<cac:AccountingSupplierParty>
+		<!-- Seller -->
+		<cac:Party>
+			<cbc:EndpointID schemeID="{$invoice.seller.electronic_address.scheme}">{$invoice.seller.electronic_address.value}</cbc:EndpointID>
+			<cac:PartyName>
+				<cbc:Name>{$invoice.seller.name}</cbc:Name>
+			</cac:PartyName>
+			<cac:PostalAddress>
+				<cbc:CityName>{$invoice.seller.city}</cbc:CityName>
+				<cbc:PostalZone>{$invoice.seller.post_code}</cbc:PostalZone>
+				<cac:AddressLine>
+					<cbc:Line>{$invoice.seller.address[0]}</cbc:Line>
+					<cbc:Line>{$invoice.seller.address[1]}</cbc:Line>
+					<cbc:Line>{$invoice.seller.address[2]}</cbc:Line>
+				</cac:AddressLine>
+				<!-- Mandatory -->
+				<cac:Country>
+					<cbc:IdentificationCode>{$invoice.seller.country}</cbc:IdentificationCode>
+				</cac:Country>
+			</cac:PostalAddress>
+			<cac:PartyTaxScheme>
+				<cbc:CompanyID>{$invoice.seller.vat_identifier}</cbc:CompanyID>
+				<cac:TaxScheme>
+					<cbc:ID>VAT</cbc:ID>
+				</cac:TaxScheme>
+				<cac:PartyLegalEntity>
+					<cbc:RegistrationName>{$invoice.seller.name}</cbc:RegistrationName>
+				</cac:PartyLegalEntity>
+			</cac:PartyTaxScheme>
+		</cac:Party>
+	</cac:AccountingSupplierParty>
+	<cac:AccountingCustomerParty>
+		<cbc:EndpointID schemeID="{$invoice.buyer.electronic_address.scheme}">{$invoice.buyer.electronic_address.value}</cbc:EndpointID>
+		<cac:Party>
+			<cac:PartyName>
+				<cbc:Name>{$invoice.buyer.name}</cbc:Name>
+			</cac:PartyName>
+			<cac:PostalAddress>
+				<cbc:CityName>{$invoice.buyer.city}</cbc:CityName>
+				<cbc:PostalZone>{$invoice.buyer.post_code}</cbc:PostalZone>
+				<cac:AddressLine>
+					<cbc:Line>{$invoice.buyer.address[0]}</cbc:Line>
+					<cbc:Line>{$invoice.buyer.address[1]}</cbc:Line>
+					<cbc:Line>{$invoice.buyer.address[2]}</cbc:Line>
+				</cac:AddressLine>
+				<cac:Country>
+					<cbc:IdentificationCode>{$invoice.buyer.country}</cbc:IdentificationCode>
+				</cac:Country>
+			</cac:PostalAddress>
+			<cac:PartyTaxScheme>
+				<cbc:CompanyID>{$invoice.buyer.vat_number}</cbc:CompanyID>
+				<cac:TaxScheme>
+					<cbc:ID>VAT</cbc:ID>
+				</cac:TaxScheme>
+				<cac:PartyLegalEntity>
+					<cbc:RegistrationName>{$invoice.buyer.name}</cbc:RegistrationName>
+				</cac:PartyLegalEntity>
+			</cac:PartyTaxScheme>
+		</cac:Party>
+	</cac:AccountingCustomerParty>
+	<!--
+	<cac:PaymentTerms>
+		<cbc:Note>Payable within 1 calendar month from the invoice date</cbc:Note>
+	</cac:PaymentTerms>
+	-->
+	<cac:TaxTotal>
+		<cbc:TaxAmount currencyID="{$invoice.currency_code}">{$invoice.totals.total_vat_amount}</cbc:TaxAmount>
+	</cac:TaxTotal>
+	<cac:LegalMonetaryTotal>
+		<cbc:LineExtensionAmount currencyID="{$invoice.currency_code}">{$invoice.totals.total_without_vat}</cbc:LineExtensionAmount>
+		<cbc:TaxExclusiveAmount currencyID="{$invoice.currency_code}">{$invoice.totals.total_without_vat}</cbc:TaxExclusiveAmount>
+		<cbc:TaxInclusiveAmount currencyID="{$invoice.currency_code}">{$invoice.totals.total_with_vat}</cbc:TaxInclusiveAmount>
+		<cbc:PayableAmount currencyID="{$invoice.currency_code}">{$invoice.totals.amount_due_for_payment}</cbc:PayableAmount>
+	</cac:LegalMonetaryTotal>
+	{foreach from=$invoie.lines item="line"}
+		<cac:InvoiceLine>
+			<cbc:ID>{$line.identifier}</cbc:ID>
+			<cbc:InvoicedQuantity unitCode="{$line.invoiced_quantity_code}">{$line.invoiced_quantity}</cbc:InvoicedQuantity>
+			<cbc:LineExtensionAmount currencyID="{$invoice.currency_code}">{$line.net_amount}</cbc:LineExtensionAmount>
+			<cac:Item>
+				<cbc:Description>{$line.item_information.description}</cbc:Description>
+				<cbc:Name>{$line.item_information.name}</cbc:Name>
+				<cac:SellersItemIdentification>
+					<cbc:ID>{$line.item_information.seller_identifier}</cbc:ID>
+				</cac:SellersItemIdentification>
+				<cac:ClassifiedTaxCategory>
+					<cbc:ID>{$line.vat_information.invoiced_item_vat_category_code}</cbc:ID>
+					<cbc:Percent>{$item.vat_information.invoiced_item_vat_rate}</cbc:Percent>
+					<cac:TaxScheme>
+						<cbc:ID>VAT</cbc:ID>
+					</cac:TaxScheme>
+				</cac:ClassifiedTaxCategory>
+			</cac:Item>
+			<cac:Price>
+				<cbc:PriceAmount currencyID="{$invoice.currency_code}">{$line.price_details.item_net_price}</cbc:PriceAmount>
+			</cac:Price>
+		</cac:InvoiceLine>
+	{/foreach}
+</Invoice>
