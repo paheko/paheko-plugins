@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_clients (
 	notes TEXT NULL,
 	business_number TEXT NULL,
 	vat_number TEXT NULL,
-	created DATETIME NOT NULL CHECK (created = datetime(created)) DEFAULT CURRENT_TIMESTAMP,
+	created DATETIME NOT NULL CHECK (created = datetime(created)) DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS plugin_invoice_documents (
@@ -30,7 +30,10 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_documents (
 	notes TEXT NULL,
 	buyer_ref TEXT NULL, -- Buyer reference (Factur-X: code du service exécutant)
 	contract_reference TEXT NULL, -- Factur-X : Numéro d'engagement
-	content TEXT NULL -- Content of generated invoice (JSON/EN16931 serialization), NULL if it's a draft
+	content TEXT NULL, -- Content of generated invoice (JSON/EN16931 serialization), NULL if it's a draft
+	submission_date DATETIME NULL CHECK (datetime(submission_date) = submission_date OR submission_date IS NULL), -- submittedAt
+	submission_id TEXT NULL, -- flowId
+	submission_provider TEXT NULL
 );
 
 CREATE TABLE IF NOT EXISTS plugin_invoice_payments (

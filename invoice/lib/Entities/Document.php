@@ -38,6 +38,10 @@ class Document extends Entity
 	protected ?string $contract_reference = null;
 	protected ?stdClass $content = null;
 
+	protected ?DateTime $submission_date = null;
+	protected ?string $submission_id = null;
+	protected ?string $submission_provider = null;
+
 	const TYPE_QUOTE = 231;
 
 	/**
@@ -225,12 +229,6 @@ class Document extends Entity
 			default   => 'text/xml',
 		};
 
-		$extension = match($format) {
-			'facturx' => 'pdf',
-			'html'    => 'html',
-			default   => 'xml',
-		};
-
 		if ($this->status === self::STATUS_DRAFT && $format !== 'html') {
 			throw new \LogicException('Cannot download a draft');
 		}
@@ -238,10 +236,21 @@ class Document extends Entity
 		header('Content-Type: ' . $mimetype);
 
 		if ($this->number) {
-			header(sprintf('Content-Disposition: %s; filename="%s"', $download ? 'attachment' : 'inline', $this->number . '.' . $extension));
+			header(sprintf('Content-Disposition: %s; filename="%s"', $download ? 'attachment' : 'inline', $this->getFilename($format)));
 		}
 
 		echo $this->exportAs($format);
+	}
+
+	public function getFilename(string $format): string
+	{
+		$extension = match($format) {
+			'facturx' => 'pdf',
+			'html'    => 'html',
+			default   => 'xml',
+		};
+
+		return $this->number . '.' . $extension;
 	}
 
 	/**
