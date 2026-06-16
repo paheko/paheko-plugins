@@ -10,67 +10,67 @@ $db = DB::getInstance();
 $old_version = $plugin->oldVersion();
 
 if (version_compare($old_version, '0.2.0', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.2.0.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.3.0', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.3.0.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.3.1', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.3.1.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.3.3', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.3.3.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.3.4', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.3.4.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.4.1', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.4.1.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.5.0', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.5.0.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.5.1', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.5.1.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.5.3', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.5.3.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.5.4', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.5.4.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.6.3', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$identity = DynamicFields::getNameFieldsSQL();
 	$sql = str_replace('@__NAME', $identity, POS::sql(file_get_contents(__DIR__ . '/update_0.6.3.sql')));
 	$db->exec($sql);
@@ -78,31 +78,31 @@ if (version_compare($old_version, '0.6.3', '<')) {
 }
 
 if (version_compare($old_version, '0.7.0', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.7.0.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.7.1', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.7.1.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.8.0', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.0.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.8.2', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.2.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.8.3', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.3.sql')));
 	try {
 		// Add column that was missing in schema.sql
@@ -115,61 +115,61 @@ if (version_compare($old_version, '0.8.3', '<')) {
 }
 
 if (version_compare($old_version, '0.8.4', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.4.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.8.5', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.5.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.8.6', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.6.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.8.7', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.7.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.8.8', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.8.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.8.9', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.9.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.8.10', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.10.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.8.11', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.11.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.8.12', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.12.sql')));
 	$db->commitSchemaUpdate();
 }
 
 if (version_compare($old_version, '0.8.13', '<')) {
-	$db->beginSchemaUpdate();
+	$db->beginLegacySchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.13.sql')));
 	$db->commitSchemaUpdate();
 }
