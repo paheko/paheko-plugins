@@ -1,3 +1,19 @@
+# Stockage des factures
+
+Les factures sont sérialisées en interne dans un format JSON proche du standard EN 16931. Le format est identique à la sérialisation effectuée par SuperPDP dans son modèle `en_invoice`: <https://www.superpdp.tech/openapi/#superpdp/model/en_invoice>
+
+Les devis sont stockés de la même manière mais avec le type 231 (Quotation). Ils ne peuvent alors être envoyés aux plateformes PDP/Peppol qui ne les supportent pas.
+
+Quand une facture ou un devis est en statut `draft` (brouillon), le champ "content" est NULL et la facture est séralisée en JSON à la volée.
+
+Une fois que la facture est validée, la sérialisation est stockée dans le champ "content", et ne peut plus être modifiée.
+
+# Export des factures
+
+Les factures sérialisées en JSON peuvent être converties en HTML, UBL ou CII. Le CII peut ensuite être utilisé pour créer un fichier Factur-X.
+
+Cela permet aussi de visualiser des factures reçues. Cependant l'export développé ne gère pas la totalité des spécificités des factures UBL/CII.
+
 ## Notes facturation électronique
 
 * FAQ : https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/faq_fe_05_01_2024_vf.pdf

@@ -76,7 +76,7 @@ class Tabs
 		$sql = sprintf('SELECT u.id, %s AS number, %s AS email, %s AS name
 			FROM users u
 			WHERE %s
-			ORDER BY name COLLATE U_NOCASE LIMIT 0, 20;', $number_field, $email_field, $id_field, $sql);
+			ORDER BY name COLLATE U_NOCASE LIMIT 0, 200;', $number_field, $email_field, $id_field, $sql);
 
 		return $db->iterate($sql, $q);
 	}

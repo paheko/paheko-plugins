@@ -3,6 +3,7 @@
 namespace Paheko;
 
 use Paheko\Plugin\Stock_Velos\Velo;
+use KD2\DB\Date;
 
 require_once __DIR__ . '/_inc.php';
 
@@ -10,6 +11,7 @@ $csrf_key = 'ajout_velo';
 
 $form->runIf('save', function () {
 	$velo = new Velo;
+	$velo->date_entree = new Date;
 	$velo->importForm();
 	$velo->save();
 

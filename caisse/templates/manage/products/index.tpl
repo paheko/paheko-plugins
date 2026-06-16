@@ -14,6 +14,7 @@
 </nav>
 
 <form action="" method="get" class="shortFormLeft">
+	<input type="hidden" name="archived" value="{$archived|intval}" />
 	<p>{input type="search" name="q" placeholder="Nom du produit" default=$search} {button type="submit" label="Chercher" shape="right"}</p>
 </form>
 

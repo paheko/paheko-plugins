@@ -45,6 +45,10 @@ class Velo extends Entity
 
 		$this->assert(null === $this->date_sortie || $this->date_sortie >= $this->date_entree, 'La date de sortie ne peut pas être antérieure à la date d\'entrée.');
 
+		if ($this->raison_sortie) {
+			$this->assert(null !== $this->date_sortie, 'La date de sortie n\'est pas spécifiée');
+		}
+
 		if ($this->source == 'Rachat') {
 			$this->assert(!empty($this->source_details), "Pour le rachat il est obligatoire de fournir un numéro unique de vélo.");
 
@@ -75,6 +79,10 @@ class Velo extends Entity
 
 		if (isset($source['poids'])) {
 			$source['poids'] = Utils::weightToInteger($source['poids']);
+		}
+
+		if (!empty($source['raison_sortie'])) {
+			$source['date_sortie'] ??= gmdate('Y-m-d');
 		}
 
 		parent::importForm($source);

@@ -7,7 +7,7 @@ const TABULA_URL = 'https://github.com/tabulapdf/tabula-java/releases/download/v
 $tabula_path = SHARED_CACHE_ROOT . '/tabula.jar';
 
 if (!file_exists($tabula_path)) {
-	if (!exec('which java')) {
+	if (!Utils::quick_exec('which java')) {
 		throw new UserException('Java n\'est pas disponible');
 	}
 
@@ -55,7 +55,8 @@ $form->runIf('load', function () use ($tabula_path) {
 	$i = 0;
 
 	foreach ($files as $file) {
-		$command = sprintf('LC_ALL=fr_FR.UTF-8 java -jar %s -g -l -p all %s', escapeshellarg($tabula_path), escapeshellarg($file));
+		putenv('LC_ALL=fr_FR.UTF-8');
+		$command = sprintf('java -jar %s -g -l -p all %s', escapeshellarg($tabula_path), escapeshellarg($file));
 		$csv = '';
 
 		$stderr = '';

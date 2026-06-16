@@ -9,22 +9,19 @@
 		</ram:GuidelineSpecifiedDocumentContextParameter>
 	</rsm:ExchangedDocumentContext>
 	<rsm:ExchangedDocument>
-		<ram:ID>{$number}</ram:ID> <!-- Invoice number, free text -->
-		<!--
-    	'invoice': '380', (facture)
-    	'refund': '381', (avoir)
-		-->
-		<ram:TypeCode>380</ram:TypeCode>
+		<ram:ID>{$invoice.number}</ram:ID> <!-- Invoice number, free text -->
+		<ram:TypeCode>{$invoice.type_code}</ram:TypeCode>
 		<ram:IssueDateTime>
-			<udt:DateTimeString format="102">{$date|date_format:'Ymd'}</udt:DateTimeString> <!-- 102 = YYYYMMDD -->
+			<udt:DateTimeString format="102"><?=str_replace('-', '', $invoice->issue_date)?></udt:DateTimeString>
+			<!-- 102 = YYYYMMDD -->
 		</ram:IssueDateTime>
 	</rsm:ExchangedDocument>
 	<rsm:SupplyChainTradeTransaction>
 		<!-- Lignes de la facture -->
-		{foreach from=$lines item="line" key="id"}
+		{foreach from=$lines item="line"}
 		<ram:IncludedSupplyChainTradeLineItem>
 			<ram:AssociatedDocumentLineDocument>
-				<ram:LineID>{$id}</ram:LineID><!-- Numéro unique de la ligne -->
+				<ram:LineID>{$line.identifier}</ram:LineID><!-- Numéro unique de la ligne -->
 				<ram:IncludedNote>
 					<ram:Content>{$line.notes}</ram:Content>
 				</ram:IncludedNote>
