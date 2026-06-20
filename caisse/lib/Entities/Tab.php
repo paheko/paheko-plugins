@@ -514,9 +514,9 @@ class Tab extends Entity
 			return 0;
 		}
 
-		$where = $id_method ? ' AND is_settled = 1 AND id_method = ' . $id_method : '';
+		$where = $id_method ? ' AND id_method = ' . $id_method : '';
 
-		return Tabs::requestBalance(Method::TYPE_CREDIT, 'user_id = ?' . $where, $this->user_id);
+		return Tabs::requestBalance(Method::TYPE_CREDIT, 'user_id = ? AND is_settled = 1' . $where, $this->user_id);
 	}
 
 	public function getUserDebt(): int

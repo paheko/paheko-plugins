@@ -185,11 +185,10 @@ class Notifications
 			case 'reminder.send.after':
 				$r = $signal->getIn('reminder');
 
-				return sprintf("Membre : %s\nActivité : %s\nExpiration : %s\n\n-------- MESSAGE ENVOYÉ --------\n\n%s",
+				return sprintf("Membre : %s\nActivité : %s\nExpiration : %s",
 					$r->identity,
 					$r->label,
-					Utils::date_fr($r->expiry_date, 'd/m/Y'),
-					$r->body
+					Utils::date_fr($r->expiry_date, 'd/m/Y')
 				);
 			case 'file.create':
 			case 'file.overwrite':
