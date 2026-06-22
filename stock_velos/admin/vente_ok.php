@@ -20,7 +20,6 @@ if (empty($velo->date_sortie) || $velo->raison_sortie != 'Vendu')
 	throw new UserException('Ce vélo n\'a pas été vendu');
 
 $tpl->assign('velo', $velo);
-$tpl->assign('adherent', $velo->membre_sortie());
-$tpl->assign('etat', qg('etat'));
+$tpl->assign('etat', qg('etat') ?? ($velo->id_membre_vente ? $velo->details_sortie : null));
 
 $tpl->display(PLUGIN_ROOT . '/templates/vente_ok.tpl');

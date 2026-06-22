@@ -72,7 +72,7 @@
 			{input type="textarea" name="etat" label="État du vélo"}
 
 			<dt><label for="f_adherent">Adhérent</label></dt>
-			<dd>N°{$velo.details_sortie|escape} — {$velo->membre_sortie()}</dd>
+			<dd>{$velo->membre_sortie()}</dd>
 		</dl>
 	</fieldset>
 

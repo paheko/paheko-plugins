@@ -65,8 +65,7 @@
 	</ul>
 	<h4>Et l'acquéreur :</h4>
 	<ul>
-		<li>Numéro d'adhérent : {$velo.details_sortie}</li>
-		<li>Nom et prénom : {if $velo.details_sortie}<strong>{$velo->membre_sortie()}</strong>{else}………………………………{/if}</li>
+		<li>Nom et prénom : {if $velo.id_membre_vente}<strong>{$velo->membre_sortie()}</strong>{else}………………………………{/if}</li>
 	</ul>
 	<p>L'association « {$config.org_name} » vend à l'acquéreur le vélo décrit ci-après :</p>
 	<ul>
