@@ -153,13 +153,14 @@ class Document extends Entity
 			$net_total += $line->getNetTotal();
 
 			// Add VAT breakdown information, it has to be different for each exemption reason
-			$vat_code = $line->vat_code . ($line->vat_exemption_code ?? '');
+			$vat_code = md5($line->vat_code . ($line->vat_exemption_code ?? '') . $line->vat_rate);
 			$vat[$vat_code] ??= [
 				'vat_category_code'           => $line->vat_code,
 				'vat_category_tax_amount'     => 0,
 				'vat_category_taxable_amount' => 0,
 				'vat_exemption_reason_code'   => $line->vat_exemption_code,
 				'vat_exemption_reason'        => Invoices::VAT_EXEMPTIONS[$line->vat_exemption_code],
+				'vat_category_rate'           => (string) $line->vat_rate,
 			];
 
 			$vat[$vat_code]['vat_category_tax_amount'] += $line->getVATAmount();
