@@ -9,9 +9,9 @@ use Paheko\Utils;
 use KD2\DB\Date;
 use stdClass;
 
-class Document extends Entity
+class Invoice extends Entity
 {
-	const TABLE = 'plugin_invoice_documents';
+	const TABLE = 'plugin_invoice_invoices';
 
 	protected ?int $id = null;
 	protected int $id_client;
@@ -38,9 +38,8 @@ class Document extends Entity
 	protected ?string $contract_reference = null;
 	protected ?stdClass $content = null;
 
-	protected ?DateTime $submission_date = null;
-	protected ?string $submission_id = null;
-	protected ?string $submission_provider = null;
+	protected ?string $provider_name = null;
+	protected ?string $provider_id = null;
 
 	const TYPE_QUOTE = 231;
 	const TYPE_INVOICE = 380;
@@ -61,19 +60,36 @@ class Document extends Entity
 		self::TYPE_INVOICE => 'Factures',
 	];
 
+	/**
+	 * Quote state life: draft, awaiting_send, awaiting_validation, then 'accepted' or 'cancelled'
+	 * Invoice: draft, awaiting_send, awaiting_payment, paid
+	 */
 	const STATUS_DRAFT = 'draft';
+	const STATUS_AWAITING_SEND = 'awaiting_send';
 	const STATUS_AWAITING_VALIDATION = 'awaiting_validation';
 	const STATUS_AWAITING_PAYMENT = 'awaiting_payment';
 	const STATUS_PAID = 'paid';
 	const STATUS_CANCELLED = 'cancelled';
+	const STATUS_ACCEPTED = 'accepted';
 
 	const STATUSES = [
 		self::STATUS_DRAFT => 'Brouillon',
-		self::STATUS_AWAITING_VALIDATION => 'En attente de validation',
-		self::STATUS_CREATED => 'Créée',
-		self::STATUS_SENT => 'Envoyée',
+		self::STATUS_AWAITING_SEND => 'À envoyer',
+		self::STATUS_AWAITING_VALIDATION => 'À valider',
+		self::STATUS_AWAITING_PAYMENT => 'À payer',
 		self::STATUS_PAID => 'Payée',
 		self::STATUS_CANCELLED => 'Annulé',
+		self::STATUS_ACCEPTED => 'Accepté',
+	];
+
+	const STATUSES_COLORS = [
+		self::STATUS_DRAFT => 'darkgray',
+		self::STATUS_AWAITING_SEND => 'purple',
+		self::STATUS_AWAITING_VALIDATION => 'darkorange',
+		self::STATUS_AWAITING_PAYMENT => 'darkred',
+		self::STATUS_PAID => 'darkgreen',
+		self::STATUS_CANCELLED => 'darkgray',
+		self::STATUS_ACCEPTED => 'darkgreen',
 	];
 
 	public function selfCheck(): void
@@ -84,31 +100,78 @@ class Document extends Entity
 		$this->assert(mb_strlen(trim($this->label)) <= 500, 'Le libellé doit faire au maximum 500 caractères');
 		$this->assert(!isset($this->description) || mb_strlen(trim($this->description)) <= 10000, 'La description doit faire au maximum 10.000 caractères');
 
-		if ($this->number) {
-			$this->assert(!$db->test(self::TABLE, 'id != ? AND number = ?', $this->number));
+		if ($this->isQuote()) {
+			$where_type = ' AND type = ' . self::TYPE_QUOTE;
+		}
+		else {
+			$where_type = ' AND type != ' . self::TYPE_QUOTE;
+		}
+
+		if ($this->number && $this->exists()) {
+			$this->assert(!$db->test(self::TABLE, 'id != ? AND number = ?' . $where_type, $this->id(), $this->number));
+		}
+		elseif ($this->number) {
+			$this->assert(!$db->test(self::TABLE, 'number = ?' . $where_type, $this->number));
 		}
 	}
 
-	public function canSend(): bool
+	public function isQuote(): bool
 	{
-		if ($this->type === self::TYPE_QUOTE) {
-			return false;
-		}
-
-		if ($this->status !== self::STATUS_CREATED) {
-			return false;
-		}
-
-		return true;
+		return $this->type === self::TYPE_QUOTE;
 	}
 
-	public function publish(): void
+	public function canEdit(): bool
 	{
-		$this->set('date_created', new Date);
+		return $this->status === self::STATUS_DRAFT;
+	}
+
+	public function requiresSendingToProvider(): bool
+	{
+		if ($this->isQuote()) {
+			return false;
+		}
+
+		if ($this->status === self::STATUS_AWAITING_SEND) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public function publish(int $first_quote_number = 1, int $first_invoice_number = 1): void
+	{
 		$where_type = $this->type === self::TYPE_QUOTE ? 'type = ?' : 'type != ?';
 		$new_number = $db->firstColumn('SELECT COUNT(*) FROM ' . self::TABLE . ' WHERE ' . $where_type . ' AND status != ?;', self::TYPE_QUOTE, self::STATUS_DRAFT);
-		$new_number++;
+
+		if ($new_number) {
+			$new_number++;
+		}
+		else {
+			if ($this->isQuote()) {
+				$new_number = $first_quote_number;
+			}
+			else {
+				$new_number = $first_invoice_number;
+			}
+		}
+
 		$this->set('number', sprintf('%s-%d-%d', $this->type === self::TYPE_QUOTE ? 'D' : 'F', $this->date_created->format('Y'), $new_number));
+	}
+
+	public function importForm(?array $source = null)
+	{
+		$source ??= $_POST;
+
+		if (isset($source['client']) && is_array($source['client'])) {
+			$source['id_client'] = (int) key($source['client']);
+		}
+
+		// Some values cannot be set by the user
+		unset($source['type'], $source['status'], $source['client'], $source['id_quote'],
+			$source['number'], $source['total'], $source['content'],
+			$source['provider_name'], $source['provider_id']);
+
+		return parent::importForm($source);
 	}
 
 	/**

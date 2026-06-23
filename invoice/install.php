@@ -7,7 +7,9 @@ use Paheko\DB;
 $db = DB::getInstance();
 
 $plugin->setConfig((object) [
-	'vat_exemption' => Invoices::DEFAULT_VAT_EXEMPTION,
+	'vat_exemption'        => Invoices::DEFAULT_VAT_EXEMPTION,
+	'first_invoice_number' => 1,
+	'first_quote_number'   => 1,
 ]);
 
 $db->import(__DIR__ . '/schema.sql');

@@ -3,6 +3,7 @@
 namespace Paheko\Plugin\Invoice;
 
 use Paheko\Config;
+use Paheko\DB;
 use Paheko\Plugin\Invoice\Entities\Client;
 
 class Clients
@@ -24,5 +25,10 @@ class Clients
 		];
 
 		return Client::exportPersonForInvoice($person);
+	}
+
+	static public function countActiveClients(): int
+	{
+		return DB::getInstance()->count(Client::TABLE, 'archived = 0');
 	}
 }

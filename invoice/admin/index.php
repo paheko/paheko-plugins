@@ -2,7 +2,7 @@
 
 namespace Paheko\Plugin\Invoice;
 
-use Paheko\Plugin\Invoice\Entities\Document;
+use Paheko\Plugin\Invoice\Entities\Invoice;
 
 use const Paheko\PLUGIN_ROOT;
 
@@ -12,17 +12,17 @@ $status = $_GET['status'] ?? null;
 $list = Invoices::getList($type, $status);
 $list->loadFromQueryString();
 
-if ($type && array_key_exists($type, Document::TYPES_PLURAL)) {
-	$title = Document::TYPES_PLURAL[$type];
+if ($type && array_key_exists($type, Invoice::TYPES_PLURAL)) {
+	$title = Invoice::TYPES_PLURAL[$type];
 }
 else {
 	$title = 'Factures et devis';
 }
 
-if ($type === Document::TYPE_QUOTE) {
+if ($type === Invoice::TYPE_QUOTE) {
 	$current_tab = 'quotes';
 }
-elseif ($type === Document::TYPE_INVOICE) {
+elseif ($type === Invoice::TYPE_INVOICE) {
 	$current_tab = 'invoices';
 }
 else {

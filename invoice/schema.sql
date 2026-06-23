@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_clients (
 	created DATETIME NOT NULL CHECK (created = datetime(created)) DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS plugin_invoice_documents (
+CREATE TABLE IF NOT EXISTS plugin_invoice_invoices (
 	id INTEGER NOT NULL PRIMARY KEY,
 	id_client INTEGER NOT NULL REFERENCES plugin_invoice_clients (id),
 	id_transaction INTEGER NULL REFERENCES acc_transactions (id) ON DELETE SET NULL,
@@ -23,17 +23,16 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_documents (
 	type INTEGER NOT NULL,
 	label TEXT NOT NULL,
 	date_created TEXT NOT NULL CHECK (date_created = date(date_created)),
-	date_expiry TEXT NULL CHECK (date_expiry IS NULL OR date_expiry = date(date_expiry)),
-	date_sent TEXT NULL CHECK (date_sent IS NULL OR date_sent = date(date_sent)),
+	date_expiry TEXT NOT NULL CHECK (date_expiry = date(date_expiry)),
+	date_sent TEXT NULL CHECK (date_sent IS NULL OR date_sent = date(date_sent)), -- submittedAt in AFNOR
 	status TEXT NOT NULL,
 	total INTEGER NOT NULL DEFAULT 0,
 	notes TEXT NULL,
 	buyer_ref TEXT NULL, -- Buyer reference (Factur-X: code du service exécutant)
 	contract_reference TEXT NULL, -- Factur-X : Numéro d'engagement
 	content TEXT NULL, -- Content of generated invoice (JSON/EN16931 serialization), NULL if it's a draft
-	submission_date DATETIME NULL CHECK (datetime(submission_date) = submission_date OR submission_date IS NULL), -- submittedAt
-	submission_id TEXT NULL, -- flowId
-	submission_provider TEXT NULL
+	provider_id TEXT NULL, -- ID returned by provider for this invoice (flowId in AFNOR)
+	provider_name TEXT NULL -- Name of provider used for submission
 );
 
 CREATE TABLE IF NOT EXISTS plugin_invoice_payments (

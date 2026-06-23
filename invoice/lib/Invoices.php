@@ -4,7 +4,7 @@ namespace Paheko\Plugin\Invoice;
 
 use Paheko\Config;
 use Paheko\DynamicList;
-use Paheko\Plugin\Invoice\Entities\Document;
+use Paheko\Plugin\Invoice\Entities\Invoice;
 
 class Invoices
 {
@@ -64,7 +64,7 @@ class Invoices
 
 		if ($type === null) {
 			$conditions = 'type != ?';
-			$params = [Document::TYPE_QUOTE];
+			$params = [Invoice::TYPE_QUOTE];
 		}
 		else {
 			$conditions = 'type = ?';
@@ -77,7 +77,7 @@ class Invoices
 			unset($columns['status']);
 		}
 
-		$list = new DynamicList($columns, Document::TABLE, $conditions);
+		$list = new DynamicList($columns, Invoice::TABLE, $conditions);
 		$list->orderBy('date_created', true);
 		$list->setParameters($params);
 

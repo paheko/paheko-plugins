@@ -1,3 +1,8 @@
+# Clients
+
+* Client selector
+* Pouvoir créer un client depuis le sélecteur
+
 # Export factures
 
 Ne pas oublier de mettre escape = xml pour les templates XML
