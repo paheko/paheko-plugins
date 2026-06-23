@@ -20,7 +20,7 @@ if (isset($_GET['id'])) {
 	}
 
 	if (!$invoice->canEdit()) {
-		throw new UserException('Ce Invoice n\'est plus un brouillon et ne peut plus être modifié');
+		throw new UserException('Ce document n\'est plus un brouillon et ne peut plus être modifié');
 	}
 
 	if ($invoice->isQuote()) {

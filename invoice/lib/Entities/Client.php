@@ -15,7 +15,6 @@ class Client extends Entity
 	protected bool $archived = false;
 	protected string $name;
 	protected string $country;
-	protected bool $europe = true;
 	protected ?string $address;
 	protected ?string $post_code;
 	protected ?string $city;
@@ -66,7 +65,7 @@ class Client extends Entity
 		parent::selfCheck();
 
 		$this->assert(mb_strlen(trim($this->name)), 'Le nom est vide');
-		$this->assert(strlen($this->country) !== 2, 'Le pays est vide ou invalide');
+		$this->assert(strlen($this->country) === 2, 'Le pays est vide ou invalide');
 		$this->assert(Utils::getCountryName($this->country) !== null, 'Le pays est invalide');
 		$this->assert(mb_strlen($this->name) <= 500, 'Le nom ne peut faire plus de 500 caractères');
 		$this->assert(!isset($this->address) || mb_strlen($this->address) <= 5000, 'L\'adresse ne peut faire plus de 5000 caractères');
@@ -76,7 +75,7 @@ class Client extends Entity
 		$this->assert(!isset($this->business_number) || mb_strlen($this->business_number) <= 100, 'Le numéro d\'entreprise ne peut faire plus de 100 caractères');
 		$this->assert(!isset($this->vat_number) || mb_strlen($this->vat_number) <= 100, 'Le numéro de TVA ne peut faire plus de 100 caractères');
 
-		if ($this->country === 'FR') {
+		if ($this->country === 'FR' && isset($this->business_number)) {
 			$this->assert(strlen($this->business_number) === 9, 'Le numéro de SIREN doit faire 9 caractères');
 			$this->assert(self::verifySIREN($this->business_number), 'Le numéro de SIREN est invalide');
 		}
@@ -130,7 +129,7 @@ class Client extends Entity
 				'country_code' => $person->country,
 				'address_line1' => $address[0] ?? '',
 				'address_line2' => $address[1] ?? '',
-				'address_line3' => $address[2] ?? '',
+				'address_line3' => implode("\n", array_slice($address, 2)),
 				'city' => $person->city ?? '',
 				'post_code' => $person->post_code ?? '',
 			],
