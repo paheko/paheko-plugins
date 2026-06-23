@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Modifier un produit"}
+{include file="_head.tpl" title=$title}
 
 {form_errors}
 
@@ -60,7 +60,7 @@
 	</aside>
 
 	<fieldset>
-		<legend>Modifier un produit</legend>
+		<legend>Informations générales</legend>
 		<dl>
 			{input type="select" name="category" label="Catégorie" required="true" source=$product options=$categories default_empty="— Sélectionner —"}
 			{input type="text" name="name" label="Nom" required="true" source=$product}
