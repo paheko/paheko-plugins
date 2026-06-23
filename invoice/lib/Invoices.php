@@ -3,7 +3,8 @@
 namespace Paheko\Plugin\Invoice;
 
 use Paheko\Config;
-use Paheko\Plugin\Invoice\Entities\Invoice;
+use Paheko\DynamicList;
+use Paheko\Plugin\Invoice\Entities\Document;
 
 class Invoices
 {
@@ -39,4 +40,47 @@ class Invoices
 		'VATEX-FR-298SEXDECIESA' => 'Régime particulier des agences de voyages — Art. 298 sexdecies A CGI',
 		'VATEX-FR-CGI295'        => 'Exonérations dans les DOM — Art. 295 CGI',
 	];
+
+	static public function getList(?int $type = null, ?string $status = null): DynamicList
+	{
+		$columns = [
+			'id' => [],
+			'number' => [
+				'label' => 'Numéro',
+			],
+			'date_created' => [
+				'label' => 'Date',
+			],
+			'label' => [
+				'label' => 'Libellé',
+			],
+			'status' => [
+				'label' => 'Statut',
+			],
+			'total' => [
+				'label' => 'Total',
+			],
+		];
+
+		if ($type === null) {
+			$conditions = 'type != ?';
+			$params = [Document::TYPE_QUOTE];
+		}
+		else {
+			$conditions = 'type = ?';
+			$params = [$type];
+		}
+
+		if (null !== $status) {
+			$conditions .= ' AND status = ?';
+			$params[] = $status;
+			unset($columns['status']);
+		}
+
+		$list = new DynamicList($columns, Document::TABLE, $conditions);
+		$list->orderBy('date_created', true);
+		$list->setParameters($params);
+
+		return $list;
+	}
 }

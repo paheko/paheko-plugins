@@ -43,6 +43,7 @@ class Document extends Entity
 	protected ?string $submission_provider = null;
 
 	const TYPE_QUOTE = 231;
+	const TYPE_INVOICE = 380;
 
 	/**
 	 * @see https://service.unece.org/trade/untdid/d99a/uncl/uncl1001.htm
@@ -50,9 +51,14 @@ class Document extends Entity
 	 */
 	const TYPES = [
 		self::TYPE_QUOTE => 'Devis',
-		380 => 'Facture',
+		self::TYPE_INVOICE => 'Facture',
 		//386 => 'Facture d\'acompte',
 		//381 => 'Avoir',
+	];
+
+	const TYPES_PLURAL = [
+		self::TYPE_QUOTE => 'Devis',
+		self::TYPE_INVOICE => 'Factures',
 	];
 
 	const STATUS_DRAFT = 'draft';

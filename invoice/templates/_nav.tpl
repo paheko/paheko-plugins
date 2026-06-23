@@ -1,25 +1,23 @@
 <nav class="tabs">
 	<aside>
-		{{if $current === 'clients' && $client.key}}
-			{{:linkbutton shape="edit" href="edit.html?key=%s"|args:$client.key label="Modifier"}}
-			{{:linkbutton shape="delete" href="delete.html?key=%s"|args:$client.key label="Supprimer"}}
-		{{elseif $current === 'clients'}}
-			{{:linkbutton href="edit.html" label="Nouveau client" shape="plus"}}
-		{{else}}
-			{{#restrict section="config" level="admin"}}
-				{{:linkbutton href="config.html" label="Configuration" shape="settings"}}
-			{{/restrict}}
-			{{:linkbutton href="edit.html?type=quote" label="Nouveau devis" shape="plus"}}
-			{{:linkbutton href="edit.html?type=invoice" label="Nouvelle facture" shape="plus"}}
-		{{/if}}
+		{if $current === 'clients' && $client.key}
+			{linkbutton shape="edit" href="edit.php?id=%s"|args:$client.id label="Modifier"}
+			{linkbutton shape="delete" href="delete.php?key=%d"|args:$client.id label="Supprimer"}
+		{elseif $current === 'clients'}
+			{linkbutton href="edit.php" label="Nouveau client" shape="plus"}
+		{else}
+			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
+				{linkbutton href="config.php" label="Configuration" shape="settings"}
+			{/if}
+			{linkbutton href="edit.php?type=231" label="Nouveau devis" shape="plus"}
+			{linkbutton href="edit.php?type=380" label="Nouvelle facture" shape="plus"}
+		{/if}
 	</aside>
 
 	<ul>
-		<li{{if $current === 'index'}} class="current"{{/if}}><a href="{{$module.url}}">Tous les documents</a></li>
-		<li{{if $current === 'drafts'}} class="current"{{/if}}><a href="{{$module.url}}?show=drafts">Brouillons</a></li>
-		<li{{if $current === 'quotes'}} class="current"{{/if}}><a href="{{$module.url}}?show=quotes">Devis</a></li>
-		<li{{if $current === 'payable'}} class="current"{{/if}}><a href="{{$module.url}}?show=payable">Factures en souffrance</a></li>
-		<li{{if $current === 'paid'}} class="current"{{/if}}><a href="{{$module.url}}?show=paid">Factures réglées</a></li>
-		<li{{if $current === 'clients'}} class="current"{{/if}}><a href="{{$module.url}}clients/">Clients</a></li>
+		{tabitem selected=$current name="all" href="!p/invoice/" label="Tous les documents"}
+		{tabitem selected=$current name="invoices" href="!p/invoice/?type=380" label="Factures"}
+		{tabitem selected=$current name="quotes" href="!p/invoice/?type=231" label="Devis"}
+		{tabitem selected=$current name="clients" href="!p/invoice/clients/" label="Clients"}
 	</ul>
 </nav>
