@@ -63,6 +63,11 @@
 	border-color: #fcc;
 }
 
+.pos .products section button p {
+	font-size: .8em;
+	color: #666;
+}
+
 .pos .products section div {
 	display: flex;
 	flex-grow: 1;
