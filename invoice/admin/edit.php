@@ -57,6 +57,7 @@ $form->runIf('save', function () use ($invoice) {
 	Utils::redirect('!p/invoice/details.php?id=' . $invoice->id());
 }, $csrf_key);
 
+$tpl->assign('now', new \DateTime);
 $tpl->assign(compact('invoice', 'title', 'csrf_key'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/edit.tpl');

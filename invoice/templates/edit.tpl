@@ -2,20 +2,12 @@
 
 {form_errors}
 
-<form method="post" action="{$self_uri}" data-focus="1">
+<form method="post" action="{$self_url}" data-focus="1">
 
 <fieldset>
-	<legend><label for="f_client">Client</label></legend>
+	<legend>Informations</legend>
 	<dl>
-		<dd>
-			{input type="list" required=true name="client" label="Client" target="!p/invoice/clients/selector.php"}
-		</dd>
-	</dl>
-</fieldset>
-
-<fieldset>
-	<legend>Détails</legend>
-	<dl>
+		{input type="list" required=true name="client" label="Client" target="!p/invoice/clients/selector.php"}
 		{input required=true name="label" type="text" label="Libellé" source=$invoice}
 		{input required=true name="date" type="date" label="Date d'émission" source=$invoice default=$now}
 		{if $invoice->isQuote()}

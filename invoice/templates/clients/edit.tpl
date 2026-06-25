@@ -4,6 +4,10 @@
 
 <form method="post" action="{$self_url}" data-focus="1">
 
+{if $_GET.msg === 'CREATE'}
+	<p class="alert block">Merci de créer un client pour pouvoir créer une facture.</p>
+{/if}
+
 <fieldset>
 	<legend>Informations générales</legend>
 	<dl>

@@ -40,7 +40,7 @@ class Clients
 		return DB::getInstance()->count(Client::TABLE, 'archived = 0');
 	}
 
-	static public function getList(bool $archived = false): DynamicList
+	static public function getList(bool $archived = false, ?string $search = null): DynamicList
 	{
 		$columns = [
 			'id' => [],
@@ -49,10 +49,17 @@ class Clients
 			],
 		];
 
+		$params = [];
 		$conditions = sprintf('archived = %d', $archived);
+
+		if ($search) {
+			$conditions .= ' AND name LIKE ? COLLATE U_NOCASE';
+			$params[] = $search;
+		}
 
 		$list = new DynamicList($columns, Client::TABLE, $conditions);
 		$list->orderBy('name', false);
+		$list->setParameters($params);
 
 		return $list;
 	}

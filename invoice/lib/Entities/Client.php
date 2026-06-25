@@ -81,6 +81,17 @@ class Client extends Entity
 		}
 	}
 
+	public function importForm(?array $source = null)
+	{
+		$source ??= $_POST;
+
+		if (isset($source['archived_present'])) {
+			$source['archived'] = !empty($source['archived']);
+		}
+
+		return parent::importForm($source);
+	}
+
 	public function save(bool $selfcheck = true): bool
 	{
 		// Make sure we get the SIREN number even if we have been supplied with the SIRET
