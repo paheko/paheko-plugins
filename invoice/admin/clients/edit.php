@@ -28,8 +28,7 @@ $csrf_key = 'edit_client';
 $form->runIf('save', function () use ($client) {
 	$client->importForm();
 	$client->save();
-	Utils::redirect('!p/invoice/clients/details.php?id=' . $client->id());
-}, $csrf_key);
+}, $csrf_key, '!p/invoice/clients/');
 
 $tpl->assign(compact('client', 'title', 'csrf_key'));
 

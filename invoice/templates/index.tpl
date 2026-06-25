@@ -20,6 +20,8 @@
 				</td>
 			</tr>
 	{/foreach}
+	</tbody>
+	</table>
 	{$list->getHTMLPagination()|raw}
 {else}
 	<p class="alert block">Il n'y a aucun document ici.</p>

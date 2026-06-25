@@ -1,6 +1,6 @@
 <nav class="tabs">
 	<aside>
-		{if $current === 'clients' && $client.key}
+		{if $current === 'clients' && isset($client->key)}
 			{linkbutton shape="edit" href="edit.php?id=%s"|args:$client.id label="Modifier"}
 			{linkbutton shape="delete" href="delete.php?key=%d"|args:$client.id label="Supprimer"}
 		{elseif $current === 'clients'}

@@ -81,6 +81,18 @@ class Client extends Entity
 		}
 	}
 
+	public function save(bool $selfcheck = true): bool
+	{
+		// Make sure we get the SIREN number even if we have been supplied with the SIRET
+		if ($this->country === 'FR'
+			&& isset($this->business_number)
+			&& strlen($this->business_number) > 9) {
+			$this->business_number = substr($this->business_number, 0, 9);
+		}
+
+		return parent::save($selfcheck);
+	}
+
 	static public function verifySIREN(string $number): bool
 	{
 		$total = 0;
