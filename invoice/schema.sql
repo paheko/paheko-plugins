@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_lines (
 	unit TEXT NOT NULL,
 	quantity REAL NOT NULL,
 	price INTEGER NOT NULL,
+	vat_rate REAL NOT NULL,
 	vat_code TEXT NOT NULL,
-	vat_rate REAL NOT NULL
+	vat_exemption_code TEXT NULL
 );

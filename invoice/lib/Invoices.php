@@ -6,6 +6,7 @@ use Paheko\Config;
 use Paheko\DynamicList;
 use Paheko\Plugin\Invoice\Entities\Client;
 use Paheko\Plugin\Invoice\Entities\Invoice;
+use Paheko\Plugin\Invoice\Entities\Line;
 
 use KD2\DB\EntityManager as EM;
 
@@ -49,6 +50,10 @@ class Invoices
 		return EM::findOneById(Invoice::class, $id);
 	}
 
+	static public function getLine(int $id): ?Line
+	{
+		return EM::findOneById(Line::class, $id);
+	}
 
 	static public function getList(?int $type = null, ?string $status = null): DynamicList
 	{

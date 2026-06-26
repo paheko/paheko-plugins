@@ -2,6 +2,9 @@
 
 namespace Paheko\Plugin\Invoice\Entities;
 
+use Paheko\Plugin\Invoice\Invoices;
+
+use Paheko\DB;
 use Paheko\Entity;
 use Paheko\Utils;
 
@@ -12,7 +15,7 @@ class Line extends Entity
 	const TABLE = 'plugin_invoice_lines';
 
 	protected ?int $id = null;
-	protected int $id_document;
+	protected int $id_invoice;
 	protected int $number;
 	protected string $label;
 	protected ?string $reference;
@@ -20,16 +23,15 @@ class Line extends Entity
 	protected string $unit = 'XUN';
 	protected float $quantity = 1.0;
 	protected int $price;
+	protected float $vat_rate = 0.0;
 	protected string $vat_code = 'E';
 	protected ?string $vat_exemption_code = null;
-	protected float $vat_rate = 0.0;
 
 	/**
 	 * @see https://docs.peppol.eu/poacc/billing/3.0/codelist/UNECERec20/
 	 */
 	const UNITS = [
 		'XUN' => 'unité',
-		'XZZ' => 'autre',
 		'CMT' => 'centimètre',
 		'MTR' => 'mètre',
 		'MTK' => 'mètre-carré',
@@ -42,6 +44,7 @@ class Line extends Entity
 		'HUR' => 'heure',
 		'MIN' => 'minute',
 		'LTR' => 'litre',
+		'XZZ' => 'autre',
 	];
 
 	const VAT_CODES = [
@@ -53,10 +56,26 @@ class Line extends Entity
 	const VAT_RATES = [
 		0.2,
 		0.1,
-		0.55,
-		0.21,
+		0.055,
+		0.021,
 		0.0
 	];
+
+	public function getVATRatesOptions(): array
+	{
+		$out = [];
+
+		foreach (self::VAT_RATES as $rate) {
+			$out[(string) $rate] = sprintf('%s%%', $rate * 100);
+		}
+
+		return $out;
+	}
+
+	public function getVATExemptionOptions(): array
+	{
+		return Invoices::VAT_EXEMPTIONS;
+	}
 
 	public function selfCheck(): void
 	{
@@ -91,6 +110,18 @@ class Line extends Entity
 	public function getTotal(): float
 	{
 		return (float) ($this->getNetTotal() + $this->getVATAmount());
+	}
+
+	public function save(bool $selfcheck = true): bool
+	{
+		if (!isset($this->number)) {
+			$db = DB::getInstance();
+			$number = $db->firstColumn('SELECT MAX(number) FROM plugin_invoice_lines WHERE id_invoice = ?;', $this->id_invoice);
+			$number++;
+			$this->set('number', $number);
+		}
+
+		return parent::save($selfcheck);
 	}
 
 	/**

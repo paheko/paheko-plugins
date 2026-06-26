@@ -105,7 +105,7 @@
 
 {if $invoice->isDraft()}
 	<p class="actions">
-		{linkbutton shape="plus" label="Ajouter une ligne" href="line.php?id=%d"|args:$invoice.id target="_dialog"}
+		{linkbutton shape="plus" label="Ajouter une ligne" href="line.php?id_invoice=%d"|args:$invoice.id target="_dialog"}
 	</p>
 {/if}
 
@@ -113,6 +113,7 @@
 	{include file="common/dynamic_list_head.tpl" list=$lines}
 	{foreach from=$lines->iterate() item="line"}
 		<tr>
+			<td class="num">{$line.number}</td>
 			<td>
 				<strong>{$line.label}</strong>
 				{if $line.reference}
