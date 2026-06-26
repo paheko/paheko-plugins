@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_invoices (
 	id INTEGER NOT NULL PRIMARY KEY,
 	id_client INTEGER NOT NULL REFERENCES plugin_invoice_clients (id),
 	id_transaction INTEGER NULL REFERENCES acc_transactions (id) ON DELETE SET NULL,
-	id_quote INTEGER NULL REFERENCES plugin_invoice_documents (id) ON DELETE SET NULL,
+	id_quote INTEGER NULL REFERENCES plugin_invoice_invoices (id) ON DELETE SET NULL,
 	number INTEGER NULL,
 	type INTEGER NOT NULL,
 	label TEXT NOT NULL,
@@ -37,13 +37,13 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_invoices (
 
 CREATE TABLE IF NOT EXISTS plugin_invoice_payments (
 	id INTEGER NOT NULL PRIMARY KEY,
-	id_document INTEGER NOT NULL REFERENCES plugin_invoice_documents (id) ON DELETE CASCADE,
+	id_invoice INTEGER NOT NULL REFERENCES plugin_invoice_invoices (id) ON DELETE CASCADE,
 	id_transaction INTEGER NULL REFERENCES acc_transactions (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS plugin_invoice_lines (
 	id INTEGER NOT NULL PRIMARY KEY,
-	id_document INTEGER NOT NULL REFERENCES plugin_invoice_documents (id) ON DELETE CASCADE,
+	id_invoice INTEGER NOT NULL REFERENCES plugin_invoice_invoices (id) ON DELETE CASCADE,
 	number INTEGER NOT NULL,
 	label TEXT NOT NULL,
 	reference TEXT NULL,

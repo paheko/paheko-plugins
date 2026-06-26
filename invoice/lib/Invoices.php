@@ -4,7 +4,10 @@ namespace Paheko\Plugin\Invoice;
 
 use Paheko\Config;
 use Paheko\DynamicList;
+use Paheko\Plugin\Invoice\Entities\Client;
 use Paheko\Plugin\Invoice\Entities\Invoice;
+
+use KD2\DB\EntityManager as EM;
 
 class Invoices
 {
@@ -41,10 +44,16 @@ class Invoices
 		'VATEX-FR-CGI295'        => 'Exonérations dans les DOM — Art. 295 CGI',
 	];
 
+	static public function get(int $id): ?Invoice
+	{
+		return EM::findOneById(Invoice::class, $id);
+	}
+
+
 	static public function getList(?int $type = null, ?string $status = null): DynamicList
 	{
 		$columns = [
-			'id' => [],
+			'id' => ['select' => 'i.id'],
 			'number' => [
 				'label' => 'Numéro',
 			],
@@ -52,13 +61,18 @@ class Invoices
 				'label' => 'Date',
 			],
 			'label' => [
-				'label' => 'Libellé',
+				'label' => 'Objet',
+			],
+			'client_name' => [
+				'label' => 'Client',
+				'select' => 'c.name',
 			],
 			'status' => [
 				'label' => 'Statut',
 			],
 			'total' => [
 				'label' => 'Total',
+				'class' => 'money',
 			],
 		];
 
@@ -77,9 +91,16 @@ class Invoices
 			unset($columns['status']);
 		}
 
-		$list = new DynamicList($columns, Invoice::TABLE, $conditions);
+		$tables = sprintf('%s AS i INNER JOIN %s AS c ON c.id = i.id_client', Invoice::TABLE, Client::TABLE);
+
+		$list = new DynamicList($columns, $tables, $conditions);
 		$list->orderBy('date_created', true);
 		$list->setParameters($params);
+
+		$list->setModifier(function (&$row) {
+			$row->status_label = Invoice::STATUSES[$row->status];
+			$row->status_color = Invoice::STATUSES_COLORS[$row->status];
+		});
 
 		return $list;
 	}

@@ -69,6 +69,8 @@ class Line extends Entity
 		$this->assert(!isset($this->vat_exemption_code) || array_key_exists($this->vat_exemption_code, Invoices::VAT_EXEMPTIONS));
 		$this->assert($this->vat_rate >= 0.0);
 		$this->assert($this->quantity >= 0.0);
+
+		$this->assert(array_key_exists($this->unit, self::UNITS), 'Unité inconnue : ' . $this->unit);
 	}
 
 	public function getVATAmount(): float

@@ -9,14 +9,14 @@
 			{if $list->hasColumn('type')}
 				<td>{$doc.type}</td>
 			{/if}
-				<th>{if !$doc.number}{tag label="Brouillon"}{else}{$doc.number}{/if}</th>
+				<td class="num">{if !$doc.number}<em>(Brouillon)</em>{else}{$doc.number}{/if}</td>
 				<td>{$doc.date_created|date_short}</td>
-				<td>{$doc.date_expiry|date_short}</td>
+				<th>{$doc.label}</th>
 				<td>{$doc.client_name}</td>
-				<td class="money">{$doc.total|raw|money_currency_html}</td>
 				<td>{tag label=$doc.status_label color=$doc.status_color}</td>
+				<td class="money">{$doc.total|raw|money_currency_html:false}</td>
 				<td class="actions">
-					{linkbutton shape="menu" label="Détails" href="details.html?id=%d"|args:$doc.id}
+					{linkbutton shape="menu" label="Détails" href="details.php?id=%d"|args:$doc.id}
 				</td>
 			</tr>
 	{/foreach}

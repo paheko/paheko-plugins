@@ -9,10 +9,10 @@
 			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
 				{linkbutton href="config.php" label="Configuration" shape="settings"}
 			{/if}
-			{if $current !== 'quotes'}
+			{if $current !== 'invoices'}
 				{linkbutton href="edit.php?type=231" label="Créer un devis" shape="plus"}
 			{/if}
-			{if $current !== 'invoices'}
+			{if $current !== 'quotes'}
 				{linkbutton href="edit.php?type=380" label="Créer une facture" shape="plus"}
 			{/if}
 		{/if}

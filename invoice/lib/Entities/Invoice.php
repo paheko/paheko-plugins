@@ -3,11 +3,14 @@
 namespace Paheko\Plugin\Invoice\Entities;
 
 use Paheko\Config;
+use Paheko\DynamicList;
 use Paheko\Entity;
 use Paheko\Utils;
 
 use KD2\DB\Date;
 use stdClass;
+
+use Paheko\Plugin\Invoice\Clients;
 
 class Invoice extends Entity
 {
@@ -40,6 +43,8 @@ class Invoice extends Entity
 
 	protected ?string $provider_name = null;
 	protected ?string $provider_id = null;
+
+	protected Client $_client;
 
 	const TYPE_QUOTE = 231;
 	const TYPE_INVOICE = 380;
@@ -120,9 +125,19 @@ class Invoice extends Entity
 		return $this->type === self::TYPE_QUOTE;
 	}
 
+	public function isDraft(): bool
+	{
+		return $this->status === self::STATUS_DRAFT;
+	}
+
 	public function canEdit(): bool
 	{
 		return $this->status === self::STATUS_DRAFT;
+	}
+
+	public function canPay(): bool
+	{
+		return !$this->isQuote() && $this->status === self::STATUS_AWAITING_PAYMENT;
 	}
 
 	public function requiresSendingToProvider(): bool
@@ -136,6 +151,22 @@ class Invoice extends Entity
 		}
 
 		return false;
+	}
+
+	public function getStatusLabel(): string
+	{
+		return self::STATUSES[$this->status];
+	}
+
+	public function getStatusColor(): string
+	{
+		return self::STATUSES_COLORS[$this->status];
+	}
+
+	public function client(): Client
+	{
+		$this->_client ??= Clients::get($this->id_client);
+		return $this->_client;
 	}
 
 	public function publish(int $first_quote_number = 1, int $first_invoice_number = 1): void
@@ -404,5 +435,74 @@ class Invoice extends Entity
 		}
 
 		return (bool) Utils::quick_exec('which gs', 1);
+	}
+
+	public function getPaymentsList(): DynamicList
+	{
+		$columns = [
+			'id' => [
+				'label' => 'Numéro',
+				'select' => 't.id',
+			],
+			'label' => [
+				'label' => 'Libellé',
+				'select' => 't.label',
+			],
+			'date' => [
+				'label' => 'Date',
+				'select' => 't.date',
+			],
+			'amount' => [
+				'label' => 'Montant',
+				'select' => 'SUM(l.credit)',
+			],
+		];
+
+		$tables = 'acc_transactions t
+			INNER JOIN plugin_invoice_payments p ON p.id_transaction = t.id
+			INNER JOIN acc_transactions_lines l ON l.id_transaction = t.id';
+
+
+		$list = new DynamicList($columns, $tables, 'p.id_invoice = ' . (int)$this->id());
+		$list->orderBy('date', false);
+
+		return $list;
+	}
+
+	public function getLinesList(): DynamicList
+	{
+		$columns = [
+			'number' => [
+				'label' => 'Numéro',
+			],
+			'label' => [
+				'label' => 'Libellé',
+			],
+			'reference' => [],
+			'description' => [],
+			'quantity' => [
+				'label' => 'Quantité',
+			],
+			'unit' => [],
+			'price' => [
+				'label' => 'Prix unitaire',
+			],
+			'vat_rate' => [
+				'label' => 'Taux TVA',
+			],
+			'total' => [
+				'label' => 'Total HT',
+				'select' => 'price * unit',
+			],
+		];
+
+		$list = new DynamicList($columns, Line::TABLE, 'id_invoice = ' . (int)$this->id());
+		$list->orderBy('number', false);
+
+		$list->setModifier(function (&$row) {
+			$row->unit_label = Line::UNITS[$row->unit];
+		});
+
+		return $list;
 	}
 }
