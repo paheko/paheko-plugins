@@ -169,6 +169,15 @@ class Invoice extends Entity
 		return $this->_client;
 	}
 
+	public function getClientSelectorValue(): ?array
+	{
+		if (!isset($this->id_client)) {
+			return null;
+		}
+
+		return [$this->id_client => $this->client()->name];
+	}
+
 	public function publish(int $first_quote_number = 1, int $first_invoice_number = 1): void
 	{
 		$where_type = $this->type === self::TYPE_QUOTE ? 'type = ?' : 'type != ?';
@@ -465,6 +474,7 @@ class Invoice extends Entity
 
 		$list = new DynamicList($columns, $tables, 'p.id_invoice = ' . (int)$this->id());
 		$list->orderBy('date', false);
+		$list->groupBy('t.id');
 
 		return $list;
 	}

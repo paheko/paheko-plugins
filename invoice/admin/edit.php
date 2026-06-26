@@ -54,7 +54,7 @@ $csrf_key = 'edit_invoice';
 $form->runIf('save', function () use ($invoice) {
 	$invoice->importForm();
 	$invoice->save();
-	Utils::redirect('!p/invoice/details.php?id=' . $invoice->id());
+	Utils::redirectParent('!p/invoice/details.php?id=' . $invoice->id());
 }, $csrf_key);
 
 $tpl->assign('now', new \DateTime);

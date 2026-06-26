@@ -39,6 +39,6 @@ $lines->loadFromQueryString();
 
 $payments = $invoice->getPaymentsList();
 
-$tpl->assign(compact('invoice', 'title', 'lines', 'payments'));
+$tpl->assign(compact('invoice', 'title', 'lines', 'payments', 'csrf_key'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/details.tpl');

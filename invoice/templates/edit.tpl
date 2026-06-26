@@ -7,7 +7,7 @@
 <fieldset>
 	<legend>Informations</legend>
 	<dl>
-		{input type="list" required=true name="client" label="Client" target="!p/invoice/clients/selector.php"}
+		{input type="list" required=true name="client" label="Client" target="!p/invoice/clients/selector.php" default=$invoice->getClientSelectorValue()}
 		{input required=true name="label" type="text" label="Objet" source=$invoice}
 		{input required=true name="date_created" type="date" label="Date d'émission" source=$invoice default=$now}
 		{if $invoice->isQuote()}
@@ -15,7 +15,7 @@
 		{else}
 			{input required=true name="date_expiry" type="date" label="Date d'échéance" source=$invoice help="Après cette date la facture sera considérée en souffrance (délai de paiement dépassé)."}
 		{/if}
-		{input required=false name="notes" type="textarea" cols=50 rows=5 label="Notes" source=$invoice help="Informations à faire figurer sur le document"}
+		{input required=false name="notes" type="textarea" cols=50 rows=5 label="Notes supplémentaires" source=$invoice help="Ces informations figureront sur le document"}
 	</dl>
 	<details>
 		<summary>Informations supplémentaires (Chorus Pro)</summary>

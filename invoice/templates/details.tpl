@@ -80,7 +80,7 @@
 	<dt>Numéro</dt>
 	<dd>{if $invoice->isDraft()}(En attente de validation){else}{$invoice.number}{/if}</dd>
 	<dt>Objet</dt>
-	<dd>{$invoice.label}</dd>
+	<dd><h2>{$invoice.label}</h2></dd>
 	<dt>Date</dt>
 	<dd>{$invoice.date_created|date_short}</dd>
 	<dt>Date d'échéance</dt>
@@ -89,6 +89,8 @@
 	<dd>
 		<strong>{$invoice->client()->name}</strong>
 	</dd>
+	<dt>Notes</dt>
+	<dd>{if $invoice.notes}{$invoice.notes|raw|markdown}{else}—{/if}</dd>
 	<dt>Statut</dt>
 	<dd>
 		{tag label=$invoice->getStatusLabel() color=$invoice->getStatusColor()}
@@ -98,6 +100,7 @@
 	<dt>Écriture comptable</dt>
 	<dd>{link class="num" href="!acc/transactions/details.php?id=%d"|args:$invoice.id_transaction label="#%d"|args:$invoice.id_transaction}</dd>
 	{/if}
+
 </dl>
 
 {if $invoice->isDraft()}
@@ -140,20 +143,22 @@
 
 </form>
 
-{if !$invoice->canPay() || $payments->count()}
+{if $invoice->canPay() || $payments->count()}
 	<h2 class="ruler">Paiements</h2>
 
-	{include file="common/dynamic_list_head.tpl" list=$payments disable_user_sort=true}
-	{foreach from=$payments->iterate() item="payment"}
-		<tr>
-			<td class="num">{link class="num" href="!acc/transactions/details.php?id=%d"|args:$payment.id label="#%d"|args:$payment.id}</td>
-			<td>{$payment.date|date_short}</td>
-			<td>{$payment.label}</td>
-			<td class="money">{$payment.credit|raw|money_currency_html}</td>
-		</tr>
-	{/foreach}
-	</tbody>
-	</table>
+	{if $payments->count()}
+		{include file="common/dynamic_list_head.tpl" list=$payments disable_user_sort=true}
+		{foreach from=$payments->iterate() item="payment"}
+			<tr>
+				<td class="num">{link class="num" href="!acc/transactions/details.php?id=%d"|args:$payment.id label="#%d"|args:$payment.id}</td>
+				<td>{$payment.date|date_short}</td>
+				<td>{$payment.label}</td>
+				<td class="money">{$payment.credit|raw|money_currency_html}</td>
+			</tr>
+		{/foreach}
+		</tbody>
+		</table>
+	{/if}
 
 	{if $invoice->canPay()}
 		<p class="actions-center">

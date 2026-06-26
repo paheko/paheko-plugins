@@ -76,13 +76,17 @@ class Invoices
 			],
 		];
 
-		if ($type === null) {
+		if ($type === Invoice::TYPE_QUOTE) {
+			$conditions = 'type = ?';
+			$params = [$type];
+		}
+		elseif ($type !== null) {
 			$conditions = 'type != ?';
 			$params = [Invoice::TYPE_QUOTE];
 		}
 		else {
-			$conditions = 'type = ?';
-			$params = [$type];
+			$conditions = '1';
+			$params = [];
 		}
 
 		if (null !== $status) {
