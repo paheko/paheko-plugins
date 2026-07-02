@@ -25,7 +25,8 @@ function debug_log(string $message, ...$params) {
 }
 
 $form->runIf('load', function () use ($tabula_path) {
-	if (empty($_FILES['file']['tmp_name'])) {
+	if (empty($_FILES['file']['tmp_name'])
+		|| !is_uploaded_file($_FILES['file']['tmp_name'])) {
 		throw new UserException('Fichier invalide ou vide');
 	}
 

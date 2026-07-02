@@ -96,7 +96,10 @@ class Contact extends Entity
 
 	public function uploadPhoto(array $file): void
 	{
-		if (empty($file['tmp_name']) || !empty($file['error']) || empty($file['size'])) {
+		if (empty($file['tmp_name'])
+			|| !empty($file['error'])
+			|| empty($file['size'])
+			|| !is_uploaded_file($file['tmp_name'])) {
 			throw new UserException('Fichier invalide');
 		}
 
