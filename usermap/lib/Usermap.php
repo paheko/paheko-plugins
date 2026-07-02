@@ -77,7 +77,7 @@ class Usermap
 		];
 
 		$sql = sprintf('CREATE TEMP TABLE plugin_usermap_locations_distances (distance);
-			INSERT INTO plugin_usermap_locations_distances SELECT haversine_distance(%s, %s, lat, lon) FROM plugin_usermap_locations WHERE lat IS NOT NULL AND lon IS NOT NULL AND lat != \'\' AND lon != \'\';',
+			INSERT INTO plugin_usermap_locations_distances SELECT haversine_distance(%f, %f, lat, lon) FROM plugin_usermap_locations WHERE lat IS NOT NULL AND lon IS NOT NULL AND lat != \'\' AND lon != \'\';',
 			$ll['lat'], $ll['lon']);
 		$db->exec($sql);
 
@@ -108,7 +108,7 @@ class Usermap
 			return null;
 		}
 
-		return ['lat' => $r[1], 'lon' => $r[0]];
+		return ['lat' => (float)$r[1], 'lon' => (float)$r[0]];
 	}
 
 	public function getUsersLocations(): array
