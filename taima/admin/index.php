@@ -35,7 +35,7 @@ $form->runIf('delete', function () {
 	$id = key(f('delete'));
 	$entry = Tracking::get((int) $id);
 
-	if (!$entry) {
+	if (!$entry || $entry->user_id !== Session::getUserId()) {
 		return;
 	}
 
@@ -45,9 +45,10 @@ $form->runIf('delete', function () {
 if (qg('start')) {
 	$entry = Tracking::get((int) qg('start'));
 
-	if (!$entry) {
+	if (!$entry || $entry->user_id !== Session::getUserId()) {
 		return;
 	}
+
 	$entry->start();
 	$entry->save();
 	Utils::redirect(taima_url($entry->date));
@@ -55,9 +56,10 @@ if (qg('start')) {
 elseif (qg('stop')) {
 	$entry = Tracking::get((int) qg('stop'));
 
-	if (!$entry) {
+	if (!$entry || $entry->user_id !== Session::getUserId()) {
 		return;
 	}
+
 	$entry->stop();
 	$entry->save();
 	Utils::redirect(taima_url($entry->date));
