@@ -385,23 +385,25 @@ class Velos
 		return DB::getInstance()->firstColumn('SELECT id FROM plugin_stock_velos WHERE date_sortie IS NULL AND etiquette = ?;', (int)$etiquette);
 	}
 
-	public function search($field, $search)
+	public function search(string $field, string $search)
 	{
 		$query = 'SELECT * FROM plugin_stock_velos WHERE ';
 		$db = DB::getInstance();
+		$params = [];
 
-		if ($field == 'etiquette')
-		{
-			$query .= $field . ' = \'' . $db->escapeString($search) . '\'';
+		if ($field === 'etiquette') {
+			$query .= $field . ' = ?';
+			$params[] = $field;
 		}
 		else
 		{
-			$query .= $field . ' LIKE \'%' . $db->escapeString($search) . '%\'';
+			$query .= $field . ' LIKE ? ESCAPE \'\\\'';
+			$params[] = '%' . $db->escapeLike($search) . '%';
 		}
 
 		$query .= ' ORDER BY id DESC;';
 
-		return $db->get($query);
+		return $db->get($query, ...$params);
 	}
 
 	public function searchSQL($fields, $query)
