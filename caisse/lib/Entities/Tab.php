@@ -180,8 +180,19 @@ class Tab extends Entity
 			throw new UserException('La quantité de ce produit ne peut être modifiée.');
 		}
 
+		$db = DB::getInstance();
+		$db->begin();
 		$item->set('qty', $qty);
 		$item->save();
+
+		$i = EM::getInstance(TabItem::class)->iterate('SELECT * FROM @TABLE WHERE id_parent_item = ?;', $item->id());
+
+		foreach ($i as $child) {
+			$child->set('qty', $qty);
+			$child->save();
+		}
+
+		$db->commit();
 	}
 
 	public function updateItemWeight(int $id, string $weight): void
