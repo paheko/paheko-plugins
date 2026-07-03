@@ -41,7 +41,7 @@ function selectVAT() {
 	g.toggle('.vat_exemption', vat_rate.value == 0);
 }
 
-vat_rate.onchange = selectVAT();
+vat_rate.onchange = selectVAT;
 selectVAT();
 </script>
 {/literal}

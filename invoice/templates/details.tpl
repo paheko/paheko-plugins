@@ -120,13 +120,13 @@
 					<small>Réf. {$line.reference}</small>
 				{/if}
 				{if $line.description}
-					<em>{$line.description|escape|nl2br}</em>
+					<br /><em>{$line.description|escape|nl2br}</em>
 				{/if}
 			</td>
 			<td class="num">{$line.quantity} <small>{$line.unit_label}</small></td>
-			<td>{$line.price|raw|money_currency_html:false}</td>
-			<td>{$line.vat}%</td>
-			<td>{$line.total|raw|money_currency_html:false}</td>
+			<td class="money">{$line.price|raw|money_currency_html:false}</td>
+			<td class="money">{$line.vat_rate}</td>
+			<td class="money">{$line.total|raw|money_currency_html:false}</td>
 			<td class="actions">
 				{if $invoice->isDraft()}
 					{button name="delete_line" type="submit" value=$line.id label="Supprimer" shape="delete"}

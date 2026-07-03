@@ -511,6 +511,8 @@ class Invoice extends Entity
 
 		$list->setModifier(function (&$row) {
 			$row->unit_label = Line::UNITS[$row->unit];
+			$row->vat_rate = str_replace('.', ',', $row->vat_rate * 100) . ' %';
+			$row->total = $row->quantity * $row->price;
 		});
 
 		return $list;

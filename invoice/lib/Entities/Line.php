@@ -112,6 +112,22 @@ class Line extends Entity
 		return (float) ($this->getNetTotal() + $this->getVATAmount());
 	}
 
+	public function filterUserValue(string $type, $value, string $key)
+	{
+		if ($key == 'price') {
+			try {
+				$value = abs(Utils::moneyToInteger($value));
+			}
+			catch (\InvalidArgumentException $e) {
+				throw new UserException($e->getMessage(), 0, $e);
+			}
+		}
+
+		$value = parent::filterUserValue($type, $value, $key);
+
+		return $value;
+	}
+
 	public function save(bool $selfcheck = true): bool
 	{
 		if (!isset($this->number)) {
