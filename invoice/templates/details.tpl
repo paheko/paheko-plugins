@@ -77,6 +77,10 @@
 {/if}
 
 <dl class="describe">
+	<dt>Statut</dt>
+	<dd>
+		{tag label=$invoice->getStatusLabel() color=$invoice->getStatusColor()}
+	</dd>
 	<dt>Numéro</dt>
 	<dd>{if $invoice->isDraft()}(En attente de validation){else}{$invoice.number}{/if}</dd>
 	<dt>Objet</dt>
@@ -91,10 +95,6 @@
 	</dd>
 	<dt>Notes</dt>
 	<dd>{if $invoice.notes}{$invoice.notes|raw|markdown}{else}—{/if}</dd>
-	<dt>Statut</dt>
-	<dd>
-		{tag label=$invoice->getStatusLabel() color=$invoice->getStatusColor()}
-	</dd>
 
 	{if $invoice.id_transaction}
 	<dt>Écriture comptable</dt>
