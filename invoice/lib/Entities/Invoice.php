@@ -10,6 +10,7 @@ use Paheko\Utils;
 
 use KD2\DB\Date;
 use KD2\DB\EntityManager as EM;
+use KD2\Office\Money;
 
 use Generator;
 use stdClass;
@@ -225,7 +226,6 @@ class Invoice extends Entity
 	public function exportForInvoice(): array
 	{
 		$config = Config::getInstance();
-		$price = Utils::money_format($this->price, '.', '', true);
 
 		$seller_address = explode("\n", $config->org_address);
 		$config->currency = 'EUR';
@@ -257,8 +257,8 @@ class Invoice extends Entity
 		];
 
 		$vat = [];
-		$vat_total = 0.0;
-		$net_total = 0.0;
+		$vat_total = '0';
+		$net_total = '0';
 
 		foreach ($this->iterateLines() as $line) {
 			$e = $line->exportForInvoice();
@@ -266,8 +266,8 @@ class Invoice extends Entity
 			$e = (object) $e;
 			$e->vat_information = (object) $e->vat_information;
 
-			$vat_total += $e->line_vat_amount;
-			$net_total += $e->net_amount;
+			$vat_total = Money::calc($vat_total, '+', $e->line_vat_amount);
+			$net_total = Money::calc($net_total, '+', $e->net_amount);
 
 			// Add VAT breakdown information, it has to be different for each exemption reason
 			$vat_code = md5($e->vat_information->invoiced_item_vat_category_code
@@ -275,35 +275,29 @@ class Invoice extends Entity
 				. $e->vat_information->invoiced_item_vat_rate);
 			$vat[$vat_code] ??= [
 				'vat_category_code'           => $e->vat_information->invoiced_item_vat_category_code,
-				'vat_category_tax_amount'     => 0, // Will be filled below
-				'vat_category_taxable_amount' => 0, // Will be filled below
+				'vat_category_tax_amount'     => '0', // Will be filled below
+				'vat_category_taxable_amount' => '0', // Will be filled below
 				'vat_exemption_reason_code'   => $e->vat_information->exemption_reason_code,
 				'vat_exemption_reason'        => $e->vat_information->exemption_reason,
 				'vat_category_rate'           => $e->vat_information->invoiced_item_vat_rate,
 			];
 
-			$vat[$vat_code]['vat_category_tax_amount'] += $e->line_vat_amount;
-			$vat[$vat_code]['vat_category_taxable_amount'] += $e->net_amount;
+			$vat[$vat_code]['vat_category_tax_amount'] = Money::calc($vat[$vat_code]['vat_category_tax_amount'], '+', $e->line_vat_amount);
+			$vat[$vat_code]['vat_category_taxable_amount'] = Money::calc($vat[$vat_code]['vat_category_taxable_amount'], '+', $e->net_amount);
 		}
 
-		$paid = 0; // TODO
+		$paid = '0.00'; // TODO
 
 		$out['totals'] = [
-			'amount_due_for_payment'   => (string) (($net_total + $vat_total) - $paid),
-			'sum_invoice_lines_amount' => (string) $net_total,
-			'total_with_vat'           => (string) ($net_total + $vat_total),
-			'total_without_vat'        => (string) $net_total,
-			'paid_amount'              => (string) $paid,
-			'total_vat_amount'         => (string) $vat_total,
+			'amount_due_for_payment'   => Money::calc(Money::calc($net_total, '+', $vat_total), '-', $paid),
+			'sum_invoice_lines_amount' => $net_total,
+			'total_with_vat'           => Money::calc($net_total, '+', $vat_total),
+			'total_without_vat'        => $net_total,
+			'paid_amount'              => $paid,
+			'total_vat_amount'         => $vat_total,
 		];
 
-		$out['vat_break_down'] = [];
-
-		foreach ($vat as $item) {
-			$item['vat_category_tax_amount'] = (string) $item['vat_category_tax_amount'];
-			$item['vat_category_taxable_amount'] = (string) $item['vat_category_taxable_amount'];
-			$out['vat_break_down'][] = $item;
-		}
+		$out['vat_break_down'] = array_values($vat);
 
 		return $out;
 	}
@@ -497,45 +491,5 @@ class Invoice extends Entity
 	public function iterateLines(): Generator
 	{
 		return EM::getInstance(Line::class)->iterate('SELECT * FROM @TABLE WHERE id_invoice = ? ORDER BY number;', $this->id());
-	}
-
-	public function getLinesList(): DynamicList
-	{
-		$columns = [
-			'id' => [],
-			'number' => [
-				'label' => 'Numéro',
-			],
-			'label' => [
-				'label' => 'Libellé',
-			],
-			'reference' => [],
-			'description' => [],
-			'price' => [
-				'label' => 'Prix unitaire',
-			],
-			'quantity' => [
-				'label' => 'Quantité',
-			],
-			'unit' => [],
-			'vat_rate' => [
-				'label' => 'Taux TVA',
-			],
-			'total' => [
-				'label' => 'Total TTC',
-				'select' => 'NULL',
-			],
-		];
-
-		$list = new DynamicList($columns, Line::TABLE, 'id_invoice = ' . (int)$this->id());
-		$list->orderBy('number', false);
-
-		$list->setModifier(function (&$row) {
-			$row->unit_label = Line::UNITS[$row->unit];
-			$row->vat_rate_label = str_replace('.', ',', $row->vat_rate * 100) . ' %';
-			$row->total = ($row->quantity * $row->price) * (1 + $row->vat_rate);
-		});
-
-		return $list;
 	}
 }

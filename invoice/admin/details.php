@@ -38,11 +38,8 @@ if ($invoice->isDraft()) {
 
 $export = $invoice->content ?? $invoice->exportForInvoice();
 
-$lines = $invoice->getLinesList();
-$lines->loadFromQueryString();
-
 $payments = $invoice->getPaymentsList();
 
-$tpl->assign(compact('invoice', 'title', 'lines', 'payments', 'csrf_key', 'export'));
+$tpl->assign(compact('invoice', 'title', 'payments', 'csrf_key', 'export'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/details.tpl');

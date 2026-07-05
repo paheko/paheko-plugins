@@ -6,7 +6,8 @@ use Paheko\Plugin\Invoice\Invoices;
 
 use Paheko\DB;
 use Paheko\Entity;
-use Paheko\Utils;
+
+use KD2\Office\Money;
 
 use DateTime;
 
@@ -21,9 +22,9 @@ class Line extends Entity
 	protected ?string $reference;
 	protected ?string $description;
 	protected string $unit = 'XUN';
-	protected float $quantity = 1.0;
-	protected int $price;
-	protected float $vat_rate = 0.0;
+	protected string $quantity = '1';
+	protected string $price;
+	protected string $vat_rate = '0';
 	protected string $vat_code = self::VAT_STANDARD_CODE;
 	protected ?string $vat_exemption_code = null;
 
@@ -57,11 +58,11 @@ class Line extends Entity
 	];
 
 	const VAT_RATES = [
-		0.2,
-		0.1,
-		0.055,
-		0.021,
-		0.0
+		'0.2',
+		'0.1',
+		'0.055',
+		'0.021',
+		'0'
 	];
 
 	public function getVATRatesOptions(): array
@@ -89,46 +90,47 @@ class Line extends Entity
 		$this->assert(!isset($this->description) || mb_strlen(trim($this->description)) <= 10000, 'Le libellé doit faire au maximum 10.000 caractères');
 		$this->assert(array_key_exists($this->vat_code, self::VAT_CODES));
 		$this->assert(!isset($this->vat_exemption_code) || array_key_exists($this->vat_exemption_code, Invoices::VAT_EXEMPTIONS));
-		$this->assert($this->vat_rate >= 0.0);
-		$this->assert($this->quantity >= 0.0);
+
+		$this->assert(preg_match('!^\d+(?:\.\d+)?$!', $this->vat_rate), 'Taux de TVA invalide : ' . $this->vat_rate);
+		$this->assert(preg_match('!^\d+(?:\.\d+)?$!', $this->quantity), 'Quantité invalide : ' . $this->quantity);
+		$this->assert(preg_match('!^\d+(?:\.\d+)?$!', $this->price), 'Prix unitaire invalide : ' . $this->price);
 
 		$this->assert(array_key_exists($this->unit, self::UNITS), 'Unité inconnue : ' . $this->unit);
 	}
 
-	public function getVATAmount(): float
+	public function importForm(?array $source = null)
 	{
-		return (float) ($this->getNetTotal() * $this->vat_rate);
-	}
+		$source ??= $_POST;
 
-	public function getUnitPrice(): float
-	{
-		return (float) ($this->price / 100);
-	}
+		$fields = ['vat_rate', 'quantity', 'price'];
 
-	public function getNetTotal(): float
-	{
-		return (float) ($this->getUnitPrice() * $this->quantity);
-	}
-
-	public function getTotal(): float
-	{
-		return (float) ($this->getNetTotal() + $this->getVATAmount());
-	}
-
-	public function filterUserValue(string $type, $value, string $key)
-	{
-		if ($key == 'price') {
-			try {
-				$value = abs(Utils::moneyToInteger($value));
-			}
-			catch (\InvalidArgumentException $e) {
-				throw new UserException($e->getMessage(), 0, $e);
+		foreach ($fields as $field) {
+			if (isset($source[$field])) {
+				$source[$field] = str_replace(',', '.', $source[$field]);
 			}
 		}
 
-		$value = parent::filterUserValue($type, $value, $key);
+		return parent::importForm($source);
+	}
 
-		return $value;
+	public function getVATAmount(): string
+	{
+		return Money::round2(Money::calc($this->getNetTotal(), '*', $this->vat_rate));
+	}
+
+	public function getUnitPrice(): string
+	{
+		return $this->price;
+	}
+
+	public function getNetTotal(): string
+	{
+		return Money::round2(Money::calc($this->getUnitPrice(), '*', $this->quantity));
+	}
+
+	public function getTotal(): string
+	{
+		return Money::round2(Money::calc($this->getNetTotal(), '+', $this->getVATAmount()));
 	}
 
 	public function save(bool $selfcheck = true): bool
@@ -157,23 +159,23 @@ class Line extends Entity
 	{
 		return [
 			'identifier'               => (string) $this->id,
-			'invoiced_quantity'        => (string) $this->quantity,
+			'invoiced_quantity'        => $this->quantity,
 			'invoiced_quantity_code'   => $this->unit,
 			'item_information'         => [
 				'name' => $this->label,
 				'description' => $this->description ?? '',
 				'seller_identifier' => $this->reference ?? '',
 			],
-			'net_amount'               => (string) $this->getNetTotal(),
-			'price_details'            => ['item_net_price' => (string) $this->getUnitPrice()],
+			'net_amount'               => $this->getNetTotal(),
+			'price_details'            => ['item_net_price' => $this->getUnitPrice()],
 			'vat_information'          => [
 				'invoiced_item_vat_category_code' => $this->vat_code,
 				'invoiced_item_vat_rate'          => strval($this->vat_rate * 100),
 				'exemption_reason_code'           => $this->vat_exemption_code,
 				'exemption_reason'                => Invoices::VAT_EXEMPTIONS[$this->vat_exemption_code ?? ''] ?? '',
 			],
-			'line_vat_amount'          => (string) $this->getVATAmount(),
-			'line_with_vat_net_amount' => (string) $this->getTotal(),
+			'line_vat_amount'          => $this->getVATAmount(),
+			'line_with_vat_net_amount' => $this->getTotal(),
 		];
 	}
 }

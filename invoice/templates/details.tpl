@@ -142,6 +142,7 @@
 			<td class="actions">
 				{if $invoice->isDraft()}
 					{button name="delete_line" type="submit" value=$line.identifier label="Supprimer" shape="delete"}
+					{linkbutton shape="edit" label="Modifier" href="line.php?id=%d"|args:$line.identifier}
 				{/if}
 			</td>
 		</tr>
