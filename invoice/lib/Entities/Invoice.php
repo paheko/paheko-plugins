@@ -5,12 +5,17 @@ namespace Paheko\Plugin\Invoice\Entities;
 use Paheko\Config;
 use Paheko\DynamicList;
 use Paheko\Entity;
+use Paheko\UserException;
 use Paheko\Utils;
 
 use KD2\DB\Date;
+use KD2\DB\EntityManager as EM;
+
+use Generator;
 use stdClass;
 
 use Paheko\Plugin\Invoice\Clients;
+use Paheko\Plugin\Invoice\Invoices;
 
 class Invoice extends Entity
 {
@@ -223,6 +228,7 @@ class Invoice extends Entity
 		$price = Utils::money_format($this->price, '.', '', true);
 
 		$seller_address = explode("\n", $config->org_address);
+		$config->currency = 'EUR';
 
 		if (strlen($config->currency) !== mb_strlen($config->currency)
 			|| strlen($config->currency) !== 3) {
@@ -251,29 +257,33 @@ class Invoice extends Entity
 		];
 
 		$vat = [];
-		$lines = [];
 		$vat_total = 0.0;
 		$net_total = 0.0;
 
-		foreach ($this->listLines() as $line) {
-			$lines[] = $line->exportForInvoice();
+		foreach ($this->iterateLines() as $line) {
+			$e = $line->exportForInvoice();
+			$out['lines'][] = $e;
+			$e = (object) $e;
+			$e->vat_information = (object) $e->vat_information;
 
-			$vat_total += $line->getVATAmount();
-			$net_total += $line->getNetTotal();
+			$vat_total += $e->line_vat_amount;
+			$net_total += $e->net_amount;
 
 			// Add VAT breakdown information, it has to be different for each exemption reason
-			$vat_code = md5($line->vat_code . ($line->vat_exemption_code ?? '') . $line->vat_rate);
+			$vat_code = md5($e->vat_information->invoiced_item_vat_category_code
+				. ($e->vat_information->exemption_reason_code ?? '')
+				. $e->vat_information->invoiced_item_vat_rate);
 			$vat[$vat_code] ??= [
-				'vat_category_code'           => $line->vat_code,
-				'vat_category_tax_amount'     => 0,
-				'vat_category_taxable_amount' => 0,
-				'vat_exemption_reason_code'   => $line->vat_exemption_code,
-				'vat_exemption_reason'        => Invoices::VAT_EXEMPTIONS[$line->vat_exemption_code],
-				'vat_category_rate'           => (string) $line->vat_rate,
+				'vat_category_code'           => $e->vat_information->invoiced_item_vat_category_code,
+				'vat_category_tax_amount'     => 0, // Will be filled below
+				'vat_category_taxable_amount' => 0, // Will be filled below
+				'vat_exemption_reason_code'   => $e->vat_information->exemption_reason_code,
+				'vat_exemption_reason'        => $e->vat_information->exemption_reason,
+				'vat_category_rate'           => $e->vat_information->invoiced_item_vat_rate,
 			];
 
-			$vat[$vat_code]['vat_category_tax_amount'] += $line->getVATAmount();
-			$vat[$vat_code]['vat_category_taxable_amount'] += $line->getNetTotal();
+			$vat[$vat_code]['vat_category_tax_amount'] += $e->line_vat_amount;
+			$vat[$vat_code]['vat_category_taxable_amount'] += $e->net_amount;
 		}
 
 		$paid = 0; // TODO
@@ -479,9 +489,20 @@ class Invoice extends Entity
 		return $list;
 	}
 
+	public function getLine(int $id): ?Line
+	{
+		return EM::findOne(Line::class, 'SELECT * FROM @TABLE WHERE id = ? AND id_invoice = ?;', $id, $this->id());
+	}
+
+	public function iterateLines(): Generator
+	{
+		return EM::getInstance(Line::class)->iterate('SELECT * FROM @TABLE WHERE id_invoice = ? ORDER BY number;', $this->id());
+	}
+
 	public function getLinesList(): DynamicList
 	{
 		$columns = [
+			'id' => [],
 			'number' => [
 				'label' => 'Numéro',
 			],
@@ -490,19 +511,19 @@ class Invoice extends Entity
 			],
 			'reference' => [],
 			'description' => [],
+			'price' => [
+				'label' => 'Prix unitaire',
+			],
 			'quantity' => [
 				'label' => 'Quantité',
 			],
 			'unit' => [],
-			'price' => [
-				'label' => 'Prix unitaire',
-			],
 			'vat_rate' => [
 				'label' => 'Taux TVA',
 			],
 			'total' => [
-				'label' => 'Total HT',
-				'select' => 'price * unit',
+				'label' => 'Total TTC',
+				'select' => 'NULL',
 			],
 		];
 
@@ -511,8 +532,8 @@ class Invoice extends Entity
 
 		$list->setModifier(function (&$row) {
 			$row->unit_label = Line::UNITS[$row->unit];
-			$row->vat_rate = str_replace('.', ',', $row->vat_rate * 100) . ' %';
-			$row->total = $row->quantity * $row->price;
+			$row->vat_rate_label = str_replace('.', ',', $row->vat_rate * 100) . ' %';
+			$row->total = ($row->quantity * $row->price) * (1 + $row->vat_rate);
 		});
 
 		return $list;

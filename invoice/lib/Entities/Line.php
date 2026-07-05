@@ -24,7 +24,7 @@ class Line extends Entity
 	protected float $quantity = 1.0;
 	protected int $price;
 	protected float $vat_rate = 0.0;
-	protected string $vat_code = 'E';
+	protected string $vat_code = self::VAT_STANDARD_CODE;
 	protected ?string $vat_exemption_code = null;
 
 	/**
@@ -36,6 +36,7 @@ class Line extends Entity
 		'MTR' => 'mètre',
 		'MTK' => 'mètre-carré',
 		'MTQ' => 'mètre-cube',
+		'LM'  => 'mètre-linéaire',
 		'KMT' => 'kilomètre',
 		'GRM' => 'gramme',
 		'KGM' => 'kilogramme',
@@ -47,10 +48,12 @@ class Line extends Entity
 		'XZZ' => 'autre',
 	];
 
+	const VAT_EXEMPTION_CODE = 'E';
+	const VAT_STANDARD_CODE = 'S';
+
 	const VAT_CODES = [
-		'E' => 'Exempté',
-		'S' => 'Standard',
-		'Z' => 'Exonéré',
+		self::VAT_STANDARD_CODE  => 'Standard', // Normal VAT
+		self::VAT_EXEMPTION_CODE => 'Exempté', // Exonerated (franchise, non assujetti)
 	];
 
 	const VAT_RATES = [
@@ -94,7 +97,7 @@ class Line extends Entity
 
 	public function getVATAmount(): float
 	{
-		return (float) (($this->getNetTotal() * $this->vat_rate) / 100);
+		return (float) ($this->getNetTotal() * $this->vat_rate);
 	}
 
 	public function getUnitPrice(): float
@@ -130,6 +133,13 @@ class Line extends Entity
 
 	public function save(bool $selfcheck = true): bool
 	{
+		if (!$this->vat_rate) {
+			$this->set('vat_code', self::VAT_EXEMPTION_CODE);
+		}
+		else {
+			$this->set('vat_code', self::VAT_STANDARD_CODE);
+		}
+
 		if (!isset($this->number)) {
 			$db = DB::getInstance();
 			$number = $db->firstColumn('SELECT MAX(number) FROM plugin_invoice_lines WHERE id_invoice = ?;', $this->id_invoice);
@@ -145,12 +155,6 @@ class Line extends Entity
 	 */
 	public function exportForInvoice(): array
 	{
-		$amount = $this->getAmount();
-		$vat = $this->price * $this->vat_rate;
-
-		// cf. BR-FR-MAP-08
-		$vat_exemption_code = $this->vat_exemption_code === Invoices::ZERO_RATE_VAT_EXEMPTION_CODE ? '' : $this->vat_exemption_code;
-
 		return [
 			'identifier'               => (string) $this->id,
 			'invoiced_quantity'        => (string) $this->quantity,
@@ -165,8 +169,8 @@ class Line extends Entity
 			'vat_information'          => [
 				'invoiced_item_vat_category_code' => $this->vat_code,
 				'invoiced_item_vat_rate'          => strval($this->vat_rate * 100),
-				'exemption_reason_code'           => $vat_exemption_code,
-				'exemption_reason'                => Invoices::VAT_EXEMPTIONS[$vat_exemption_code] ?? '',
+				'exemption_reason_code'           => $this->vat_exemption_code,
+				'exemption_reason'                => Invoices::VAT_EXEMPTIONS[$this->vat_exemption_code ?? ''] ?? '',
 			],
 			'line_vat_amount'          => (string) $this->getVATAmount(),
 			'line_with_vat_net_amount' => (string) $this->getTotal(),

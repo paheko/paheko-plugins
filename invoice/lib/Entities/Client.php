@@ -6,6 +6,7 @@ use Paheko\Entity;
 use Paheko\Utils;
 
 use DateTime;
+use stdClass;
 
 class Client extends Entity
 {
@@ -137,7 +138,7 @@ class Client extends Entity
 	 */
 	static public function exportPersonForInvoice(stdClass|Client $person): array
 	{
-		$address = explode("\n", $person->address);
+		$address = explode("\n", $person->address ?? '');
 		$is_eu = in_array($person->country, self::EU_COUNTRIES);
 		// See https://docs.peppol.eu/poacc/billing/3.0/codelist/ICD/
 		$scheme = $person->country === 'FR' ? '0002' : ($is_eu ? '0223' : '0227');

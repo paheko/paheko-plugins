@@ -8,6 +8,8 @@ use Paheko\Plugin\Invoice\Entities\Invoice;
 
 use const Paheko\PLUGIN_ROOT;
 
+require __DIR__ . '/_inc.php';
+
 $invoice = Invoices::get(intval($_GET['id'] ?? 0));
 
 if (!$invoice) {
@@ -34,11 +36,13 @@ if ($invoice->isDraft()) {
 	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
 }
 
+$export = $invoice->content ?? $invoice->exportForInvoice();
+
 $lines = $invoice->getLinesList();
 $lines->loadFromQueryString();
 
 $payments = $invoice->getPaymentsList();
 
-$tpl->assign(compact('invoice', 'title', 'lines', 'payments', 'csrf_key'));
+$tpl->assign(compact('invoice', 'title', 'lines', 'payments', 'csrf_key', 'export'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/details.tpl');
