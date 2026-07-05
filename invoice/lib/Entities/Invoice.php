@@ -220,6 +220,13 @@ class Invoice extends Entity
 		return parent::importForm($source);
 	}
 
+	public function updateTotal(): void
+	{
+		$content = $this->content ?? $this->exportForInvoice();
+		$this->set('total', Utils::moneyToInteger($content['totals']['total_with_vat']));
+		$this->saveOnly(['total']);
+	}
+
 	/**
 	 * Return invoice line as an object ready for EN16931
 	 */

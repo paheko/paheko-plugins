@@ -91,9 +91,9 @@ class Line extends Entity
 		$this->assert(array_key_exists($this->vat_code, self::VAT_CODES));
 		$this->assert(!isset($this->vat_exemption_code) || array_key_exists($this->vat_exemption_code, Invoices::VAT_EXEMPTIONS));
 
-		$this->assert(preg_match('!^\d+(?:\.\d+)?$!', $this->vat_rate), 'Taux de TVA invalide : ' . $this->vat_rate);
-		$this->assert(preg_match('!^\d+(?:\.\d+)?$!', $this->quantity), 'Quantité invalide : ' . $this->quantity);
-		$this->assert(preg_match('!^\d+(?:\.\d+)?$!', $this->price), 'Prix unitaire invalide : ' . $this->price);
+		$this->assert(preg_match('!^\d+(?:\.\d{1,2})?$!', $this->vat_rate), 'Taux de TVA invalide : ' . $this->vat_rate);
+		$this->assert(preg_match('!^\d+(?:\.\d{1,10})?$!', $this->quantity), 'Quantité invalide : ' . $this->quantity);
+		$this->assert(preg_match('!^\d+(?:\.\d{1,10})?$!', $this->price), 'Prix unitaire invalide : ' . $this->price);
 
 		$this->assert(array_key_exists($this->unit, self::UNITS), 'Unité inconnue : ' . $this->unit);
 	}
@@ -150,6 +150,25 @@ class Line extends Entity
 		}
 
 		return parent::save($selfcheck);
+	}
+
+	public function saveAndUpdateInvoice(): bool
+	{
+		$db = DB::getInstance();
+
+		$db->begin();
+		$exists = $this->exists();
+		$is_total_modified = $this->isModified('price') || $this->isModified('vat_rate') || $this->isModified('quantity');
+
+		$r = $this->save();
+
+		if (!$exists || $is_total_modified) {
+			$this->invoice()->updateTotal();
+		}
+
+		$db->commit();
+
+		return $r;
 	}
 
 	/**

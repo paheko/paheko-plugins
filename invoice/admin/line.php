@@ -37,7 +37,7 @@ $csrf_key = 'edit_line';
 
 $form->runIf('save', function () use ($line) {
 	$line->importForm();
-	$line->save();
+	$line->saveAndUpdateInvoiceTotal();
 	Utils::redirectParent('!p/invoice/details.php?id=' . $line->id_invoice);
 }, $csrf_key);
 
