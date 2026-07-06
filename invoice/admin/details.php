@@ -25,21 +25,33 @@ else {
 
 $csrf_key = 'edit_invoice_details';
 
-if ($invoice->isDraft()) {
-	$form->runIf('delete_line', function () use ($invoice) {
-		$line = $invoice->getLine(intval($_POST['delete_line'] ?? 0));
-		$line->delete();
-	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
-
-	$form->runIf('validate', function () use ($invoice) {
-		$invoice->validate();
-	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+// Allow to select first invoice/quote number
+if ($invoice->isDraft()
+	&& !empty($_POST['validate'])
+	&& !Invoices::count($invoice->isQuote())
+	&& empty($_POST['number']))
+{
+	$tpl->assign(compact('invoice', 'csrf_key'));
+	$tpl->display(PLUGIN_ROOT . '/templates/first_number.tpl');
 }
+else {
+	if ($invoice->isDraft()) {
+		$form->runIf('delete_line', function () use ($invoice) {
+			$line = $invoice->getLine(intval($_POST['delete_line'] ?? 0));
+			$line->delete();
+		}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
 
-$export = $invoice->content ?? $invoice->exportForInvoice();
+		$form->runIf('validate', function () use ($invoice) {
+			$invoice->validate(intval($_POST['number'] ?? 1));
+		}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+	}
 
-$payments = $invoice->getPaymentsList();
+	$export = $invoice->content ?? $invoice->exportForInvoice();
 
-$tpl->assign(compact('invoice', 'title', 'payments', 'csrf_key', 'export'));
+	$payments = $invoice->getPaymentsList();
 
-$tpl->display(PLUGIN_ROOT . '/templates/details.tpl');
+	$tpl->assign(compact('invoice', 'title', 'payments', 'csrf_key', 'export'));
+
+	$tpl->display(PLUGIN_ROOT . '/templates/details.tpl');
+
+}

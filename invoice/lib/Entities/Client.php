@@ -16,9 +16,9 @@ class Client extends Entity
 	protected bool $archived = false;
 	protected string $name;
 	protected string $country;
-	protected ?string $address;
-	protected ?string $post_code;
-	protected ?string $city;
+	protected string $address;
+	protected string $post_code;
+	protected string $city;
 	protected ?string $phone;
 	protected ?string $email;
 	protected ?string $notes;

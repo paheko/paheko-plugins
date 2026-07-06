@@ -13,9 +13,9 @@
 	<dl>
 		{input type="text" name="name" source=$client label="Nom" required=true}
 		{input type="country" name="country" source=$client required=true label="Pays" default=$config.country}
-		{input type="text" name="post_code" source=$client label="Code postal" required=false}
-		{input type="text" name="city" source=$client label="Ville" required=false}
-		{input type="textarea" cols="50" rows="3" name="address" source=$client label="Adresse" required=false}
+		{input type="text" name="post_code" source=$client label="Code postal" required=true}
+		{input type="text" name="city" source=$client label="Ville" required=true}
+		{input type="textarea" cols="50" rows="3" name="address" source=$client label="Adresse" required=true}
 		{input type="tel" name="phone" source=$client label="Numéro de téléphone" required=false}
 		{input type="email" name="email" source=$client label="Adresse e-mail" required=false help="Pourra être utilisée pour envoyer devis et factures."}
 		{input type="textarea" cols="50" rows="4" name="notes" source=$client label="Notes" required=false help="Ces notes ne seront pas affichées sur les devis et factures, elles sont uniquement destinées à un usage interne."}

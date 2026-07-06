@@ -1,9 +1,5 @@
 {include file="_head.tpl" title=$title current="plugin_invoice"}
 
-{form_errors}
-
-<form method="post" action="">
-
 <nav class="tabs">
 	<aside>
 		{linkbutton shape="plus" label="Dupliquer" href="duplicate.php?id=%s"|args:$invoice.id}
@@ -14,8 +10,6 @@
 	</aside>
 	{linkbutton shape="left" label="Retour à la liste" href="./"}
 </nav>
-
-</form>
 
 {form_errors}
 

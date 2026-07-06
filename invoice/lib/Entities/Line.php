@@ -7,6 +7,7 @@ use Paheko\Plugin\Invoice\Invoices;
 use Paheko\DB;
 use Paheko\Entity;
 
+use KD2\DB\EntityManager as EM;
 use KD2\Office\Money;
 
 use DateTime;
@@ -64,6 +65,14 @@ class Line extends Entity
 		'0.021',
 		'0'
 	];
+
+	protected Invoice $_invoice;
+
+	public function invoice(): Invoice
+	{
+		$this->_invoice ??= EM::findOneById(Invoice::class, $this->id_invoice);
+		return $this->_invoice;
+	}
 
 	public function getVATRatesOptions(): array
 	{

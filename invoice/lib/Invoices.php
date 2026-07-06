@@ -3,6 +3,7 @@
 namespace Paheko\Plugin\Invoice;
 
 use Paheko\Config;
+use Paheko\DB;
 use Paheko\DynamicList;
 use Paheko\Plugin\Invoice\Entities\Client;
 use Paheko\Plugin\Invoice\Entities\Invoice;
@@ -48,6 +49,14 @@ class Invoices
 	static public function get(int $id): ?Invoice
 	{
 		return EM::findOneById(Invoice::class, $id);
+	}
+
+	static public function count(bool $quote): int
+	{
+		$where = 'status != ? AND ';
+		$where .= $quote ? 'type = ?' : 'type != ?';
+
+		return DB::getInstance()->count(Invoice::TABLE, $where, Invoice::STATUS_DRAFT, Invoice::TYPE_QUOTE);
 	}
 
 	static public function getLine(int $id): ?Line

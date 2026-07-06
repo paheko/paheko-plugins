@@ -204,8 +204,21 @@ class Invoice extends Entity
 		return [$this->id_client => $this->client()->name];
 	}
 
-	public function publish(int $first_quote_number = 1, int $first_invoice_number = 1): void
+	public function validate(int $number = 1): void
 	{
+		if (!$this->isDraft()) {
+			throw new \LogicException('Cannot publish a non-draft');
+		}
+
+		if (!$this->isQuote()) {
+			$config = Config::getInstance();
+			$this->assert(!empty($config->org_address), 'L\'adresse de votre organisation n\'est pas renseignée.');
+
+			if ($config->country === 'FR') {
+				$this->assert(!empty($config->org_business_number), 'Le numéro SIREN de votre organisation n\'est pas renseigné.');
+			}
+		}
+
 		$where_type = $this->type === self::TYPE_QUOTE ? 'type = ?' : 'type != ?';
 		$new_number = $db->firstColumn('SELECT COUNT(*) FROM ' . self::TABLE . ' WHERE ' . $where_type . ' AND status != ?;', self::TYPE_QUOTE, self::STATUS_DRAFT);
 
@@ -213,12 +226,7 @@ class Invoice extends Entity
 			$new_number++;
 		}
 		else {
-			if ($this->isQuote()) {
-				$new_number = $first_quote_number;
-			}
-			else {
-				$new_number = $first_invoice_number;
-			}
+			$new_number = $number;
 		}
 
 		$this->set('number', sprintf('%s-%d-%d', $this->type === self::TYPE_QUOTE ? 'D' : 'F', $this->date_created->format('Y'), $new_number));
