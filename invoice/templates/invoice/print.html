@@ -188,10 +188,6 @@ main {
 			{/if}
 		</dl>
 		{/if}
-
-		<p class="currency">
-			Document libellé en {$invoice.currency_code}
-		</p>
 	</section>
 
 	<section class="lines">
@@ -228,7 +224,7 @@ main {
 			<tfoot>
 				<tr>
 					<th scope="row" colspan="7" class="total">Total HT</th>
-					<td class="money">{$invoice.totals.total_without_vat|raw|money_int|money_html:false}</td>
+					<td class="money">{$invoice.totals.total_without_vat|raw|money_int|money_html:false} {$invoice.currency_code}</td>
 				</tr>
 				{foreach from=$invoice.vat_break_down item="vat"}
 					<tr>
@@ -239,12 +235,12 @@ main {
 								<small>TVA non applicable — {$vat.vat_exemption_reason}</small>
 							{/if}
 						</td>
-						<td class="money">{$vat.vat_category_tax_amount|raw|money_int|money_html:false}</td>
+						<td class="money">{$vat.vat_category_tax_amount|raw|money_int|money_html:false} {$invoice.currency_code}</td>
 					</tr>
 				{/foreach}
 				<tr>
 					<th scope="row" colspan="7" class="total">Total TTC</th>
-					<td class="money">{$invoice.totals.total_with_vat|raw|money_int|money_html:false}</td>
+					<td class="money">{$invoice.totals.total_with_vat|raw|money_int|money_html:false} {$invoice.currency_code}</td>
 				</tr>
 			</tfoot>
 		</table>
