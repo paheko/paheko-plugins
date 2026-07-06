@@ -77,7 +77,7 @@
 	</ul>
 	<h3>État : <strong>{$etat}</strong></h3>
 	<p>(Numéro référence : {$velo.id})</p>
-	<p>en contrepartie du paiement du montant de <strong>{$velo.prix} €</strong>, réglé à l'établissement du présent contrat.</p>
+	<p>en contrepartie du paiement du montant de <strong>{$velo.prix} {$currency_symbol}</strong>, réglé à l'établissement du présent contrat.</p>
 	<p>L'acquéreur déclare avoir examiné en détail le vélo, l'avoir essayé et avoir constaté
 		qu'il est conforme à l'état indiqué ci-dessus. L'acquéreur déclare renoncer à toute
 		action à l'encontre du vendeur quelle qu'en soit la nature, même fondée sur un vice caché

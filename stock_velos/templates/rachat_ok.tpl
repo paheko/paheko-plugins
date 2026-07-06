@@ -59,7 +59,7 @@
 		</ul>
 		<h3>État : <strong>{$velo.etat_entree}</strong></h3>
 		<p>(Ancien numéro référence : {$velo.source_details}, nouveau numéro référence : {$velo.id})</p>
-		<p>en contrepartie du paiement du montant de <strong>{$prix} €</strong>
+		<p>en contrepartie du paiement du montant de <strong>{$prix} {$currency_symbol}</strong>
 			réglé en <b>espèces</b> <b>chèque</b> <em>(barrer la mention inutile)</em> à l'établissement du présent contrat.</p>
 		<p>Le vendeur déclare que le vélo n'est pas d'origine frauduleuse et qu'il est conforme à
 			l'état indiqué ci-dessus.</p>

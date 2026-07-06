@@ -19,7 +19,7 @@
 		{if $velo.prix > 0}
 		<dl class="num">
 			<dt>Prix</dt>
-			<dd>{$velo.prix|escape} €</dd>
+			<dd>{$velo.prix|escape} {$currency_symbol}</dd>
 		</dl>
 		{elseif $velo.prix < 0}
 		<dl class="etat demonter">

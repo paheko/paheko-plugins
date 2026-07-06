@@ -26,7 +26,7 @@
 			<td>{$row.couleur}</td>
 			{/if}
 			{if $fields.prix.enabled}
-			<td>{if empty($row.prix)}--{elseif $row.prix < 0}à&nbsp;démonter{else}{$row.prix} €{/if}</td>
+			<td>{if empty($row.prix)}--{elseif $row.prix < 0}à&nbsp;démonter{else}{$row.prix} {$currency_symbol}{/if}</td>
 			{/if}
 			{if $fields.date_sortie.enabled}
 			<td>{$row.date_sortie|date_short}</td>

@@ -2,6 +2,7 @@
 
 namespace Paheko\Plugin\Caisse\Entities;
 
+use Paheko\Config;
 use Paheko\DB;
 use Paheko\UserException;
 
@@ -288,11 +289,11 @@ class Tab extends Entity
 		}
 		elseif ($option->payable >= 0 && $amount > $option->payable) {
 			$a = $option->payable;
-			throw new UserException(sprintf('Ce moyen de paiement ne peut être utilisé pour un montant supérieur à %s€', Utils::money_format($a)));
+			throw new UserException(sprintf('Ce moyen de paiement ne peut être utilisé pour un montant supérieur à %s %s', Utils::money_format($a), Config::getInstance()->getCurrencySymbol()));
 		}
 		elseif ($option->min && $amount >= 0 && $amount < $option->min) {
 			$a = $option->min;
-			throw new UserException(sprintf('Ce moyen de paiement ne peut être utilisé pour un montant inférieur à %s€', Utils::money_format($a)));
+			throw new UserException(sprintf('Ce moyen de paiement ne peut être utilisé pour un montant inférieur à %s %s', Utils::money_format($a), Config::getInstance()->getCurrencySymbol()));
 		}
 		elseif (null !== $reference && $option->type !== Method::TYPE_TRACKED) {
 			throw new UserException('Référence indiquée pour un règlement en espèces : vouliez-vous enregistrer un règlement par chèque ?');
@@ -485,7 +486,7 @@ class Tab extends Entity
 		$remainder = $this->getRemainder();
 
 		if ($remainder != 0) {
-			throw new UserException(sprintf("Impossible de clôturer la note: reste %s € à régler.", $remainder / 100));
+			throw new UserException(sprintf("Impossible de clôturer la note: reste %s %s à régler.", $remainder / 100, Config::getInstance()->getCurrencySymbol()));
 		}
 
 		if (!$force_tab_name && $this->requiresName()) {

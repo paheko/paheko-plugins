@@ -57,7 +57,7 @@
 			<div class="balance-error hidden">
 				<p class="error block">
 					Erreur de caisse de
-					<strong class="balance-diff"></strong>&nbsp;€.
+					<strong class="balance-diff"></strong>&nbsp;{$currency_symbol}.
 					Merci de bien vouloir recompter la caisse.
 				</p>
 				<p class="help">

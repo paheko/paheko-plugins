@@ -2,6 +2,7 @@
 
 namespace Paheko\Plugin\Stock_Velos;
 
+use Paheko\Config;
 use Paheko\DB;
 use Paheko\Entity;
 use Paheko\UserException;
@@ -118,7 +119,7 @@ class Velo extends Entity
 			'modele'        =>  $this->modele,
 			'date_entree'   =>  date('Y-m-d'),
 			'etat_entree'   =>  $etat,
-			'notes'         =>  'Racheté à l\'adhérent pour '.$prix.' €',
+			'notes'         =>  'Racheté à l\'adhérent pour '.$prix.' ' . Config::getInstance()->getCurrencySymbol(),
 		]);
 		$new->save();
 		return $new;
