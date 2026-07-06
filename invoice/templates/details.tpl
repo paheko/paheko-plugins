@@ -1,6 +1,7 @@
 {include file="_head.tpl" title=$title current="plugin_invoice"}
 
 <nav class="tabs">
+	{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
 	<aside>
 		{linkbutton shape="plus" label="Dupliquer" href="duplicate.php?id=%s"|args:$invoice.id}
 		{if $invoice->isDraft()}
@@ -8,6 +9,7 @@
 			{linkbutton shape="edit" label="Modifier" href="edit.php?id=%d"|args:$invoice.id target="_dialog"}
 		{/if}
 	</aside>
+	{/if}
 	{linkbutton shape="left" label="Retour à la liste" href="./"}
 </nav>
 
@@ -15,58 +17,60 @@
 
 <form method="post" action="">
 
-{if $invoice.status === 'draft' && $invoice.total}
-	<div class="alert block">
-		<h3>Statut&nbsp;: brouillon</h3>
-		<p class="submit">{button shape="check" name="validate" label="Valider" type="submit" class="main"}</p>
-		<p>
-			{if $invoice->isQuote()}
-				En cliquant sur ce bouton, le devis sera verrouillé, il ne pourra plus être modifié, ni supprimé.
-			{else}
-				En cliquant sur ce bouton, la facture sera verrouillée, et ne pourra plus être modifiée, ni supprimée.
-			{/if}
-		</p>
-	</div>
-{elseif $invoice->isQuote()}
-	{if $invoice.status === $invoice::STATUS_AWAITING_SEND}
+{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
+	{if $invoice.status === 'draft' && $invoice.total}
 		<div class="alert block">
-			<h3>Statut&nbsp;: à envoyer au client</h3>
-			<p>{button shape="email" name="send" label="Envoyer" type="submit" class="main"}</p>
-			<p>{button shape="check" name="mark_sent" label="Marquer comme envoyé" type="submit"}</p>
+			<h3>Statut&nbsp;: brouillon</h3>
+			<p class="submit">{button shape="check" name="validate" label="Valider" type="submit" class="main"}</p>
+			<p>
+				{if $invoice->isQuote()}
+					En cliquant sur ce bouton, le devis sera verrouillé, il ne pourra plus être modifié, ni supprimé.
+				{else}
+					En cliquant sur ce bouton, la facture sera verrouillée, et ne pourra plus être modifiée, ni supprimée.
+				{/if}
+			</p>
 		</div>
-	{elseif $invoice.status === $invoice::STATUS_AWAITING_VALIDATION}
-		<div class="alert block">
-			<h3>Statut&nbsp;: en attente de validation par le client</h3>
-			<p>{button shape="delete" name="cancel" label="Annuler" type="submit"}</p>
-			<p>{button shape="right" name="accept" label="Accepter et transformer en facture" type="submit"}</p>
-		</div>
-	{elseif $invoice.status === $invoice::STATUS_ACCEPTED}
-		<div class="alert block">
-			<h3>Statut&nbsp;: devis accepté</h3>
-			<p>{button shape="delete" name="cancel" label="Annuler" type="submit"}</p>
-		</div>
-	{elseif $invoice.status === $invoice::STATUS_CANCELLED}
-		<div class="alert block">
-			<h3>Statut&nbsp;: annulé</h3>
-		</div>
-	{/if}
-{else}
-	{if $invoice.status === $invoice::STATUS_AWAITING_SEND}
-		<div class="alert block">
-			<h3>Statut&nbsp;: à envoyer au client</h3>
-			<p>{button shape="email" name="send" label="Envoyer" type="submit" class="main"}</p>
-			<p>{button shape="check" name="mark_sent" label="Marquer comme envoyée" type="submit"}</p>
-		</div>
-	{elseif $invoice.status === $invoice::STATUS_AWAITING_PAYMENT}
-		<div class="alert block">
-			<h3>Statut&nbsp;: en attente de règlement</h3>
-			<p>{button shape="check" name="mark_paid" label="Marquer comme payée" type="submit"}</p>
-		</div>
-	{elseif $invoice.status === $invoice::STATUS_AWAITING_PAYMENT}
-		<div class="alert block">
-			<h3>Statut&nbsp;: en attente de paiement</h3>
-			<p>{linkbutton shape="plus" label="Saisir un paiement" href="payment.php?id=%s"|args:$invoice.id target="_dialog"</p>
-		</div>
+	{elseif $invoice->isQuote()}
+		{if $invoice.status === $invoice::STATUS_AWAITING_SEND}
+			<div class="alert block">
+				<h3>Statut&nbsp;: à envoyer au client</h3>
+				<p>{button shape="email" name="send" label="Envoyer" type="submit" class="main"}</p>
+				<p>{button shape="check" name="mark_sent" label="Marquer comme envoyé" type="submit"}</p>
+			</div>
+		{elseif $invoice.status === $invoice::STATUS_AWAITING_VALIDATION}
+			<div class="alert block">
+				<h3>Statut&nbsp;: en attente de validation par le client</h3>
+				<p>{button shape="delete" name="cancel" label="Annuler" type="submit"}</p>
+				<p>{button shape="right" name="accept" label="Accepter et transformer en facture" type="submit"}</p>
+			</div>
+		{elseif $invoice.status === $invoice::STATUS_ACCEPTED}
+			<div class="alert block">
+				<h3>Statut&nbsp;: devis accepté</h3>
+				<p>{button shape="delete" name="cancel" label="Annuler" type="submit"}</p>
+			</div>
+		{elseif $invoice.status === $invoice::STATUS_CANCELLED}
+			<div class="alert block">
+				<h3>Statut&nbsp;: annulé</h3>
+			</div>
+		{/if}
+	{else}
+		{if $invoice.status === $invoice::STATUS_AWAITING_SEND}
+			<div class="alert block">
+				<h3>Statut&nbsp;: à envoyer au client</h3>
+				<p>{button shape="email" name="send" label="Envoyer" type="submit" class="main"}</p>
+				<p>{button shape="check" name="mark_sent" label="Marquer comme envoyée" type="submit"}</p>
+			</div>
+		{elseif $invoice.status === $invoice::STATUS_AWAITING_PAYMENT}
+			<div class="alert block">
+				<h3>Statut&nbsp;: en attente de règlement</h3>
+				<p>{button shape="check" name="mark_paid" label="Marquer comme payée" type="submit"}</p>
+			</div>
+		{elseif $invoice.status === $invoice::STATUS_AWAITING_PAYMENT}
+			<div class="alert block">
+				<h3>Statut&nbsp;: en attente de paiement</h3>
+				<p>{linkbutton shape="plus" label="Saisir un paiement" href="payment.php?id=%s"|args:$invoice.id target="_dialog"</p>
+			</div>
+		{/if}
 	{/if}
 {/if}
 
@@ -138,7 +142,7 @@
 			<td class="money">{$line.vat_information.invoiced_item_vat_rate|format_vat_rate}</td>
 			<td class="money">{$line.line_with_vat_net_amount|raw|money_int|money_currency_html:false}</td>
 			<td class="actions">
-				{if $invoice->isDraft()}
+				{if $invoice->isDraft() && $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
 					{button name="delete_line" type="submit" value=$line.identifier label="Supprimer" shape="delete"}
 					{linkbutton shape="edit" label="Modifier" href="line.php?id=%d"|args:$line.identifier}
 				{/if}
@@ -198,7 +202,7 @@
 		</table>
 	{/if}
 
-	{if $invoice->canPay()}
+	{if $invoice->canPay() && $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
 		<p class="actions-center">
 			{linkbutton shape="plus" label="Saisir un paiement" href="payment.php?id=%d"|args:$invoice.id target="_dialog"}
 		</p>

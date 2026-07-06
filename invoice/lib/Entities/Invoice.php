@@ -251,6 +251,11 @@ class Invoice extends Entity
 		$this->saveOnly(['total']);
 	}
 
+	public function getExport(): array
+	{
+		return $this->content ?? $this->exportForInvoice();
+	}
+
 	/**
 	 * Return invoice line as an object ready for EN16931
 	 */
@@ -285,9 +290,21 @@ class Invoice extends Entity
 			'buyer_reference' => $this->buyer_ref ?? '',
 			// Numéro commande acheteur. "Numéro d'engagement juridique" Texte libre. Pour Chorus Pro, indiquer ici le numéro d'engagement. Obligatoire pour les entités publiques marquées « Engagement obligatoire » dans Chorus Pro.
 			'contract_reference' => $this->contract_reference ?? '',
-			'notes' => [['note' => $this->notes ?? '']],
+			'notes' => [
+				[
+					'subject_code' => 'AAI',
+					'note' => $this->label,
+				],
+			],
 			//'payment_terms' => // FIXME
 		];
+
+		if ($this->notes) {
+			$out['notes'][] = [
+				'subject_code' => 'OSI',
+				'note' => $this->notes,
+			];
+		}
 
 		// Add operation type (mandatory in France since 2026)
 		if ($this->operation_type) {

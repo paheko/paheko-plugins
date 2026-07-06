@@ -1,3 +1,8 @@
+# Fonctionnalités non supportées pour le moment
+
+- Auto-facturation
+- Cas spécifiques de TVA : auto-liquidation, exemption pour export hors UE, îles Canaries, Ceuta et Mellila
+
 # Stockage des factures
 
 Les factures sont sérialisées en interne dans un format JSON proche du standard EN 16931. Le format est identique à la sérialisation effectuée par SuperPDP dans son modèle `en_invoice`: <https://www.superpdp.tech/openapi/#superpdp/model/en_invoice>

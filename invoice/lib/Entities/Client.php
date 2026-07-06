@@ -31,6 +31,14 @@ class Client extends Entity
 	protected ?string $vat_number;
 	protected DateTime $created;
 
+	const SCHEMES = [
+		'0002' => 'SIRET',
+		'0009' => 'SIREN',
+		'0183' => 'IDE', // Suisse
+		'0208' => 'BCE', // Belgique
+		'0223' => 'Numéro TVA', // Europe
+	];
+
 	const EU_COUNTRIES = [
 		"AT",
 		"BE",
@@ -145,9 +153,40 @@ class Client extends Entity
 	{
 		$address = explode("\n", $person->address ?? '');
 		$is_eu = in_array($person->country, self::EU_COUNTRIES);
+
 		// See https://docs.peppol.eu/poacc/billing/3.0/codelist/ICD/
-		$scheme = $person->country === 'FR' ? '0002' : ($is_eu ? '0223' : '0227');
-		$value = $person->country === 'FR' || !$is_eu ? $person->business_number : $person->vat_number;
+		if ($person->country === 'FR') {
+			if ($person->business_number && strlen($person->business_number) === 9) {
+				// SIREN
+				$scheme = '0002';
+			}
+			else {
+				// SIRET
+				$scheme = '0009';
+			}
+
+			$value = $person->business_number;
+		}
+		elseif ($person->country === 'CH') {
+			// Numéro IDE
+			$scheme = '0183';
+			$value = $person->business_number;
+		}
+		elseif ($person->country === 'BE') {
+			// Numéro BCE
+			$scheme = '0208';
+			$value = $person->business_number;
+		}
+		elseif ($is_eu) {
+			// VAT number
+			$scheme = '0223';
+			$value = $person->vat_number;
+		}
+		else {
+			// Outside of EU
+			$scheme = '0227';
+			$value = $person->business_number;
+		}
 
 		return [
 			'electronic_address' => compact('scheme', 'value'),

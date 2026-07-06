@@ -15,7 +15,9 @@
 			<tr>
 				<th>{link href="details.php?id=%d"|args:$client.id label=$client.name}</th>
 				<td class="actions">
-					{linkbutton shape="edit" label="Modifier" href="edit.php?id=%d"|args:$client.id}
+					{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
+						{linkbutton shape="edit" label="Modifier" href="edit.php?id=%d"|args:$client.id}
+					{/if}
 				</td>
 			</tr>
 		{/foreach}

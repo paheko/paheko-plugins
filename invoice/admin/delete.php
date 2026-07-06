@@ -4,9 +4,13 @@ namespace Paheko\Plugin\Invoice;
 
 use Paheko\UserException;
 use Paheko\Utils;
+use Paheko\Users\Session;
+
 use Paheko\Plugin\Invoice\Entities\Invoice;
 
 use const Paheko\PLUGIN_ROOT;
+
+Session::getInstance()->requireAccess(Session::SECTION_ACCOUNTING, Session::ACCESS_WRITE);
 
 $invoice = Invoices::get(intval($_GET['id'] ?? 0));
 

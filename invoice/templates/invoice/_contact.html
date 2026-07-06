@@ -1,0 +1,35 @@
+<h1>{$contact.name}</h1>
+
+<ul class="address">
+	{if $contact.postal_address.address_line1}<li>{$contact.postal_address.address_line1}</li>{/if}
+	{if $contact.postal_address.address_line2}<li>{$contact.postal_address.address_line2}</li>{/if}
+	{if $contact.postal_address.address_line3}<li>{$contact.postal_address.address_line3}</li>{/if}
+	{if $contact.postal_address.post_code || $contact.postal_address.city}<li>{$contact.postal_address.post_code} {$contact.postal_address.city}</li>{/if}
+	<li>{$contact.postal_address.country_code|get_country_name}</li>
+</ul>
+
+{if $contact.contact.email_address || $contact.contact.phone_number}
+	<dl class="contacts">
+		{if $contact.contact.email_address}
+		<dt>E-Mail</dt>
+		<dd><a href="mailto:{$contact.contact.email_address|rawurlencode}">{$contact.contact.email_address}</a></dd>
+		{/if}
+		{if $contact.contact.phone_number}
+		<dt>Téléphone</dt>
+		<dd><a href="tel:{$contact.contact.phone_number|rawurlencode}">{$contact.contact.phone_number}</a></dd>
+		{/if}
+	</dl>
+{/if}
+
+{if $contact.legal_registration_identifier.value || $contact.vat_identifier}
+	<dl class="identifiers">
+		{if $contact.legal_registration_identifier.value}
+			<dt>{$contact.legal_registration_identifier.scheme|get_contact_scheme_label}</dt>
+			<dd>{$contact.legal_registration_identifier.value}</dd>
+		{/if}
+		{if $contact.vat_identifier}
+			<dt>Numéro TVA</dt>
+			<dd>{$contact.vat_identifier}</dd>
+		{/if}
+	</dl>
+{/if}

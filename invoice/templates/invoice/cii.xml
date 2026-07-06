@@ -15,6 +15,14 @@
 			<udt:DateTimeString format="102">{$invoice.issue_date|cii_date}</udt:DateTimeString>
 			<!-- 102 = YYYYMMDD -->
 		</ram:IssueDateTime>
+		{foreach from=$invoice.notes item="note"}
+			<ram:IncludedNote>
+				<ram:Content>{$note.note}</ram:Content>
+				{if $note.subject_code}
+					<ram:SubjectCode>{$note.subject_code}</ram:SubjectCode>
+				{/if}
+			</ram:IncludedNote>
+		{/foreach}
 	</rsm:ExchangedDocument>
 	<rsm:SupplyChainTradeTransaction>
 		<!-- Lignes de la facture -->
@@ -49,17 +57,6 @@
 				<ram:ApplicableTradeTax>
 					<ram:TypeCode>VAT</ram:TypeCode>
 					<ram:CategoryCode>{$line.vat_information.invoiced_item_vat_category_code}</ram:CategoryCode>
-					<!-- Taux de TVA:
-					S = Taux de TVA standard
-					Z = Taux de TVA égal à 0 (non applicable en France)
-					E = Exempté de TVA
-					AE = Autoliquidation de TVA
-					K = Autoliquidation pour cause de livraison intracommunautaire
-					G = Exempté de TVA pour Export hors UE
-					O = Hors du périmètre d'application de la TVA
-					L = Iles Canaries
-					M = Ceuta et Mellila
-					-->
 					<ram:RateApplicablePercent>{$line.vat_information.invoiced_item_vat_rate}</ram:RateApplicablePercent>
 				</ram:ApplicableTradeTax>
 				<ram:SpecifiedTradeSettlementLineMonetarySummation>

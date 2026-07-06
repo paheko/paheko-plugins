@@ -23,6 +23,13 @@ else {
 	$title = sprintf('Facture : %s', $invoice->number ?? '(brouillon)');
 }
 
+if (isset($_GET['print'])) {
+	$tpl->assign('invoice', $invoice->getExport());
+	$tpl->assign(compact('title'));
+	$tpl->display(PLUGIN_ROOT . '/templates/invoice/print.html');
+	return;
+}
+
 $csrf_key = 'edit_invoice_details';
 
 // Allow to select first invoice/quote number
@@ -46,7 +53,7 @@ else {
 		}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
 	}
 
-	$export = $invoice->content ?? $invoice->exportForInvoice();
+	$export = $invoice->getExport();
 
 	$payments = $invoice->getPaymentsList();
 
