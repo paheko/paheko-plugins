@@ -5,117 +5,261 @@
 	<title>{$title}</title>
 </head>
 
+<style type="text/css">
+{literal}
+* {
+	margin: 0;
+	padding: 0;
+}
+
+
+@media print {
+	@page {
+		margin: 0;
+		size: A4;
+		@bottom {
+			content: "Page " counter(page) " / " counter(pages);
+			font-size: 8pt;
+			margin-bottom: 10mm;
+			text-align: center;
+		}
+	}
+}
+
+body {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11pt;
+}
+
+.seller {
+	padding: .9cm;
+	border-bottom: 5px solid #666;
+	display: flex;
+	align-items: start;
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+
+.seller h1 {
+	flex: 1 1 100%;
+	font-size: 18pt;
+}
+
+.org {
+	background: rgba(var(--gMainColor), 0.7);
+}
+
+ul {
+	list-style-type: none;
+}
+
+dl {
+	display: flex;
+	flex-direction: column;
+	gap: .3em;
+}
+
+dl dt {
+	font-size: .8em;
+}
+
+main {
+	margin: 1cm;
+}
+
+.buyer {
+	margin: 1cm;
+	max-width: 40%;
+	margin-left: auto;
+}
+
+.buyer h1 {
+	font-size: 1em;
+}
+
+.info {
+	display: flex;
+	flex-direction: column;
+	gap: .3em;
+	margin: 1cm 0;
+}
+
+.info h1, .info h2, .info h3 {
+	font-size: 1em;
+}
+
+.lines {
+	margin: .5cm 0;
+}
+
+.lines table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.lines thead {
+	border-bottom: 6px double #666;
+	font-size: .9em;
+}
+
+.lines thead th {
+	font-weight: normal;
+}
+
+.lines td, .lines th {
+	padding: .2cm .3cm;
+	text-align: left;
+}
+
+.lines tr {
+	border: 1px solid #000;
+}
+
+.lines tbody tr:nth-child(even) {
+	background: #eee;
+}
+
+.lines tfoot {
+	border-top: 6px double #666;
+}
+
+.lines .num, .lines .money, .lines .number {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+    text-align: right;
+}
+
+.lines .unit {
+	font-size: .8em;
+}
+
+.lines tbody th {
+	width: 50%;
+}
+
+.lines tbody th small {
+	font-weight: normal;
+}
+
+.lines .total {
+    text-align: right;
+}
+
+.notes article {
+	margin: .5cm 0;
+}
+{/literal}
+</style>
+
 <body>
 
-<section class="seller contact">
+<section class="seller contact{if $is_org} org{/if}">
 	{include file="./_contact.html" contact=$invoice.seller}
 </section>
 
-<section class="buyer contact">
-	{include file="./_contact.html" contact=$invoice.buyer}
-</section>
+<main>
+	<section class="buyer contact">
+		{include file="./_contact.html" contact=$invoice.buyer}
+	</section>
 
-<section class="info">
-	<h1>{$title}</h1>
-	{foreach from=$invoice.notes item="note"}
-		{if $note.subject_code === 'AAI'}
-			<h2>{$note.note}</h2>
-		{/if}
-	{/foreach}
-
-	<h3>Date : {$invoice.issue_date|date_short}</h3>
-
-	{if $invoice.payment_due_date}
-		<h4>Date d'échéance : {$invoice.payment_due_date}</h4>
-	{/if}
-
-	{if $invoice.buyer_reference || $invoice.contract_reference}
-	<dl class="refs">
-		{if $invoice.buyer_reference}
-			<dt>{if $buyer.country_code === 'FR'}Service exécutant{else}Référence acheteur{/if}</dt>
-			<dd>{$invoice.buyer_reference}</dd>
-		{/if}
-		{if $invoice.contract_reference}
-			<dt>{if $buyer.country_code === 'FR'}Numéro d'engagement{else}Référence de contrat{/if}</dt>
-			<dd>{$invoice.contract_reference}</dd>
-		{/if}
-	</dl>
-	{/if}
-
-	<p class="currency">
-		Document libellé en {$invoice.currency_code}
-	</p>
-</section>
-
-<section class="lines">
-	<table>
-		<thead>
-			<tr>
-				<th scope="col">Désignation</th>
-				<th scope="col">Réf.</th>
-				<th scope="col">Prix unitaire HT</th>
-				<th scope="col">Quantité</th>
-				<th scope="col">Unité</th>
-				<th scope="col">Total HT</th>
-				<th scope="col">Taux TVA</th>
-				<th scope="col">Total TTC</th>
-			</tr>
-		</thead>
-		<tbody>
-		{foreach from=$invoice.lines item="line"}
-			<tr>
-				<th scope="row">
-					<strong>{$line.item_information.name}</strong>
-					{if $line.item_information.description}<br /><small>{$line.item_information.description|escape|nl2br}</small>{/if}
-				</th>
-				<td>{$line.item_information.seller_identifier}</td>
-				<td class="money">{$line.price_details.item_net_price|raw|money_int|money_html:false}</td>
-				<td class="number">{$line.invoiced_quantity|unit:$line.invoiced_quantity_code:false}</td>
-				<td class="unit">{$line.invoiced_quantity_code|get_unit_label}</td>
-				<td class="money">{$line.net_amount|raw|money_int|money_html:false}</td>
-				<td class="number">{$line.vat_information.invoiced_item_vat_rate|format_vat_rate}</td>
-				<td class="money">{$line.line_with_vat_net_amount|raw|money_int|money_html:false}</td>
-			</tr>
+	<section class="info">
+		<h1>{$title}</h1>
+		{foreach from=$invoice.notes item="note"}
+			{if $note.subject_code === 'AAI'}
+				<h2>{$note.note}</h2>
+			{/if}
 		{/foreach}
-		</tbody>
-		<tfoot>
-			<tr>
-				<th scope="row" colspan="5" class="total">Total HT</th>
-				<td class="money">{$invoice.totals.total_without_vat|raw|money_int|money_html:false}</td>
-				<td></td>
-			</tr>
-			{foreach from=$invoice.vat_break_down item="vat"}
+
+		<h3>Date : {$invoice.issue_date|date_short}</h3>
+
+		{if $invoice.payment_due_date}
+			<h4>Date d'échéance : {$invoice.payment_due_date}</h4>
+		{/if}
+
+		{if $invoice.buyer_reference || $invoice.contract_reference}
+		<dl class="refs">
+			{if $invoice.buyer_reference}
+				<dt>{if $buyer.country_code === 'FR'}Service exécutant{else}Référence acheteur{/if}</dt>
+				<dd>{$invoice.buyer_reference}</dd>
+			{/if}
+			{if $invoice.contract_reference}
+				<dt>{if $buyer.country_code === 'FR'}Numéro d'engagement{else}Référence de contrat{/if}</dt>
+				<dd>{$invoice.contract_reference}</dd>
+			{/if}
+		</dl>
+		{/if}
+
+		<p class="currency">
+			Document libellé en {$invoice.currency_code}
+		</p>
+	</section>
+
+	<section class="lines">
+		<table>
+			<thead>
 				<tr>
-					<td scope="row" colspan="5" class="total">
-						TVA à {$vat.vat_category_rate|format_vat_rate}
-						{if $vat.vat_exemption_reason}
-							<br />
-							<small>TVA non applicable — {$vat.vat_exemption_reason}</small>
-						{/if}
-					</td>
-					<td class="money">{$vat.vat_category_tax_amount|raw|money_int|money_html:false}</td>
-					<td></td>
+					<th scope="col">Désignation</th>
+					<th scope="col">Réf.</th>
+					<th scope="col" class="money">Prix unitaire HT</th>
+					<th scope="col" class="number">Quantité</th>
+					<th scope="col" class="unit">Unité</th>
+					<th scope="col" class="money">Total HT</th>
+					<th scope="col" class="number">Taux TVA</th>
+					<th scope="col" class="money">Total TTC</th>
+				</tr>
+			</thead>
+			<tbody>
+			{foreach from=$invoice.lines item="line"}
+				<tr>
+					<th scope="row">
+						<strong>{$line.item_information.name}</strong>
+						{if $line.item_information.description}<br /><small>{$line.item_information.description|escape|nl2br}</small>{/if}
+					</th>
+					<td>{$line.item_information.seller_identifier}</td>
+					<td class="money">{$line.price_details.item_net_price|raw|money_int|money_html:false}</td>
+					<td class="number">{$line.invoiced_quantity|unit:$line.invoiced_quantity_code:false}</td>
+					<td class="unit">{$line.invoiced_quantity_code|get_unit_label}</td>
+					<td class="money">{$line.net_amount|raw|money_int|money_html:false}</td>
+					<td class="number">{$line.vat_information.invoiced_item_vat_rate|format_vat_rate}</td>
+					<td class="money">{$line.line_with_vat_net_amount|raw|money_int|money_html:false}</td>
 				</tr>
 			{/foreach}
-			<tr>
-				<th scope="row" colspan="5" class="total">Total TTC</th>
-				<td class="money">{$invoice.totals.total_with_vat|raw|money_int|money_html:false}</td>
-				<td></td>
-			</tr>
-		</tfoot>
-	</table>
-</section>
+			</tbody>
+			<tfoot>
+				<tr>
+					<th scope="row" colspan="7" class="total">Total HT</th>
+					<td class="money">{$invoice.totals.total_without_vat|raw|money_int|money_html:false}</td>
+				</tr>
+				{foreach from=$invoice.vat_break_down item="vat"}
+					<tr>
+						<td scope="row" colspan="7" class="total">
+							TVA à {$vat.vat_category_rate|format_vat_rate}
+							{if $vat.vat_exemption_reason}
+								<br />
+								<small>TVA non applicable — {$vat.vat_exemption_reason}</small>
+							{/if}
+						</td>
+						<td class="money">{$vat.vat_category_tax_amount|raw|money_int|money_html:false}</td>
+					</tr>
+				{/foreach}
+				<tr>
+					<th scope="row" colspan="7" class="total">Total TTC</th>
+					<td class="money">{$invoice.totals.total_with_vat|raw|money_int|money_html:false}</td>
+				</tr>
+			</tfoot>
+		</table>
+	</section>
 
-<section class="notes">
-	{foreach from=$invoice.notes item="note"}
-		{if $note.subject_code === 'AAI'}
-			{continue}
-		{/if}
-		<article>
-			{$note.note|escape|nl2br}
-		</article>
-	{/foreach}
-</section>
-
+	<section class="notes">
+		{foreach from=$invoice.notes item="note"}
+			{if $note.subject_code === 'AAI'}
+				{continue}
+			{/if}
+			<article>
+				{$note.note|escape|nl2br}
+			</article>
+		{/foreach}
+	</section>
+</main>
 </body>
 </html>

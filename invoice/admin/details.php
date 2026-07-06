@@ -25,6 +25,7 @@ else {
 
 if (isset($_GET['print'])) {
 	$tpl->assign('invoice', $invoice->getExport());
+	$tpl->assign('is_org', true);
 	$tpl->assign(compact('title'));
 	$tpl->display(PLUGIN_ROOT . '/templates/invoice/print.html');
 	return;
