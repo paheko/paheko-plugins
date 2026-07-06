@@ -93,6 +93,10 @@
 	<dd>
 		<strong>{$invoice->client()->name}</strong>
 	</dd>
+	{if $invoice.operation_type}
+		<dt>Nature de la facture</dt>
+		<dd>{$invoice->getOperationTypeLabel()}</dd>
+	{/if}
 	<dt>Notes</dt>
 	<dd>{if $invoice.notes}{$invoice.notes|raw|markdown}{else}—{/if}</dd>
 

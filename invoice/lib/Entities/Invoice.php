@@ -45,6 +45,9 @@ class Invoice extends Entity
 	 * Factur-X : Numéro d'engagement (IssuerAssignedID)
 	 */
 	protected ?string $contract_reference = null;
+
+	protected ?string $operation_type = null;
+
 	protected ?stdClass $content = null;
 
 	protected ?string $provider_name = null;
@@ -69,6 +72,12 @@ class Invoice extends Entity
 	const TYPES_PLURAL = [
 		self::TYPE_QUOTE => 'Devis',
 		self::TYPE_INVOICE => 'Factures',
+	];
+
+	const OPERATION_TYPES = [
+		'mixed'    => 'Livraisons de biens et prestations de services',
+		'goods'    => 'Livraisons de biens',
+		'services' => 'Prestations de service',
 	];
 
 	/**
@@ -157,6 +166,11 @@ class Invoice extends Entity
 		}
 
 		return false;
+	}
+
+	public function getOperationTypeLabel(): ?string
+	{
+		return self::OPERATION_TYPES[$this->operation_type ?? ''] ?? null;
 	}
 
 	public function getStatusLabel(): string

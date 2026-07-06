@@ -14,6 +14,9 @@
 			{input required=true name="date_expiry" type="date" label="Date d'expiration" source=$invoice help="Après cette date le devis ne sera plus valide."}
 		{else}
 			{input required=true name="date_expiry" type="date" label="Date d'échéance" source=$invoice help="Après cette date la facture sera considérée en souffrance (délai de paiement dépassé)."}
+			{if $config.country === 'FR'}
+				{input required=true type="select" name="operation_type" label="Nature de la facture" source=$invoice options=$invoice::OPERATION_TYPES default="mixed"}
+			{/if}
 		{/if}
 		{input required=false name="notes" type="textarea" cols=50 rows=5 label="Notes supplémentaires" source=$invoice help="Ces informations figureront sur le document"}
 	</dl>

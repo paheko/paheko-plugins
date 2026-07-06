@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_invoices (
 	notes TEXT NULL,
 	buyer_ref TEXT NULL, -- Buyer reference (Factur-X: code du service exécutant)
 	contract_reference TEXT NULL, -- Factur-X : Numéro d'engagement
+	operation_type TEXT NULL,
 	content TEXT NULL, -- Content of generated invoice (JSON/EN16931 serialization), NULL if it's a draft
 	provider_id TEXT NULL, -- ID returned by provider for this invoice (flowId in AFNOR)
 	provider_name TEXT NULL -- Name of provider used for submission
