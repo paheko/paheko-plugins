@@ -213,10 +213,6 @@ class Invoice extends Entity
 		if (!$this->isQuote()) {
 			$config = Config::getInstance();
 			$this->assert(!empty($config->org_address), 'L\'adresse de votre organisation n\'est pas renseignée.');
-
-			if ($config->country === 'FR') {
-				$this->assert(!empty($config->org_business_number), 'Le numéro SIREN de votre organisation n\'est pas renseigné.');
-			}
 		}
 
 		$where_type = $this->type === self::TYPE_QUOTE ? 'type = ?' : 'type != ?';
