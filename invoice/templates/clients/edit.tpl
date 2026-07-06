@@ -27,7 +27,7 @@
 	<legend>Informations administratives</legend>
 	<p class="help">Ces informations sont nécessaires pour l'établissement d'une facture électronique.</p>
 	<dl>
-		{input type="text" name="business_number" source=$client label="Numéro d'entreprise" required=false}
+		{input type="text" name="business_number" source=$client label="Numéro d'entreprise" required=false help="SIRET ou SIREN en France. Obligatoire pour pouvoir envoyer une facture électronique."}
 		{input type="text" name="vat_number" source=$client label="Numéro de TVA intra-communautaire" required=false}
 	</dl>
 </fieldset>

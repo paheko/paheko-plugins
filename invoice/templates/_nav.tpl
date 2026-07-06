@@ -1,5 +1,6 @@
 <nav class="tabs">
 	<aside>
+	{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
 		{if $current === 'clients' && isset($client->key)}
 			{linkbutton shape="edit" href="edit.php?id=%s"|args:$client.id label="Modifier"}
 			{linkbutton shape="delete" href="delete.php?key=%d"|args:$client.id label="Supprimer"}
@@ -16,6 +17,7 @@
 				{linkbutton href="edit.php?type=380" label="Créer une facture" shape="plus"}
 			{/if}
 		{/if}
+	{/if}
 	</aside>
 
 	<ul>
