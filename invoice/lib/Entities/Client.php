@@ -105,6 +105,11 @@ class Client extends Entity
 		return parent::save($selfcheck);
 	}
 
+	public function isBusiness(): bool
+	{
+		return isset($this->business_number) || isset($this->vat_number);
+	}
+
 	static public function verifySIREN(string $number): bool
 	{
 		$total = 0;

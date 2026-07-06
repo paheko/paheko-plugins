@@ -102,7 +102,7 @@
 						<ram:ID schemeID="VA">{$seller.vat_identifier}</ram:ID> <!-- numéro TVA -->
 					</ram:SpecifiedTaxRegistration>
 				{elseif $seller.postal_address.country_code === 'FR'}
-					{* See BR-FR-CO-16: Si le Vendeur n'a pas de n° de TVA, il doit rÈpÈter son n° de SIREN en BT-32 *}
+					{* See BR-FR-CO-16: Si le Vendeur n'a pas de n° de TVA, il doit répéter son n° de SIREN en BT-32 *}
 					<ram:SpecifiedTaxRegistration>
 						<ram:ID schemeID="{$seller.legal_registration_identifier.scheme}">{$seller.legal_registration_identifier.value}</ram:ID>
 					</ram:SpecifiedTaxRegistration>

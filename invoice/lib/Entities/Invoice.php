@@ -46,6 +46,12 @@ class Invoice extends Entity
 	 */
 	protected ?string $contract_reference = null;
 
+	/**
+	 * France: type d'opération
+	 * "l'information selon laquelle les opérations donnant lieu à une facture
+	 * sont constituées exclusivement de livraisons de biens ou de prestations
+	 * de services ou sont constituées de ces deux catégories d'opérations"
+	 */
 	protected ?string $operation_type = null;
 
 	protected ?stdClass $content = null;
@@ -248,8 +254,10 @@ class Invoice extends Entity
 	{
 		$config = Config::getInstance();
 
+		$is_seller_eu = in_array($config->country, Client::EU_COUNTRIES);
+
 		$seller_address = explode("\n", $config->org_address);
-		$config->currency = 'EUR';
+		$config->currency = 'EUR'; //FIXME
 
 		if (strlen($config->currency) !== mb_strlen($config->currency)
 			|| strlen($config->currency) !== 3) {
@@ -274,8 +282,26 @@ class Invoice extends Entity
 			// Numéro commande acheteur. "Numéro d'engagement juridique" Texte libre. Pour Chorus Pro, indiquer ici le numéro d'engagement. Obligatoire pour les entités publiques marquées « Engagement obligatoire » dans Chorus Pro.
 			'contract_reference' => $this->contract_reference ?? '',
 			'notes' => [['note' => $this->notes ?? '']],
-			//'payment_terms' =>
+			//'payment_terms' => // FIXME
 		];
+
+		// Add operation type (mandatory in France since 2026)
+		if ($this->operation_type) {
+			$out['notes'][] = [
+				'subject_code' => 'REG',
+				'note' => $this->getOperationTypeLabel(),
+			];
+		}
+
+		// Add mandatory mention of recovery costs
+		// see https://www.economie.gouv.fr/entreprises/gerer-son-entreprise-au-quotidien/gerer-sa-comptabilite-et-ses-demarches/mentions-obligatoires-dune-facture-tout-savoir
+		if ($this->client()->isBusiness()
+			&& $is_seller_eu) {
+			$out['notes'][] = [
+				'subject_code' => 'PMT',
+				'note' => 'En cas de retard de paiement, indemnité forfaitaire légale pour frais de recouvrement de 40 euros.',
+			];
+		}
 
 		$vat = [];
 		$vat_total = '0';
