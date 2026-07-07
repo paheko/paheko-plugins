@@ -16,19 +16,21 @@ if (!$invoice) {
 	throw new UserException('Unknown invoice ID');
 }
 
+if (isset($_GET['download'])) {
+	$invoice->exportAs('facturx');
+	return;
+}
+
+if (isset($_GET['print'])) {
+	$invoice->streamAs('html');
+	return;
+}
+
 if ($invoice->isQuote()) {
 	$title = sprintf('Devis : %s', $invoice->number ?? '(brouillon)');
 }
 else {
 	$title = sprintf('Facture : %s', $invoice->number ?? '(brouillon)');
-}
-
-if (isset($_GET['print'])) {
-	$tpl->assign('invoice', $invoice->getExport());
-	$tpl->assign('is_org', true);
-	$tpl->assign(compact('title'));
-	$tpl->display(PLUGIN_ROOT . '/templates/invoice/print.html');
-	return;
 }
 
 $csrf_key = 'edit_invoice_details';
@@ -57,6 +59,10 @@ else {
 	$export = $invoice->getExport();
 
 	$payments = $invoice->getPaymentsList();
+
+	if (!$invoice->isDraft()) {
+		$tpl->assign('facturx_enabled', $invoice->canExportAsFacturX());
+	}
 
 	$tpl->assign(compact('invoice', 'title', 'payments', 'csrf_key', 'export'));
 

@@ -3,11 +3,15 @@
 <nav class="tabs">
 	{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
 	<aside>
-		{linkbutton shape="plus" label="Dupliquer" href="duplicate.php?id=%s"|args:$invoice.id}
+		{linkbutton shape="eye" label="Visualiser" href="?id=%d&print"|args:$invoice.id target="_dialog"}
+		{linkbutton shape="plus" label="Dupliquer" href="duplicate.php?id=%d"|args:$invoice.id}
 		{if $invoice->isDraft()}
 			{linkbutton shape="delete" label="Supprimer" href="delete.php?id=%d"|args:$invoice.id target="_dialog"}
 			{linkbutton shape="edit" label="Modifier" href="edit.php?id=%d"|args:$invoice.id target="_dialog"}
+		{elseif $facturx_enabled}
+			{linkbutton shape="download" label="Télécharger" href="?id=%d&download"|args:$invoice.id}
 		{/if}
+			{linkbutton shape="download" label="Télécharger" href="?id=%d&download"|args:$invoice.id}
 	</aside>
 	{/if}
 	{linkbutton shape="left" label="Retour à la liste" href="./"}

@@ -1,157 +1,37 @@
+<?php
+$title = $is_quote ? 'Devis' : 'Facture';
+$title .= ' ' . $invoice['number'];
+?>
 <!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8" />
 	<title>{$title}</title>
+	<link rel="stylesheet" type="text/css" href="{$admin_url}p/invoice/invoice.css?{$version_hash}" />
 </head>
 
-<style type="text/css">
-{literal}
-* {
-	margin: 0;
-	padding: 0;
-}
-
-
-@media print {
-	@page {
-		margin: 0;
-		size: A4;
-		@bottom {
-			content: "Page " counter(page) " / " counter(pages);
-			font-size: 8pt;
-			margin-bottom: 10mm;
-			text-align: center;
-		}
-	}
-}
-
-body {
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 11pt;
-}
-
-.seller {
-	padding: .9cm;
-	border-bottom: 5px solid #666;
-	display: flex;
-	align-items: start;
-	justify-content: space-between;
-	flex-wrap: wrap;
-}
-
-.seller h1 {
-	flex: 1 1 100%;
-	font-size: 18pt;
-}
-
-.org {
-	background: rgba(var(--gMainColor), 0.7);
-}
-
-ul {
-	list-style-type: none;
-}
-
-dl {
-	display: flex;
-	flex-direction: column;
-	gap: .3em;
-}
-
-dl dt {
-	font-size: .8em;
-}
-
-main {
-	margin: 1cm;
-}
-
-.buyer {
-	margin: 1cm;
-	max-width: 40%;
-	margin-left: auto;
-}
-
-.buyer h1 {
-	font-size: 1em;
-}
-
-.info {
-	display: flex;
-	flex-direction: column;
-	gap: .3em;
-	margin: 1cm 0;
-}
-
-.info h1, .info h2, .info h3 {
-	font-size: 1em;
-}
-
-.lines {
-	margin: .5cm 0;
-}
-
-.lines table {
-	border-collapse: collapse;
-	width: 100%;
-}
-
-.lines thead {
-	border-bottom: 6px double #666;
-	font-size: .9em;
-}
-
-.lines thead th {
-	font-weight: normal;
-}
-
-.lines td, .lines th {
-	padding: .2cm .3cm;
-	text-align: left;
-}
-
-.lines tr {
-	border: 1px solid #000;
-}
-
-.lines tbody tr:nth-child(even) {
-	background: #eee;
-}
-
-.lines tfoot {
-	border-top: 6px double #666;
-}
-
-.lines .num, .lines .money, .lines .number {
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum";
-    text-align: right;
-}
-
-.lines .unit {
-	font-size: .8em;
-}
-
-.lines tbody th {
-	width: 50%;
-}
-
-.lines tbody th small {
-	font-weight: normal;
-}
-
-.lines .total {
-    text-align: right;
-}
-
-.notes article {
-	margin: .5cm 0;
-}
-{/literal}
-</style>
-
 <body>
+
+{if !$_GET.print && empty($export)}
+	<nav class="buttons">
+		{linkbutton href="%s&print=yes"|args:$self_url label="Imprimer" target="_blank" shape="print"}
+		{if !empty($facturx_enabled)}
+			{linkbutton href="?id=%d&download=facturx"|args:$invoice.identifier label="Télécharger" shape="download"}
+		{elseif PDF_ENABLED}
+			{linkbutton href="%s&_pdf"|args:$self_url label="Télécharger en PDF" shape="download"}
+		{/if}
+	</nav>
+{/if}
+
+{if $status === 'draft'}
+	<section class="watermark">
+		<p>Brouillon</p>
+	</section>
+{elseif $status === 'cancelled'}
+	<section class="watermark">
+		{if $invoice.type_code === 231}Annulé{else}Annulée{/if}
+	</section>
+{/if}
 
 <section class="seller contact{if $is_org} org{/if}">
 	{include file="./_contact.html" contact=$invoice.seller}
@@ -196,9 +76,8 @@ main {
 				<tr>
 					<th scope="col">Désignation</th>
 					<th scope="col">Réf.</th>
-					<th scope="col" class="money">Prix unitaire HT</th>
-					<th scope="col" class="number">Quantité</th>
-					<th scope="col" class="unit">Unité</th>
+					<th scope="col" class="money">Prix U. HT</th>
+					<th scope="col" class="qty">Qté</th>
 					<th scope="col" class="money">Total HT</th>
 					<th scope="col" class="number">Taux TVA</th>
 					<th scope="col" class="money">Total TTC</th>
@@ -213,8 +92,10 @@ main {
 					</th>
 					<td>{$line.item_information.seller_identifier}</td>
 					<td class="money">{$line.price_details.item_net_price|raw|money_int|money_html:false}</td>
-					<td class="number">{$line.invoiced_quantity|unit:$line.invoiced_quantity_code:false}</td>
-					<td class="unit">{$line.invoiced_quantity_code|get_unit_label}</td>
+					<td class="qty">
+						{$line.invoiced_quantity|unit:$line.invoiced_quantity_code:false}
+						<small>{$line.invoiced_quantity_code|get_unit_label}</small>
+					</td>
 					<td class="money">{$line.net_amount|raw|money_int|money_html:false}</td>
 					<td class="number">{$line.vat_information.invoiced_item_vat_rate|format_vat_rate}</td>
 					<td class="money">{$line.line_with_vat_net_amount|raw|money_int|money_html:false}</td>
@@ -223,12 +104,12 @@ main {
 			</tbody>
 			<tfoot>
 				<tr>
-					<th scope="row" colspan="7" class="total">Total HT</th>
+					<th scope="row" colspan="6" class="total">Total HT</th>
 					<td class="money">{$invoice.totals.total_without_vat|raw|money_int|money_html:false} {$invoice.currency_code}</td>
 				</tr>
 				{foreach from=$invoice.vat_break_down item="vat"}
 					<tr>
-						<td scope="row" colspan="7" class="total">
+						<td scope="row" colspan="6" class="total">
 							TVA à {$vat.vat_category_rate|format_vat_rate}
 							{if $vat.vat_exemption_reason}
 								<br />
@@ -239,7 +120,7 @@ main {
 					</tr>
 				{/foreach}
 				<tr>
-					<th scope="row" colspan="7" class="total">Total TTC</th>
+					<th scope="row" colspan="6" class="total">Total TTC</th>
 					<td class="money">{$invoice.totals.total_with_vat|raw|money_int|money_html:false} {$invoice.currency_code}</td>
 				</tr>
 			</tfoot>
@@ -257,5 +138,14 @@ main {
 		{/foreach}
 	</section>
 </main>
+
+{if $_GET.print === 'yes'}
+<script type="text/javascript">
+window.onafterprint = window.close;
+window.print();
+</script>
+{/if}
+
+
 </body>
 </html>

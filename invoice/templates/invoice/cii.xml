@@ -12,7 +12,7 @@
 		<ram:ID>{$invoice.number}</ram:ID> <!-- Invoice number, free text -->
 		<ram:TypeCode>{$invoice.type_code}</ram:TypeCode>
 		<ram:IssueDateTime>
-			<udt:DateTimeString format="102">{$invoice.issue_date|cii_date}</udt:DateTimeString>
+			<udt:DateTimeString format="102">{$invoice.issue_date|date_format:'YMD'}</udt:DateTimeString>
 			<!-- 102 = YYYYMMDD -->
 		</ram:IssueDateTime>
 		{foreach from=$invoice.notes item="note"}
@@ -26,7 +26,7 @@
 	</rsm:ExchangedDocument>
 	<rsm:SupplyChainTradeTransaction>
 		<!-- Lignes de la facture -->
-		{foreach from=$lines item="line"}
+		{foreach from=$invoice.lines item="line"}
 		<ram:IncludedSupplyChainTradeLineItem>
 			<ram:AssociatedDocumentLineDocument>
 				<ram:LineID>{$line.identifier}</ram:LineID><!-- Numéro unique de la ligne -->
@@ -46,7 +46,7 @@
 					<ram:LineID>{$line.identifier}</ram:LineID>
 				</ram:BuyerOrderReferencedDocument>
 				<ram:NetPriceProductTradePrice>
-					<ram:ChargeAmount>{$line.price_details.item_net_price|money_raw_us}</ram:ChargeAmount><!-- Prix unitaire net (hors taxe) -->
+					<ram:ChargeAmount>{$line.price_details.item_net_price}</ram:ChargeAmount><!-- Prix unitaire net (hors taxe) -->
 				</ram:NetPriceProductTradePrice>
 			</ram:SpecifiedLineTradeAgreement>
 			<ram:SpecifiedLineTradeDelivery>
@@ -60,7 +60,7 @@
 					<ram:RateApplicablePercent>{$line.vat_information.invoiced_item_vat_rate}</ram:RateApplicablePercent>
 				</ram:ApplicableTradeTax>
 				<ram:SpecifiedTradeSettlementLineMonetarySummation>
-					<ram:LineTotalAmount>{$line.net_amount|money_raw_us}</ram:LineTotalAmount> <!-- Montant net total de la ligne (HT) -->
+					<ram:LineTotalAmount>{$line.net_amount}</ram:LineTotalAmount> <!-- Montant net total de la ligne (HT) -->
 				</ram:SpecifiedTradeSettlementLineMonetarySummation>
 			</ram:SpecifiedLineTradeSettlement>
 		</ram:IncludedSupplyChainTradeLineItem>
@@ -68,72 +68,72 @@
 		<ram:ApplicableHeaderTradeAgreement>
 			<ram:BuyerReference>{$invoice.buyer_reference}</ram:BuyerReference> <!-- Référence acheteur. "Service exécutant" Code service pour Chorus Pro. Obligatoire pour les entités publiques marquées « Service obligatoire » dans Chorus Pro. -->
 			<ram:SellerTradeParty>
-				<ram:Name>{$seller.name}</ram:Name>
+				<ram:Name>{$invoice.seller.name}</ram:Name>
 				<ram:SpecifiedLegalOrganization>
-					<ram:ID schemeID="{$seller.legal_registration_identifier.scheme}">{$seller.legal_registration_identifier.value}</ram:ID> <!-- Seller SIRET -->
+					<ram:ID schemeID="{$invoice.seller.legal_registration_identifier.scheme}">{$invoice.seller.legal_registration_identifier.value}</ram:ID> <!-- Seller SIRET -->
 				</ram:SpecifiedLegalOrganization>
 				<ram:PostalTradeAddress>
-					<ram:CountryID>{$seller.postal_address.country_code}</ram:CountryID>
+					<ram:CountryID>{$invoice.seller.postal_address.country_code}</ram:CountryID>
 				</ram:PostalTradeAddress>
 				<ram:URIUniversalCommunication>
-					<ram:URIID schemeID="EM">{$seller.contact.email_address}</ram:URIID><!-- Adresse e-mail du vendeur -->
+					<ram:URIID schemeID="EM">{$invoice.seller.contact.email_address}</ram:URIID><!-- Adresse e-mail du vendeur -->
 				</ram:URIUniversalCommunication>
 				<ram:DefinedTradeContact>
 					<ram:TelephoneUniversalCommunication>
-						<ram:CompleteNumber>{$seller.contact.phone_number}</ram:CompleteNumber>
+						<ram:CompleteNumber>{$invoice.seller.contact.phone_number}</ram:CompleteNumber>
 					</ram:TelephoneUniversalCommunication>
 					<ram:EmailURIUniversalCommunication>
-						<ram:URIID>{$seller.contact.email_address}</ram:URIID>
+						<ram:URIID>{$invoice.seller.contact.email_address}</ram:URIID>
 					</ram:EmailURIUniversalCommunication>
 				</ram:DefinedTradeContact>
 				<ram:PostalTradeAddress>
-					<ram:PostcodeCode>{$seller.postal_address.post_code}</ram:PostcodeCode>
-					<ram:LineOne>{$seller.postal_address.address_line1}</ram:LineOne>
-					<ram:LineTwo>{$seller.postal_address.address_line2}</ram:LineTwo>
-					<ram:LineThree>{$seller.postal_address.address_line3}</ram:LineThree>
-					<ram:CityName>{$seller.postal_address.city}</ram:CityName>
-					<ram:CountryID>{$seller.postal_address.country_code}</ram:CountryID>
+					<ram:PostcodeCode>{$invoice.seller.postal_address.post_code}</ram:PostcodeCode>
+					<ram:LineOne>{$invoice.seller.postal_address.address_line1}</ram:LineOne>
+					<ram:LineTwo>{$invoice.seller.postal_address.address_line2}</ram:LineTwo>
+					<ram:LineThree>{$invoice.seller.postal_address.address_line3}</ram:LineThree>
+					<ram:CityName>{$invoice.seller.postal_address.city}</ram:CityName>
+					<ram:CountryID>{$invoice.seller.postal_address.country_code}</ram:CountryID>
 				</ram:PostalTradeAddress>
-				{if $seller.vat_identifier}
+				{if $invoice.seller.vat_identifier}
 					<ram:SpecifiedTaxRegistration>
-						<ram:ID schemeID="VA">{$seller.vat_identifier}</ram:ID> <!-- numéro TVA -->
+						<ram:ID schemeID="VA">{$invoice.seller.vat_identifier}</ram:ID> <!-- numéro TVA -->
 					</ram:SpecifiedTaxRegistration>
-				{elseif $seller.postal_address.country_code === 'FR'}
+				{elseif $invoice.seller.postal_address.country_code === 'FR'}
 					{* See BR-FR-CO-16: Si le Vendeur n'a pas de n° de TVA, il doit répéter son n° de SIREN en BT-32 *}
 					<ram:SpecifiedTaxRegistration>
-						<ram:ID schemeID="{$seller.legal_registration_identifier.scheme}">{$seller.legal_registration_identifier.value}</ram:ID>
+						<ram:ID schemeID="{$invoice.seller.legal_registration_identifier.scheme}">{$invoice.seller.legal_registration_identifier.value}</ram:ID>
 					</ram:SpecifiedTaxRegistration>
 				{/if}
 			</ram:SellerTradeParty>
 			<ram:BuyerTradeParty>
-				<ram:Name>{$buyer.name}</ram:Name><!-- Nom client -->
+				<ram:Name>{$invoice.buyer.name}</ram:Name><!-- Nom client -->
 				<ram:SpecifiedLegalOrganization>
 					<!-- Numéro d'entreprise client. SchemeIDs: https://docs.peppol.eu/poacc/billing/3.0/codelist/ICD/ -->
-					<ram:ID schemeID="{$buyer.legal_registration_identifier.scheme}">{$buyer.legal_registration_identifier.value}</ram:ID>
+					<ram:ID schemeID="{$invoice.buyer.legal_registration_identifier.scheme}">{$invoice.buyer.legal_registration_identifier.value}</ram:ID>
 				</ram:SpecifiedLegalOrganization>
 				<ram:DefinedTradeContact>
 					<ram:TelephoneUniversalCommunication>
-						<ram:CompleteNumber>{$buyer.contact.phone_number}</ram:CompleteNumber>
+						<ram:CompleteNumber>{$invoice.buyer.contact.phone_number}</ram:CompleteNumber>
 					</ram:TelephoneUniversalCommunication>
 					<ram:EmailURIUniversalCommunication>
-						<ram:URIID>{$buyer.contact.email_address}</ram:URIID>
+						<ram:URIID>{$invoice.buyer.contact.email_address}</ram:URIID>
 					</ram:EmailURIUniversalCommunication>
 				</ram:DefinedTradeContact>
 				<ram:PostalTradeAddress>
-					<ram:PostcodeCode>{$buyer.postal_address.post_code}</ram:PostcodeCode>
-					<ram:LineOne>{$buyer.postal_address.address_line1}</ram:LineOne>
-					<ram:LineTwo>{$buyer.postal_address.address_line2}</ram:LineTwo>
-					<ram:LineThree>{$buyer.postal_address.address_line3}</ram:LineThree>
-					<ram:CityName>{$buyer.postal_address.city}</ram:CityName>
-					<ram:CountryID>{$buyer.postal_address.country_code}</ram:CountryID>
+					<ram:PostcodeCode>{$invoice.buyer.postal_address.post_code}</ram:PostcodeCode>
+					<ram:LineOne>{$invoice.buyer.postal_address.address_line1}</ram:LineOne>
+					<ram:LineTwo>{$invoice.buyer.postal_address.address_line2}</ram:LineTwo>
+					<ram:LineThree>{$invoice.buyer.postal_address.address_line3}</ram:LineThree>
+					<ram:CityName>{$invoice.buyer.postal_address.city}</ram:CityName>
+					<ram:CountryID>{$invoice.buyer.postal_address.country_code}</ram:CountryID>
 				</ram:PostalTradeAddress>
 				<ram:URIUniversalCommunication>
-					<ram:URIID schemeID="EM">{$buyer.contact.email_address}</ram:URIID><!-- Adresse e-mail du client -->
+					<ram:URIID schemeID="EM">{$invoice.buyer.contact.email_address}</ram:URIID><!-- Adresse e-mail du client -->
 				</ram:URIUniversalCommunication>
-				{if $buyer.vat_identifier}
+				{if $invoice.buyer.vat_identifier}
 					<!-- Numéro TVA de l'acheteur -->
 					<ram:SpecifiedTaxRegistration>
-						<ram:ID schemeID="VA">{$buyer.vat_identifier}</ram:ID>
+						<ram:ID schemeID="VA">{$invoice.buyer.vat_identifier}</ram:ID>
 					</ram:SpecifiedTaxRegistration>
 				{/if}
 			</ram:BuyerTradeParty>
@@ -173,7 +173,7 @@
 			<!-- Blocs de TVA, un bloc par taux de TVA -->
 			{foreach from=$invoice.vat_break_down item="vat"}
 			<ram:ApplicableTradeTax>
-				<ram:CalculatedAmount>{$vat.vat_category_tax_amount|money_raw_us}</ram:CalculatedAmount>
+				<ram:CalculatedAmount>{$vat.vat_category_tax_amount}</ram:CalculatedAmount>
 				<ram:TypeCode>VAT</ram:TypeCode>
 				{if !$vat.rate}
 				<!-- Si exempté de TVA, alors il faut indiquer une raison de l'exemption de TVA -->
@@ -181,7 +181,7 @@
 				<ram:ExemptionReason>{$vat.exemption_reason}</ram:ExemptionReason>
 				<ram:ExemptionReasonCode>{$vat.exemption_reason_code}</ram:ExemptionReasonCode>
 				{/if}
-				<ram:BasisAmount>{$vat.vat_category_taxable_amount|money_raw_us}</ram:BasisAmount>
+				<ram:BasisAmount>{$vat.vat_category_taxable_amount}</ram:BasisAmount>
 				<ram:CategoryCode>{$vat.vat_category_code}</ram:CategoryCode>
 				<!-- Ce code ne peut être présent si la date d'exigibilité est fournie directement
 				dans l'élément ""Date d'exigibilité de la taxe sur la valeur ajoutée"" (BT-7).
@@ -196,17 +196,17 @@
 			<ram:SpecifiedTradePaymentTerms>
 				{*<ram:Description>{$payment_instructions}</ram:Description>*}
 				<ram:DueDateDateTime>
-					<udt:DateTimeString format="102">{$invoice.payment_due_date|cii_date}</udt:DateTimeString><!-- Date d'échéance de paiement -->
+					<udt:DateTimeString format="102">{$invoice.payment_due_date|date_format:'YMD'}</udt:DateTimeString><!-- Date d'échéance de paiement -->
 				</ram:DueDateDateTime>
 				<!-- Identifiant RUM pour prélèvement SEPA
 				<ram:DirectDebitMandateID>ICS XXXX</ram:DirectDebitMandateID>-->
 			</ram:SpecifiedTradePaymentTerms>
 			<ram:SpecifiedTradeSettlementHeaderMonetarySummation>
-				<ram:LineTotalAmount>{$invoice.totals.sum_invoice_lines_amount|money_raw_us}</ram:LineTotalAmount>
-				<ram:TaxBasisTotalAmount>{$invoice.totals.total_without_vat|money_raw_us}</ram:TaxBasisTotalAmount> <!-- Total HT -->
-				<ram:TaxTotalAmount currencyID="{$invoice.currency_code}">{$invoice.totals.total_vat_amount|money_raw_us}</ram:TaxTotalAmount><!-- TVA -->
-				<ram:GrandTotalAmount>{$invoice.totals.total_with_vat|money_raw_us}</ram:GrandTotalAmount><!-- total TTC -->
-				<ram:DuePayableAmount>{$invoice.totals.amount_due_for_payment|money_raw_us}</ram:DuePayableAmount><!-- Reste à payer -->
+				<ram:LineTotalAmount>{$invoice.totals.sum_invoice_lines_amount}</ram:LineTotalAmount>
+				<ram:TaxBasisTotalAmount>{$invoice.totals.total_without_vat}</ram:TaxBasisTotalAmount> <!-- Total HT -->
+				<ram:TaxTotalAmount currencyID="{$invoice.currency_code}">{$invoice.totals.total_vat_amount}</ram:TaxTotalAmount><!-- TVA -->
+				<ram:GrandTotalAmount>{$invoice.totals.total_with_vat}</ram:GrandTotalAmount><!-- total TTC -->
+				<ram:DuePayableAmount>{$invoice.totals.amount_due_for_payment}</ram:DuePayableAmount><!-- Reste à payer -->
 			</ram:SpecifiedTradeSettlementHeaderMonetarySummation>
 		</ram:ApplicableHeaderTradeSettlement>
 	</rsm:SupplyChainTradeTransaction>

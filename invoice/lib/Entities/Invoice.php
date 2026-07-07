@@ -5,6 +5,9 @@ namespace Paheko\Plugin\Invoice\Entities;
 use Paheko\Config;
 use Paheko\DynamicList;
 use Paheko\Entity;
+use Paheko\Plugins;
+use Paheko\Static_Cache;
+use Paheko\Template;
 use Paheko\UserException;
 use Paheko\Utils;
 
@@ -17,6 +20,8 @@ use stdClass;
 
 use Paheko\Plugin\Invoice\Clients;
 use Paheko\Plugin\Invoice\Invoices;
+
+use const Paheko\STATIC_CACHE_ROOT;
 
 class Invoice extends Entity
 {
@@ -377,7 +382,7 @@ class Invoice extends Entity
 				throw new UserException('Il n\'est pas possible d\'exporter un devis');
 			}
 			elseif ($this->status === self::STATUS_DRAFT) {
-				throw new UserException('Il n\'est pas possible d\'exporter un document en brouillon');
+				//throw new UserException('Il n\'est pas possible d\'exporter un document en brouillon');
 			}
 		}
 
@@ -390,11 +395,27 @@ class Invoice extends Entity
 		$template = match ($format) {
 			'cii' => 'cii.xml',
 			'ubl' => 'ubl.xml',
-			'html' => 'invoice.html',
+			'html' => 'print.html',
 		};
 
-		$tpl->assign('invoice', $this->content ?? $this->exportForInvoice());
-		$out = $tpl->fetch(PLUGIN_ROOT . '/templates/invoice/' . $template);
+		$tpl = Template::getInstance();
+
+		if ($format === 'html') {
+			$tpl->assign('is_org', true);
+			$tpl->assign('status', $this->status);
+			$tpl->assign('is_quote', $this->isQuote());
+
+			if (isset($_GET['print'])) {
+				$tpl->assign('facturx_enabled', $this->canExportAsFacturX());
+			}
+			else {
+				$tpl->assign('export', true);
+			}
+		}
+
+		$tpl->assign('invoice', $this->getExport());
+
+		$out = $tpl->fetch(__DIR__ . '/../../templates/invoice/' . $template);
 
 		if ($format === 'facturx') {
 			$out = $this->createFacturX($out);
@@ -417,11 +438,14 @@ class Invoice extends Entity
 
 		header('Content-Type: ' . $mimetype);
 
-		if ($this->number) {
-			header(sprintf('Content-Disposition: %s; filename="%s"', $download ? 'attachment' : 'inline', $this->getFilename($format)));
-		}
+		header(sprintf('Content-Disposition: %s; filename="%s"', $download ? 'attachment' : 'inline', $this->getFilename($format)));
 
 		echo $this->exportAs($format);
+	}
+
+	public function downloadAs(string $format): void
+	{
+		$this->streamAs($format, true);
 	}
 
 	public function getFilename(string $format): string
@@ -432,7 +456,7 @@ class Invoice extends Entity
 			default   => 'xml',
 		};
 
-		return $this->number . '.' . $extension;
+		return ($this->number ?? 'Brouillon') . '.' . $extension;
 	}
 
 	/**
@@ -441,7 +465,7 @@ class Invoice extends Entity
 	 */
 	protected function createFacturX(string $xml, string $html): string
 	{
-		$signal = Plugins::fire('facturx.create', ['html' => $html, 'xml' => $xml], ['pdf_string' => null]);
+		$signal = Plugins::fire('facturx.create', true, ['html' => $html, 'xml' => $xml], ['pdf_string' => null]);
 
 		if ($signal) {
 			if ($str = $signal->getOut('pdf_string')) {
@@ -455,15 +479,26 @@ class Invoice extends Entity
 		$id = 'facturx_' . sha1(random_bytes(10));
 		Static_Cache::store($id, $xml);
 		$tmp_xml_file = Static_Cache::getPath($id);
+		$root = realpath(__DIR__ . '/../..');
 
 		// Prince can directly create a valid Factur-X PDF using STDIN/STDOUT,
 		// without temporary files for HTML and PDF, much better
 		if (Utils::getPDFCommand() === 'prince') {
 			$cmd = sprintf(
-				'prince --http-timeout=3 --pdf-profile="PDF/A-3a" --pdf-xmp=%s --attach-data=%s -o %s -',
-				escapeshellarg(PLUGIN_ROOT . '/facturx.xmp'),
+				'prince --http-timeout=3 --pdf-profile="PDF/A-3a" --pdf-xmp=%s --attach-data=%s -o - -',
+				escapeshellarg($root . '/factur-x/factur-x.xmp'),
+				escapeshellarg($tmp_xml_file)
+			);
+
+			$out = '';
+			Utils::exec($cmd, 10, $html, fn ($data) => $out .= $data);
+			return $out;
+		}
+		// Weasyprint can also do it: https://github.com/Kozea/WeasyPrint/pull/2658
+		elseif (Utils::getPDFCommand() === 'weasyprint') {
+			$cmd = sprintf('weasyprint - - --attachment=%s --attachment-relationship=Data --xmp-metadata=%s --pdf-variant=pdf/a-3a',
 				escapeshellarg($tmp_xml_file),
-				escapeshellarg($path ?? '-')
+				escapeshellarg($root . '/factur-x/factur-x.xmp')
 			);
 
 			$out = '';
@@ -488,11 +523,11 @@ class Invoice extends Entity
 			. ' -sZUGFeRDConformanceLevel=MINIMUM'
 			. ' -dPDFACompatibilityPolicy=1'
 			. ' -o %s %s %s',
-			escapeshellarg(PLUGIN_ROOT . ':' . STATIC_CACHE_ROOT),
+			escapeshellarg($root . ':' . STATIC_CACHE_ROOT),
 			escapeshellarg($tmp_xml_file),
-			escapeshellarg(PLUGIN_ROOT . '/factur-x/rgb.icc'),
+			escapeshellarg($root . '/factur-x/rgb.icc'),
 			escapeshellarg($path ?? '-'),
-			escapeshellarg(PLUGIN_ROOT . '/factur-x/zugferd.ps'),
+			escapeshellarg($root . '/factur-x/zugferd.ps'),
 			escapeshellarg($tmp_pdf_file)
 		);
 
@@ -511,7 +546,7 @@ class Invoice extends Entity
 			return true;
 		}
 
-		if (Utils::getPDFCommand() === 'prince') {
+		if (in_array(Utils::getPDFCommand(), ['prince', 'weasyprint'], true)) {
 			return true;
 		}
 

@@ -53,6 +53,17 @@ class Line extends Entity
 	const VAT_EXEMPTION_CODE = 'E';
 	const VAT_STANDARD_CODE = 'S';
 
+	/**
+	 * S = Taux de TVA standard
+	 * Z = Taux de TVA égal à 0 (non applicable en France)
+	 * E = Exempté de TVA
+	 * AE = Autoliquidation de TVA
+	 * K = Autoliquidation pour cause de livraison intracommunautaire
+	 * G = Exempté de TVA pour Export hors UE
+	 * O = Hors du périmètre d'application de la TVA
+	 * L = Iles Canaries
+	 * M = Ceuta et Mellila
+	 */
 	const VAT_CODES = [
 		self::VAT_STANDARD_CODE  => 'Standard', // Normal VAT
 		self::VAT_EXEMPTION_CODE => 'Exempté', // Exonerated (franchise, non assujetti)
