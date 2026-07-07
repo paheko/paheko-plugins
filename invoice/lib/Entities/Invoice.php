@@ -252,11 +252,11 @@ class Invoice extends Entity
 	public function updateTotal(): void
 	{
 		$content = $this->content ?? $this->exportForInvoice();
-		$this->set('total', Utils::moneyToInteger($content['totals']['total_with_vat']));
+		$this->set('total', Utils::moneyToInteger($content->totals->total_with_vat));
 		$this->saveOnly(['total']);
 	}
 
-	public function getExport(): array
+	public function getExport(): stdClass
 	{
 		return $this->content ?? $this->exportForInvoice();
 	}
@@ -264,7 +264,7 @@ class Invoice extends Entity
 	/**
 	 * Return invoice line as an object ready for EN16931
 	 */
-	public function exportForInvoice(): array
+	public function exportForInvoice(): stdClass
 	{
 		$config = Config::getInstance();
 
@@ -278,7 +278,7 @@ class Invoice extends Entity
 			throw new UserException('La devise sélectionnée est invalide, merci de la modifier dans la configuration.');
 		}
 
-		$out = [
+		$out = (object) [
 			'buyer' => $this->client()->exportForInvoice(),
 			'seller' => Clients::exportOrgForInvoice(),
 			'currency_code' => $config->currency,
@@ -287,7 +287,7 @@ class Invoice extends Entity
 			'payment_due_date' => $this->date_expiry ? $this->date_expiry->format('Y-m-d') : null,
 			'lines' => [],
 			'number' => $this->number ?? 'Brouillon',
-			'process_control' => [
+			'process_control' => (object) [
 				'specification_identifier' => 'urn:cen.eu:en16931:2017',
 				'business_process_type' => 'M1', // Mixed invoice (goods and services that are not ancillary to each other)
 			],
@@ -296,7 +296,7 @@ class Invoice extends Entity
 			// Numéro commande acheteur. "Numéro d'engagement juridique" Texte libre. Pour Chorus Pro, indiquer ici le numéro d'engagement. Obligatoire pour les entités publiques marquées « Engagement obligatoire » dans Chorus Pro.
 			'contract_reference' => $this->contract_reference ?? '',
 			'notes' => [
-				[
+				(object) [
 					'subject_code' => 'AAI',
 					'note' => $this->label,
 				],
@@ -305,7 +305,7 @@ class Invoice extends Entity
 		];
 
 		if ($this->notes) {
-			$out['notes'][] = [
+			$out->notes[] = (object) [
 				'subject_code' => 'OSI',
 				'note' => $this->notes,
 			];
@@ -313,17 +313,17 @@ class Invoice extends Entity
 
 		// Add operation type (mandatory in France since 2026)
 		if ($this->operation_type) {
-			$out['notes'][] = [
+			$out->notes[] = (object) [
 				'subject_code' => 'REG',
 				'note' => $this->getOperationTypeLabel(),
 			];
 		}
 
-		// Add mandatory mention of recovery costs
+		// Add mandatory mention of recovery costs (only for enterprise invoices)
 		// see https://www.economie.gouv.fr/entreprises/gerer-son-entreprise-au-quotidien/gerer-sa-comptabilite-et-ses-demarches/mentions-obligatoires-dune-facture-tout-savoir
 		if ($this->client()->isBusiness()
 			&& $is_seller_eu) {
-			$out['notes'][] = [
+			$out->notes[] = (object) [
 				'subject_code' => 'PMT',
 				'note' => 'En cas de retard de paiement, indemnité forfaitaire légale pour frais de recouvrement de 40 euros.',
 			];
@@ -335,7 +335,7 @@ class Invoice extends Entity
 
 		foreach ($this->iterateLines() as $line) {
 			$e = $line->exportForInvoice();
-			$out['lines'][] = $e;
+			$out->lines[] = $e;
 			$e = (object) $e;
 			$e->vat_information = (object) $e->vat_information;
 
@@ -346,7 +346,7 @@ class Invoice extends Entity
 			$vat_code = md5($e->vat_information->invoiced_item_vat_category_code
 				. ($e->vat_information->exemption_reason_code ?? '')
 				. $e->vat_information->invoiced_item_vat_rate);
-			$vat[$vat_code] ??= [
+			$vat[$vat_code] ??= (object) [
 				'vat_category_code'           => $e->vat_information->invoiced_item_vat_category_code,
 				'vat_category_tax_amount'     => '0', // Will be filled below
 				'vat_category_taxable_amount' => '0', // Will be filled below
@@ -355,13 +355,13 @@ class Invoice extends Entity
 				'vat_category_rate'           => $e->vat_information->invoiced_item_vat_rate,
 			];
 
-			$vat[$vat_code]['vat_category_tax_amount'] = Money::calc($vat[$vat_code]['vat_category_tax_amount'], '+', $e->line_vat_amount);
-			$vat[$vat_code]['vat_category_taxable_amount'] = Money::calc($vat[$vat_code]['vat_category_taxable_amount'], '+', $e->net_amount);
+			$vat[$vat_code]->vat_category_tax_amount = Money::calc($vat[$vat_code]->vat_category_tax_amount, '+', $e->line_vat_amount);
+			$vat[$vat_code]->vat_category_taxable_amount = Money::calc($vat[$vat_code]->vat_category_taxable_amount, '+', $e->net_amount);
 		}
 
 		$paid = '0.00'; // TODO
 
-		$out['totals'] = [
+		$out->totals = (object) [
 			'amount_due_for_payment'   => Money::calc(Money::calc($net_total, '+', $vat_total), '-', $paid),
 			'sum_invoice_lines_amount' => $net_total,
 			'total_with_vat'           => Money::calc($net_total, '+', $vat_total),
@@ -370,7 +370,7 @@ class Invoice extends Entity
 			'total_vat_amount'         => $vat_total,
 		];
 
-		$out['vat_break_down'] = array_values($vat);
+		$out->vat_break_down = array_values($vat);
 
 		return $out;
 	}
@@ -419,7 +419,14 @@ class Invoice extends Entity
 			$tpl->setEscapeType('xml');
 		}
 
-		return $tpl->fetch(__DIR__ . '/../../templates/invoice/' . $template);
+		$out = $tpl->fetch(__DIR__ . '/../../templates/invoice/' . $template);
+
+		if ($format === 'cii') {
+			// [PEPPOL-EN16931-R008]-Document MUST not contain empty elements. (still status warning)
+			$out = preg_replace('!<(.*)>\s*</\\1>!', '', $out);
+		}
+
+		return $out;
 	}
 
 	public function streamAs(string $format, bool $download = false): void
@@ -560,6 +567,19 @@ class Invoice extends Entity
 		}
 
 		return (bool) Utils::quick_exec('which gs', 1);
+	}
+
+	public function validateForInvoiceSending(?stdClass $export = null): void
+	{
+		if (empty($export->seller->vat_identifier)
+			&& empty($export->seller->legal_registration_identifier->value)) {
+			throw new ValidationException('Aucun numéro d\'entreprise n\'est spécifié pour le vendeur : merci de renseigner votre numéro de TVA ou d\'entreprise (SIREN ou SIRET)');
+		}
+
+		// BR-FR-12/BT-49 : Le BT-49 est obligatoire.
+		if (empty($export->buyer->contact->email_address)) {
+			throw new ValidationException('L\'adresse e-mail du client doit être renseignée');
+		}
 	}
 
 	public function getPaymentsList(): DynamicList

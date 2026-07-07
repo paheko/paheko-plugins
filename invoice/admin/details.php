@@ -16,8 +16,13 @@ if (!$invoice) {
 	throw new UserException('Unknown invoice ID');
 }
 
+if (isset($_GET['preview'])) {
+	$invoice->streamAs($_GET['preview'] ?: 'facturx');
+	return;
+}
+
 if (isset($_GET['download'])) {
-	$invoice->downloadAs('facturx');
+	$invoice->downloadAs($_GET['download'] ?: 'facturx');
 	return;
 }
 

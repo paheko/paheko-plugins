@@ -141,7 +141,7 @@ class Client extends Entity
 		return $total % 10 === 0;
 	}
 
-	public function exportForInvoice(): array
+	public function exportForInvoice(): stdClass
 	{
 		return self::exportPersonForInvoice($this);
 	}
@@ -149,7 +149,7 @@ class Client extends Entity
 	/**
 	 * Return client as an object ready for EN16931
 	 */
-	static public function exportPersonForInvoice(stdClass|Client $person): array
+	static public function exportPersonForInvoice(stdClass|Client $person): stdClass
 	{
 		$address = explode("\n", $person->address ?? '');
 		$is_eu = in_array($person->country, self::EU_COUNTRIES);
@@ -188,12 +188,12 @@ class Client extends Entity
 			$value = $person->business_number;
 		}
 
-		return [
-			'electronic_address' => compact('scheme', 'value'),
-			'identifiers' => compact('scheme', 'value'),
-			'legal_registration_identifier' => compact('scheme', 'value'),
+		return (object) [
+			'electronic_address' => (object) compact('scheme', 'value'),
+			'identifiers' => (object) compact('scheme', 'value'),
+			'legal_registration_identifier' => (object) compact('scheme', 'value'),
 			'name' => $person->name,
-			'postal_address' => [
+			'postal_address' => (object) [
 				'country_code' => $person->country,
 				'address_line1' => $address[0] ?? '',
 				'address_line2' => $address[1] ?? '',
@@ -201,7 +201,7 @@ class Client extends Entity
 				'city' => $person->city ?? '',
 				'post_code' => $person->post_code ?? '',
 			],
-			'contact' => [
+			'contact' => (object) [
 				'email_address' => $person->email,
 				'phone_number' => $person->phone,
 			],

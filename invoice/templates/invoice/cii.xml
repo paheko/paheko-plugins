@@ -1,4 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
+{** ORDER OF ELEMENTS CANNOT BE CHANGED! **}
 <rsm:CrossIndustryInvoice
 	xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100"
 	xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"
@@ -12,7 +13,7 @@
 		<ram:ID>{$invoice.number}</ram:ID> <!-- Invoice number, free text -->
 		<ram:TypeCode>{$invoice.type_code}</ram:TypeCode>
 		<ram:IssueDateTime>
-			<udt:DateTimeString format="102">{$invoice.issue_date|date_format:'YMD'}</udt:DateTimeString>
+			<udt:DateTimeString format="102">{$invoice.issue_date|date_format:'%Y%m%d'}</udt:DateTimeString>
 			<!-- 102 = YYYYMMDD -->
 		</ram:IssueDateTime>
 		{foreach from=$invoice.notes item="note"}
@@ -66,22 +67,22 @@
 		</ram:IncludedSupplyChainTradeLineItem>
 		{/foreach}
 		<ram:ApplicableHeaderTradeAgreement>
-			<ram:BuyerReference>{$invoice.buyer_reference}</ram:BuyerReference> <!-- Référence acheteur. "Service exécutant" Code service pour Chorus Pro. Obligatoire pour les entités publiques marquées « Service obligatoire » dans Chorus Pro. -->
+			{if $invoice.buyer_reference}
+				<ram:BuyerReference>{$invoice.buyer_reference}</ram:BuyerReference> <!-- Référence acheteur. "Service exécutant" Code service pour Chorus Pro. Obligatoire pour les entités publiques marquées « Service obligatoire » dans Chorus Pro. -->
+			{/if}
 			<ram:SellerTradeParty>
 				<ram:Name>{$invoice.seller.name}</ram:Name>
-				<ram:SpecifiedLegalOrganization>
-					<ram:ID schemeID="{$invoice.seller.legal_registration_identifier.scheme}">{$invoice.seller.legal_registration_identifier.value}</ram:ID> <!-- Seller SIRET -->
-				</ram:SpecifiedLegalOrganization>
-				<ram:PostalTradeAddress>
-					<ram:CountryID>{$invoice.seller.postal_address.country_code}</ram:CountryID>
-				</ram:PostalTradeAddress>
-				<ram:URIUniversalCommunication>
-					<ram:URIID schemeID="EM">{$invoice.seller.contact.email_address}</ram:URIID><!-- Adresse e-mail du vendeur -->
-				</ram:URIUniversalCommunication>
+				{if $invoice.seller.legal_registration_identifier.value}
+					<ram:SpecifiedLegalOrganization>
+						<ram:ID schemeID="{$invoice.seller.legal_registration_identifier.scheme}">{$invoice.seller.legal_registration_identifier.value}</ram:ID>
+					</ram:SpecifiedLegalOrganization>
+				{/if}
 				<ram:DefinedTradeContact>
-					<ram:TelephoneUniversalCommunication>
-						<ram:CompleteNumber>{$invoice.seller.contact.phone_number}</ram:CompleteNumber>
-					</ram:TelephoneUniversalCommunication>
+					{if $invoice.seller.contact.phone_number}
+						<ram:TelephoneUniversalCommunication>
+							<ram:CompleteNumber>{$invoice.seller.contact.phone_number}</ram:CompleteNumber>
+						</ram:TelephoneUniversalCommunication>
+					{/if}
 					<ram:EmailURIUniversalCommunication>
 						<ram:URIID>{$invoice.seller.contact.email_address}</ram:URIID>
 					</ram:EmailURIUniversalCommunication>
@@ -94,31 +95,46 @@
 					<ram:CityName>{$invoice.seller.postal_address.city}</ram:CityName>
 					<ram:CountryID>{$invoice.seller.postal_address.country_code}</ram:CountryID>
 				</ram:PostalTradeAddress>
+				{if $invoice.seller.contact.email_address}
+					<ram:URIUniversalCommunication>
+						<ram:URIID schemeID="EM">{$invoice.seller.contact.email_address}</ram:URIID><!-- Adresse e-mail du vendeur -->
+					</ram:URIUniversalCommunication>
+				{/if}
 				{if $invoice.seller.vat_identifier}
 					<ram:SpecifiedTaxRegistration>
 						<ram:ID schemeID="VA">{$invoice.seller.vat_identifier}</ram:ID> <!-- numéro TVA -->
 					</ram:SpecifiedTaxRegistration>
 				{elseif $invoice.seller.postal_address.country_code === 'FR'}
-					{* See BR-FR-CO-16: Si le Vendeur n'a pas de n° de TVA, il doit répéter son n° de SIREN en BT-32 *}
+					{* See https://github.com/OCA/l10n-france/pull/759/changes
+					and BR-FR-CO-16: Si le Vendeur n'a pas de n° de TVA, il doit répéter son n° de SIREN en BT-32 *}
 					<ram:SpecifiedTaxRegistration>
-						<ram:ID schemeID="{$invoice.seller.legal_registration_identifier.scheme}">{$invoice.seller.legal_registration_identifier.value}</ram:ID>
+						{* FC code is from https://unece.org/fileadmin/DAM/trade/untdid/d16b/tred/tred1153.htm *}
+						<ram:ID schemeID="FC">{$invoice.seller.legal_registration_identifier.value}</ram:ID>
 					</ram:SpecifiedTaxRegistration>
 				{/if}
 			</ram:SellerTradeParty>
 			<ram:BuyerTradeParty>
 				<ram:Name>{$invoice.buyer.name}</ram:Name><!-- Nom client -->
-				<ram:SpecifiedLegalOrganization>
-					<!-- Numéro d'entreprise client. SchemeIDs: https://docs.peppol.eu/poacc/billing/3.0/codelist/ICD/ -->
-					<ram:ID schemeID="{$invoice.buyer.legal_registration_identifier.scheme}">{$invoice.buyer.legal_registration_identifier.value}</ram:ID>
-				</ram:SpecifiedLegalOrganization>
-				<ram:DefinedTradeContact>
-					<ram:TelephoneUniversalCommunication>
-						<ram:CompleteNumber>{$invoice.buyer.contact.phone_number}</ram:CompleteNumber>
-					</ram:TelephoneUniversalCommunication>
-					<ram:EmailURIUniversalCommunication>
-						<ram:URIID>{$invoice.buyer.contact.email_address}</ram:URIID>
-					</ram:EmailURIUniversalCommunication>
-				</ram:DefinedTradeContact>
+				{if $invoice.buyer.legal_registration_identifier.value}
+					<ram:SpecifiedLegalOrganization>
+						{* Numéro d'entreprise client. SchemeIDs: https://docs.peppol.eu/poacc/billing/3.0/codelist/ICD/ *}
+						<ram:ID schemeID="{$invoice.buyer.legal_registration_identifier.scheme}">{$invoice.buyer.legal_registration_identifier.value}</ram:ID>
+					</ram:SpecifiedLegalOrganization>
+				{/if}
+				{if $invoice.buyer.contact.phone_number || $invoice.buyer.contact.email_address}
+					<ram:DefinedTradeContact>
+						{if $invoice.buyer.contact.phone_number}
+						<ram:TelephoneUniversalCommunication>
+							<ram:CompleteNumber>{$invoice.buyer.contact.phone_number}</ram:CompleteNumber>
+						</ram:TelephoneUniversalCommunication>
+						{/if}
+						{if $invoice.buyer.contact.email_address}
+						<ram:EmailURIUniversalCommunication>
+							<ram:URIID>{$invoice.buyer.contact.email_address}</ram:URIID>
+						</ram:EmailURIUniversalCommunication>
+						{/if}
+					</ram:DefinedTradeContact>
+				{/if}
 				<ram:PostalTradeAddress>
 					<ram:PostcodeCode>{$invoice.buyer.postal_address.post_code}</ram:PostcodeCode>
 					<ram:LineOne>{$invoice.buyer.postal_address.address_line1}</ram:LineOne>
@@ -127,9 +143,11 @@
 					<ram:CityName>{$invoice.buyer.postal_address.city}</ram:CityName>
 					<ram:CountryID>{$invoice.buyer.postal_address.country_code}</ram:CountryID>
 				</ram:PostalTradeAddress>
-				<ram:URIUniversalCommunication>
-					<ram:URIID schemeID="EM">{$invoice.buyer.contact.email_address}</ram:URIID><!-- Adresse e-mail du client -->
-				</ram:URIUniversalCommunication>
+				{if $invoice.buyer.contact.email_address}
+					<ram:URIUniversalCommunication>
+						<ram:URIID schemeID="EM">{$invoice.buyer.contact.email_address}</ram:URIID><!-- Adresse e-mail du client -->
+					</ram:URIUniversalCommunication>
+				{/if}
 				{if $invoice.buyer.vat_identifier}
 					<!-- Numéro TVA de l'acheteur -->
 					<ram:SpecifiedTaxRegistration>
@@ -138,11 +156,18 @@
 				{/if}
 			</ram:BuyerTradeParty>
 
-			<ram:BuyerOrderReferencedDocument>
-				<ram:IssuerAssignedID>{$invoice.contract_reference}</ram:IssuerAssignedID><!-- Numéro commande acheteur. "Numéro d'engagement juridique" Texte libre. Pour Chorus Pro, indiquer ici le numéro d'engagement. Obligatoire pour les entités publiques marquées « Engagement obligatoire » dans Chorus Pro. -->
-			</ram:BuyerOrderReferencedDocument>
+			{if $invoice.contract_reference}
+				<ram:BuyerOrderReferencedDocument>
+					<ram:IssuerAssignedID>{$invoice.contract_reference}</ram:IssuerAssignedID><!-- Numéro commande acheteur. "Numéro d'engagement juridique" Texte libre. Pour Chorus Pro, indiquer ici le numéro d'engagement. Obligatoire pour les entités publiques marquées « Engagement obligatoire » dans Chorus Pro. -->
+				</ram:BuyerOrderReferencedDocument>
+			{/if}
 		</ram:ApplicableHeaderTradeAgreement>
-		<ram:ApplicableHeaderTradeDelivery/>
+		<ram:ApplicableHeaderTradeDelivery>
+			{* This is useless, but required by validator *}
+			<ram:ShipToTradeParty>
+				<ram:Name>{$invoice.seller.name}</ram:Name>
+			</ram:ShipToTradeParty>
+		</ram:ApplicableHeaderTradeDelivery>
 		<ram:ApplicableHeaderTradeSettlement>
 			<ram:InvoiceCurrencyCode>{$invoice.currency_code}</ram:InvoiceCurrencyCode>
 			<!-- Facultatif ?
@@ -175,14 +200,17 @@
 			<ram:ApplicableTradeTax>
 				<ram:CalculatedAmount>{$vat.vat_category_tax_amount}</ram:CalculatedAmount>
 				<ram:TypeCode>VAT</ram:TypeCode>
-				{if !$vat.rate}
+				{if $vat.vat_category_code === 'E'}
 				<!-- Si exempté de TVA, alors il faut indiquer une raison de l'exemption de TVA -->
 				<!-- Codes : https://docs.peppol.eu/poacc/billing/3.0/codelist/vatex/ -->
-				<ram:ExemptionReason>{$vat.exemption_reason}</ram:ExemptionReason>
-				<ram:ExemptionReasonCode>{$vat.exemption_reason_code}</ram:ExemptionReasonCode>
+				<ram:ExemptionReason>{$vat.vat_exemption_reason}</ram:ExemptionReason>
 				{/if}
 				<ram:BasisAmount>{$vat.vat_category_taxable_amount}</ram:BasisAmount>
 				<ram:CategoryCode>{$vat.vat_category_code}</ram:CategoryCode>
+				{if $vat.vat_category_code === 'E'}
+					{** This needs to be here and cannot be with ExemptionReason as the order of elements is important (!) **}
+					<ram:ExemptionReasonCode>{$vat.vat_exemption_reason_code}</ram:ExemptionReasonCode>
+				{/if}
 				<!-- Ce code ne peut être présent si la date d'exigibilité est fournie directement
 				dans l'élément ""Date d'exigibilité de la taxe sur la valeur ajoutée"" (BT-7).
 				Ce code doit être choisi parmi les valeurs suivantes issues de l'UNTDID 2475 (au lieu de UNTDID 2005 [6]):
@@ -196,7 +224,7 @@
 			<ram:SpecifiedTradePaymentTerms>
 				{*<ram:Description>{$payment_instructions}</ram:Description>*}
 				<ram:DueDateDateTime>
-					<udt:DateTimeString format="102">{$invoice.payment_due_date|date_format:'YMD'}</udt:DateTimeString><!-- Date d'échéance de paiement -->
+					<udt:DateTimeString format="102">{$invoice.payment_due_date|date_format:'%Y%m%d'}</udt:DateTimeString><!-- Date d'échéance de paiement -->
 				</ram:DueDateDateTime>
 				<!-- Identifiant RUM pour prélèvement SEPA
 				<ram:DirectDebitMandateID>ICS XXXX</ram:DirectDebitMandateID>-->

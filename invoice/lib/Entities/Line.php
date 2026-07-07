@@ -11,6 +11,7 @@ use KD2\DB\EntityManager as EM;
 use KD2\Office\Money;
 
 use DateTime;
+use stdClass;
 
 class Line extends Entity
 {
@@ -194,20 +195,20 @@ class Line extends Entity
 	/**
 	 * Return invoice line as an object ready for EN16931
 	 */
-	public function exportForInvoice(): array
+	public function exportForInvoice(): stdClass
 	{
-		return [
+		return (object) [
 			'identifier'               => (string) $this->id,
 			'invoiced_quantity'        => $this->quantity,
 			'invoiced_quantity_code'   => $this->unit,
-			'item_information'         => [
+			'item_information'         => (object) [
 				'name' => $this->label,
 				'description' => $this->description ?? '',
 				'seller_identifier' => $this->reference ?? '',
 			],
 			'net_amount'               => $this->getNetTotal(),
-			'price_details'            => ['item_net_price' => $this->getUnitPrice()],
-			'vat_information'          => [
+			'price_details'            => (object) ['item_net_price' => $this->getUnitPrice()],
+			'vat_information'          => (object) [
 				'invoiced_item_vat_category_code' => $this->vat_code,
 				'invoiced_item_vat_rate'          => strval($this->vat_rate * 100),
 				'exemption_reason_code'           => $this->vat_exemption_code,
