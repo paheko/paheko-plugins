@@ -1,11 +1,3 @@
-# Fonctionnalités non supportées pour le moment
-
-- Auto-facturation
-- Avoir
-- Facture rectificative
-- Facture d'acompte
-- Cas spécifiques de TVA : auto-liquidation, exemption pour export hors UE, îles Canaries, Ceuta et Mellila
-
 # Stockage des factures
 
 Les factures sont sérialisées en interne dans un format JSON proche du standard EN 16931. Le format est identique à la sérialisation effectuée par SuperPDP dans son modèle `en_invoice`: <https://www.superpdp.tech/openapi/#superpdp/model/en_invoice>
@@ -18,11 +10,19 @@ Une fois que la facture est validée, la sérialisation est stockée dans le cha
 
 # Export des factures
 
-Les factures sérialisées en JSON peuvent être converties en HTML, UBL ou CII. Le CII peut ensuite être utilisé pour créer un fichier Factur-X.
+Les factures sérialisées en JSON peuvent être converties en HTML et CII. Le HTML peut produire un PDF, comme d'habitude (ou presque) dans Paheko.
+
+La combinaison PDF+CII permet de créer un fichier Factur-X.
 
 Cela permet aussi de visualiser des factures reçues. Cependant l'export développé ne gère pas la totalité des spécificités des factures UBL/CII.
 
-## Notes facturation électronique
+
+# Autres projets
+
+* https://github.com/solarpush/fX
+
+# Divers
+
 
 * FAQ : https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/faq_fe_05_01_2024_vf.pdf
 * https://github.com/OCA/l10n-france/tree/16.0/l10n_fr_chorus_account
@@ -39,8 +39,6 @@ Factur-X:
 * PHP: https://github.com/atgp/factur-x/tree/master (2.3MB)
 * https://github.com/akretion/factur-x-libreoffice-extension/blob/master/extension/package/libreoffice_facturx_macro.py
 * Génération de PDF conforme en PHP : https://github.com/horstoeko/zugferd/blob/master/src/ZugferdPdfWriter.php
-
-{{:facturx template="./invoice.html" invoice=$invoice}}
 
 Ghostscript:
 * https://ghostscript.com/blog/zugferd.html

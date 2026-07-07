@@ -70,14 +70,17 @@ class Invoice extends Entity
 	const TYPE_INVOICE = 380;
 
 	/**
+	 * Factur-X (BT-3) only allows some codes, not all of them!
 	 * @see https://service.unece.org/trade/untdid/d99a/uncl/uncl1001.htm
 	 * @see https://api.agicap.com/guides/einvoicing
 	 */
 	const TYPES = [
 		self::TYPE_QUOTE => 'Devis',
 		self::TYPE_INVOICE => 'Facture',
+		//381 => 'Avoir', // Credit note
+		//384 => 'Facture rectificative',
 		//386 => 'Facture d\'acompte',
-		//381 => 'Avoir',
+		//389 => 'Auto-facturation',
 	];
 
 	const TYPES_PLURAL = [
