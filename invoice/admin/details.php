@@ -17,7 +17,7 @@ if (!$invoice) {
 }
 
 if (isset($_GET['download'])) {
-	$invoice->exportAs('facturx');
+	$invoice->downloadAs('facturx');
 	return;
 }
 

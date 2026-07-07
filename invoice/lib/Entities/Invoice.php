@@ -415,13 +415,11 @@ class Invoice extends Entity
 
 		$tpl->assign('invoice', $this->getExport());
 
-		$out = $tpl->fetch(__DIR__ . '/../../templates/invoice/' . $template);
-
-		if ($format === 'facturx') {
-			$out = $this->createFacturX($out);
+		if ($format === 'cii') {
+			$tpl->setEscapeType('xml');
 		}
 
-		return $out;
+		return $tpl->fetch(__DIR__ . '/../../templates/invoice/' . $template);
 	}
 
 	public function streamAs(string $format, bool $download = false): void
@@ -433,7 +431,7 @@ class Invoice extends Entity
 		};
 
 		if ($this->status === self::STATUS_DRAFT && $format !== 'html') {
-			throw new \LogicException('Cannot download a draft');
+			//throw new \LogicException('Cannot download a draft');
 		}
 
 		header('Content-Type: ' . $mimetype);
@@ -477,9 +475,17 @@ class Invoice extends Entity
 		}
 
 		$id = 'facturx_' . sha1(random_bytes(10));
-		Static_Cache::store($id, $xml);
-		$tmp_xml_file = Static_Cache::getPath($id);
+		$tmp_xml_dir = STATIC_CACHE_ROOT . '/' . $id;
+		$tmp_xml_file = $tmp_xml_dir . '/factur-x.xml';
 		$root = realpath(__DIR__ . '/../..');
+
+		// We can't use Static_Cache class as the file MUST be called "factur-x.xml"
+		// or it won't work!
+		mkdir($tmp_xml_dir);
+
+		file_put_contents($tmp_xml_file, $xml);
+
+		$cmd = null;
 
 		// Prince can directly create a valid Factur-X PDF using STDIN/STDOUT,
 		// without temporary files for HTML and PDF, much better
@@ -489,10 +495,6 @@ class Invoice extends Entity
 				escapeshellarg($root . '/factur-x/factur-x.xmp'),
 				escapeshellarg($tmp_xml_file)
 			);
-
-			$out = '';
-			Utils::exec($cmd, 10, $html, fn ($data) => $out .= $data);
-			return $out;
 		}
 		// Weasyprint can also do it: https://github.com/Kozea/WeasyPrint/pull/2658
 		elseif (Utils::getPDFCommand() === 'weasyprint') {
@@ -500,43 +502,50 @@ class Invoice extends Entity
 				escapeshellarg($tmp_xml_file),
 				escapeshellarg($root . '/factur-x/factur-x.xmp')
 			);
-
-			$out = '';
-			Utils::exec($cmd, 10, $html, fn ($data) => $out .= $data);
-			return $out;
 		}
-
-		if (!Utils::quick_exec('which gs', 1)) {
-			throw new \LogicException('Cannot create Factur-X file: ghostscript is not installed');
-		}
-
-		// If Prince is not available, use ghostscript
-		$tmp_pdf_file = Utils::filePDF($html);
-
-		$cmd = sprintf('gs --permit-file-read=%s'
-			. ' -sDEVICE=pdfwrite'
-			. ' -dPDFA=3'
-			. ' -sColorConversionStrategy=RGB'
-			. ' -sZUGFeRDXMLFile=%s'
-			. ' -sZUGFeRDProfile=%s'
-			. ' -sZUGFeRDVersion=2p1'
-			. ' -sZUGFeRDConformanceLevel=MINIMUM'
-			. ' -dPDFACompatibilityPolicy=1'
-			. ' -o %s %s %s',
-			escapeshellarg($root . ':' . STATIC_CACHE_ROOT),
-			escapeshellarg($tmp_xml_file),
-			escapeshellarg($root . '/factur-x/rgb.icc'),
-			escapeshellarg($path ?? '-'),
-			escapeshellarg($root . '/factur-x/zugferd.ps'),
-			escapeshellarg($tmp_pdf_file)
-		);
 
 		try {
+			if (null !== $cmd) {
+				$out = '';
+				// using function is mandatory, fn($data) => $out.= $data doesn't work!
+				Utils::exec($cmd, 10, $html, function($data) use (&$out) { $out .= $data; });
+				return $out;
+			}
+
+			if (!Utils::quick_exec('which gs', 1)) {
+				throw new \LogicException('Cannot create Factur-X file: ghostscript is not installed');
+			}
+
+			// If Prince is not available, use ghostscript
+			$tmp_pdf_file = Utils::filePDF($html);
+
+			$cmd = sprintf('gs --permit-file-read=%s'
+				. ' -sDEVICE=pdfwrite'
+				. ' -dPDFA=3'
+				. ' -sColorConversionStrategy=RGB'
+				. ' -sZUGFeRDXMLFile=%s'
+				. ' -sZUGFeRDProfile=%s'
+				. ' -sZUGFeRDVersion=2p1'
+				. ' -sZUGFeRDConformanceLevel=MINIMUM'
+				. ' -dPDFACompatibilityPolicy=1'
+				. ' -o %s %s %s',
+				escapeshellarg($root . ':' . STATIC_CACHE_ROOT),
+				escapeshellarg($tmp_xml_file),
+				escapeshellarg($root . '/factur-x/rgb.icc'),
+				escapeshellarg($path ?? '-'),
+				escapeshellarg($root . '/factur-x/zugferd.ps'),
+				escapeshellarg($tmp_pdf_file)
+			);
+
 			return Utils::quick_exec($cmd, 5);
 		}
 		finally {
-			Static_Cache::remove($id);
-			Utils::safe_unlink($tmp_pdf_file);
+			if (isset($tmp_pdf_file)) {
+				Utils::safe_unlink($tmp_pdf_file);
+			}
+
+			Utils::safe_unlink($tmp_xml_file);
+			@rmdir($tmp_xml_dir);
 		}
 	}
 

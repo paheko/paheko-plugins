@@ -17,7 +17,7 @@ $title .= ' ' . $invoice['number'];
 		{linkbutton href="%s&print=yes"|args:$self_url label="Imprimer" target="_blank" shape="print"}
 		{if !empty($facturx_enabled)}
 			{linkbutton href="?id=%d&download=facturx"|args:$invoice.identifier label="Télécharger" shape="download"}
-		{elseif PDF_ENABLED}
+		{elseif $pdf_enabled}
 			{linkbutton href="%s&_pdf"|args:$self_url label="Télécharger en PDF" shape="download"}
 		{/if}
 	</nav>
