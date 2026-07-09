@@ -3,6 +3,7 @@
 namespace Paheko\Plugin\Invoice\Entities;
 
 use Paheko\Config;
+use Paheko\DB;
 use Paheko\DynamicList;
 use Paheko\Entity;
 use Paheko\Plugins;
@@ -31,7 +32,7 @@ class Invoice extends Entity
 	protected int $id_client;
 	protected ?int $id_transaction = null;
 	protected ?int $id_quote = null;
-	protected ?int $number = null;
+	protected ?string $number = null;
 	protected int $type;
 	protected string $label;
 	protected Date $date_created;
@@ -215,7 +216,7 @@ class Invoice extends Entity
 	public function validate(int $number = 1): void
 	{
 		if (!$this->isDraft()) {
-			throw new \LogicException('Cannot publish a non-draft');
+			throw new \LogicException('Cannot validate a non-draft');
 		}
 
 		if (!$this->isQuote()) {
@@ -223,6 +224,7 @@ class Invoice extends Entity
 			$this->assert(!empty($config->org_address), 'L\'adresse de votre organisation n\'est pas renseignée.');
 		}
 
+		$db = DB::getInstance();
 		$where_type = $this->type === self::TYPE_QUOTE ? 'type = ?' : 'type != ?';
 		$new_number = $db->firstColumn('SELECT COUNT(*) FROM ' . self::TABLE . ' WHERE ' . $where_type . ' AND status != ?;', self::TYPE_QUOTE, self::STATUS_DRAFT);
 
@@ -234,6 +236,8 @@ class Invoice extends Entity
 		}
 
 		$this->set('number', sprintf('%s-%d-%d', $this->type === self::TYPE_QUOTE ? 'D' : 'F', $this->date_created->format('Y'), $new_number));
+		$this->set('status', self::STATUS_AWAITING_SEND);
+		$this->saveOnly(['number', 'status']);
 	}
 
 	public function importForm(?array $source = null)
@@ -579,19 +583,6 @@ class Invoice extends Entity
 		}
 
 		return (bool) Utils::quick_exec('which gs', 1);
-	}
-
-	public function validateForInvoiceSending(?stdClass $export = null): void
-	{
-		if (empty($export->seller->vat_identifier)
-			&& empty($export->seller->legal_registration_identifier->value)) {
-			throw new ValidationException('Aucun numéro d\'entreprise n\'est spécifié pour le vendeur : merci de renseigner votre numéro de TVA ou d\'entreprise (SIREN ou SIRET)');
-		}
-
-		// BR-FR-12/BT-49 : Le BT-49 est obligatoire.
-		if (empty($export->buyer->contact->email_address)) {
-			throw new ValidationException('L\'adresse e-mail du client doit être renseignée');
-		}
 	}
 
 	public function getPaymentsList(): DynamicList

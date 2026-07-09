@@ -19,8 +19,9 @@ class Client extends Entity
 	protected string $address;
 	protected string $post_code;
 	protected string $city;
+	// BR-FR-12/BT-49 : Le BT-49 est obligatoire.
+	protected string $email;
 	protected ?string $phone;
-	protected ?string $email;
 	protected ?string $notes;
 
 	/**
@@ -37,6 +38,11 @@ class Client extends Entity
 		'0183' => 'IDE', // Suisse
 		'0208' => 'BCE', // Belgique
 		'0223' => 'Numéro TVA', // Europe
+	];
+
+	const E_EINVOCING_COUNTRIES = [
+		'BE',
+		'FR',
 	];
 
 	const EU_COUNTRIES = [
@@ -128,6 +134,11 @@ class Client extends Entity
 	public function isBusiness(): bool
 	{
 		return isset($this->business_number) || isset($this->vat_number);
+	}
+
+	public function requiresEInvoicing(): bool
+	{
+		return in_array($this->country, self::E_EINVOCING_COUNTRIES, true) && (isset($this->business_number) || isset($this->vat_number));
 	}
 
 	public function exportForInvoice(): stdClass

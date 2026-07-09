@@ -38,7 +38,7 @@
 		{if $invoice.status === $invoice::STATUS_AWAITING_SEND}
 			<div class="alert block">
 				<h3>Statut&nbsp;: à envoyer au client</h3>
-				<p>{button shape="email" name="send" label="Envoyer" type="submit" class="main"}</p>
+				<p>{button shape="mail" name="send" label="Envoyer" type="submit" class="main"}</p>
 				<p>{button shape="check" name="mark_sent" label="Marquer comme envoyé" type="submit"}</p>
 			</div>
 		{elseif $invoice.status === $invoice::STATUS_AWAITING_VALIDATION}
@@ -61,7 +61,7 @@
 		{if $invoice.status === $invoice::STATUS_AWAITING_SEND}
 			<div class="alert block">
 				<h3>Statut&nbsp;: à envoyer au client</h3>
-				<p>{button shape="email" name="send" label="Envoyer" type="submit" class="main"}</p>
+				<p>{button shape="mail" name="send" label="Envoyer" type="submit" class="main"}</p>
 				<p>{button shape="check" name="mark_sent" label="Marquer comme envoyée" type="submit"}</p>
 			</div>
 		{elseif $invoice.status === $invoice::STATUS_AWAITING_PAYMENT}
