@@ -7,7 +7,13 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 <head>
 	<meta charset="utf-8" />
 	<title>{$title}</title>
-	<link rel="stylesheet" type="text/css" href="{$admin_url}p/invoice/invoice.css?{$version_hash}" />
+	{if $css}
+		<style type="text/css">
+		{$css|raw}
+		</style>
+	{else}
+		<link rel="stylesheet" type="text/css" href="{$admin_url}p/invoice/invoice.css?{$version_hash}" />
+	{/if}
 </head>
 
 <body>

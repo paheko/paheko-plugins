@@ -668,6 +668,7 @@ class Invoice extends Entity
 				$tpl->assign('facturx_enabled', $this->canExportAsFacturX());
 			}
 			else {
+				$tpl->assign('css', file_get_contents(__DIR__ . '/../../admin/invoice.css'));
 				$tpl->assign('export', true);
 			}
 		}
