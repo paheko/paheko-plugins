@@ -1,5 +1,6 @@
+{use Paheko\Plugin\Invoice\Invoices}
 <?php
-$title = $invoice->getTypeLabel() . ' ' . $invoice->number;
+$title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 ?>
 <!DOCTYPE html>
 <html>

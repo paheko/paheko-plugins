@@ -74,7 +74,7 @@
 				<h3>Statut&nbsp;: en attente de règlement</h3>
 				<p>{button shape="check" name="mark_paid" label="Marquer comme payée" type="submit"}</p>
 			</div>
-		{elseif $invoice.status === $invoice::STATUS_AWAITING_PAYMENT}
+		{elseif $invoice.status === $invoice::STATUS_CANCELLED}
 			<div class="alert block">
 				<h3>Statut&nbsp;: en attente de paiement</h3>
 				<p>{linkbutton shape="plus" label="Saisir un paiement" href="payment.php?id=%s"|args:$invoice.id target="_dialog"</p>
@@ -84,6 +84,8 @@
 {/if}
 
 <dl class="describe">
+	<dt>Type</dt>
+	<dd>{$invoice->getTypeLabel()}</dd>
 	<dt>Statut</dt>
 	<dd>
 		{tag label=$invoice->getStatusLabel() color=$invoice->getStatusColor()}

@@ -46,6 +46,11 @@ class Invoices
 		'VATEX-FR-CGI295'        => 'Exonérations dans les DOM — Art. 295 CGI',
 	];
 
+	static public function getTypeLabel(int $code): string
+	{
+		return Invoice::TYPES[$code] ?? 'Facture';
+	}
+
 	static public function get(int $id): ?Invoice
 	{
 		return EM::findOneById(Invoice::class, $id);

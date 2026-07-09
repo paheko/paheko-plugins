@@ -69,6 +69,7 @@ class Invoice extends Entity
 	protected ?string $provider_id = null;
 
 	protected Client $_client;
+	protected ?Invoice $_invoice = null;
 
 	const TYPE_QUOTE = 231;
 	const TYPE_INVOICE = 380;
@@ -108,7 +109,9 @@ class Invoice extends Entity
 	const STATUS_AWAITING_SEND = 'awaiting_send';
 	const STATUS_AWAITING_VALIDATION = 'awaiting_validation';
 	const STATUS_AWAITING_PAYMENT = 'awaiting_payment';
+	const STATUS_AWAITING_REFUND = 'awaiting_refund';
 	const STATUS_PAID = 'paid';
+	const STATUS_REFUNDED = 'refunded';
 	const STATUS_CANCELLED = 'cancelled';
 	const STATUS_ACCEPTED = 'accepted';
 
@@ -117,7 +120,9 @@ class Invoice extends Entity
 		self::STATUS_AWAITING_SEND => 'À envoyer',
 		self::STATUS_AWAITING_VALIDATION => 'À valider',
 		self::STATUS_AWAITING_PAYMENT => 'À payer',
+		self::STATUS_AWAITING_REFUND => 'Remboursement en attente',
 		self::STATUS_PAID => 'Payée',
+		self::STATUS_REFUNDED => 'Remboursée',
 		self::STATUS_CANCELLED => 'Annulé',
 		self::STATUS_ACCEPTED => 'Accepté',
 	];
@@ -127,7 +132,9 @@ class Invoice extends Entity
 		self::STATUS_AWAITING_SEND => 'purple',
 		self::STATUS_AWAITING_VALIDATION => 'darkorange',
 		self::STATUS_AWAITING_PAYMENT => 'darkred',
+		self::STATUS_AWAITING_REFUND => 'darkred',
 		self::STATUS_PAID => 'darkgreen',
+		self::STATUS_REFUNDED => 'darkgreen',
 		self::STATUS_CANCELLED => 'darkgray',
 		self::STATUS_ACCEPTED => 'darkgreen',
 	];
@@ -165,6 +172,35 @@ class Invoice extends Entity
 		}
 
 		return parent::delete();
+	}
+
+	public function duplicate(): Invoice
+	{
+		if ($this->type === self::TYPE_CREDIT) {
+			throw new UserException('Impossible de dupliquer un avoir');
+		}
+
+		$invoice = clone $this;
+		$invoice->set('status', $invoice::STATUS_DRAFT);
+		$invoice->set('number', null);
+		$invoice->set('content', null);
+
+		return $invoice;
+	}
+
+	public function saveAsCopyOf(Invoice $source): void
+	{
+		$db = DB::getInstance();
+		$db->begin();
+		$this->save();
+
+		foreach ($source->iterateLines() as $line) {
+			$line = clone $line;
+			$line->set('id_invoice', $this->id());
+			$line->save();
+		}
+
+		$db->commit();
 	}
 
 	public function isQuote(): bool
