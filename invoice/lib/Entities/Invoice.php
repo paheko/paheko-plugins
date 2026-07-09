@@ -34,7 +34,7 @@ class Invoice extends Entity
 	protected ?int $id = null;
 	protected int $id_client;
 	protected ?int $id_transaction = null;
-	protected ?int $id_quote = null;
+	protected ?int $id_invoice = null;
 	protected ?string $number = null;
 	protected int $type;
 	protected string $label;
@@ -84,15 +84,22 @@ class Invoice extends Entity
 	const TYPES = [
 		self::TYPE_QUOTE => 'Devis',
 		self::TYPE_INVOICE => 'Facture',
-		self::TYPE_CREDIT => 'Facture d\'avoir', // Avoir : quand la facture d'origine a déjà été payée
+		self::TYPE_CREDIT => 'Avoir', // Avoir : quand la facture d'origine a déjà été payée
 		//self::TYPE_CORRECTION => 'Facture rectificative', // rectificative : quand la facture d'origine n'a pas été payée ET qu'on ne modifie aucun montant
 		//386 => 'Facture d\'acompte',
 		//389 => 'Auto-facturation',
 	];
 
+	const TYPES_PREFIXES = [
+		self::TYPE_QUOTE   => 'D',
+		self::TYPE_INVOICE => 'F',
+		self::TYPE_CREDIT  => 'A',
+	];
+
 	const TYPES_PLURAL = [
 		self::TYPE_QUOTE => 'Devis',
 		self::TYPE_INVOICE => 'Factures',
+		self::TYPE_CREDIT => 'Avoirs',
 	];
 
 	const OPERATION_TYPES = [
@@ -121,8 +128,8 @@ class Invoice extends Entity
 		self::STATUS_AWAITING_VALIDATION => 'À valider',
 		self::STATUS_AWAITING_PAYMENT => 'À payer',
 		self::STATUS_AWAITING_REFUND => 'Remboursement en attente',
-		self::STATUS_PAID => 'Payée',
-		self::STATUS_REFUNDED => 'Remboursée',
+		self::STATUS_PAID => 'Payé',
+		self::STATUS_REFUNDED => 'Remboursé',
 		self::STATUS_CANCELLED => 'Annulé',
 		self::STATUS_ACCEPTED => 'Accepté',
 	];
@@ -135,7 +142,7 @@ class Invoice extends Entity
 		self::STATUS_AWAITING_REFUND => 'darkred',
 		self::STATUS_PAID => 'darkgreen',
 		self::STATUS_REFUNDED => 'darkgreen',
-		self::STATUS_CANCELLED => 'darkgray',
+		self::STATUS_CANCELLED => 'black',
 		self::STATUS_ACCEPTED => 'darkgreen',
 	];
 
@@ -184,6 +191,11 @@ class Invoice extends Entity
 		$invoice->set('status', $invoice::STATUS_DRAFT);
 		$invoice->set('number', null);
 		$invoice->set('content', null);
+		$invoice->set('id_invoice', null);
+		$invoice->set('id_transaction', null);
+		$invoice->set('date_sent', null);
+		$invoice->set('provider_id', null);
+		$invoice->set('provider_name', null);
 
 		return $invoice;
 	}
@@ -261,7 +273,7 @@ class Invoice extends Entity
 	 */
 	public function invoice(): ?Invoice
 	{
-		$_invoice ??= Invoices::get($this->id_invoice);
+		$this->_invoice ??= Invoices::get($this->id_invoice);
 		return $this->_invoice;
 	}
 
@@ -289,23 +301,31 @@ class Invoice extends Entity
 		if (!$this->isQuote()) {
 			$config = Config::getInstance();
 			$this->assert(!empty($config->org_address), 'L\'adresse de votre organisation n\'est pas renseignée.');
+
+			if ($this->client()->requiresEInvoicing()) {
+				$this->assert(!empty($config->org_business_number), 'Votre organisation n\'a indiqué aucun numéro d\'entreprise (SIREN) dans la configuration générale.');
+			}
 		}
 
 		$db = DB::getInstance();
 		$year = $this->date_created->format('Y');
-		$where_type = $this->type === self::TYPE_QUOTE ? 'type = ?' : 'type != ?';
-		$new_number = $db->firstColumn('SELECT COUNT(*) FROM ' . self::TABLE . ' WHERE ' . $where_type . ' AND strftime(\'%Y\', date_created) = ? AND status != ?;', self::TYPE_QUOTE, $year, self::STATUS_DRAFT);
+		$new_number = $db->firstColumn('SELECT MAX(number) FROM ' . self::TABLE . ' WHERE type = ? AND strftime(\'%Y\', date_created) = ? AND status != ?;', self::TYPE_QUOTE, $year, self::STATUS_DRAFT);
 
 		if ($new_number) {
+			$prefix = strtok($new_number, '-');
+			$year = strtok('-');
+			$new_number = (int) strtok('');
 			$new_number++;
 		}
 		else {
 			$new_number = $number;
 		}
 
-		$this->set('number', sprintf('%s-%d-%d', $this->type === self::TYPE_QUOTE ? 'DEV' : 'FAC', $year, $new_number));
+		$export = $this->exportForInvoice();
+
+		$this->set('number', sprintf('%s-%d-%d', self::TYPES_PREFIXES[$this->type], $year, $new_number));
 		$this->set('status', self::STATUS_AWAITING_SEND);
-		$this->set('content', $this->exportForInvoice());
+		$this->set('content', $export);
 		$this->saveOnly(['number', 'status', 'content']);
 	}
 
@@ -315,7 +335,17 @@ class Invoice extends Entity
 			throw new \LogicException('Cannot mark as sent: ' . $this->status);
 		}
 
-		$this->set('status', $this->isQuote()? self::STATUS_AWAITING_VALIDATION : self::STATUS_AWAITING_PAYMENT);
+		if ($this->isQuote()) {
+			$status = self::STATUS_AWAITING_VALIDATION;
+		}
+		elseif ($this->type === self::TYPE_CREDIT) {
+			$status = self::STATUS_AWAITING_REFUND;
+		}
+		else {
+			$status = self::STATUS_AWAITING_PAYMENT;
+		}
+
+		$this->set('status', $status);
 		$this->set('date_sent', new Date);
 		$this->saveOnly(['status', 'date_sent']);
 	}
@@ -351,13 +381,100 @@ class Invoice extends Entity
 
 	public function markAsPaid(): void
 	{
-		if ($this->status !== self::STATUS_AWAITING_SEND) {
-			throw new \LogicException('Cannot mark as sent: ' . $this->status);
+		if ($this->status !== self::STATUS_AWAITING_PAYMENT) {
+			throw new \LogicException('Cannot mark as paid: ' . $this->status);
 		}
 
-		$this->set('status', $this->isQuote()? self::STATUS_AWAITING_VALIDATION : self::STATUS_AWAITING_PAYMENT);
-		$this->set('date_sent', new Date);
-		$this->saveOnly(['status', 'date_sent']);
+		if ($this->type !== self::TYPE_INVOICE) {
+			throw new \LogicException('Cannot mark this type as paid: ' . $this->type);
+		}
+
+		$this->set('status', self::STATUS_PAID);
+		$this->saveOnly(['status']);
+	}
+
+	public function markAsUnpaid(): void
+	{
+		if ($this->status !== self::STATUS_PAID) {
+			throw new \LogicException('Cannot mark as paid: ' . $this->status);
+		}
+
+		if ($this->type !== self::TYPE_INVOICE) {
+			throw new \LogicException('Cannot mark this type as paid: ' . $this->type);
+		}
+
+		$this->set('status', self::STATUS_AWAITING_PAYMENT);
+		$this->saveOnly(['status']);
+	}
+
+	public function markAsRefunded(): void
+	{
+		if ($this->status !== self::STATUS_AWAITING_REFUND) {
+			throw new \LogicException('Cannot mark as paid: ' . $this->status);
+		}
+
+		if ($this->type !== self::TYPE_CREDIT) {
+			throw new \LogicException('Cannot mark this type as paid: ' . $this->type);
+		}
+
+		$this->set('status', self::STATUS_REFUNDED);
+		$this->saveOnly(['status']);
+	}
+
+	/**
+	 * Cancel an invoice/quote, if it's an invoice create a reverse credit note
+	 */
+	public function cancel(): ?Invoice
+	{
+		if ($this->type === self::TYPE_CREDIT) {
+			throw new \LogicException('Cannot cancel a credit note');
+		}
+
+
+		$new = null;
+		$db = DB::getInstance();
+		$db->begin();
+
+		if ($this->type === self::TYPE_INVOICE
+			&& in_array($this->status, [self::STATUS_AWAITING_PAYMENT, self::STATUS_PAID], true)) {
+			$new = $this->duplicate();
+			$new->set('type', self::TYPE_CREDIT);
+			$new->set('date_created', new Date);
+			$new->set('label', 'Avoir pour la facture ' . $this->number);
+			$new->set('id_invoice', $this->id());
+			$new->saveAsCopyOf($this, true);
+		}
+
+		$this->set('status', self::STATUS_CANCELLED);
+		$this->saveOnly(['status']);
+
+		$db->commit();
+
+		return $new;
+	}
+
+	public function accept(): ?Invoice
+	{
+		if (!$this->isQuote()) {
+			throw new \LogicException('Cannot accept an invoice');
+		}
+
+		$db = DB::getInstance();
+
+		$db->begin();
+
+		$new = $this->duplicate();
+		$new->set('type', self::TYPE_INVOICE);
+		$new->set('date_created', new Date);
+		$new->set('id_invoice', $this->id());
+		$new->saveAsCopyOf($this);
+
+		$this->set('status', self::STATUS_ACCEPTED);
+		$this->saveOnly(['status']);
+
+		$db->commit();
+
+		return $new;
 	}
 
 	public function importForm(?array $source = null)
@@ -369,7 +486,7 @@ class Invoice extends Entity
 		}
 
 		// Some values cannot be set by the user
-		unset($source['type'], $source['status'], $source['client'], $source['id_quote'],
+		unset($source['type'], $source['status'], $source['client'], $source['id_invoice'],
 			$source['number'], $source['total'], $source['content'],
 			$source['provider_name'], $source['provider_id']);
 
@@ -434,7 +551,10 @@ class Invoice extends Entity
 		// Parent invoice ID for quotes and credits
 		if ($this->id_invoice
 			&& in_array($this->type, [self::TYPE_QUOTE, self::TYPE_CREDIT], true)) {
-			$out->preceding_invoice_reference = (object) ['reference' => $this->invoice()->number];
+			$out->preceding_invoice_reference = (object) [
+				'reference' => $this->invoice()->number,
+				'issue_date' => $this->invoice()->date_created->format('Y-m-d'),
+			];
 		}
 
 		if ($this->notes) {

@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 {** ORDER OF ELEMENTS CANNOT BE CHANGED! **}
 <rsm:CrossIndustryInvoice
+	xmlns:qdt="urn:un:unece:uncefact:data:standard:QualifiedDataType:100"
 	xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100"
 	xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"
 	xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100">
@@ -236,9 +237,12 @@
 				<ram:GrandTotalAmount>{$invoice.totals.total_with_vat}</ram:GrandTotalAmount><!-- total TTC -->
 				<ram:DuePayableAmount>{$invoice.totals.amount_due_for_payment}</ram:DuePayableAmount><!-- Reste à payer -->
 			</ram:SpecifiedTradeSettlementHeaderMonetarySummation>
-			{if $invoice.preceding_invoice_reference.reference}
+			{if $invoice.preceding_invoice_reference}
 			<ram:InvoiceReferencedDocument> <!-- BG-3, 0..n, RÉFÉRENCE À UNE FACTURE ANTÉRIEURE -->
-				<ram:IssuerAssignedID>{$invoice.preceding_invoice_references.reference}</ram:IssuerAssignedID>
+				<ram:IssuerAssignedID>{$invoice.preceding_invoice_reference.reference}</ram:IssuerAssignedID>
+				<ram:FormattedIssueDateTime>
+					<qdt:DateTimeString format="102">{$invoice.preceding_invoice_reference.issue_date|date_format:'%Y%m%d'}</qdt:DateTimeString>
+				</ram:FormattedIssueDateTime>
 			</ram:InvoiceReferencedDocument>
 			{/if}
 		</ram:ApplicableHeaderTradeSettlement>

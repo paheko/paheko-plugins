@@ -81,6 +81,7 @@ class Invoices
 			],
 			'date_created' => [
 				'label' => 'Date',
+				'order' => 'date_created %s, id %1$s',
 			],
 			'label' => [
 				'label' => 'Objet',

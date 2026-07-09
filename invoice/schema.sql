@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_invoices (
 	id INTEGER NOT NULL PRIMARY KEY,
 	id_client INTEGER NOT NULL REFERENCES plugin_invoice_clients (id),
 	id_transaction INTEGER NULL REFERENCES acc_transactions (id) ON DELETE SET NULL,
-	id_quote INTEGER NULL REFERENCES plugin_invoice_invoices (id) ON DELETE SET NULL,
+	id_invoice INTEGER NULL REFERENCES plugin_invoice_invoices (id) ON DELETE SET NULL,
 	number TEXT NULL,
 	type INTEGER NOT NULL,
 	label TEXT NOT NULL,

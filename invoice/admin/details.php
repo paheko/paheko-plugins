@@ -71,6 +71,28 @@ else {
 		$invoice->markAsUnpaid();
 	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
 
+	$form->runIf('mark_refunded', function () use ($invoice) {
+		$invoice->markAsRefunded();
+	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+
+	$form->runIf('cancel', function () use ($invoice) {
+		$new = $invoice->cancel();
+
+		if ($new) {
+			$args = 'msg=CREDIT&id=' . $new->id();
+		}
+		else {
+			$args = 'id=' . $invoice->id();
+		}
+
+		Utils::redirect('!p/invoice/details.php?' . $args);
+	}, $csrf_key);
+
+	$form->runIf('accept', function () use ($invoice) {
+		$new = $invoice->accept();
+		Utils::redirect('!p/invoice/details.php?msg=ACCEPTED&id=' . $new->id());
+	}, $csrf_key);
+
 	$export = $invoice->getExport();
 
 	$payments = $invoice->getPaymentsList();

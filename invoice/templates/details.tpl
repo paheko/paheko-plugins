@@ -20,6 +20,18 @@
 
 <form method="post" action="">
 
+{if $_GET.msg === 'ACCEPTED'}
+	<p class="confirm block">
+		Le devis a été accepté, voici la facture créée à partir du devis.<br />
+		Vérifiez que la facture est conforme avant de la valider.
+	</p>
+{elseif $_GET.msg === 'CREDIT'}
+	<p class="confirm block">
+		La facture a été annulée, voici l'avoir correspondant.<br />
+		Vérifiez les montants à rembourser avant de valider.
+	</p>
+{/if}
+
 {if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
 	{if $invoice.status === 'draft' && $invoice.total}
 		<div class="alert block">
@@ -54,10 +66,6 @@
 				<h3>Statut&nbsp;: devis accepté</h3>
 				<p>{button shape="delete" name="cancel" label="Annuler" type="submit"}</p>
 			</div>
-		{elseif $invoice.status === $invoice::STATUS_CANCELLED}
-			<div class="alert block">
-				<h3>Statut&nbsp;: annulé</h3>
-			</div>
 		{/if}
 	{else}
 		{if $invoice.status === $invoice::STATUS_AWAITING_SEND}
@@ -72,12 +80,19 @@
 		{elseif $invoice.status === $invoice::STATUS_AWAITING_PAYMENT}
 			<div class="alert block">
 				<h3>Statut&nbsp;: en attente de règlement</h3>
-				<p>{button shape="check" name="mark_paid" label="Marquer comme payée" type="submit"}</p>
+				<p>{linkbutton shape="plus" label="Saisir un paiement" href="payment.php?id=%s"|args:$invoice.id target="_dialog"}</p>
+				<p>
+					{button shape="check" name="mark_paid" label="Marquer comme payé" type="submit"}
+					{button shape="delete" name="cancel" label="Annuler et créer un avoir" type="submit"}
+				</p>
 			</div>
-		{elseif $invoice.status === $invoice::STATUS_CANCELLED}
+		{elseif $invoice.status === $invoice::STATUS_AWAITING_REFUND}
 			<div class="alert block">
-				<h3>Statut&nbsp;: en attente de paiement</h3>
-				<p>{linkbutton shape="plus" label="Saisir un paiement" href="payment.php?id=%s"|args:$invoice.id target="_dialog"</p>
+				<h3>Statut&nbsp;: en attente de remboursement</h3>
+				<p>{linkbutton shape="plus" label="Saisir un remboursement" href="refund.php?id=%s"|args:$invoice.id target="_dialog"}</p>
+				<p>
+					{button shape="check" name="mark_refunded" label="Marquer comme remboursé" type="submit"}
+				</p>
 			</div>
 		{/if}
 	{/if}

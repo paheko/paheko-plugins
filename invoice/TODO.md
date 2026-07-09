@@ -2,6 +2,11 @@
 * Test PDF chromium + gs (HS)
 * Prévenir avant publication qu'une facture non conforme (SIREN manquant) ne pourra pas être envoyée
 
+# Facture d'avoir
+
+* Création de facture d'avoir quand on annule une facture
+
+
 # Clients
 
 * Pouvoir créer un client depuis le sélecteur

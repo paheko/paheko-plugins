@@ -1,11 +1,11 @@
 # Fonctionnalités non supportées pour le moment
 
-- Facture d'acompte (à venir)
+- Facture d'acompte
 - Auto-facturation
-- Avoir
 - Facture rectificative
+- Remises et rabais (à venir)
 - Cas spécifiques de TVA : auto-liquidation, exemption pour export hors UE, îles Canaries, Ceuta et Mellila
-- Envoi de facture à un code routage autre que le SIREN
+- Envoi de facture électronique à un code routage autre que le SIREN
 
 # Cycle de vie d'une facture
 
