@@ -7,7 +7,7 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 <head>
 	<meta charset="utf-8" />
 	<title>{$title}</title>
-	{if $css}
+	{if !empty($css)}
 		<style type="text/css">
 		{$css|raw}
 		</style>
