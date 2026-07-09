@@ -5,12 +5,15 @@ namespace Paheko\Plugin\Invoice\Entities;
 use Paheko\Config;
 use Paheko\DB;
 use Paheko\DynamicList;
+use Paheko\Email\Emails;
 use Paheko\Entity;
 use Paheko\Plugins;
 use Paheko\Static_Cache;
 use Paheko\Template;
 use Paheko\UserException;
 use Paheko\Utils;
+use Paheko\Files\Files;
+use Paheko\Entities\Files\File;
 
 use KD2\DB\Date;
 use KD2\DB\EntityManager as EM;
@@ -225,8 +228,9 @@ class Invoice extends Entity
 		}
 
 		$db = DB::getInstance();
+		$year = $this->date_created->format('Y');
 		$where_type = $this->type === self::TYPE_QUOTE ? 'type = ?' : 'type != ?';
-		$new_number = $db->firstColumn('SELECT COUNT(*) FROM ' . self::TABLE . ' WHERE ' . $where_type . ' AND status != ?;', self::TYPE_QUOTE, self::STATUS_DRAFT);
+		$new_number = $db->firstColumn('SELECT COUNT(*) FROM ' . self::TABLE . ' WHERE ' . $where_type . ' AND strftime(\'%Y\', date_created) = ? AND status != ?;', self::TYPE_QUOTE, $year, self::STATUS_DRAFT);
 
 		if ($new_number) {
 			$new_number++;
@@ -235,9 +239,50 @@ class Invoice extends Entity
 			$new_number = $number;
 		}
 
-		$this->set('number', sprintf('%s-%d-%d', $this->type === self::TYPE_QUOTE ? 'D' : 'F', $this->date_created->format('Y'), $new_number));
+		$this->set('number', sprintf('%s-%d-%d', $this->type === self::TYPE_QUOTE ? 'DEV' : 'FAC', $year, $new_number));
 		$this->set('status', self::STATUS_AWAITING_SEND);
-		$this->saveOnly(['number', 'status']);
+		$this->set('content', $this->exportForInvoice());
+		$this->saveOnly(['number', 'status', 'content']);
+	}
+
+	public function markAsSent(): void
+	{
+		if ($this->status !== self::STATUS_AWAITING_SEND) {
+			throw new \LogicException('Cannot mark as sent: ' . $this->status);
+		}
+
+		$this->set('status', $this->isQuote()? self::STATUS_AWAITING_VALIDATION : self::STATUS_AWAITING_PAYMENT);
+		$this->set('date_sent', new Date);
+		$this->saveOnly(['status', 'date_sent']);
+	}
+
+	public function sendEmail(): void
+	{
+		if ($this->isDraft()) {
+			throw new \LogicException('Cannot send draft invoice');
+		}
+
+		$subject = $this->isQuote() ? 'Votre devis %s' : 'Votre facture %s';
+		$subject = sprintf($subject, $this->number);
+
+		$body = 'Merci de trouver ci-joint le document.';
+
+		$xml = $this->exportAs('cii');
+		$html = $this->exportAs('html');
+		$facturx = $this->createFacturX($xml, $html);
+
+		$file = Files::createFromString(File::CONTEXT_ATTACHMENTS . '/invoice/' . $this->number . '.pdf', $facturx);
+
+		unset($xml, $facturx);
+
+		Emails::appendToQueue(Emails::CONTEXT_NOTIFICATION, $this->client()->email, $subject, $body, [
+			'attachments'  => [$file],
+			'content_html' => $html,
+		]);
+
+		if ($this->status === self::STATUS_AWAITING_SEND) {
+			$this->markAsSent();
+		}
 	}
 
 	public function importForm(?array $source = null)

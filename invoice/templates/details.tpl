@@ -11,7 +11,6 @@
 		{elseif $facturx_enabled}
 			{linkbutton shape="download" label="Télécharger" href="?id=%d&download"|args:$invoice.id}
 		{/if}
-			{linkbutton shape="download" label="Télécharger" href="?id=%d&download"|args:$invoice.id}
 	</aside>
 	{/if}
 	{linkbutton shape="left" label="Retour à la liste" href="./"}
@@ -38,8 +37,11 @@
 		{if $invoice.status === $invoice::STATUS_AWAITING_SEND}
 			<div class="alert block">
 				<h3>Statut&nbsp;: à envoyer au client</h3>
-				<p>{button shape="mail" name="send" label="Envoyer" type="submit" class="main"}</p>
-				<p>{button shape="check" name="mark_sent" label="Marquer comme envoyé" type="submit"}</p>
+				<p>
+					{button shape="mail" name="send_email" label="Envoyer par e-mail" type="submit" class="main"}
+					{linkbutton shape="download" label="Télécharger" href="?id=%d&download"|args:$invoice.id}
+					{button shape="check" name="mark_sent" label="Marquer comme envoyé" type="submit"}
+				</p>
 			</div>
 		{elseif $invoice.status === $invoice::STATUS_AWAITING_VALIDATION}
 			<div class="alert block">
@@ -61,8 +63,11 @@
 		{if $invoice.status === $invoice::STATUS_AWAITING_SEND}
 			<div class="alert block">
 				<h3>Statut&nbsp;: à envoyer au client</h3>
-				<p>{button shape="mail" name="send" label="Envoyer" type="submit" class="main"}</p>
-				<p>{button shape="check" name="mark_sent" label="Marquer comme envoyée" type="submit"}</p>
+				<p>
+					{button shape="mail" name="send_email" label="Envoyer par e-mail" type="submit" class="main"}
+					{linkbutton shape="download" label="Télécharger" href="?id=%d&download"|args:$invoice.id}
+					{button shape="check" name="mark_sent" label="Marquer comme envoyée" type="submit"}
+				</p>
 			</div>
 		{elseif $invoice.status === $invoice::STATUS_AWAITING_PAYMENT}
 			<div class="alert block">

@@ -55,11 +55,19 @@ else {
 			$line = $invoice->getLine(intval($_POST['delete_line'] ?? 0));
 			$line->delete();
 		}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
-
-		$form->runIf('validate', function () use ($invoice) {
-			$invoice->validate(intval($_POST['number'] ?? 1));
-		}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
 	}
+
+	$form->runIf('validate', function () use ($invoice) {
+		$invoice->validate(intval($_POST['number'] ?? 1));
+	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+
+	$form->runIf('mark_sent', function () use ($invoice) {
+		$invoice->markAsSent();
+	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+
+	$form->runIf('send_email', function () use ($invoice) {
+		$invoice->sendEmail();
+	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
 
 	$export = $invoice->getExport();
 
