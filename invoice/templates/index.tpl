@@ -7,7 +7,7 @@
 	{foreach from=$list->iterate() item="doc"}
 		<tr>
 			{if $list->hasColumn('type')}
-				<td>{$doc.type}</td>
+				<td>{$doc.type_label}</td>
 			{/if}
 				<td class="num">{if !$doc.number}<em>(Brouillon)</em>{else}{$doc.number}{/if}</td>
 				<td>{$doc.date_created|date_short}</td>

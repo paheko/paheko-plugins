@@ -73,6 +73,9 @@ class Invoices
 	{
 		$columns = [
 			'id' => ['select' => 'i.id'],
+			'type' => [
+				'label' => 'Type',
+			],
 			'number' => [
 				'label' => 'Numéro',
 			],
@@ -98,10 +101,12 @@ class Invoices
 		if ($type === Invoice::TYPE_QUOTE) {
 			$conditions = 'type = ?';
 			$params = [$type];
+			unset($columns['type']);
 		}
 		elseif ($type !== null) {
 			$conditions = 'type != ?';
 			$params = [Invoice::TYPE_QUOTE];
+			unset($columns['type']);
 		}
 		else {
 			$conditions = '1';
@@ -121,6 +126,7 @@ class Invoices
 		$list->setParameters($params);
 
 		$list->setModifier(function (&$row) {
+			$row->type_label = Invoice::TYPES[$row->type ?? ''] ?? null;
 			$row->status_label = Invoice::STATUSES[$row->status];
 			$row->status_color = Invoice::STATUSES_COLORS[$row->status];
 		});
