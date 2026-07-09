@@ -324,11 +324,20 @@ class Invoice extends Entity
 
 		// Add mandatory mention of recovery costs (only for enterprise invoices)
 		// see https://www.economie.gouv.fr/entreprises/gerer-son-entreprise-au-quotidien/gerer-sa-comptabilite-et-ses-demarches/mentions-obligatoires-dune-facture-tout-savoir
-		if ($this->client()->isBusiness()
-			&& $is_seller_eu) {
+		if ($config->country === 'FR') {
 			$out->notes[] = (object) [
 				'subject_code' => 'PMT',
 				'note' => 'En cas de retard de paiement, indemnité forfaitaire légale pour frais de recouvrement de 40 euros.',
+			];
+
+			$out->notes[] = (object) [
+				'subject_code' => 'PMD',
+				'note' => 'Tout retard de paiement engendre une pénalité exigible à compter de la date d\'échéance, calculée sur la base de trois fois le taux d\'intérêt légal.',
+			];
+
+			$out->notes[] = (object) [
+				'subject_code' => 'AAB',
+				'note' => 'Les réglements reçus avant la date d\'échéance ne donneront pas lieu à escompte.',
 			];
 		}
 

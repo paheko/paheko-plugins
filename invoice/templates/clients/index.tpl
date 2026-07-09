@@ -13,7 +13,7 @@
 	{include file="common/dynamic_list_head.tpl"}
 		{foreach from=$list->iterate() item="client"}
 			<tr>
-				<th>{link href="details.php?id=%d"|args:$client.id label=$client.name}</th>
+				<th>{$client.name}</th>
 				<td class="actions">
 					{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
 						{linkbutton shape="edit" label="Modifier" href="edit.php?id=%d"|args:$client.id}

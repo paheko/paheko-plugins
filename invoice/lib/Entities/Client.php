@@ -86,7 +86,7 @@ class Client extends Entity
 
 		if ($this->country === 'FR' && isset($this->business_number)) {
 			$this->assert(strlen($this->business_number) === 9, 'Le numéro de SIREN doit faire 9 caractères');
-			$this->assert(self::verifySIREN($this->business_number), 'Le numéro de SIREN est invalide');
+			$this->assert(Utils::verifyBusinessNumber($this->country, $this->business_number), 'Le numéro de SIREN est invalide : ' . $this->business_number);
 		}
 	}
 
@@ -96,6 +96,18 @@ class Client extends Entity
 
 		if (isset($source['archived_present'])) {
 			$source['archived'] = !empty($source['archived']);
+		}
+
+		$country = $source['country'] ?? $this->country;
+
+		if ($country === 'FR') {
+			if (isset($source['e_invoicing']) && empty($source['e_invoicing'])) {
+				$source['business_number'] = $source['vat_number'] = '';
+			}
+			elseif (isset($source['fr_business_number'])) {
+				$source['business_number'] = $source['fr_business_number'];
+				$source['vat_number'] = $source['fr_vat_number'];
+			}
 		}
 
 		return parent::importForm($source);
@@ -116,29 +128,6 @@ class Client extends Entity
 	public function isBusiness(): bool
 	{
 		return isset($this->business_number) || isset($this->vat_number);
-	}
-
-	static public function verifySIREN(string $number): bool
-	{
-		$total = 0;
-
-		for ($i = 0; $i < 9; $i++) {
-			$digit = (int)$number[$i];
-
-			// Every even digit is doubled
-			if ($i % 2 == 1) {
-				$digit *= 2;
-
-				if ($digit > 9) {
-					$digit -= 9;
-				}
-			}
-
-			$total += $digit;
-		}
-
-		// Sum must be divisable by 10
-		return $total % 10 === 0;
 	}
 
 	public function exportForInvoice(): stdClass

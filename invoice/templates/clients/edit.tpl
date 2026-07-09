@@ -23,11 +23,23 @@
 	</dl>
 </fieldset>
 
-<fieldset>
+<fieldset class="country-fr">
 	<legend>Informations administratives</legend>
-	<p class="help">Ces informations sont nécessaires pour l'établissement d'une facture électronique.</p>
+	<?php $enabled = !empty($client->business_number); ?>
 	<dl>
-		{input type="text" name="business_number" source=$client label="Numéro d'entreprise" required=false help="SIRET ou SIREN en France. Obligatoire pour pouvoir envoyer une facture électronique."}
+		{input type="radio-btn" prefix_label="Facturation électronique" prefix_required=true name="e_invoicing" value=1 label="Activer la facturation électronique" help="Pour les entreprises, auto-entrepreneurs, etc." required=true default=$enabled}
+		{input type="radio-btn" name="e_invoicing" value=0 label="Sans facturation électronique" help="Particuliers, associations non assujetties à la TVA, syndic non professionnel, etc." default=$enabled}
+	</dl>
+	<dl class="e_invoicing_1">
+		{input type="text" name="fr_business_number" default=$client.business_number label="Numéro SIREN" required=true maxlength=9 pattern="\d+" minlength=9}
+		{input type="text" name="fr_vat_number" default=$client.vat_number label="Numéro de TVA intra-communautaire" required=false}
+	</dl>
+</fieldset>
+
+<fieldset class="country-other">
+	<legend>Informations administratives</legend>
+	<dl class="e_invoicing_1">
+		{input type="text" name="business_number" source=$client label="Numéro d'entreprise" required=false}
 		{input type="text" name="vat_number" source=$client label="Numéro de TVA intra-communautaire" required=false}
 	</dl>
 </fieldset>
@@ -44,24 +56,22 @@
 function selectCountry()
 {
 	var c = $('#f_country').value;
-	var input = $('#f_business_number');
-	var label = input.parentNode.querySelector('label');
-	input.maxLength = null;
 
-	if (c === 'FR') {
-		input.maxLength = 9;
-		label.innerText = 'Numéro SIREN';
-	}
-	else if (c === 'BE') {
-		label.innerText = 'Numéro BCE';
-	}
-	else {
-		label.innerText = 'Numéro d\'entreprise';
-	}
+	g.toggle('.country-other', c !== 'FR');
+	g.toggle('.country-fr', c === 'FR');
+}
+
+function selectEInvoicing()
+{
+	var e = $('#f_e_invoicing_1');
+	g.toggle('.e_invoicing_1', e.checked);
 }
 
 $('#f_country').onchange = selectCountry;
+$('#f_e_invoicing_0').onchange = selectEInvoicing;
+$('#f_e_invoicing_1').onchange = selectEInvoicing;
 selectCountry();
+selectEInvoicing();
 </script>
 {/literal}
 

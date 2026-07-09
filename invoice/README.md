@@ -5,6 +5,7 @@
 - Facture rectificative
 - Facture d'acompte
 - Cas spécifiques de TVA : auto-liquidation, exemption pour export hors UE, îles Canaries, Ceuta et Mellila
+- Envoi de facture à un code routage autre que le SIREN
 
 # Stockage des factures
 
