@@ -1,11 +1,15 @@
 * Test PDF weasyprint (HS)
 * Test PDF chromium + gs (HS)
-* Prévenir avant publication qu'une facture non conforme (SIREN manquant) ne pourra pas être envoyée
 
-# Facture d'avoir
-
-* Création de facture d'avoir quand on annule une facture
-
+* Ajout confirmation à l'annulation de facture
+* Empêcher la suppression d'un avoir lié à une facture (sinon on pourrait dé-annuler une facture)
+* Pouvoir re-créer une facture à partir d'un devis si la facture a été supprimée
+* Afficher un lien vers la facture depuis le devis quand une facture a été créée
+* Afficher un lien vers la facture depuis l'avoir
+* Afficher un lien vers l'avoir depuis la facture
+* Pouvoir annuler une facture payée
+* Support des remises au niveau de la facture (pas par ligne)
+* Création d'écritures depuis les factures (facture, paiements, remboursements)
 
 # Clients
 
@@ -22,8 +26,7 @@
 
 Configuration :
 
-- Ajouter les champs suivants : "code postal", "ville" (pré-remplir avec l'adresse si possible), "numéro TVA" et "numéro SIRET" (business_number)
-- Rajouter une page dans la config "Informations légales", et y mettre ces infos
+- Ajouter les champs suivants : "code postal", "ville" (pré-remplir avec l'adresse si possible)
 
 # Plus tard
 

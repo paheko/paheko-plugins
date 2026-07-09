@@ -80,16 +80,16 @@
 		{elseif $invoice.status === $invoice::STATUS_AWAITING_PAYMENT}
 			<div class="alert block">
 				<h3>Statut&nbsp;: en attente de règlement</h3>
-				<p>{linkbutton shape="plus" label="Saisir un paiement" href="payment.php?id=%s"|args:$invoice.id target="_dialog"}</p>
+				{*<p>{linkbutton shape="plus" label="Saisir un paiement" href="payment.php?id=%s"|args:$invoice.id target="_dialog"}</p>*}
 				<p>
-					{button shape="check" name="mark_paid" label="Marquer comme payé" type="submit"}
+					{button shape="check" name="mark_paid" label="Marquer comme payée" type="submit"}
 					{button shape="delete" name="cancel" label="Annuler et créer un avoir" type="submit"}
 				</p>
 			</div>
 		{elseif $invoice.status === $invoice::STATUS_AWAITING_REFUND}
 			<div class="alert block">
 				<h3>Statut&nbsp;: en attente de remboursement</h3>
-				<p>{linkbutton shape="plus" label="Saisir un remboursement" href="refund.php?id=%s"|args:$invoice.id target="_dialog"}</p>
+				{*<p>{linkbutton shape="plus" label="Saisir un remboursement" href="refund.php?id=%s"|args:$invoice.id target="_dialog"}</p>*}
 				<p>
 					{button shape="check" name="mark_refunded" label="Marquer comme remboursé" type="submit"}
 				</p>
@@ -211,6 +211,7 @@
 {csrf_field key=$csrf_key}
 </form>
 
+{*
 {if $invoice->canPay() || $payments->count()}
 	<h2 class="ruler">Paiements</h2>
 
@@ -234,5 +235,6 @@
 		</p>
 	{/if}
 {/if}
+*}
 
 {include file="_foot.tpl"}
