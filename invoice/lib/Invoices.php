@@ -56,12 +56,9 @@ class Invoices
 		return EM::findOneById(Invoice::class, $id);
 	}
 
-	static public function count(bool $quote): int
+	static public function count(int $type): int
 	{
-		$where = 'status != ? AND ';
-		$where .= $quote ? 'type = ?' : 'type != ?';
-
-		return DB::getInstance()->count(Invoice::TABLE, $where, Invoice::STATUS_DRAFT, Invoice::TYPE_QUOTE);
+		return DB::getInstance()->count(Invoice::TABLE, 'type = ? AND status != ?', $type, Invoice::STATUS_DRAFT);
 	}
 
 	static public function getLine(int $id): ?Line
@@ -99,14 +96,9 @@ class Invoices
 			],
 		];
 
-		if ($type === Invoice::TYPE_QUOTE) {
+		if ($type) {
 			$conditions = 'type = ?';
 			$params = [$type];
-			unset($columns['type']);
-		}
-		elseif ($type !== null) {
-			$conditions = 'type != ?';
-			$params = [Invoice::TYPE_QUOTE];
 			unset($columns['type']);
 		}
 		else {

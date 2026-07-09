@@ -157,18 +157,11 @@ class Invoice extends Entity
 
 		$this->assert($this->date_expiry > $this->date_created, 'La date d\'échéance doit être après la date d\'émission');
 
-		if ($this->isQuote()) {
-			$where_type = ' AND type = ' . self::TYPE_QUOTE;
-		}
-		else {
-			$where_type = ' AND type != ' . self::TYPE_QUOTE;
-		}
-
 		if ($this->number && $this->exists()) {
-			$this->assert(!$db->test(self::TABLE, 'id != ? AND number = ?' . $where_type, $this->id(), $this->number));
+			$this->assert(!$db->test(self::TABLE, 'id != ? AND number = ?', $this->id(), $this->number));
 		}
 		elseif ($this->number) {
-			$this->assert(!$db->test(self::TABLE, 'number = ?' . $where_type, $this->number));
+			$this->assert(!$db->test(self::TABLE, 'number = ?', $this->number));
 		}
 	}
 

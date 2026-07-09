@@ -24,6 +24,7 @@
 		{tabitem selected=$current name="all" href="!p/invoice/" label="Tous les documents"}
 		{tabitem selected=$current name="invoices" href="!p/invoice/?type=380" label="Factures"}
 		{tabitem selected=$current name="quotes" href="!p/invoice/?type=231" label="Devis"}
+		{tabitem selected=$current name="credits" href="!p/invoice/?type=381" label="Avoirs"}
 		{tabitem selected=$current name="clients" href="!p/invoice/clients/" label="Clients"}
 	</ul>
 </nav>

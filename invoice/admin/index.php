@@ -25,6 +25,9 @@ if ($type === Invoice::TYPE_QUOTE) {
 elseif ($type === Invoice::TYPE_INVOICE) {
 	$current_tab = 'invoices';
 }
+elseif ($type === Invoice::TYPE_CREDIT) {
+	$current_tab = 'credits';
+}
 else {
 	$current_tab = 'all';
 }
