@@ -72,6 +72,8 @@ class Invoice extends Entity
 
 	const TYPE_QUOTE = 231;
 	const TYPE_INVOICE = 380;
+	const TYPE_CREDIT = 381;
+	//const TYPE_CORRECTION = 384;
 
 	/**
 	 * Factur-X (BT-3) only allows some codes, not all of them!
@@ -81,8 +83,8 @@ class Invoice extends Entity
 	const TYPES = [
 		self::TYPE_QUOTE => 'Devis',
 		self::TYPE_INVOICE => 'Facture',
-		//381 => 'Avoir', // Credit note
-		//384 => 'Facture rectificative',
+		self::TYPE_CREDIT => 'Facture d\'avoir', // Avoir : quand la facture d'origine a déjà été payée
+		//self::TYPE_CORRECTION => 'Facture rectificative', // rectificative : quand la facture d'origine n'a pas été payée ET qu'on ne modifie aucun montant
 		//386 => 'Facture d\'acompte',
 		//389 => 'Auto-facturation',
 	];
@@ -133,10 +135,13 @@ class Invoice extends Entity
 	public function selfCheck(): void
 	{
 		parent::selfCheck();
+		$db = DB::getInstance();
 
 		$this->assert(mb_strlen(trim($this->label)), 'Le libellé est vide');
 		$this->assert(mb_strlen(trim($this->label)) <= 500, 'Le libellé doit faire au maximum 500 caractères');
 		$this->assert(!isset($this->description) || mb_strlen(trim($this->description)) <= 10000, 'La description doit faire au maximum 10.000 caractères');
+
+		$this->assert($this->date_expiry > $this->date_created, 'La date d\'échéance doit être après la date d\'émission');
 
 		if ($this->isQuote()) {
 			$where_type = ' AND type = ' . self::TYPE_QUOTE;
@@ -151,6 +156,15 @@ class Invoice extends Entity
 		elseif ($this->number) {
 			$this->assert(!$db->test(self::TABLE, 'number = ?' . $where_type, $this->number));
 		}
+	}
+
+	public function delete(): bool
+	{
+		if (!$this->isDraft()) {
+			throw new UserException('Il n\'est pas possible de supprimer un document qui n\'est pas en brouillon');
+		}
+
+		return parent::delete();
 	}
 
 	public function isQuote(): bool
@@ -191,6 +205,11 @@ class Invoice extends Entity
 		return self::OPERATION_TYPES[$this->operation_type ?? ''] ?? null;
 	}
 
+	public function getTypeLabel(): string
+	{
+		return self::TYPES[$this->type];
+	}
+
 	public function getStatusLabel(): string
 	{
 		return self::STATUSES[$this->status];
@@ -199,6 +218,15 @@ class Invoice extends Entity
 	public function getStatusColor(): string
 	{
 		return self::STATUSES_COLORS[$this->status];
+	}
+
+	/**
+	 * Return previous references invoice (eg. for a quote, or for a credit note)
+	 */
+	public function invoice(): ?Invoice
+	{
+		$_invoice ??= Invoices::get($this->id_invoice);
+		return $this->_invoice;
 	}
 
 	public function client(): Client
@@ -285,6 +313,17 @@ class Invoice extends Entity
 		}
 	}
 
+	public function markAsPaid(): void
+	{
+		if ($this->status !== self::STATUS_AWAITING_SEND) {
+			throw new \LogicException('Cannot mark as sent: ' . $this->status);
+		}
+
+		$this->set('status', $this->isQuote()? self::STATUS_AWAITING_VALIDATION : self::STATUS_AWAITING_PAYMENT);
+		$this->set('date_sent', new Date);
+		$this->saveOnly(['status', 'date_sent']);
+	}
+
 	public function importForm(?array $source = null)
 	{
 		$source ??= $_POST;
@@ -355,6 +394,12 @@ class Invoice extends Entity
 			],
 			//'payment_terms' => // FIXME
 		];
+
+		// Parent invoice ID for quotes and credits
+		if ($this->id_invoice
+			&& in_array($this->type, [self::TYPE_QUOTE, self::TYPE_CREDIT], true)) {
+			$out->preceding_invoice_reference = (object) ['reference' => $this->invoice()->number];
+		}
 
 		if ($this->notes) {
 			$out->notes[] = (object) [
@@ -439,11 +484,8 @@ class Invoice extends Entity
 	public function exportAs(string $format): string
 	{
 		if ($format !== 'html') {
-			if ($this->type === self::TYPE_QUOTE) {
-				throw new UserException('Il n\'est pas possible d\'exporter un devis');
-			}
-			elseif ($this->status === self::STATUS_DRAFT) {
-				//throw new UserException('Il n\'est pas possible d\'exporter un document en brouillon');
+			if ($this->status === self::STATUS_DRAFT) {
+				throw new UserException('Il n\'est pas possible d\'exporter un document en brouillon');
 			}
 		}
 
@@ -499,7 +541,7 @@ class Invoice extends Entity
 		};
 
 		if ($this->status === self::STATUS_DRAFT && $format !== 'html') {
-			//throw new \LogicException('Cannot download a draft');
+			throw new \LogicException('Cannot download a draft');
 		}
 
 		header('Content-Type: ' . $mimetype);

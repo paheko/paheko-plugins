@@ -1,6 +1,5 @@
 <?php
-$title = $is_quote ? 'Devis' : 'Facture';
-$title .= ' ' . $invoice->number;
+$title = $invoice->getTypeLabel() . ' ' . $invoice->number;
 ?>
 <!DOCTYPE html>
 <html>

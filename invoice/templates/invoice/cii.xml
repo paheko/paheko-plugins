@@ -236,6 +236,11 @@
 				<ram:GrandTotalAmount>{$invoice.totals.total_with_vat}</ram:GrandTotalAmount><!-- total TTC -->
 				<ram:DuePayableAmount>{$invoice.totals.amount_due_for_payment}</ram:DuePayableAmount><!-- Reste à payer -->
 			</ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+			{if $invoice.preceding_invoice_reference.reference}
+			<ram:InvoiceReferencedDocument> <!-- BG-3, 0..n, RÉFÉRENCE À UNE FACTURE ANTÉRIEURE -->
+				<ram:IssuerAssignedID>{$invoice.preceding_invoice_references.reference}</ram:IssuerAssignedID>
+			</ram:InvoiceReferencedDocument>
+			{/if}
 		</ram:ApplicableHeaderTradeSettlement>
 	</rsm:SupplyChainTradeTransaction>
 </rsm:CrossIndustryInvoice>

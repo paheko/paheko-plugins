@@ -31,13 +31,7 @@ if (isset($_GET['print'])) {
 	return;
 }
 
-if ($invoice->isQuote()) {
-	$title = sprintf('Devis : %s', $invoice->number ?? '(brouillon)');
-}
-else {
-	$title = sprintf('Facture : %s', $invoice->number ?? '(brouillon)');
-}
-
+$title = sprintf('%s %s', $invoice->getTypeLabel(), $invoice->number ?? '(brouillon)');
 $csrf_key = 'edit_invoice_details';
 
 // Allow to select first invoice/quote number
@@ -67,6 +61,14 @@ else {
 
 	$form->runIf('send_email', function () use ($invoice) {
 		$invoice->sendEmail();
+	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+
+	$form->runIf('mark_paid', function () use ($invoice) {
+		$invoice->markAsPaid();
+	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+
+	$form->runIf('mark_unpaid', function () use ($invoice) {
+		$invoice->markAsUnpaid();
 	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
 
 	$export = $invoice->getExport();

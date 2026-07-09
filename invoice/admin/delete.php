@@ -18,10 +18,6 @@ if (!$invoice) {
 	throw new UserException('Unknown invoice ID');
 }
 
-if (!$invoice->isDraft()) {
-	throw new UserException('Il n\'est pas possible de supprimer un document qui n\'est pas en brouillon');
-}
-
 if ($invoice->isQuote()) {
 	$question = 'Supprimer le devis ?';
 }
