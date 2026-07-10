@@ -4,7 +4,9 @@
 	{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
 	<aside>
 		{linkbutton shape="eye" label="Visualiser" href="?id=%d&print"|args:$invoice.id target="_dialog"}
-		{linkbutton shape="plus" label="Dupliquer" href="duplicate.php?id=%d"|args:$invoice.id}
+		{if $invoice->type !== $invoice::TYPE_CREDIT}
+			{linkbutton shape="plus" label="Dupliquer" href="duplicate.php?id=%d"|args:$invoice.id}
+		{/if}
 		{if $invoice->isDraft()}
 			{linkbutton shape="delete" label="Supprimer" href="delete.php?id=%d"|args:$invoice.id target="_dialog"}
 			{linkbutton shape="edit" label="Modifier" href="edit.php?id=%d"|args:$invoice.id target="_dialog"}
@@ -106,7 +108,7 @@
 		{tag label=$invoice->getStatusLabel() color=$invoice->getStatusColor()}
 	</dd>
 	<dt>Numéro</dt>
-	<dd>{if $invoice->isDraft()}(En attente de validation){else}{$invoice.number}{/if}</dd>
+	<dd>{if $invoice->isDraft()}(En attente de validation){else}{$invoice->getReference()}{/if}</dd>
 	<dt>Objet</dt>
 	<dd><h2>{$invoice.label}</h2></dd>
 	<dt>Date</dt>

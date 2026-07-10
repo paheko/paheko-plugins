@@ -31,13 +31,13 @@ if (isset($_GET['print'])) {
 	return;
 }
 
-$title = sprintf('%s %s', $invoice->getTypeLabel(), $invoice->number ?? '(brouillon)');
+$title = sprintf('%s %s', $invoice->getTypeLabel(), $invoice->getReference() ?? '(brouillon)');
 $csrf_key = 'edit_invoice_details';
 
 // Allow to select first invoice/quote number
 if ($invoice->isDraft()
 	&& !empty($_POST['validate'])
-	&& !Invoices::count($invoice->isQuote())
+	&& !Invoices::count($invoice->type)
 	&& empty($_POST['number']))
 {
 	$tpl->assign(compact('invoice', 'csrf_key'));

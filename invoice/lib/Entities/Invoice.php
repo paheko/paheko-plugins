@@ -35,8 +35,9 @@ class Invoice extends Entity
 	protected int $id_client;
 	protected ?int $id_transaction = null;
 	protected ?int $id_invoice = null;
-	protected ?string $number = null;
 	protected int $type;
+	protected ?int $year = null;
+	protected ?int $number = null;
 	protected string $label;
 	protected Date $date_created;
 	protected ?Date $date_expiry = null;
@@ -91,9 +92,9 @@ class Invoice extends Entity
 	];
 
 	const TYPES_PREFIXES = [
-		self::TYPE_QUOTE   => 'D',
-		self::TYPE_INVOICE => 'F',
-		self::TYPE_CREDIT  => 'A',
+		self::TYPE_QUOTE   => 'DEV',
+		self::TYPE_INVOICE => 'FAC',
+		self::TYPE_CREDIT  => 'AV',
 	];
 
 	const TYPES_PLURAL = [
@@ -158,10 +159,12 @@ class Invoice extends Entity
 		$this->assert($this->date_expiry > $this->date_created, 'La date d\'échéance doit être après la date d\'émission');
 
 		if ($this->number && $this->exists()) {
-			$this->assert(!$db->test(self::TABLE, 'id != ? AND number = ?', $this->id(), $this->number));
+			$this->assert(!$db->test(self::TABLE, 'id != ? AND type = ? AND year = ? AND number = ?',
+				$this->id(), $this->type, $this->year, $this->number));
 		}
 		elseif ($this->number) {
-			$this->assert(!$db->test(self::TABLE, 'number = ?', $this->number));
+			$this->assert(!$db->test(self::TABLE, 'type = ? AND strftime(\'%Y\', date_created) = ? AND number = ?',
+				$this->type, $this->year, $this->number));
 		}
 	}
 
@@ -301,25 +304,30 @@ class Invoice extends Entity
 		}
 
 		$db = DB::getInstance();
-		$year = $this->date_created->format('Y');
-		$new_number = $db->firstColumn('SELECT MAX(number) FROM ' . self::TABLE . ' WHERE type = ? AND strftime(\'%Y\', date_created) = ? AND status != ?;', self::TYPE_QUOTE, $year, self::STATUS_DRAFT);
+		$year = (int) $this->date_created->format('Y');
+		$new_number = (int) $db->firstColumn('SELECT MAX(number) FROM ' . self::TABLE . ' WHERE type = ? AND year = ? AND status != ?;', $this->type, $year, self::STATUS_DRAFT);
 
 		if ($new_number) {
-			$prefix = strtok($new_number, '-');
-			$year = strtok('-');
-			$new_number = (int) strtok('');
 			$new_number++;
 		}
 		else {
 			$new_number = $number;
 		}
 
-		$export = $this->exportForInvoice();
-
-		$this->set('number', sprintf('%s-%d-%d', self::TYPES_PREFIXES[$this->type], $year, $new_number));
+		$this->set('number', $new_number);
+		$this->set('year', $year);
 		$this->set('status', self::STATUS_AWAITING_SEND);
-		$this->set('content', $export);
-		$this->saveOnly(['number', 'status', 'content']);
+		$this->set('content', $this->exportForInvoice());
+		$this->saveOnly(['number', 'status', 'content', 'year']);
+	}
+
+	public function getReference(): ?string
+	{
+		if (!isset($this->number)) {
+			return null;
+		}
+
+		return Invoices::getInvoiceReference($this->type, $this->year, $this->number);
 	}
 
 	public function markAsSent(): void
@@ -350,7 +358,7 @@ class Invoice extends Entity
 		}
 
 		$subject = $this->isQuote() ? 'Votre devis %s' : 'Votre facture %s';
-		$subject = sprintf($subject, $this->number);
+		$subject = sprintf($subject, $this->getReference());
 
 		$body = 'Merci de trouver ci-joint le document.';
 
@@ -358,7 +366,7 @@ class Invoice extends Entity
 		$html = $this->exportAs('html');
 		$facturx = $this->createFacturX($xml, $html);
 
-		$file = Files::createFromString(File::CONTEXT_ATTACHMENTS . '/invoice/' . $this->number . '.pdf', $facturx);
+		$file = Files::createFromString(File::CONTEXT_ATTACHMENTS . '/invoice/' . $this->getReference() . '.pdf', $facturx);
 
 		unset($xml, $facturx);
 
@@ -433,7 +441,7 @@ class Invoice extends Entity
 			$new = $this->duplicate();
 			$new->set('type', self::TYPE_CREDIT);
 			$new->set('date_created', new Date);
-			$new->set('label', 'Avoir pour la facture ' . $this->number);
+			$new->set('label', 'Avoir pour la facture ' . $this->getReference());
 			$new->set('id_invoice', $this->id());
 			$new->saveAsCopyOf($this, true);
 		}
@@ -523,7 +531,7 @@ class Invoice extends Entity
 			'issue_date' => $this->date_created->format('Y-m-d'),
 			'payment_due_date' => $this->date_expiry ? $this->date_expiry->format('Y-m-d') : null,
 			'lines' => [],
-			'number' => $this->number ?? 'Brouillon',
+			'number' => $this->getReference() ?? 'Brouillon',
 			'process_control' => (object) [
 				'specification_identifier' => 'urn:cen.eu:en16931:2017',
 				'business_process_type' => 'M1', // Mixed invoice (goods and services that are not ancillary to each other)
@@ -545,7 +553,7 @@ class Invoice extends Entity
 		if ($this->id_invoice
 			&& in_array($this->type, [self::TYPE_QUOTE, self::TYPE_CREDIT], true)) {
 			$out->preceding_invoice_reference = (object) [
-				'reference' => $this->invoice()->number,
+				'reference' => $this->invoice()->getReference(),
 				'issue_date' => $this->invoice()->date_created->format('Y-m-d'),
 			];
 		}
@@ -714,7 +722,7 @@ class Invoice extends Entity
 			default   => 'xml',
 		};
 
-		return ($this->number ?? 'Brouillon') . '.' . $extension;
+		return ($this->getReference() ?? 'Brouillon') . '.' . $extension;
 	}
 
 	/**

@@ -94,6 +94,7 @@ class Invoices
 				'label' => 'Total',
 				'class' => 'money',
 			],
+			'year' => [],
 		];
 
 		if ($type) {
@@ -122,8 +123,14 @@ class Invoices
 			$row->type_label = Invoice::TYPES[$row->type ?? ''] ?? null;
 			$row->status_label = Invoice::STATUSES[$row->status];
 			$row->status_color = Invoice::STATUSES_COLORS[$row->status];
+			$row->number = self::getInvoiceReference($row->type, $row->year, $row->number);
 		});
 
 		return $list;
+	}
+
+	static public function getInvoiceReference(int $type, int $year, int $number): string
+	{
+		return sprintf('%s-%d-%d', Invoice::TYPES_PREFIXES[$type], $year, $number);
 	}
 }
