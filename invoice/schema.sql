@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_invoices (
 	status TEXT NOT NULL,
 	total INTEGER NOT NULL DEFAULT 0,
 	notes TEXT NULL,
+	vat_exemption_code TEXT NULL,
+	vat_exemption_text TEXT NULL,
 	buyer_ref TEXT NULL, -- Buyer reference (Factur-X: code du service exécutant)
 	contract_reference TEXT NULL, -- Factur-X : Numéro d'engagement
 	operation_type TEXT NULL,
@@ -56,6 +58,5 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_lines (
 	quantity TEXT NOT NULL,
 	price TEXT NOT NULL,
 	vat_rate TEXT NOT NULL,
-	vat_code TEXT NOT NULL,
-	vat_exemption_code TEXT NULL
+	vat_code TEXT NOT NULL
 );

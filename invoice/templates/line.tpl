@@ -21,9 +21,6 @@
 		<dd>{input type="select" name="unit" required=true source=$line options=$line::UNITS}</dd>
 		{input type="select" name="vat_rate" required=true label="Taux de TVA" source=$line options=$line->getVATRatesOptions()}
 	</dl>
-	<dl class="vat_exemption hidden">
-		{input type="select" name="vat_exemption_code" required=true label="Raison d'exemption de TVA" source=$line options=$line->getVATExemptionOptions()} {*FIXME: set default exemption reason from plugin config *}
-	</dl>
 </fieldset>
 
 <p class="submit">
@@ -32,18 +29,5 @@
 </p>
 
 </form>
-
-{literal}
-<script type="text/javascript">
-var vat_rate = $('#f_vat_rate');
-
-function selectVAT() {
-	g.toggle('.vat_exemption', vat_rate.value == 0);
-}
-
-vat_rate.onchange = selectVAT;
-selectVAT();
-</script>
-{/literal}
 
 {include file="_foot.tpl"}

@@ -47,6 +47,18 @@ class Invoice extends Entity
 	protected ?string $notes = null;
 
 	/**
+	 * Currently there might only be one VAT exemption reason per invoice
+	 * You need to create multiple invoices if you have multiple exemption reasons
+	 */
+	protected ?string $vat_exemption_code = null;
+
+	/**
+	 * Only France has specific exemption codes right now, others should use the text I guess
+	 * @see https://efacture.belgium.be/fr/FAQ/questions-specifiques-sur-la-facturation-electronique
+	 */
+	protected ?string $vat_exemption_text = null;
+
+	/**
 	 * Buyer reference (Factur-X: code du service exécutant)
 	 */
 	protected ?string $buyer_ref = null;
@@ -104,9 +116,9 @@ class Invoice extends Entity
 	];
 
 	const OPERATION_TYPES = [
-		'mixed'    => 'Livraisons de biens et prestations de services',
-		'goods'    => 'Livraisons de biens',
-		'services' => 'Prestations de service',
+		'M1' => 'Livraisons de biens et prestations de services',
+		'B1' => 'Livraisons de biens',
+		'S1' => 'Prestations de service',
 	];
 
 	/**
@@ -166,6 +178,15 @@ class Invoice extends Entity
 			$this->assert(!$db->test(self::TABLE, 'type = ? AND strftime(\'%Y\', date_created) = ? AND number = ?',
 				$this->type, $this->year, $this->number));
 		}
+
+		if ($this->operation_type) {
+			$this->assert(array_key_exists($this->operation_type, self::OPERATION_TYPES));
+		}
+
+		$this->assert(array_key_exists($this->type, self::TYPES));
+		$this->assert(array_key_exists($this->status, self::STATUSES));
+
+		$this->assert(!isset($this->vat_exemption_code) || array_key_exists($this->vat_exemption_code, Invoices::VAT_EXEMPTIONS));
 	}
 
 	public function delete(): bool
@@ -294,6 +315,8 @@ class Invoice extends Entity
 			throw new \LogicException('Cannot validate a non-draft');
 		}
 
+		$db = DB::getInstance();
+
 		if (!$this->isQuote()) {
 			$config = Config::getInstance();
 			$this->assert(!empty($config->org_address), 'L\'adresse de votre organisation n\'est pas renseignée.');
@@ -301,9 +324,13 @@ class Invoice extends Entity
 			if ($this->client()->requiresEInvoicing()) {
 				$this->assert(!empty($config->org_business_number), 'Votre organisation n\'a indiqué aucun numéro d\'entreprise (SIREN) dans la configuration générale.');
 			}
+
+			if ($db->test(Line::TABLE, 'id_invoice = ? AND vat_code = ?', $this->id(), Line::VAT_EXEMPTION_CODE)) {
+				$this->assert(!empty($this->vat_exemption_text) || !empty($this->vat_exemption_code),
+					'Des lignes de la factures sont exemptées de TVA, mais aucune raison d\'exemption n\'a été indiquée.');
+			}
 		}
 
-		$db = DB::getInstance();
 		$year = (int) $this->date_created->format('Y');
 		$new_number = (int) $db->firstColumn('SELECT MAX(number) FROM ' . self::TABLE . ' WHERE type = ? AND year = ? AND status != ?;', $this->type, $year, self::STATUS_DRAFT);
 
@@ -512,6 +539,7 @@ class Invoice extends Entity
 	public function exportForInvoice(): stdClass
 	{
 		$config = Config::getInstance();
+		$plugin = Plugins::getCurrent();
 
 		$is_seller_eu = in_array($config->country, Client::EU_COUNTRIES);
 
@@ -534,7 +562,7 @@ class Invoice extends Entity
 			'number' => $this->getReference() ?? 'Brouillon',
 			'process_control' => (object) [
 				'specification_identifier' => 'urn:cen.eu:en16931:2017',
-				'business_process_type' => 'M1', // Mixed invoice (goods and services that are not ancillary to each other)
+				'business_process_type' => $this->operation_type,
 			],
 			// Référence acheteur. "Service exécutant" Code service pour Chorus Pro. Obligatoire pour les entités publiques marquées « Service obligatoire » dans Chorus Pro.
 			'buyer_reference' => $this->buyer_ref ?? '',
@@ -546,8 +574,28 @@ class Invoice extends Entity
 					'note' => $this->label,
 				],
 			],
-			//'payment_terms' => // FIXME
 		];
+
+		if (!$this->isQuote()
+			&& (!empty($plugin->config->iban) || !empty($plugin->config->payment_instructions))) {
+			$out->payment_instructions = (object) [
+				'payment_means_type_code' => !empty($plugin->config->iban) ? 30 : 1, // 30 = Credit transfer, 1 = other
+			];
+
+			if (!empty($plugin->config->payment_instructions)) {
+				$out->payment_instructions->payment_means_text = $plugin->config->payment_instructions;
+			}
+
+			if (!empty($plugin->config->iban)) {
+				$out->payment_instructions->credit_transfers = (object) [
+					'payment_service_provider_identifier' => $plugin->config->bic ?? '',
+					'payment_account_identifier' => (object) [
+						'scheme' => 'IBAN',
+						'value' => $plugin->config->iban,
+					],
+				];
+			}
+		}
 
 		// Parent invoice ID for quotes and credits
 		if ($this->id_invoice
@@ -569,7 +617,7 @@ class Invoice extends Entity
 		if ($this->operation_type) {
 			$out->notes[] = (object) [
 				'subject_code' => 'REG',
-				'note' => $this->getOperationTypeLabel(),
+				'note' => 'Nature de la facture : ' . $this->getOperationTypeLabel(),
 			];
 		}
 
@@ -613,10 +661,13 @@ class Invoice extends Entity
 				'vat_category_code'           => $e->vat_information->invoiced_item_vat_category_code,
 				'vat_category_tax_amount'     => '0', // Will be filled below
 				'vat_category_taxable_amount' => '0', // Will be filled below
-				'vat_exemption_reason_code'   => $e->vat_information->exemption_reason_code,
-				'vat_exemption_reason'        => $e->vat_information->exemption_reason,
 				'vat_category_rate'           => $e->vat_information->invoiced_item_vat_rate,
 			];
+
+			if ($line->vat_code === $line::VAT_EXEMPTION_CODE) {
+				$vat[$vat_code]->vat_exemption_reason_code = $this->vat_exemption_code;
+				$vat[$vat_code]->vat_exemption_reason = $this->vat_exemption_text ?? Invoices::VAT_EXEMPTIONS[$this->vat_exemption_code];
+			}
 
 			$vat[$vat_code]->vat_category_tax_amount = Money::calc($vat[$vat_code]->vat_category_tax_amount, '+', $e->line_vat_amount);
 			$vat[$vat_code]->vat_category_taxable_amount = Money::calc($vat[$vat_code]->vat_category_taxable_amount, '+', $e->net_amount);
@@ -872,4 +923,11 @@ class Invoice extends Entity
 	{
 		return EM::getInstance(Line::class)->iterate('SELECT * FROM @TABLE WHERE id_invoice = ? ORDER BY number;', $this->id());
 	}
+
+
+	public function getVATExemptionOptions(): array
+	{
+		return Invoices::VAT_EXEMPTIONS;
+	}
+
 }

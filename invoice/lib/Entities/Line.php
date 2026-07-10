@@ -28,7 +28,6 @@ class Line extends Entity
 	protected string $price;
 	protected string $vat_rate = '0';
 	protected string $vat_code = self::VAT_STANDARD_CODE;
-	protected ?string $vat_exemption_code = null;
 
 	/**
 	 * @see https://docs.peppol.eu/poacc/billing/3.0/codelist/UNECERec20/
@@ -97,11 +96,6 @@ class Line extends Entity
 		return $out;
 	}
 
-	public function getVATExemptionOptions(): array
-	{
-		return Invoices::VAT_EXEMPTIONS;
-	}
-
 	public function selfCheck(): void
 	{
 		parent::selfCheck();
@@ -110,7 +104,6 @@ class Line extends Entity
 		$this->assert(mb_strlen(trim($this->label)) <= 500, 'Le libellé doit faire au maximum 500 caractères');
 		$this->assert(!isset($this->description) || mb_strlen(trim($this->description)) <= 10000, 'Le libellé doit faire au maximum 10.000 caractères');
 		$this->assert(array_key_exists($this->vat_code, self::VAT_CODES));
-		$this->assert(!isset($this->vat_exemption_code) || array_key_exists($this->vat_exemption_code, Invoices::VAT_EXEMPTIONS));
 
 		$this->assert(preg_match('!^\d+(?:\.\d{1,2})?$!', $this->vat_rate), 'Taux de TVA invalide : ' . $this->vat_rate);
 		$this->assert(preg_match('!^\d+(?:\.\d{1,10})?$!', $this->quantity), 'Quantité invalide : ' . $this->quantity);
@@ -211,8 +204,6 @@ class Line extends Entity
 			'vat_information'          => (object) [
 				'invoiced_item_vat_category_code' => $this->vat_code,
 				'invoiced_item_vat_rate'          => strval($this->vat_rate * 100),
-				'exemption_reason_code'           => $this->vat_exemption_code,
-				'exemption_reason'                => Invoices::VAT_EXEMPTIONS[$this->vat_exemption_code ?? ''] ?? '',
 			],
 			'line_vat_amount'          => $this->getVATAmount(),
 			'line_with_vat_net_amount' => $this->getTotal(),

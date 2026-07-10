@@ -171,31 +171,18 @@
 		</ram:ApplicableHeaderTradeDelivery>
 		<ram:ApplicableHeaderTradeSettlement>
 			<ram:InvoiceCurrencyCode>{$invoice.currency_code}</ram:InvoiceCurrencyCode>
-			<!-- Facultatif ?
-			<ram:PayeeTradeParty>
-				<!-<ram:GlobalID schemeID="0088">587451236586</ram:GlobalID>->
-				<ram:Name>PAYEE NAME</ram:Name>
-				<ram:SpecifiedLegalOrganization>
-					<ram:ID schemeID="0002">303656847</ram:ID>
-				</ram:SpecifiedLegalOrganization>
-			</ram:PayeeTradeParty>
-			-->
-			<!--
-			<ram:SpecifiedTradeSettlementPaymentMeans>
-				<ram:TypeCode>30</ram:TypeCode>
-				<ram:Information>Virement</ram:Information>
-				<ram:PayerPartyDebtorFinancialAccount>
-					<ram:IBANID>FRDEBIT</ram:IBANID>
-				</ram:PayerPartyDebtorFinancialAccount>
-				<ram:PayeePartyCreditorFinancialAccount>
-					<ram:IBANID>FR20 1254 2547 2569 8542 5874 698</ram:IBANID>
-					<ram:AccountName>MON COMPTE BANCAIRE</ram:AccountName>
-				</ram:PayeePartyCreditorFinancialAccount>
-				<ram:PayeeSpecifiedCreditorFinancialInstitution>
-					<ram:BICID>BIC_MONCOMPTE</ram:BICID>
-				</ram:PayeeSpecifiedCreditorFinancialInstitution>
-			</ram:SpecifiedTradeSettlementPaymentMeans>
-			-->
+			{if $invoice.payment_instructions}
+				<ram:SpecifiedTradeSettlementPaymentMeans>
+					<ram:TypeCode>{$invoice.payment_instructions.payment_means_type_code}</ram:TypeCode>
+					<ram:Information>{$invoice.payment_instructions.payment_means_text}</ram:Information>
+					<ram:PayeePartyCreditorFinancialAccount>
+						<ram:IBANID>{$invoice.payment_instructions.credit_transfers.payment_account_identifier.value}</ram:IBANID>
+					</ram:PayeePartyCreditorFinancialAccount>
+					<ram:PayeeSpecifiedCreditorFinancialInstitution>
+						<ram:BICID>{$invoice.payment_instructions.credit_transfers.payment_service_provider_identifier}</ram:BICID>
+					</ram:PayeeSpecifiedCreditorFinancialInstitution>
+				</ram:SpecifiedTradeSettlementPaymentMeans>
+			{/if}
 			<!-- Blocs de TVA, un bloc par taux de TVA -->
 			{foreach from=$invoice.vat_break_down item="vat"}
 			<ram:ApplicableTradeTax>

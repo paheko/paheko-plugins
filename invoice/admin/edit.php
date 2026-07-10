@@ -10,6 +10,8 @@ use Paheko\Plugin\Invoice\Entities\Invoice;
 
 use const Paheko\PLUGIN_ROOT;
 
+require __DIR__ . '/_inc.php';
+
 Session::getInstance()->requireAccess(Session::SECTION_ACCOUNTING, Session::ACCESS_WRITE);
 
 if (!Clients::countActiveClients()) {

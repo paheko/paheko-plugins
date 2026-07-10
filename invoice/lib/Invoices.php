@@ -17,15 +17,14 @@ class Invoices
 	const ZERO_RATE_VAT_EXEMPTION_CODE = 'VATEX-FR-FRANCHISE';
 
 	const VAT_EXEMPTIONS = [
-		// Special case, must have VAT code == Z instead of E
-		'VATEX-FR-FRANCHISE'     => 'Franchise en base de TVA (auto-entrepreneur, micro-entreprise, etc.) — Art. 293 B CGI',
+		'VATEX-FR-CGI261-5'      => 'Associations et organismes sans but lucratif — Art. 261-5° CGI',
+		'VATEX-FR-FRANCHISE'     => 'Franchise en base de TVA (auto-entrepreneur, etc.) — Art. 293 B CGI',
 		'VATEX-FR-CNWVAT'        => 'Non-assujetti établi hors de France',
 		'VATEX-FR-AE'            => 'Autoliquidation',
 		'VATEX-FR-CGI261-1'      => 'Soins et services médicaux (médecins, chirurgiens, sages-femmes) — Art. 261-1° CGI',
 		'VATEX-FR-CGI261-2'      => 'Services paramédicaux (infirmiers, kinésithérapeutes, etc.) — Art. 261-2° CGI',
 		'VATEX-FR-CGI261-3'      => 'Enseignement scolaire, universitaire et formation professionnelle — Art. 261-3° CGI',
 		'VATEX-FR-CGI261-4'      => 'Services à caractère sportif et éducatif — Art. 261-4° CGI',
-		'VATEX-FR-CGI261-5'      => 'Organismes sans but lucratif — Art. 261-5° CGI',
 		'VATEX-FR-CGI261-7'      => 'Services rendus à leurs membres par certains groupements — Art. 261-7° CGI',
 		'VATEX-FR-CGI261-8'      => 'Opérations immobilières exonérées — Art. 261-8° CGI',
 		'VATEX-FR-CGI261A'       => 'Activités des établissements financiers et d\'assurance — Art. 261 A CGI',

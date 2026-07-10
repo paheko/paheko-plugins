@@ -52,14 +52,14 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 		<h1>{$title}</h1>
 		{foreach from=$invoice.notes item="note"}
 			{if $note.subject_code === 'AAI'}
-				<h2>{$note.note}</h2>
+				<h2>Objet&nbsp;: {$note.note}</h2>
 			{/if}
 		{/foreach}
 
 		<h3>Date : {$invoice.issue_date|date_short}</h3>
 
 		{if $invoice.payment_due_date}
-			<h4>Date d'échéance : {$invoice.payment_due_date}</h4>
+			<h4>Date d'échéance : {$invoice.payment_due_date|date_short}</h4>
 		{/if}
 
 		{if $invoice.buyer_reference || $invoice.contract_reference}
@@ -134,12 +134,36 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 	</section>
 
 	<section class="notes">
+		{if $invoice.payment_instructions}
+			<article>
+				{if $invoice.payment_instructions.payment_means_text}
+					<p>
+						Instructions de paiement&nbsp;:
+						{$invoice.payment_instructions.payment_means_text|escape|nl2br}
+					</p>
+				{/if}
+				{if $invoice.payment_instructions.credit_transfers}
+					<p>
+						{$invoice.payment_instructions.credit_transfers.payment_account_identifier.scheme}&nbsp;:
+						{$invoice.payment_instructions.credit_transfers.payment_account_identifier.value}
+						{if $invoice.payment_instructions.credit_transfers.payment_service_provider_identifier}
+							/ BIC&nbsp;:
+							{$invoice.payment_instructions.credit_transfers.payment_service_provider_identifier}
+						{/if}
+					</p>
+				{/if}
+			</article>
+		{/if}
 		{foreach from=$invoice.notes item="note"}
 			{if $note.subject_code === 'AAI'}
 				{continue}
 			{/if}
 			<article>
-				{$note.note|escape|nl2br}
+				{if $note.subject_code === 'OSI'}
+					<em>{$note.note|escape|nl2br}</em>
+				{else}
+					<small>{$note.note|escape|nl2br}</small>
+				{/if}
 			</article>
 		{/foreach}
 	</section>
