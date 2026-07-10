@@ -6,8 +6,11 @@
 	xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"
 	xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100">
 	<rsm:ExchangedDocumentContext>
+		<ram:BusinessProcessSpecifiedDocumentContextParameter>
+			<ram:ID>{$invoice.process_control.business_process_type}</ram:ID>  <!-- BT-23 (Identifiant de type de processus métier) : S1 -->
+		</ram:BusinessProcessSpecifiedDocumentContextParameter>
 		<ram:GuidelineSpecifiedDocumentContextParameter>
-			<ram:ID>urn:cen.eu:en16931:2017</ram:ID>
+			<ram:ID>{$invoice.process_control.specification_identifier}</ram:ID>
 		</ram:GuidelineSpecifiedDocumentContextParameter>
 	</rsm:ExchangedDocumentContext>
 	<rsm:ExchangedDocument>

@@ -16,12 +16,6 @@
 * Pouvoir créer un client depuis le sélecteur
 * Pouvoir supprimer un client
 
-# Config
-
-* Pouvoir choisir le numéro de la première facture et du premier devis
-* Pouvoir indiquer le numéro de TVA
-* Champ permettant de choisir l'exemption de TVA par défaut
-
 # Dans Paheko core
 
 Configuration :

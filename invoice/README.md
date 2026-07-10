@@ -1,3 +1,17 @@
+# Fonctionnalités
+
+* Factures
+* Devis
+* Avoirs
+* Création de facture à partir d'un devis accepté
+* Création d'avoir à partir d'une facture annulée
+* Prévisualisation de facture
+* Génération de facture en Factur-X (PDF) et CII
+* Gestion des exemptions de TVA spécifiques à la France
+* Gestion des champs spécifiques à Chorus Pro
+* Mentions légales obligatoires sur les facture aux entreprises
+* Instructions de paiement sur les factures (IBAN+BIC)
+
 # Fonctionnalités non supportées pour le moment
 
 - Facture d'acompte
