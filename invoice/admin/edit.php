@@ -10,9 +10,10 @@ use Paheko\Plugin\Invoice\Entities\Invoice;
 
 use const Paheko\PLUGIN_ROOT;
 
-require __DIR__ . '/_inc.php';
 
 Session::getInstance()->requireAccess(Session::SECTION_ACCOUNTING, Session::ACCESS_WRITE);
+
+require __DIR__ . '/_inc.php';
 
 if (!Clients::countActiveClients()) {
 	Utils::redirect('!p/invoice/clients/edit.php?msg=CREATE');

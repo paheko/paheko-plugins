@@ -237,3 +237,18 @@ a.icn-btn:hover {
     content: attr(data-icon);
     font-weight: normal;
 }
+
+.facturx {
+	float: right;
+	border: 2px solid darkblue;
+	border-radius: 2em;
+	font-size: .8em;
+	padding: .1cm;
+	padding-right: .3cm;
+}
+
+.facturx svg {
+	width: .7cm;
+	color: darkblue;
+	vertical-align: middle;
+}

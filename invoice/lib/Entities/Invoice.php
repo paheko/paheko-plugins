@@ -689,7 +689,7 @@ class Invoice extends Entity
 		return $out;
 	}
 
-	public function exportAs(string $format): string
+	public function exportAs(string $format, ?string $parent_format = null): string
 	{
 		if ($format !== 'html') {
 			if ($this->status === self::STATUS_DRAFT) {
@@ -698,8 +698,8 @@ class Invoice extends Entity
 		}
 
 		if ($format === 'facturx') {
-			$xml = $this->exportAs('cii');
-			$html = $this->exportAs('html');
+			$xml = $this->exportAs('cii', $format);
+			$html = $this->exportAs('html', $format);
 			return $this->createFacturX($xml, $html);
 		}
 
@@ -715,6 +715,7 @@ class Invoice extends Entity
 			$tpl->assign('is_org', true);
 			$tpl->assign('status', $this->status);
 			$tpl->assign('is_quote', $this->isQuote());
+			$tpl->assign(compact('parent_format'));
 
 			if (isset($_GET['print'])) {
 				$tpl->assign('facturx_enabled', $this->canExportAsFacturX());

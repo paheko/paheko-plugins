@@ -12,6 +12,8 @@ use const Paheko\PLUGIN_ROOT;
 
 Session::getInstance()->requireAccess(Session::SECTION_ACCOUNTING, Session::ACCESS_WRITE);
 
+require __DIR__ . '/_inc.php';
+
 $orig = Invoices::get((int)$_GET['id']);
 
 if (!$orig) {
