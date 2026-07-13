@@ -20,13 +20,11 @@ if (isset($_GET['preview'])) {
 	$invoice->streamAs($_GET['preview'] ?: 'facturx');
 	return;
 }
-
-if (isset($_GET['download'])) {
+elseif (isset($_GET['download'])) {
 	$invoice->downloadAs($_GET['download'] ?: 'facturx');
 	return;
 }
-
-if (isset($_GET['print'])) {
+elseif (isset($_GET['print'])) {
 	$invoice->streamAs('html');
 	return;
 }
