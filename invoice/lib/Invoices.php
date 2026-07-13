@@ -99,7 +99,7 @@ class Invoices
 		if ($type) {
 			$conditions = 'type = ?';
 			$params = [$type];
-			unset($columns['type']);
+			$columns['type'] = [];
 		}
 		else {
 			$conditions = '1';
