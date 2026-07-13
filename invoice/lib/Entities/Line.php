@@ -93,6 +93,10 @@ class Line extends Entity
 			$out[(string) $rate] = sprintf('%s%%', $rate * 100);
 		}
 
+		if (!$this->invoice()->vat_exemption_code && !$this->invoice()->vat_exemption_text) {
+			unset($out['0']);
+		}
+
 		return $out;
 	}
 
@@ -110,6 +114,10 @@ class Line extends Entity
 		$this->assert(preg_match('!^\d+(?:\.\d{1,10})?$!', $this->price), 'Prix unitaire invalide : ' . $this->price);
 
 		$this->assert(array_key_exists($this->unit, self::UNITS), 'Unité inconnue : ' . $this->unit);
+
+		if ($this->vat_code === self::VAT_EXEMPTION_CODE) {
+			$this->assert($this->invoice()->vat_exemption_code !== null || $this->invoice()->vat_exemption_text !== null, 'Impossible d\'avoir une ligne avec un taux de TVA à 0% si aucune raison d\'exemption n\'a été définie pour le document');
+		}
 	}
 
 	public function importForm(?array $source = null)
