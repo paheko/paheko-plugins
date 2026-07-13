@@ -122,7 +122,7 @@ class Invoices
 			$row->type_label = Invoice::TYPES[$row->type ?? ''] ?? null;
 			$row->status_label = Invoice::STATUSES[$row->status];
 			$row->status_color = Invoice::STATUSES_COLORS[$row->status];
-			$row->number = self::getInvoiceReference($row->type, $row->year, $row->number);
+			$row->number = isset($row->number, $row->year) ? self::getInvoiceReference($row->type, $row->year, $row->number) : null;
 		});
 
 		return $list;
