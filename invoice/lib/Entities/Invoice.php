@@ -664,7 +664,8 @@ class Invoice extends Entity
 				'vat_category_rate'           => $e->vat_information->invoiced_item_vat_rate,
 			];
 
-			if ($line->vat_code === $line::VAT_EXEMPTION_CODE) {
+			if ($line->vat_code === $line::VAT_EXEMPTION_CODE
+				&& ($this->vat_exemption_code || $this->vat_exemption_code)) {
 				$vat[$vat_code]->vat_exemption_reason_code = $this->vat_exemption_code;
 				$vat[$vat_code]->vat_exemption_reason = $this->vat_exemption_text ?? Invoices::VAT_EXEMPTIONS[$this->vat_exemption_code];
 			}
