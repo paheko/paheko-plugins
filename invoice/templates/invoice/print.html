@@ -22,7 +22,7 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 	<nav class="buttons">
 		{linkbutton href="%s&print=yes"|args:$self_url label="Imprimer" target="_blank" shape="print"}
 		{if !empty($facturx_enabled)}
-			{linkbutton href="?id=%d&download=facturx"|args:$invoice.identifier label="Télécharger" shape="download"}
+			{linkbutton href="%s&download=facturx"|args:$self_url label="Télécharger" shape="download"}
 		{elseif $pdf_enabled}
 			{linkbutton href="%s&_pdf"|args:$self_url label="Télécharger en PDF" shape="download"}
 		{/if}
