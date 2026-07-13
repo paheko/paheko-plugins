@@ -21,10 +21,12 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 {if !$_GET.print && empty($export)}
 	<nav class="buttons">
 		{linkbutton href="%s&print=yes"|args:$self_url label="Imprimer" target="_blank" shape="print"}
-		{if !empty($facturx_enabled)}
-			{linkbutton href="%s&download=facturx"|args:$self_url label="Télécharger" shape="download"}
-		{elseif $pdf_enabled}
-			{linkbutton href="%s&_pdf"|args:$self_url label="Télécharger en PDF" shape="download"}
+		{if !$is_draft}
+			{if !empty($facturx_enabled)}
+				{linkbutton href="%s&download=facturx"|args:$self_url label="Télécharger" shape="download"}
+			{elseif $pdf_enabled}
+				{linkbutton href="%s&_pdf"|args:$self_url label="Télécharger en PDF" shape="download"}
+			{/if}
 		{/if}
 	</nav>
 {/if}

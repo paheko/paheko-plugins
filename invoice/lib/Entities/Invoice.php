@@ -714,6 +714,7 @@ class Invoice extends Entity
 
 		if ($format === 'html') {
 			$tpl->assign('is_org', true);
+			$tpl->assign('is_draft', $this->isDraft());
 			$tpl->assign('status', $this->status);
 			$tpl->assign('is_quote', $this->isQuote());
 			$tpl->assign(compact('parent_format'));
