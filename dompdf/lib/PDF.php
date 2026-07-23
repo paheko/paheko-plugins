@@ -60,6 +60,11 @@ class PDF
 			exit;
 		}
 
+		// Make sure the installed version is overwritten by deleting the older one
+		if (file_exists(self::DIRECTORY)) {
+			Utils::deleteRecursive(self::RECURSIVE, true);
+		}
+
 		$zip = new \PharData($file);
 		$zip->extractTo(self::DIRECTORY, null, true);
 		unset($zip);
