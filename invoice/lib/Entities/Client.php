@@ -33,8 +33,8 @@ class Client extends Entity
 	protected DateTime $created;
 
 	const SCHEMES = [
-		'0002' => 'SIRET',
-		'0009' => 'SIREN',
+		'0002' => 'SIREN',
+		'0009' => 'SIRET',
 		'0183' => 'IDE', // Suisse
 		'0208' => 'BCE', // Belgique
 		'0223' => 'Numéro TVA', // Europe
