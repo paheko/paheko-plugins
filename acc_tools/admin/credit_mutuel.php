@@ -25,8 +25,7 @@ function debug_log(string $message, ...$params) {
 }
 
 $form->runIf('load', function () use ($tabula_path) {
-	if (empty($_FILES['file']['tmp_name'])
-		|| !is_uploaded_file($_FILES['file']['tmp_name'])) {
+	if (empty($_FILES['file']['tmp_name'])) {
 		throw new UserException('Fichier invalide ou vide');
 	}
 
@@ -39,9 +38,14 @@ $form->runIf('load', function () use ($tabula_path) {
 			throw new UserException($name . ' est invalide ou vide');
 		}
 
+		if (!is_uploaded_file($path)) {
+			throw new UserException('Fichier invalide ou vide');
+		}
+
 		if (mime_content_type($path) !== 'application/pdf') {
 			throw new UserException($name . ' n\'est pas un PDF');
 		}
+
 
 		$files[] = $path;
 	}
