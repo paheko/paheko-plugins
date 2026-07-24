@@ -294,13 +294,26 @@ class Tabs
 				'select' => 'strftime(\'%d/%m/%Y\', t.opened)',
 				'label'  => 'Date',
 			];
+
 			$columns['session'] = [
 				'select' => 't.session',
 				'label'  => 'Session',
 			];
+
+			$columns['id_user'] = [
+				'select' => 't.user_id',
+			];
+
+			$columns['user_name'] = [
+				'select' => DynamicFields::getNameFieldsSQL('u'),
+				'label' => 'Membre',
+			];
+
+			$list->addTables('INNER JOIN users u ON u.id = t.user_id');
 			$list->setColumns($columns);
 			$list->orderBy('date_short', true);
 		}
+
 		POS::applyPeriodToList($list, $period, 't.opened', 't.session');
 
 		if ($location) {
