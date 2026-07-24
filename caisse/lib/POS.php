@@ -46,7 +46,6 @@ class POS
 				$row->sum = Utils::money_format($row->sum, '.', '');
 			}
 		});
-		$list->setPagesize(null);
 		return $list;
 	}
 
