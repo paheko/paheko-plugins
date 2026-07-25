@@ -287,6 +287,7 @@ class Tabs
 		}
 
 		$list->setColumns($columns);
+		$group_all = 't.session';
 
 		// List stats by session
 		if ($period === 'id' || $period === 'all') {
@@ -301,7 +302,6 @@ class Tabs
 				],
 			], $columns);
 
-			$group_all = 't.session';
 			$list->setColumns($columns);
 			$list->orderBy('date_short', true);
 		}
