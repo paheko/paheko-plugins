@@ -67,11 +67,11 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 		{if $invoice.buyer_reference || $invoice.contract_reference}
 		<dl class="refs">
 			{if $invoice.buyer_reference}
-				<dt>{if $buyer.country_code === 'FR'}Service exécutant{else}Référence acheteur{/if}</dt>
+				<dt>{if $invoice.buyer.country_code === 'FR'}Service exécutant{else}Référence acheteur{/if}</dt>
 				<dd>{$invoice.buyer_reference}</dd>
 			{/if}
 			{if $invoice.contract_reference}
-				<dt>{if $buyer.country_code === 'FR'}Numéro d'engagement{else}Référence de contrat{/if}</dt>
+				<dt>{if $invoice.buyer.country_code === 'FR'}Numéro d'engagement{else}Référence de contrat{/if}</dt>
 				<dd>{$invoice.contract_reference}</dd>
 			{/if}
 		</dl>

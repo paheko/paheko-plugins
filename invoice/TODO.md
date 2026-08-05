@@ -1,3 +1,5 @@
+* Implement Factur-X support (signal) for DomPDF
+
 * Test PDF weasyprint (HS)
 * Test PDF chromium + gs (HS)
 
