@@ -17,6 +17,7 @@
 
 * Pouvoir créer un client depuis le sélecteur
 * Pouvoir supprimer un client
+* Pouvoir indiquer le code du service exécutant dans le client
 
 # Dans Paheko core
 
