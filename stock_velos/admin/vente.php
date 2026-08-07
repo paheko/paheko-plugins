@@ -22,7 +22,8 @@ if (!empty($velo->date_sortie))
 $csrf_key = 'vente_velo_'.$velo->id;
 
 $form->runIf('sell', function () use ($velo) {
-	$velo->sell(f('adherent') ?: null, f('prix'));
+	$id_user = isset($_POST['id_user']) && is_array($_POST['id_user']) ? key($_POST['id_user']) : null;
+	$velo->sell($id_user, f('prix'), f('etat'));
 
 	utils::redirect(utils::plugin_url([
 		'file' => 'vente_ok.php',

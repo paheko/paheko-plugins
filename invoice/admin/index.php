@@ -2,11 +2,36 @@
 
 namespace Paheko\Plugin\Invoice;
 
-require __DIR__ . '/_inc.php';
+use Paheko\Plugin\Invoice\Entities\Invoice;
 
-$list = Invoices::getList();
+use const Paheko\PLUGIN_ROOT;
+
+$type = intval($_GET['type'] ?? 0) ?: null;
+$status = $_GET['status'] ?? null;
+
+$list = Invoices::getList($type, $status);
 $list->loadFromQueryString();
 
-$tpl->assign(compact('list'));
+if ($type && array_key_exists($type, Invoice::TYPES_PLURAL)) {
+	$title = Invoice::TYPES_PLURAL[$type];
+}
+else {
+	$title = 'Factures et devis';
+}
+
+if ($type === Invoice::TYPE_QUOTE) {
+	$current_tab = 'quotes';
+}
+elseif ($type === Invoice::TYPE_INVOICE) {
+	$current_tab = 'invoices';
+}
+elseif ($type === Invoice::TYPE_CREDIT) {
+	$current_tab = 'credits';
+}
+else {
+	$current_tab = 'all';
+}
+
+$tpl->assign(compact('list', 'title', 'current_tab', 'type', 'status'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/index.tpl');

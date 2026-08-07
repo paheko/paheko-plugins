@@ -11,7 +11,7 @@ use Paheko\Entities\Signal;
 
 class PDF
 {
-	const VERSION = '3.1.5';
+	const VERSION = '3.1.6';
 	const URL = 'https://github.com/dompdf/dompdf/releases/download/v' . self::VERSION . '/dompdf-' . self::VERSION . '.zip';
 	const DIRECTORY = SHARED_CACHE_ROOT . '/dompdf';
 	const VERSION_FILE = self::DIRECTORY . '/dompdf/VERSION';
@@ -58,6 +58,11 @@ class PDF
 			printf('Please download this file: <a href="%s">%s</a><br />', self::URL);
 			printf('And copy it here: <code>%s</code>', $file);
 			exit;
+		}
+
+		// Make sure the installed version is overwritten by deleting the older one
+		if (file_exists(self::DIRECTORY)) {
+			Utils::deleteRecursive(self::RECURSIVE, true);
 		}
 
 		$zip = new \PharData($file);

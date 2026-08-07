@@ -118,7 +118,7 @@
 				{input type="select" label="Motif de sortie" name="raison_sortie" options=$fields.raison_sortie.options source=$velo}
 			{/if}
 			{if $fields.details_sortie.enabled}
-				{input type="text" label="Détails de sortie" name="details_sortie" help="Inscrire le numéro d'adhérent en cas de vente" source=$velo required=$fields.details_sortie.required}
+				{input type="text" label="Détails de sortie" name="details_sortie" source=$velo required=$fields.details_sortie.required}
 			{/if}
 		</dl>
 	</fieldset>

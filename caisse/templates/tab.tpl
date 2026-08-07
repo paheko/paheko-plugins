@@ -282,7 +282,12 @@
 				{foreach from=$cat.products item="product"}
 					<button name="add_item[{$product.id}]" {if $product.weight < 0}data-ask-weight="true"{/if} data-code="{$product.code}" value="">
 						<h3>{$product.name}</h3>
-						<h4>{$product.price|escape|money_currency}</h4>
+						{if $product.price}
+							<h4>{$product.price|escape|money_currency_html}</h4>
+						{/if}
+						{if $product.description}
+							<p>{$product.description}</p>
+						{/if}
 						{if $product.image}
 							<figure>{*TODO*}</figure>
 						{/if}

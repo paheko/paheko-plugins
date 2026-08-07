@@ -47,7 +47,7 @@ class Stats
 		$sql = rtrim($sql, ', ');
 		$sql .= ';';
 
-		$uri = $params['uri'] ?? '';
+		$uri = $data->uri ?? '';
 		$uri = strtok($uri, '?');
 		$uri = trim($uri, '/');
 

@@ -10,7 +10,8 @@ $csrf_key = 'sumup_csv';
 */
 
 $form->runIf('load', function() {
-	if (empty($_FILES['csv']['tmp_name'])) {
+	if (empty($_FILES['csv']['tmp_name'])
+		|| !is_uploaded_file($_FILES['csv']['tmp_name'])) {
 		throw new UserException('Fichier invalide ou vide');
 	}
 

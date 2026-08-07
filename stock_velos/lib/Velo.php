@@ -2,6 +2,7 @@
 
 namespace Paheko\Plugin\Stock_Velos;
 
+use Paheko\Config;
 use Paheko\DB;
 use Paheko\Entity;
 use Paheko\UserException;
@@ -35,6 +36,7 @@ class Velo extends Entity
 	protected ?Date $date_sortie = null;
 	protected ?string $raison_sortie = null;
 	protected ?string $details_sortie = null;
+	protected ?int $id_membre_vente = null;
 
 	protected ?string $notes = null;
 	protected ?int $poids = null;
@@ -117,19 +119,20 @@ class Velo extends Entity
 			'modele'        =>  $this->modele,
 			'date_entree'   =>  date('Y-m-d'),
 			'etat_entree'   =>  $etat,
-			'notes'         =>  'Racheté à l\'adhérent pour '.$prix.' €',
+			'notes'         =>  'Racheté à l\'adhérent pour '.$prix.' ' . Config::getInstance()->getCurrencySymbol(),
 		]);
 		$new->save();
 		return $new;
 	}
 
-	public function sell(?string $num_adherent, string $prix): void
+	public function sell(?int $id_user, string $price, ?string $details): void
 	{
 		$this->import([
 			'raison_sortie' => 'Vendu',
-			'details_sortie' => (int) $num_adherent ?: null,
+			'details_sortie' => $details,
 			'date_sortie' => date('d/m/Y'),
-			'prix' => (float) $prix,
+			'id_membre_vente' => $id_user,
+			'prix' => (float) $price,
 		]);
 
 		$this->save();
@@ -141,16 +144,16 @@ class Velo extends Entity
 			return null;
 		}
 
-		return Users::getNameFromNumber((int)$this->source_details);
+		return Users::getNameFromNumber($this->source_details);
 	}
 
 	public function membre_sortie(): ?string
 	{
-		if ($this->raison_sortie != 'Vendu' || !is_numeric($this->details_sortie)) {
+		if ($this->raison_sortie != 'Vendu' || !$this->id_membre_vente) {
 			return null;
 		}
 
-		return Users::getNameFromNumber((int)$this->details_sortie);
+		return Users::getName($this->id_membre_vente);
 	}
 
 	public function membre_rachat(): ?string

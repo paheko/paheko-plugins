@@ -41,6 +41,7 @@ $db->exec(<<<EOF
 		date_sortie TEXT,
 		raison_sortie TEXT,
 		details_sortie TEXT,
+		id_membre_vente INTEGER NULL REFERENCES users(id) ON DELETE SET NULL,
 
 		notes TEXT,
 

@@ -19,7 +19,7 @@
 		{if $velo.prix > 0}
 		<dl class="num">
 			<dt>Prix</dt>
-			<dd>{$velo.prix|escape} €</dd>
+			<dd>{$velo.prix|escape} {$currency_symbol}</dd>
 		</dl>
 		{elseif $velo.prix < 0}
 		<dl class="etat demonter">
@@ -72,7 +72,7 @@
 			{input type="textarea" name="etat" label="État du vélo"}
 
 			<dt><label for="f_adherent">Adhérent</label></dt>
-			<dd>N°{$velo.details_sortie|escape} — {$velo->membre_sortie()}</dd>
+			<dd>{$velo->membre_sortie()}</dd>
 		</dl>
 	</fieldset>
 

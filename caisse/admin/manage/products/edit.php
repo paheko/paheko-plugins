@@ -10,6 +10,7 @@ require __DIR__ . '/../_inc.php';
 if (qg('new') !== null) {
 	$product = Products::new();
 	$csrf_key = 'product_new';
+	$title = 'Nouveau produit';
 }
 else {
 	$product = Products::get((int) qg('id'));
@@ -19,9 +20,10 @@ else {
 	}
 
 	$csrf_key = 'product_edit_' . $product->id();
+	$title = 'Modifier un produit';
 }
 
-$tpl->assign(compact('product', 'csrf_key'));
+$tpl->assign(compact('product', 'csrf_key', 'title'));
 
 if (qg('delete') !== null) {
 	$form->runIf('delete', function () use ($product) {

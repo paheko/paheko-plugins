@@ -46,3 +46,10 @@ if (version_compare($old_version, '4.3.2', '<')) {
 		ALTER TABLE plugin_stock_velos ADD COLUMN taille TEXT NULL;
 	');
 }
+
+if (version_compare($old_version, '4.4.0', '<')) {
+	$db->exec('
+		ALTER TABLE plugin_stock_velos ADD COLUMN id_membre_vente INTEGER NULL REFERENCES users(id) ON DELETE SET NULL;
+		UPDATE plugin_stock_velos SET id_membre_vente = (SELECT id FROM users WHERE numero = details_sortie AND raison_sortie = \'Vendu\' AND details_sortie = printf(\'%d\', details_sortie));
+	');
+}

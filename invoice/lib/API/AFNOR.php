@@ -5,24 +5,24 @@ class AFNOR
 	/**
 	 * @see https://www.superpdp.tech/openapi/#afnor-flow/tag/flow/POST/v1/flows
 	 */
-	public function sendInvoice(Provider $provider, Document $document): void
+	public function sendInvoice(Provider $provider, Invoice $invoice): void
 	{
-		$export = $document->exportAs('ubl');
+		$export = $invoice->exportAs('ubl');
 		$http = new HTTP;
 		$headers = $provider->getAuthHeaders();
 		$data = [
 			'file' => [
 				'type' => 'text/xml',
-				'name' => $document->getFilename('ubl'),
+				'name' => $invoice->getFilename('ubl'),
 				'body' => $export,
 			],
 			'flowInfo' => [
 				'flowSyntax' => 'UBL',
-				'name' => $document->getFilename('ubl'),
+				'name' => $invoice->getFilename('ubl'),
 				'flowProfile' => 'Basic',
 				'processingRule' => 'B2B',
 				'sha256' => hash('sha256', $export),
-				'trackingId' => $document->id,
+				'trackingId' => $invoice->id,
 			],
 		];
 
@@ -36,7 +36,7 @@ class AFNOR
 
 		Plugins::fire('invoice.sent', ['id' => $r->flowId, 'provider' => $provider->name]);
 
-		$document->setSubmitted($provider->name, $r->flowId, new DateTime($r->submittedAt));
+		$invoice->setSubmitted($provider->name, $r->flowId, new DateTime($r->submittedAt));
 	}
 
 	/**

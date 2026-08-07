@@ -1,32 +1,11 @@
-{{#load assign="doc" key=$_GET.doc}}
-{{else}}
-	{{:error message="Cet document n'existe pas"}}
-{{/load}}
+{include file="_head.tpl" title=$question current="plugin_invoice"}
 
-{{if $doc.status !== 'draft'}}
-	{{:error message="Seuls les documents en brouillon peuvent être supprimés"}}
-{{/if}}
+{form_errors}
 
-{{#form on="delete"}}
-	{{:delete type="line" document=$doc.key}}
-	{{:delete type=$doc.type key=$doc.key}}
-	{{:redirect parent="./"}}
-{{/form}}
+{include file="common/delete_form.tpl"
+	legend=$question
+	confirm_label=$question
+	warning=$question
+}
 
-{{if $doc.type === 'quote'}}
-	{{:admin_header title="Supprimer le devis"}}
-
-	{{:delete_form
-		legend="Supprimer un devis"
-		warning="Supprimer le devis ?"
-	}}
-{{else}}
-	{{:admin_header title="Supprimer la facture"}}
-
-	{{:delete_form
-		legend="Supprimer une facture"
-		warning="Supprimer la facture ?"
-	}}
-{{/if}}
-
-{{:admin_footer}}
+{include file="_foot.tpl"}

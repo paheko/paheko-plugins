@@ -51,7 +51,7 @@
 		<li>Modèle : {$velo.modele}</li>
 	</ul>
 	<h3>État : <span class="complete"></span></h3>
-	<p>en contrepartie du paiement du montant de <strong class="complete"></strong> €
+	<p>en contrepartie du paiement du montant de <strong class="complete"></strong> {$currency_symbol}
 		réglé en <b>espèces</b> <b>chèque</b> <em>(barrer la mention inutile)</em> à l'établissement du présent contrat.</p>
 	<p>L'acquéreur déclare avoir examiné en détail le vélo, l'avoir essayé et avoir constaté
 		qu'il est conforme à l'état indiqué ci-dessus. L'acquéreur déclare renoncer à toute

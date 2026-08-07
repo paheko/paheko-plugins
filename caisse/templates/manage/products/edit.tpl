@@ -1,4 +1,4 @@
-{include file="_head.tpl" title="Modifier un produit"}
+{include file="_head.tpl" title=$title}
 
 {form_errors}
 
@@ -60,9 +60,9 @@
 	</aside>
 
 	<fieldset>
-		<legend>Modifier un produit</legend>
+		<legend>Informations générales</legend>
 		<dl>
-			{input type="select" name="category" label="Catégorie" required="true" source=$product options=$categories}
+			{input type="select" name="category" label="Catégorie" required="true" source=$product options=$categories default_empty="— Sélectionner —"}
 			{input type="text" name="name" label="Nom" required="true" source=$product}
 			{input type="textarea" name="description" label="Description" source=$product}
 			{input type="money" name="price" label="Prix unitaire" source=$product required=true help="Indiquer zéro pour un produit gratuit. Indiquer un montant négatif pour une sortie de la caisse (par exemple un remboursement)."}

@@ -13,7 +13,8 @@ $events = new Events(Session::getUserId());
 $csrf_key = 'upload_file';
 
 $form->runIf('upload', function () use ($events) {
-	if (empty($_FILES['file']['tmp_name'])) {
+	if (empty($_FILES['file']['tmp_name'])
+		|| !is_uploaded_file($_FILES['file']['tmp_name'])) {
 		throw new UserException('Erreur à l\'envoi');
 	}
 

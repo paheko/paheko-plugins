@@ -20,6 +20,13 @@ if (empty($_SERVER['CONTENT_LENGTH'])) {
 }
 
 $body = file_get_contents('php://input');
+
+// Limit size of body
+if (strlen($body) > 1000) {
+	http_response_code(413);
+	return;
+}
+
 $data = json_decode($body);
 
 if (!($data instanceof \stdClass)) {

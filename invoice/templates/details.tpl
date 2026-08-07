@@ -1,200 +1,242 @@
-{{#load assign="doc" key=$_GET.doc where="$$.type = 'invoice' OR $$.type = 'quote'"}}
-{{else}}
-	{{:error message="Ce document n'existe pas"}}
-{{/load}}
-
-{{#load assign="client" type="client" key=$doc.client}}
-{{/load}}
-
-{{:include file="./_defines.tpl"}}
-
-{{if $doc.status === 'draft'}}
-	{{#form on="validate"}}
-		{{* Create invoice/quote number *}}
-		{{#load type=$doc.type count=true where="$$.status != 'draft'"}}
-			{{:assign count="%d+1"|math:$count}}
-		{{else}}
-			{{if $doc.type === 'quote'}}
-				{{:assign count=$module.config.first_quote_number}}
-			{{else}}
-				{{:assign count=$module.config.first_invoice_number}}
-			{{/if}}
-		{{/load}}
-
-		{{:assign year=$now|date:'Y'}}
-		{{:assign number="%d-%d"|args:$year:$count}}
-
-		{{:save
-			key=$doc.key
-			status="waiting"
-			number=$number
-			validate_schema="./doc.schema.json"
-		}}
-
-		{{:redirect reload="details.html?doc=%s"|args:$doc.key}}
-	{{/form}}
-
-	{{#form on="delete_line"}}
-		{{:delete type="line" document=$doc.key key=$_POST.delete_line}}
-		{{:redirect reload="details.html?doc=%s"|args:$doc.key}}
-	{{/form}}
-
-{{elseif $doc.status !== 'cancelled'}}
-	{{#form on="cancel"}}
-		{{:save key=$doc.key validate_schema="./doc.schema.json" status="cancelled"}}
-		{{:redirect reload="./details.html?doc=%s"|args:$doc.key}}
-	{{/form}}
-{{/if}}
-
-{{if $doc.type === 'invoice'}}
-	{{:assign type_label="Facture"}}
-{{else}}
-	{{:assign type_label="Devis"}}
-{{/if}}
-
-{{:admin_header title="%s %s — %s"|args:$type_label:$doc.number:$doc.label}}
-
-<form method="post" action="">
+{include file="_head.tpl" title=$title current="plugin_invoice"}
 
 <nav class="tabs">
+	{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
 	<aside>
-		{{:linkbutton shape="plus" label="Dupliquer" href="./duplicate.html?doc=%s"|args:$doc.key}}
-		{{if $doc.status === 'draft'}}
-			{{:linkbutton shape="delete" label="Supprimer" href="./delete.html?doc=%s"|args:$doc.key target="_dialog"}}
-			{{:linkbutton shape="edit" label="Modifier" href="./edit.html?doc=%s"|args:$doc.key target="_dialog"}}
-		{{/if}}
+		{linkbutton shape="eye" label="Visualiser" href="?id=%d&print"|args:$invoice.id target="_dialog"}
+		{if $invoice->type !== $invoice::TYPE_CREDIT}
+			{linkbutton shape="plus" label="Dupliquer" href="duplicate.php?id=%d"|args:$invoice.id}
+		{/if}
+		{if $invoice->isDraft()}
+			{linkbutton shape="delete" label="Supprimer" href="delete.php?id=%d"|args:$invoice.id target="_dialog"}
+			{linkbutton shape="edit" label="Modifier" href="edit.php?id=%d"|args:$invoice.id target="_dialog"}
+		{elseif $facturx_enabled}
+			{linkbutton shape="download" label="Télécharger" href="?id=%d&download"|args:$invoice.id}
+		{/if}
 	</aside>
-	{{:linkbutton shape="left" label="Retour à la liste" href="./"}}
+	{/if}
+	{linkbutton shape="left" label="Retour à la liste" href="./"}
 </nav>
 
-</form>
-
-{{:form_errors}}
-
-{{#load select="SUM($$.amount) AS total" where="$$.type = 'line' AND $$.document = :document" :document=$doc.key}}
-	{{:assign total=$total}}
-{{/load}}
+{form_errors}
 
 <form method="post" action="">
 
-{{if $doc.status === 'draft' && $total}}
-	<div class="alert block">
-		<h3>Statut&nbsp;: brouillon</h3>
-		<p class="submit">{{:button shape="check" name="validate" label="Valider" type="submit" class="main"}}</p>
-		<p>En cliquant sur ce bouton, le document sera verrouillé, il ne pourra plus être modifié, ni supprimé.</p>
-	</div>
-{{elseif $doc.status === 'waiting' && $doc.type === 'quote'}}
-	<div class="alert block">
-		<h3>Statut&nbsp;: en attente de paiement</h3>
-		<p>{{:button shape="delete" name="cancel" label="Annuler" type="submit"}}</p>
-		<p>{{:button shape="right" name="accept" label="Accepter et transformer en facture" type="submit"}}
-	</div>
-{{elseif $doc.status === 'ok' && $doc.type === 'quote'}}
-	<div class="alert block">
-		<h3>Statut&nbsp;: devis accepté</h3>
-		<p>{{:button shape="delete" name="cancel" label="Annuler" type="submit"}}</p>
-		<p>En cliquant sur ce bouton, le devis sera annulé.</p>
-	</div>
-{{elseif $doc.status === 'waiting' && $doc.type === 'invoice'}}
-	<div class="alert block">
-		<h3>Statut&nbsp;: en attente de paiement</h3>
-		<p>{{:button shape="delete" name="cancel" label="Annuler" type="submit"}}</p>
-		<p>En cliquant sur ce bouton, la facture sera annulée.<br />Son solde sera reporté en comptabilité comme abandon de créance.</p>
-	</div>
-{{/if}}
+{if $_GET.msg === 'ACCEPTED'}
+	<p class="confirm block">
+		Le devis a été accepté, voici la facture créée à partir du devis.<br />
+		Vérifiez que la facture est conforme avant de la valider.
+	</p>
+{elseif $_GET.msg === 'CREDIT'}
+	<p class="confirm block">
+		La facture a été annulée, voici l'avoir correspondant.<br />
+		Vérifiez les montants à rembourser avant de valider.
+	</p>
+{/if}
+
+{if $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
+	{if $invoice.status === 'draft' && $invoice.total}
+		<div class="alert block">
+			<h3>Statut&nbsp;: brouillon</h3>
+			<p class="submit">{button shape="check" name="validate" label="Valider" type="submit" class="main"}</p>
+			<p>
+				{if $invoice->isQuote()}
+					En cliquant sur ce bouton, le devis sera verrouillé, il ne pourra plus être modifié, ni supprimé.
+				{else}
+					En cliquant sur ce bouton, la facture sera verrouillée, et ne pourra plus être modifiée, ni supprimée.
+				{/if}
+			</p>
+		</div>
+	{elseif $invoice->isQuote()}
+		{if $invoice.status === $invoice::STATUS_AWAITING_SEND}
+			<div class="alert block">
+				<h3>Statut&nbsp;: à envoyer au client</h3>
+				<p>
+					{button shape="mail" name="send_email" label="Envoyer par e-mail" type="submit" class="main"}
+					{linkbutton shape="download" label="Télécharger" href="?id=%d&download"|args:$invoice.id}
+					{button shape="check" name="mark_sent" label="Marquer comme envoyé" type="submit"}
+				</p>
+			</div>
+		{elseif $invoice.status === $invoice::STATUS_AWAITING_VALIDATION}
+			<div class="alert block">
+				<h3>Statut&nbsp;: en attente de validation par le client</h3>
+				<p>{button shape="delete" name="cancel" label="Annuler" type="submit"}</p>
+				<p>{button shape="right" name="accept" label="Accepter et transformer en facture" type="submit"}</p>
+			</div>
+		{elseif $invoice.status === $invoice::STATUS_ACCEPTED}
+			<div class="alert block">
+				<h3>Statut&nbsp;: devis accepté</h3>
+				<p>{button shape="delete" name="cancel" label="Annuler" type="submit"}</p>
+			</div>
+		{/if}
+	{else}
+		{if $invoice.status === $invoice::STATUS_AWAITING_SEND}
+			<div class="alert block">
+				<h3>Statut&nbsp;: à envoyer au client</h3>
+				<p>
+					{button shape="mail" name="send_email" label="Envoyer par e-mail" type="submit" class="main"}
+					{linkbutton shape="download" label="Télécharger" href="?id=%d&download"|args:$invoice.id}
+					{button shape="check" name="mark_sent" label="Marquer comme envoyée" type="submit"}
+				</p>
+			</div>
+		{elseif $invoice.status === $invoice::STATUS_AWAITING_PAYMENT}
+			<div class="alert block">
+				<h3>Statut&nbsp;: en attente de règlement</h3>
+				{*<p>{linkbutton shape="plus" label="Saisir un paiement" href="payment.php?id=%s"|args:$invoice.id target="_dialog"}</p>*}
+				<p>
+					{button shape="check" name="mark_paid" label="Marquer comme payée" type="submit"}
+					{button shape="delete" name="cancel" label="Annuler et créer un avoir" type="submit"}
+				</p>
+			</div>
+		{elseif $invoice.status === $invoice::STATUS_AWAITING_REFUND}
+			<div class="alert block">
+				<h3>Statut&nbsp;: en attente de remboursement</h3>
+				{*<p>{linkbutton shape="plus" label="Saisir un remboursement" href="refund.php?id=%s"|args:$invoice.id target="_dialog"}</p>*}
+				<p>
+					{button shape="check" name="mark_refunded" label="Marquer comme remboursé" type="submit"}
+				</p>
+			</div>
+		{/if}
+	{/if}
+{/if}
 
 <dl class="describe">
-	<dt>Numéro</dt>
-	<dd>{{$doc.number|or:"En attente"}}</dd>
-	<dt>Objet</dt>
-	<dd>{{$doc.label}}</dd>
-	<dt>Date</dt>
-	<dd>{{$doc.date|date_short}}</dd>
-	<dt>Date d'échéance</dt>
-	<dd>{{$doc.date_expiry|date_short|or:'— Aucune —'}}</dd>
-	<dt>Client</dt>
-	<dd>
-		<strong>{{$client.name}}</strong><br />
-		{{$client.address|nl2br}}<br />
-		{{:linkbutton shape="user" href="./client.html?key=%s"|args:$client.key label="Voir la fiche du client"}}
-	</dd>
+	<dt>Type</dt>
+	<dd>{$invoice->getTypeLabel()}</dd>
 	<dt>Statut</dt>
 	<dd>
-		{{:call function="display_status_label" status=$doc.status type=$doc.type}}
+		{tag label=$invoice->getStatusLabel() color=$invoice->getStatusColor()}
 	</dd>
+	<dt>Numéro</dt>
+	<dd>{if $invoice->isDraft()}(En attente de validation){else}{$invoice->getReference()}{/if}</dd>
+	<dt>Objet</dt>
+	<dd><h2>{$invoice.label}</h2></dd>
+	<dt>Date</dt>
+	<dd>{$invoice.date_created|date_short}</dd>
+	<dt>Date d'échéance</dt>
+	<dd>{$invoice.date_expiry|date_short}</dd>
+	<dt>Client</dt>
+	<dd>
+		<strong>{$invoice->client()->name}</strong>
+	</dd>
+	{if $invoice.operation_type}
+		<dt>Nature de la facture</dt>
+		<dd>{$invoice->getOperationTypeLabel()}</dd>
+	{/if}
+	<dt>Notes</dt>
+	<dd>{if $invoice.notes}{$invoice.notes|raw|markdown}{else}—{/if}</dd>
 
-	<dt>Montant total</dt>
-	<dd><strong class="money">{{$total|money_currency:false:false}}</strong></dd>
-
-	{{if $doc.id_transaction}}
+	{if $invoice.id_transaction}
 	<dt>Écriture comptable</dt>
-	<dd>{{:link class="num" href="!acc/transactions/details.php?id=%d"|args:$doc.id_transaction label="#%d"|args:$doc.id_transaction}}</dd>
-	{{/if}}
+	<dd>{link class="num" href="!acc/transactions/details.php?id=%d"|args:$invoice.id_transaction label="#%d"|args:$invoice.id_transaction}</dd>
+	{/if}
+
 </dl>
 
-{{if $doc.status === 'draft'}}
+{if $invoice->isDraft()}
 	<p class="actions">
-		{{:linkbutton shape="plus" label="Ajouter une ligne" href="./line.html?key=%s"|args:$doc.key target="_dialog"}}
+		{linkbutton shape="plus" label="Ajouter une ligne" href="line.php?id_invoice=%d"|args:$invoice.id target="_dialog"}
 	</p>
-{{/if}}
-{{#list
-	select="$$.label AS 'Libellé'; $$.description AS 'Description'; $$.date AS 'Date'; $$.reference AS 'Réf. justificatif'; $$.category AS 'Catégorie'; $$.amount AS 'Montant'"
-	order=1
-	desc=false
-	where="$$.type = 'line' AND $$.document = :document"
-	:document=$doc.key
-}}
-	<tr>
-		<th>{{$label}}</th>
-		<td class="desc">{{$description|escape|nl2br}}</td>
-		<td>{{$date|date_short}}</td>
-		<td>{{$reference}}</td>
-		<td>{{$category}}</td>
-		<td class="money">{{$amount|money_currency}}</td>
-		<td class="actions">
-			{{if $doc.status === 'draft'}}
-				{{:button name="delete_line" type="submit" value=$key label="Supprimer" shape="delete"}}
-			{{/if}}
-		</td>
-	</tr>
-{{else}}
+{/if}
+
+{if $export.lines}
+	<table class="list">
+		<thead>
+			<tr>
+				<th scope="col">Libellé</th>
+				<td scope="col" class="money">Prix unitaire</td>
+				<td scope="col" class="money">Quantité</td>
+				<td scope="col" class="money">Total HT</td>
+				<td scope="col" class="money">Taux TVA</td>
+				<td scope="col" class="money">Total TTC</td>
+				<td></td>
+			</tr>
+		</thead>
+		<tbody>
+		{foreach from=$export.lines item="line"}
+			<tr>
+				<td>
+					<strong>{$line.item_information.name}</strong>
+					{if $line.item_information.seller_identifier}
+						<small>Réf. {$line.item_information.seller_identifier}</small>
+					{/if}
+					{if $line.item_information.description}
+						<br /><em>{$line.item_information.description|escape|nl2br}</em>
+					{/if}
+				</td>
+			<td class="money">{$line.price_details.item_net_price|raw|money_int|money_currency_html:false}</td>
+			<td class="money">{$line.invoiced_quantity|unit:$line.invoiced_quantity_code:false} <small>{$line.invoiced_quantity_code|get_unit_label}</small></td>
+			<td class="money">{$line.net_amount|raw|money_int|money_currency_html:false}</td>
+			<td class="money">{$line.vat_information.invoiced_item_vat_rate|format_vat_rate}</td>
+			<td class="money">{$line.line_with_vat_net_amount|raw|money_int|money_currency_html:false}</td>
+			<td class="actions">
+				{if $invoice->isDraft() && $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
+					{button name="delete_line" type="submit" value=$line.identifier label="Supprimer" shape="delete"}
+					{linkbutton shape="edit" label="Modifier" href="line.php?id=%d"|args:$line.identifier}
+				{/if}
+			</td>
+		</tr>
+	{/foreach}
+	</tbody>
+	<tfoot>
+		<tr>
+			<th scope="row" colspan="5" class="total">Total HT</th>
+			<td class="money">{$export.totals.total_without_vat|raw|money_int|money_currency_html:false}</td>
+			<td></td>
+		</tr>
+		{foreach from=$export.vat_break_down item="vat"}
+			<tr>
+				<td scope="row" colspan="5" class="total">
+					TVA à {$vat.vat_category_rate|format_vat_rate}
+					{if $vat.vat_exemption_reason}
+						<br />
+						<small>TVA non applicable — {$vat.vat_exemption_reason}</small>
+					{/if}
+				</td>
+				<td class="money">{$vat.vat_category_tax_amount|raw|money_int|money_currency_html:false}</td>
+				<td></td>
+			</tr>
+		{/foreach}
+		<tr>
+			<th scope="row" colspan="5" class="total">Total TTC</th>
+			<td class="money">{$export.totals.total_with_vat|raw|money_int|money_currency_html:false}</td>
+			<td></td>
+		</tr>
+	</tfoot>
+	</table>
+{else}
 	<p class="alert block">
 		Aucune ligne dans ce document.<br />
 	</p>
-{{/list}}
+{/if}
+
+{csrf_field key=$csrf_key}
 </form>
 
-{{if $doc.type === 'invoice' && $doc.status !== 'draft'}}
-	<h2 class="ruler">Paiements (remboursements)</h2>
+{*
+{if $invoice->canPay() || $payments->count()}
+	<h2 class="ruler">Paiements</h2>
 
-	{{if $doc.payments}}
-		<table class="list">
-			<thead>
-				<tr>
-					<td>Num.</td>
-					<td>Date</td>
-					<td>Libellé</td>
-					<td class="money">Montant</td>
-				</tr>
-			</thead>
-			<tbody>
-			{{#transactions id=$doc.payments}}
-				<tr>
-					<td class="num">{{:link class="num" href="!acc/transactions/details.php?id=%d"|args:$id label="#%d"|args:$id}}</td>
-					<td>{{$date|date_short}}</td>
-					<td>{{$label}}</td>
-					<td class="money">{{$credit|money_currency}}</td>
-				</tr>
-			{{/transactions}}
-			</tbody>
+	{if $payments->count()}
+		{include file="common/dynamic_list_head.tpl" list=$payments disable_user_sort=true}
+		{foreach from=$payments->iterate() item="payment"}
+			<tr>
+				<td class="num">{link class="num" href="!acc/transactions/details.php?id=%d"|args:$payment.id label="#%d"|args:$payment.id}</td>
+				<td>{$payment.date|date_short}</td>
+				<td>{$payment.label}</td>
+				<td class="money">{$payment.credit|raw|money_currency_html}</td>
+			</tr>
+		{/foreach}
+		</tbody>
 		</table>
-	{{/if}}
+	{/if}
 
-	{{if $doc.status === 'waiting'}}
+	{if $invoice->canPay() && $session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)}
 		<p class="actions-center">
-			{{:linkbutton shape="plus" label="Saisir un paiement" href="payment.html?doc=%s"|args:$doc.key target="_dialog"}}
+			{linkbutton shape="plus" label="Saisir un paiement" href="payment.php?id=%d"|args:$invoice.id target="_dialog"}
 		</p>
-	{{/if}}
-{{/if}}
+	{/if}
+{/if}
+*}
 
-{{:admin_footer}}
+{include file="_foot.tpl"}

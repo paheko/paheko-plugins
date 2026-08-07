@@ -130,8 +130,8 @@
 			<dd>Le {$velo.date_sortie|date_short}</dd>
 			<dd>Motif de sortie :
 				{$velo.raison_sortie|escape} &mdash;
-				{if $velo.raison_sortie == 'Vendu' && is_numeric($velo.details_sortie)}
-					<a href="{$admin_url}users/details.php?number={$velo.details_sortie|escape}">Membre n°{$velo.details_sortie|escape} — {$velo->membre_sortie()}</a>
+				{if $velo.id_membre_vente}
+					à <a href="{$admin_url}users/details.php?id={$velo.id_membre_vente|escape}">{$velo->membre_sortie()}</a>
 				{else}
 					{$velo.details_sortie|escape}
 				{/if}

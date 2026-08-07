@@ -287,21 +287,52 @@ class Tabs
 		}
 
 		$list->setColumns($columns);
+		$group_all = 't.session';
 
-		// List all sales
-		if ($period === 'all') {
-			$columns['date_short'] = [
-				'select' => 'strftime(\'%d/%m/%Y\', t.opened)',
-				'label'  => 'Date',
-			];
-			$columns['session'] = [
-				'select' => 't.session',
-				'label'  => 'Session',
-			];
+		// List stats by session
+		if ($period === 'id' || $period === 'all') {
+			$columns = array_merge([
+				'date_short' => [
+					'select' => 'strftime(\'%d/%m/%Y\', t.opened)',
+					'label'  => 'Date',
+				],
+				'session' => [
+					'select' => 't.session',
+					'label'  => 'Session',
+				],
+			], $columns);
+
 			$list->setColumns($columns);
 			$list->orderBy('date_short', true);
 		}
-		POS::applyPeriodToList($list, $period, 't.opened', 't.session');
+
+		if ($period === 'all') {
+			$columns = array_merge([
+				'tab' => [
+					'select' => 't.id',
+					'label'  => 'Note',
+				],
+				'id_user' => [
+					'select' => 't.user_id',
+				],
+				'user_name' => [
+					'select' => DynamicFields::getNameFieldsSQL('u'),
+					'label' => 'Membre',
+				],
+			], $columns);
+
+			$columns['sum']['label'] = 'Total de la note';
+			$columns['sum']['select'] = 'SUM(ti.total)';
+			$columns['avg_open_time']['label'] = 'Ouverture';
+			$columns['avg_close_time']['label'] = 'Fermeture';
+			unset($columns['count']);
+
+			$list->addTables('INNER JOIN users u ON u.id = t.user_id');
+			$list->setColumns($columns);
+			$group_all = 't.id';
+		}
+
+		POS::applyPeriodToList($list, $period, 't.opened', $group_all);
 
 		if ($location) {
 			$list->addTables(POS::sql('INNER JOIN @PREFIX_sessions s ON s.id = t.session'));

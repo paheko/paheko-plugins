@@ -3,7 +3,13 @@
 namespace Paheko\Plugin\Invoice;
 
 use Paheko\Config;
+use Paheko\DB;
+use Paheko\DynamicList;
+use Paheko\Plugin\Invoice\Entities\Client;
 use Paheko\Plugin\Invoice\Entities\Invoice;
+use Paheko\Plugin\Invoice\Entities\Line;
+
+use KD2\DB\EntityManager as EM;
 
 class Invoices
 {
@@ -11,15 +17,14 @@ class Invoices
 	const ZERO_RATE_VAT_EXEMPTION_CODE = 'VATEX-FR-FRANCHISE';
 
 	const VAT_EXEMPTIONS = [
-		// Special case, must have VAT code == Z instead of E
-		'VATEX-FR-FRANCHISE'     => 'Franchise en base de TVA (auto-entrepreneur, micro-entreprise, etc.) — Art. 293 B CGI',
+		'VATEX-FR-CGI261-5'      => 'Associations et organismes sans but lucratif — Art. 261-5° CGI',
+		'VATEX-FR-FRANCHISE'     => 'Franchise en base de TVA (auto-entrepreneur, etc.) — Art. 293 B CGI',
 		'VATEX-FR-CNWVAT'        => 'Non-assujetti établi hors de France',
 		'VATEX-FR-AE'            => 'Autoliquidation',
 		'VATEX-FR-CGI261-1'      => 'Soins et services médicaux (médecins, chirurgiens, sages-femmes) — Art. 261-1° CGI',
 		'VATEX-FR-CGI261-2'      => 'Services paramédicaux (infirmiers, kinésithérapeutes, etc.) — Art. 261-2° CGI',
 		'VATEX-FR-CGI261-3'      => 'Enseignement scolaire, universitaire et formation professionnelle — Art. 261-3° CGI',
 		'VATEX-FR-CGI261-4'      => 'Services à caractère sportif et éducatif — Art. 261-4° CGI',
-		'VATEX-FR-CGI261-5'      => 'Organismes sans but lucratif — Art. 261-5° CGI',
 		'VATEX-FR-CGI261-7'      => 'Services rendus à leurs membres par certains groupements — Art. 261-7° CGI',
 		'VATEX-FR-CGI261-8'      => 'Opérations immobilières exonérées — Art. 261-8° CGI',
 		'VATEX-FR-CGI261A'       => 'Activités des établissements financiers et d\'assurance — Art. 261 A CGI',
@@ -39,4 +44,92 @@ class Invoices
 		'VATEX-FR-298SEXDECIESA' => 'Régime particulier des agences de voyages — Art. 298 sexdecies A CGI',
 		'VATEX-FR-CGI295'        => 'Exonérations dans les DOM — Art. 295 CGI',
 	];
+
+	static public function getTypeLabel(int $code): string
+	{
+		return Invoice::TYPES[$code] ?? 'Facture';
+	}
+
+	static public function get(int $id): ?Invoice
+	{
+		return EM::findOneById(Invoice::class, $id);
+	}
+
+	static public function count(int $type): int
+	{
+		return DB::getInstance()->count(Invoice::TABLE, 'type = ? AND status != ?', $type, Invoice::STATUS_DRAFT);
+	}
+
+	static public function getLine(int $id): ?Line
+	{
+		return EM::findOneById(Line::class, $id);
+	}
+
+	static public function getList(?int $type = null, ?string $status = null): DynamicList
+	{
+		$columns = [
+			'id' => ['select' => 'i.id'],
+			'type' => [
+				'label' => 'Type',
+			],
+			'number' => [
+				'label' => 'Numéro',
+			],
+			'date_created' => [
+				'label' => 'Date',
+				'order' => 'date_created %s, id %1$s',
+			],
+			'label' => [
+				'label' => 'Objet',
+			],
+			'client_name' => [
+				'label' => 'Client',
+				'select' => 'c.name',
+			],
+			'status' => [
+				'label' => 'Statut',
+			],
+			'total' => [
+				'label' => 'Total',
+				'class' => 'money',
+			],
+			'year' => [],
+		];
+
+		if ($type) {
+			$conditions = 'type = ?';
+			$params = [$type];
+			$columns['type'] = [];
+		}
+		else {
+			$conditions = '1';
+			$params = [];
+		}
+
+		if (null !== $status) {
+			$conditions .= ' AND status = ?';
+			$params[] = $status;
+			unset($columns['status']);
+		}
+
+		$tables = sprintf('%s AS i INNER JOIN %s AS c ON c.id = i.id_client', Invoice::TABLE, Client::TABLE);
+
+		$list = new DynamicList($columns, $tables, $conditions);
+		$list->orderBy('date_created', true);
+		$list->setParameters($params);
+
+		$list->setModifier(function (&$row) {
+			$row->type_label = Invoice::TYPES[$row->type ?? ''] ?? null;
+			$row->status_label = Invoice::STATUSES[$row->status];
+			$row->status_color = Invoice::STATUSES_COLORS[$row->status];
+			$row->number = isset($row->type, $row->number, $row->year) ? self::getInvoiceReference($row->type, $row->year, $row->number) : null;
+		});
+
+		return $list;
+	}
+
+	static public function getInvoiceReference(int $type, int $year, int $number): string
+	{
+		return sprintf('%s-%d-%d', Invoice::TYPES_PREFIXES[$type], $year, $number);
+	}
 }

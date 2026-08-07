@@ -1,52 +1,50 @@
-# Stockage des factures
+# Fonctionnalités
 
-Les factures sont sérialisées en interne dans un format JSON proche du standard EN 16931. Le format est identique à la sérialisation effectuée par SuperPDP dans son modèle `en_invoice`: <https://www.superpdp.tech/openapi/#superpdp/model/en_invoice>
+* Factures
+* Devis
+* Avoirs
+* Création de facture à partir d'un devis accepté
+* Création d'avoir à partir d'une facture annulée
+* Prévisualisation de facture
+* Génération de facture en Factur-X (PDF) et CII
+* Gestion des exemptions de TVA spécifiques à la France
+* Gestion des champs spécifiques à Chorus Pro
+* Mentions légales obligatoires sur les facture aux entreprises
+* Instructions de paiement sur les factures (IBAN+BIC)
 
-Les devis sont stockés de la même manière mais avec le type 231 (Quotation). Ils ne peuvent alors être envoyés aux plateformes PDP/Peppol qui ne les supportent pas.
+# Fonctionnalités non supportées pour le moment
 
-Quand une facture ou un devis est en statut `draft` (brouillon), le champ "content" est NULL et la facture est séralisée en JSON à la volée.
+- Facture d'acompte
+- Auto-facturation
+- Facture rectificative
+- Remises et rabais (à venir)
+- Cas spécifiques de TVA : auto-liquidation, exemption pour export hors UE, îles Canaries, Ceuta et Mellila
+- Envoi de facture électronique à un code routage autre que le SIREN
 
-Une fois que la facture est validée, la sérialisation est stockée dans le champ "content", et ne peut plus être modifiée.
+# Cycle de vie d'une facture
 
-# Export des factures
+* Création de la facture (statut = brouillon)
+* Validation (statut = en attente d'envoi)
+* Envoi par e-mail ou à une plateforme (statut = en attente de paiement)
 
-Les factures sérialisées en JSON peuvent être converties en HTML, UBL ou CII. Le CII peut ensuite être utilisé pour créer un fichier Factur-X.
+Puis soit :
 
-Cela permet aussi de visualiser des factures reçues. Cependant l'export développé ne gère pas la totalité des spécificités des factures UBL/CII.
+1. Paiement en une ou plusieurs fois, jusqu'à paiement total (statut = payée)
+2. Annulation en cas d'erreur (statut = annulée) et création d'une facture d'avoir.
 
-## Notes facturation électronique
+# Cycle de vie d'une facture d'avoir
 
-* FAQ : https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/faq_fe_05_01_2024_vf.pdf
-* https://github.com/OCA/l10n-france/tree/16.0/l10n_fr_chorus_account
+* Création automatique à partir de la facture à annuler (statut = en attente d'envoi)
+* Envoi par e-mail ou à une plateforme (statut = en attente de remboursement)
+* Remboursement en une ou plusieurs fois, jusqu'à remboursement total (statut = remboursée)
 
+# Cycle de vie d'un devis
 
-Factur-X:
-* https://www.votre-expert-des-associations.fr/est-ce-que-les-associations-sont-concernees-par-la-facture-electronique/
-* PDF + entête XMP spécifique + fichier XML
-* prince --attach=factur-x.xml https://kd2.org/ -o w.pdf --pdf-profile="PDF/A-3a" --pdf-xmp=Factur-X_extension_schema.xmp
-* Validator: https://services.fnfe-mpe.org/
-* Other validator: https://www.mustangproject.org/commandline/
+* Création du devis (statut = brouillon)
+* Validation (statut = en attente d'envoi)
+* Envoi par e-mail ou par courrier (statut = en attente de validation par le client)
 
-* Python/CLI: https://github.com/akretion/factur-x/tree/master
-* PHP: https://github.com/atgp/factur-x/tree/master (2.3MB)
-* https://github.com/akretion/factur-x-libreoffice-extension/blob/master/extension/package/libreoffice_facturx_macro.py
-* Génération de PDF conforme en PHP : https://github.com/horstoeko/zugferd/blob/master/src/ZugferdPdfWriter.php
+Puis soit :
 
-{{:facturx template="./invoice.html" invoice=$invoice}}
-
-Ghostscript:
-* https://ghostscript.com/blog/zugferd.html
-
-## Envoyer des factures Chorus
-
-* https://www.dolibarr.fr/forum/t/connexion-api-chorus-pro-environnement-de-test-qualif/46738/4
-
-
-* Créer un compte sur https://piste.gouv.fr/
-* Créer une nouvelle application
-* Cliquer sur le lien "Click here to access to the consent page"
-* Cocher la case devant "Factures" et valider
-* Revenir sur la page de l'application : la case pour "Factures" et désormais dégrisée, la cocher et valider
-* Se rendre dans l'onglet "Authentication"
-* Copier le Client ID et Client Secret de "OAuth credentials"
-
+1. Acceptation par le client (statut = accepté) et création d'une facture identique au devis
+2. Refus par le client (statut = annulé)

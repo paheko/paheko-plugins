@@ -34,6 +34,9 @@
 		<li class="{if $period === 'month'}current{/if}">{link href="?year=%d&page=%s&period=month&location=%s"|args:$year:$page:$location label="Par mois"}</li>
 		<li class="{if $period === 'weekday'}current{/if}">{link href="?year=%d&page=%s&period=weekday&location=%s"|args:$year:$page:$location label="Par jour de la semaine"}</li>
 		<li class="{if $period === 'day'}current{/if}">{link href="?year=%d&page=%s&period=day&location=%s"|args:$year:$page:$location label="Par jour"}</li>
+		{if $page === 'tabs'}
+			<li class="{if $period === 'id'}current{/if}">{link href="?year=%d&page=%s&period=id&location=%s"|args:$year:$page:$location label="Par session"}</li>
+		{/if}
 		<li class="{if $period === 'all'}current{/if}">{link href="?year=%d&page=%s&period=all&location=%s"|args:$year:$page:$location label="Tout"}</li>
 	</ul>
 	{/if}
@@ -71,6 +74,9 @@
 		{foreach from=$list->iterate() item="row"}
 			<tr>
 			{foreach from=$row key="key" item="value"}
+				{if $key === 'id_user'}
+					{continue}
+				{/if}
 				<td>
 				{if $key === 'period' && $period === 'month'}
 					{$value|strftime:'%m - %B'}
@@ -84,6 +90,8 @@
 					{link href="../tab.php?id=%d"|args:$value label=$value class="num"}
 				{elseif $key === 'session'}
 					{link href="../session.php?id=%d"|args:$value label=$value class="num"}
+				{elseif $key === 'user_name'}
+					{link href="!users/details.php?id=%d"|args:$row.id_user label=$value}
 				{elseif $key === 'avg_open_time' || $key === 'avg_close_time'}
 					<?php $h = floor($value); $value = sprintf('%02d', $h) . ':' . sprintf('%02d', ($value - $h)*60); ?>
 					{$value}
@@ -92,7 +100,8 @@
 				{/if}
 				</td>
 			{/foreach}
-				<td></td>
+				<td>
+				</td>
 			</tr>
 		{/foreach}
 		</tbody>

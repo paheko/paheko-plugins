@@ -1,53 +1,44 @@
-{{:admin_header title="Configuration des devis et factures"}}
+{include file="_head.tpl" title="Configuration" current="plugin_invoice"}
 
-{{#form on="save"}}
-	{{if $_POST.business_number && $config.country === 'FR' && !$_POST.business_number|check_siret_number}}
-		{{:error message="Ce numéro SIRET est invalide."}}
-	{{/if}}
+<p>
+	{linkbutton shape="left" href="./" label="Retour"}
+</p>
 
-	{{:save key="config"
-		validate_schema="./config.schema.json"
-		invoice_text=$_POST.invoice_text|or:null
-		quote_text=$_POST.quote_text|or:null
-		business_number=$_POST.business_number|or:null
-		vat_number=$_POST.vat_number|or:null
-	}}
-	{{:redirect reload="./"}}
-{{/form}}
-
-{{if $_GET.ok}}
+{if isset($_GET['ok'])}
 	<p class="block confirm">Configuration enregistrée.</p>
-{{/if}}
+{/if}
 
-{{:form_errors}}
+{form_errors}
 
 <form method="post" action="">
 
 <fieldset>
-	<legend>Configuration</legend>
+	<legend>Informations administratives</legend>
 	<dl>
-		{{:input type="textarea" cols="70" rows="5" name="invoice_text" required=false source=$module.config label="Texte à afficher en bas de chaque facture" help="Syntaxe MarkDown acceptée"}}
-		{{:input type="textarea" cols="70" rows="5" name="quote_text" required=false source=$module.config label="Texte à afficher en bas de chaque facture" help="Syntaxe MarkDown acceptée"}}
+		{input type="text" name="vat_number" source=$plugin_config label="Numéro de TVA intra-communautaire (UE)" required=false}
+		{if $config.country === 'FR'}
+			{input type="select" name="exemption_code" source=$plugin_config label="Motif d'exemption de TVA par défaut" required=false options=$vat_exemption_codes default_empty="— Aucune (pas d'exemption de TVA) —"}
+		{else}
+			{input type="text" name="exemption_text" source=$plugin_config label="Motif d'exemption de TVA par défaut" required=false}
+		{/if}
 	</dl>
 </fieldset>
 
 <fieldset>
-	<legend>Informations administratives</legend>
-	<p class="help">Ces informations sont nécessaires pour l'établissement d'une facture électronique en France (Chorus Pro).</p>
+	<legend>Instructions de paiement de paiement</legend>
+	<p>Ces informations figureront sur les factures émises, pour indiquer au client comment payer.</p>
 	<dl>
-	{{if $config.country === 'FR'}}
-		{{:input type="text" name="business_number" source=$module.config label="Numéro de SIRET" required=false}}
-	{{else}}
-		{{:input type="text" name="business_number" source=$module.config label="Numéro d'entreprise" required=false}}
-	{{/if}}
-		{{:input type="text" name="vat_number" source=$module.config label="Numéro de TVA intra-communautaire" required=false}}
+		{input type="text" name="iban" source=$plugin_config label="Numéro IBAN" required=false}
+		{input type="text" name="bic" source=$plugin_config label="Code BIC" required=false}
+		{input type="textarea" name="payment_instructions" source=$plugin_config label="Autres instructions de paiement" required=false}
 	</dl>
 </fieldset>
 
 <p class="submit">
-	{{:button type="submit" name="save" label="Enregistrer" shape="right" class="main"}}
+	{button type="submit" name="save" label="Enregistrer" shape="right" class="main"}
+	{csrf_field key=$csrf_key}
 </p>
 
 </form>
 
-{{:admin_footer}}
+{include file="_foot.tpl"}

@@ -46,7 +46,8 @@
 				<td class="money">{$product.price|escape|money_currency}</td>
 				<td class="num">
 					{if $product.stock < 0}{tag color="darkred" label=$product.stock}
-					{elseif $product.stock <= 10}{tag color="darkorange" label=$product.stock}
+					{elseif $product.stock <= 5}{tag color="darkorange" label=$product.stock}
+					{elseif $product.stock <= 10}{tag color="darkblue" label=$product.stock}
 					{else}{tag color="darkgreen" label=$product.stock}{/if}
 				</td>
 				<td class="money">{$product.sale_value|escape|money_currency}</td>

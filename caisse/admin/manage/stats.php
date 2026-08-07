@@ -17,6 +17,10 @@ $period = qg('period') ?? 'year';
 $location = intval(qg('location')) ?: null;
 $list = null;
 
+if ($period === 'id' && $page !== 'tabs') {
+	$period = 'all';
+}
+
 if ($year) {
 	if ($graph == 'methods') {
 		header('Content-Type: image/svg+xml');

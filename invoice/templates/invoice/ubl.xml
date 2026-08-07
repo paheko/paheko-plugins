@@ -30,11 +30,15 @@
 				</cac:AddressLine>
 				<!-- Mandatory -->
 				<cac:Country>
-					<cbc:IdentificationCode>{$invoice.seller.country}</cbc:IdentificationCode>
+					<cbc:IdentificationCode>{$invoice.seller.country_code}</cbc:IdentificationCode>
 				</cac:Country>
 			</cac:PostalAddress>
 			<cac:PartyTaxScheme>
-				<cbc:CompanyID>{$invoice.seller.vat_identifier}</cbc:CompanyID>
+				{if $invoice.seller.vat_identifier}
+					<cbc:CompanyID>{$invoice.seller.vat_identifier}</cbc:CompanyID>
+				{elseif $invoice.seller.country_code === 'FR'}
+					<cbc:CompanyID>{$invoice.seller.legal_registration_identifier.value}</cbc:CompanyID>
+				{/if}
 				<cac:TaxScheme>
 					<cbc:ID>VAT</cbc:ID>
 				</cac:TaxScheme>
@@ -63,7 +67,7 @@
 				</cac:Country>
 			</cac:PostalAddress>
 			<cac:PartyTaxScheme>
-				<cbc:CompanyID>{$invoice.buyer.vat_number}</cbc:CompanyID>
+				<cbc:CompanyID>{$invoice.buyer.vat_identifier}</cbc:CompanyID>
 				<cac:TaxScheme>
 					<cbc:ID>VAT</cbc:ID>
 				</cac:TaxScheme>

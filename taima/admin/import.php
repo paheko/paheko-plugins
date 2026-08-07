@@ -51,8 +51,8 @@ $form->runIf('cancel', function () use ($csv) {
 	$csv->clear();
 }, $csrf_key, Utils::getSelfURI(null));
 
-$form->runIf(f('load') && isset($_FILES['file']['tmp_name']), function () use ($csv, $columns, $benevalibre_match) {
-	$csv->upload($_FILES['file']);
+$form->runIf('load', function () use ($csv, $columns, $benevalibre_match) {
+	$csv->upload($_FILES['file'] ?? []);
 }, $csrf_key, Utils::getSelfURI());
 
 $form->runIf(f('set_translation_table') && $csv->loaded(), function () use (&$csv) {
@@ -62,6 +62,7 @@ $form->runIf(f('set_translation_table') && $csv->loaded(), function () use (&$cs
 	$table = $csv->getTranslationTable();
 
 	if (!in_array('duration', $table) && !in_array('duration_hours', $table)) {
+		$csv->resetTranslationTable();
 		throw new UserException('Aucune colonne indiquant la durée n\'a été sélectionnée');
 	}
 }, $csrf_key);

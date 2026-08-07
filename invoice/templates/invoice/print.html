@@ -1,0 +1,183 @@
+{use Paheko\Plugin\Invoice\Invoices}
+<?php
+$title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>{$title}</title>
+	{if !empty($css)}
+		<style type="text/css">
+		{$css|raw}
+		</style>
+	{else}
+		<link rel="stylesheet" type="text/css" href="{$admin_url}p/invoice/invoice.css?{$version_hash}" />
+	{/if}
+</head>
+
+<body>
+
+{if !$_GET.print && empty($export)}
+	<nav class="buttons">
+		{linkbutton href="%s&print=yes"|args:$self_url label="Imprimer" target="_blank" shape="print"}
+	</nav>
+{/if}
+
+{if $status === 'draft'}
+	<section class="watermark">
+		<p>Brouillon</p>
+	</section>
+{elseif $status === 'cancelled'}
+	<section class="watermark">
+		{if $invoice.type_code === 231}Annulé{else}Annulée{/if}
+	</section>
+{/if}
+
+<section class="seller contact{if $is_org} org{/if}">
+	{include file="./_contact.html" contact=$invoice.seller}
+</section>
+
+<main>
+	<section class="buyer contact">
+		{include file="./_contact.html" contact=$invoice.buyer}
+	</section>
+
+	{if true || $parent_format === 'facturx'}
+		<div class="facturx">
+			<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="m23 12l-2.44-2.78l.34-3.68l-3.61-.82l-1.89-3.18L12 3L8.6 1.54L6.71 4.72l-3.61.81l.34 3.68L1 12l2.44 2.78l-.34 3.69l3.61.82l1.89 3.18L12 21l3.4 1.46l1.89-3.18l3.61-.82l-.34-3.68zm-13 5l-4-4l1.41-1.41L10 14.17l6.59-6.59L18 9z"/></svg>
+			Facture électronique au format <strong>Factur-X</strong>
+		</div>
+	{/if}
+
+	<section class="info">
+		<h1>{$title}</h1>
+		{foreach from=$invoice.notes item="note"}
+			{if $note.subject_code === 'AAI'}
+				<h2>Objet&nbsp;: {$note.note}</h2>
+			{/if}
+		{/foreach}
+
+		<h3>Date : {$invoice.issue_date|date_short}</h3>
+
+		{if $invoice.payment_due_date}
+			<h4>Date d'échéance : {$invoice.payment_due_date|date_short}</h4>
+		{/if}
+
+		{if $invoice.buyer_reference || $invoice.contract_reference}
+		<dl class="refs">
+			{if $invoice.buyer_reference}
+				<dt>{if $invoice.buyer.country_code === 'FR'}Service exécutant{else}Référence acheteur{/if}</dt>
+				<dd>{$invoice.buyer_reference}</dd>
+			{/if}
+			{if $invoice.contract_reference}
+				<dt>{if $invoice.buyer.country_code === 'FR'}Numéro d'engagement{else}Référence de contrat{/if}</dt>
+				<dd>{$invoice.contract_reference}</dd>
+			{/if}
+		</dl>
+		{/if}
+	</section>
+
+	<section class="lines">
+		<table>
+			<thead>
+				<tr>
+					<th scope="col">Désignation</th>
+					<th scope="col">Réf.</th>
+					<th scope="col" class="money">Prix U. HT</th>
+					<th scope="col" class="qty">Qté</th>
+					<th scope="col" class="money">Total HT</th>
+					<th scope="col" class="number">Taux TVA</th>
+					<th scope="col" class="money">Total TTC</th>
+				</tr>
+			</thead>
+			<tbody>
+			{foreach from=$invoice.lines item="line"}
+				<tr>
+					<th scope="row">
+						<strong>{$line.item_information.name}</strong>
+						{if $line.item_information.description}<br /><small>{$line.item_information.description|escape|nl2br}</small>{/if}
+					</th>
+					<td>{$line.item_information.seller_identifier}</td>
+					<td class="money">{$line.price_details.item_net_price|raw|money_int|money_html:false}</td>
+					<td class="qty">
+						{$line.invoiced_quantity|unit:$line.invoiced_quantity_code:false}
+						<small>{$line.invoiced_quantity_code|get_unit_label}</small>
+					</td>
+					<td class="money">{$line.net_amount|raw|money_int|money_html:false}</td>
+					<td class="number">{$line.vat_information.invoiced_item_vat_rate|format_vat_rate}</td>
+					<td class="money">{$line.line_with_vat_net_amount|raw|money_int|money_html:false}</td>
+				</tr>
+			{/foreach}
+			</tbody>
+			<tfoot>
+				<tr>
+					<th scope="row" colspan="6" class="total">Total HT</th>
+					<td class="money">{$invoice.totals.total_without_vat|raw|money_int|money_html:false} {$invoice.currency_code}</td>
+				</tr>
+				{foreach from=$invoice.vat_break_down item="vat"}
+					<tr>
+						<td scope="row" colspan="6" class="total">
+							TVA à {$vat.vat_category_rate|format_vat_rate}
+							{if $vat.vat_exemption_reason}
+								<br />
+								<small>TVA non applicable — {$vat.vat_exemption_reason}</small>
+							{/if}
+						</td>
+						<td class="money">{$vat.vat_category_tax_amount|raw|money_int|money_html:false} {$invoice.currency_code}</td>
+					</tr>
+				{/foreach}
+				<tr>
+					<th scope="row" colspan="6" class="total">Total TTC</th>
+					<td class="money">{$invoice.totals.total_with_vat|raw|money_int|money_html:false} {$invoice.currency_code}</td>
+				</tr>
+			</tfoot>
+		</table>
+	</section>
+
+	<section class="notes">
+		{if $invoice.payment_instructions}
+			<article>
+				{if $invoice.payment_instructions.payment_means_text}
+					<p>
+						Instructions de paiement&nbsp;:
+						{$invoice.payment_instructions.payment_means_text|escape|nl2br}
+					</p>
+				{/if}
+				{if $invoice.payment_instructions.credit_transfers}
+					<p>
+						{$invoice.payment_instructions.credit_transfers.payment_account_identifier.scheme}&nbsp;:
+						{$invoice.payment_instructions.credit_transfers.payment_account_identifier.value}
+						{if $invoice.payment_instructions.credit_transfers.payment_service_provider_identifier}
+							/ BIC&nbsp;:
+							{$invoice.payment_instructions.credit_transfers.payment_service_provider_identifier}
+						{/if}
+					</p>
+				{/if}
+			</article>
+		{/if}
+		{foreach from=$invoice.notes item="note"}
+			{if $note.subject_code === 'AAI'}
+				{continue}
+			{/if}
+			<article>
+				{if $note.subject_code === 'OSI'}
+					<em>{$note.note|escape|nl2br}</em>
+				{else}
+					<small>{$note.note|escape|nl2br}</small>
+				{/if}
+			</article>
+		{/foreach}
+	</section>
+</main>
+
+{if $_GET.print === 'yes'}
+<script type="text/javascript">
+window.onafterprint = window.close;
+window.print();
+</script>
+{/if}
+
+
+</body>
+</html>

@@ -48,7 +48,7 @@
 					{elseif $balance.expected_total > $balance.open_amount}
 						{tag color="darkcyan" label="+%s"|args:$amount} par rapport à l'ouverture
 					{else}
-						{tag color="darkorange" label="-%s"|args:$amount} par rapport à l'ouverture
+						{tag color="darkorange" label=$amount} par rapport à l'ouverture
 					{/if}
 				</dd>
 				{input type="money" name="balances[%d][amount]"|args:$balance.id data-expected=$balance.expected_total required=true label="Solde constaté à la fermeture" help="Merci de compter le contenu de la caisse."}
@@ -57,7 +57,7 @@
 			<div class="balance-error hidden">
 				<p class="error block">
 					Erreur de caisse de
-					<strong class="balance-diff"></strong>&nbsp;€.
+					<strong class="balance-diff"></strong>&nbsp;{$currency_symbol}.
 					Merci de bien vouloir recompter la caisse.
 				</p>
 				<p class="help">
@@ -151,7 +151,7 @@ document.querySelectorAll('.pos-balances fieldset').forEach(f => {
 
 	amount.onkeyup = (e) => {
 		var expected = parseInt(amount.getAttribute('data-expected'), 10);
-		var typed_value = amount.value.replace(/[^\d.,]/g, '');
+		var typed_value = amount.value.replace(/[^-\d.,]/g, '');
 
 		if (!typed_value.length) {
 			return;
@@ -164,9 +164,11 @@ document.querySelectorAll('.pos-balances fieldset').forEach(f => {
 			return;
 		}
 
+
 		g.toggle(block, true);
 
 		var diff = typed_value - expected;
+		console.log(diff, expected, typed_value);
 
 		var sign = diff < 0 ? '-' : '+';
 		diffElement.innerText = sign + g.formatMoney(Math.abs(diff), true);

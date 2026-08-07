@@ -197,7 +197,7 @@ class HelloAsso
 			}
 
 			$email_field = DynamicFields::getFirstEmailField();
-			$where = sprintf('%s = ?', $db->quoteIdentifier($email_field));
+			$where = sprintf('us.%s = ?', $db->quoteIdentifier($email_field));
 			$params[] = $data->email;
 		}
 		else {

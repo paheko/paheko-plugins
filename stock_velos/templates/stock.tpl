@@ -14,10 +14,10 @@
 	</article>
 	<article class="etiquettes">
 		<h2 class="ruler">{$en_vente|count} en vente</h2>
-		<h3>(valeur : {$valeur_vente|escape} €, prix moyen d'un vélo : {$prix_moyen|escape} €)</h3>
+		<h3>(valeur : {$valeur_vente|escape} {$currency_symbol}, prix moyen d'un vélo : {$prix_moyen|escape} {$currency_symbol})</h3>
 		<p>
 			{foreach from=$en_vente item="r"}
-			<a href="fiche.php?id={$r.id}" class="en_vente">{if $r.etiquette && $fields.etiquette.enabled}{$r.etiquette}{else}{$r.id}{/if} <i>{$r.prix}&nbsp;€</i></a>
+			<a href="fiche.php?id={$r.id}" class="en_vente">{if $r.etiquette && $fields.etiquette.enabled}{$r.etiquette}{else}{$r.id}{/if} <i>{$r.prix}&nbsp;{$currency_symbol}</i></a>
 			{/foreach}
 		</p>
 	</article>
