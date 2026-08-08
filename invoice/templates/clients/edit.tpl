@@ -25,9 +25,13 @@
 
 <fieldset class="country-fr">
 	<legend>Informations administratives</legend>
-	<?php $enabled = !empty($client->business_number); ?>
+	<?php $enabled = !empty($client->business_number); $blocked = empty($config->org_business_number); ?>
+
+	{if $blocked}
+		<p class="alert block">Vous ne pouvez pas effectuer de facturation électronique si vous n'avez pas renseigné votre numéro d'entreprise (SIRET en France) dans la {link href="!config/" label="configuration"}.</p>
+	{/if}
 	<dl>
-		{input type="radio-btn" prefix_label="Facturation électronique" prefix_required=true name="e_invoicing" value=1 label="Activer la facturation électronique" help="Pour les entreprises, auto-entrepreneurs, etc." required=true default=$enabled}
+		{input type="radio-btn" prefix_label="Facturation électronique" prefix_required=true name="e_invoicing" value=1 label="Activer la facturation électronique" help="Pour les entreprises, auto-entrepreneurs, etc." required=true default=$enabled disabled=$blocked}
 		{input type="radio-btn" name="e_invoicing" value=0 label="Sans facturation électronique" help="Particuliers, associations non assujetties à la TVA, syndic non professionnel, etc." default=$enabled}
 	</dl>
 	<dl class="e_invoicing_1">
