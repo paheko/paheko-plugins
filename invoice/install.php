@@ -1,6 +1,7 @@
 <?php
 
 namespace Paheko\Plugin\Invoice;
+use Paheko\Plugin\Invoice\Entities\Client;
 
 use Paheko\DB;
 
