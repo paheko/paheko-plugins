@@ -9,3 +9,4 @@ PDF::install();
 
 $plugin->registerSignal('pdf.stream', 'Paheko\Plugin\Dompdf\PDF::stream');
 $plugin->registerSignal('pdf.create', 'Paheko\Plugin\Dompdf\PDF::create');
+$plugin->registerSignal('facturx.create', 'Paheko\Plugin\Dompdf\PDF::facturx');
