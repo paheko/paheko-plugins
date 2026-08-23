@@ -877,7 +877,12 @@ class Invoice extends Entity
 			return true;
 		}
 
-		if (in_array(Utils::getPDFCommand(), ['prince', 'weasyprint'], true)) {
+		$cmd = Utils::getPDFCommand();
+
+		if (0 === strpos($cmd, 'prince')) {
+			return true;
+		}
+		elseif (0 === strpos($cmd, 'weasyprint')) {
 			return true;
 		}
 
