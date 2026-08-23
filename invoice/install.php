@@ -31,6 +31,7 @@ if ($db->hasTable('plugin_facturation_clients')) {
 			'business_number' => $row->siret ? substr($row->siret, 0, 9) : null,
 			'country'         => 'FR',
 		]);
+		$client->set('created', new \DateTime);
 		$client->save();
 	}
 
