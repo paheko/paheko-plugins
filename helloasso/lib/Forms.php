@@ -117,7 +117,7 @@ class Forms
 			$list = EM::getInstance(Form::class)->all('SELECT * FROM @TABLE WHERE org_slug = ?;', $org->organizationSlug);
 
 			foreach ($list as $form) {
-				$existing[$form->slug] = $form;
+				$existing[$form->type . '_' . $form->slug] = $form;
 			}
 
 			unset($list);
@@ -125,7 +125,7 @@ class Forms
 			$forms = $api->listForms($org->organizationSlug);
 
 			foreach ($forms as $form) {
-				$data = $existing[$form->formSlug] ?? new Form;
+				$data = $existing[$form->formType . '_' . $form->formSlug] ?? new Form;
 				$data->org_name = $org->name;
 				$data->org_slug = $org->organizationSlug;
 

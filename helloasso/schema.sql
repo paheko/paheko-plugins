@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms (
 	create_payer_user INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS plugin_helloasso_forms_key ON plugin_helloasso_forms(org_slug, slug);
+CREATE UNIQUE INDEX IF NOT EXISTS plugin_helloasso_forms_key ON plugin_helloasso_forms(org_slug, type, slug);
 
 CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers (
 -- Tiers: elements of a form
