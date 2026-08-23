@@ -14,6 +14,7 @@ use Paheko\DynamicList;
 use Paheko\Utils;
 
 use KD2\DB\EntityManager as EM;
+use KD2\ErrorManager;
 
 class Orders
 {
@@ -127,8 +128,16 @@ class Orders
 		$data = self::transform($data);
 
 		if (!$entity->exists()) {
+			$id_form = Forms::getId($data->org_slug, $data->form_slug);
+
+			if (!$id_form) {
+				// See https://dev.helloasso.com/discuss/6a8b7bbef69aea84257541b1
+				ErrorManager::reportExceptionSilent(new \LogicException(sprintf("Cannot find form slug for order #%d, order will not be synced:\n%s", $data->id, json_encode($data, JSON_PRETTY_PRINT))));
+				return;
+			}
+
 			$entity->set('id', $data->id);
-			$entity->set('id_form', Forms::getId($data->org_slug, $data->form_slug));
+			$entity->set('id_form', $id_form);
 		}
 
 		$entity->set('amount', $data->amount);
