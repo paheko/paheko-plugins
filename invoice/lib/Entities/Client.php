@@ -155,7 +155,8 @@ class Client extends Entity
 		$is_eu = in_array($person->country, self::EU_COUNTRIES);
 
 		// For testing purposes, accept eg. "0225:315143296_127"
-		if (false !== strpos($person->business_number, ':')) {
+		if ($person->business_number !== null
+			&& false !== strpos($person->business_number, ':')) {
 			$scheme = strtok($person->business_number, ':');
 			$value = strtok('');
 		}
