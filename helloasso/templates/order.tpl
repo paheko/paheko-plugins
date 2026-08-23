@@ -6,7 +6,7 @@
 
 <h2 class="ruler">Synchronisation</h2>
 
-{if !$is_synced}
+{if $is_synced === false}
 <form method="post" action="">
 	<p class="actions-center">
 		{csrf_field key=$csrf_key}

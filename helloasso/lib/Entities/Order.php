@@ -309,8 +309,9 @@ class Order extends Entity
 	{
 		$ha = HelloAsso::getInstance();
 
+		// FIXME: Currently we cannot handle partially paid/refunded orders
 		if ($this->status !== self::STATUS_PAID) {
-			throw new \LogicException('Cannot sync a non-paid order');
+			$create_transaction = false;
 		}
 
 		$db = DB::getInstance();
@@ -481,7 +482,7 @@ class Order extends Entity
 
 	public function isSynced(?bool $has_all_users = null, ?bool $has_all_subscriptions = null): ?bool
 	{
-		// Cannot sync a non-paid order
+		// FIXME: cannot sync partially paid orders
 		if ($this->status !== self::STATUS_PAID) {
 			return null;
 		}
@@ -493,7 +494,8 @@ class Order extends Entity
 			return false;
 		}
 
-		if ($form->id_year && !$this->id_transaction) {
+		if ($form->id_year
+			&& !$this->id_transaction) {
 			return false;
 		}
 
