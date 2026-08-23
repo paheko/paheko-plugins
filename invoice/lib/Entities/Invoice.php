@@ -811,7 +811,7 @@ class Invoice extends Entity
 
 		// Prince can directly create a valid Factur-X PDF using STDIN/STDOUT,
 		// without temporary files for HTML and PDF, much better
-		if (Utils::getPDFCommand() === 'prince') {
+		if (strpos(Utils::getPDFCommand(), 'prince') === 0) {
 			$cmd = sprintf(
 				'prince --http-timeout=3 --pdf-profile="PDF/A-3a" --pdf-xmp=%s --attach-data=%s -o - -',
 				escapeshellarg($root . '/factur-x/factur-x.xmp'),
@@ -819,7 +819,7 @@ class Invoice extends Entity
 			);
 		}
 		// Weasyprint can also do it: https://github.com/Kozea/WeasyPrint/pull/2658
-		elseif (Utils::getPDFCommand() === 'weasyprint') {
+		elseif (strpos(Utils::getPDFCommand(), 'weasyprint') === 0) {
 			$cmd = sprintf('weasyprint - - --attachment=%s --attachment-relationship=Data --xmp-metadata=%s --pdf-variant=pdf/a-3a',
 				escapeshellarg($tmp_xml_file),
 				escapeshellarg($root . '/factur-x/factur-x.xmp')
