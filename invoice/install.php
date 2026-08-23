@@ -27,7 +27,7 @@ if ($db->hasTable('plugin_facturation_clients')) {
 			'city'            => $row->ville,
 			'phone'           => $row->telephone,
 			'email'           => $row->email,
-			'notes'           => $row->note,
+			'notes'           => $row->note ?? '',
 			'business_number' => $row->siret ? substr($row->siret, 0, 9) : null,
 			'country'         => 'FR',
 		]);
