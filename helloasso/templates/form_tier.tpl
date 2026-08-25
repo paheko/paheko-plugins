@@ -27,7 +27,7 @@
 		{if !empty($ha_fields)}
 		<fieldset>
 			<legend>Correspondance des champs des fiches de membres</legend>
-			<p class="help">Indiquer ici à quels champs de la fiche membre les informations fournies par HelloaAsso doivent correspondre.</p>
+			<p class="help">Indiquer ici quelle information de HelloAsso doit correspondre un champ de la fiche membre.</p>
 			<table class="list auto">
 				<thead>
 					<tr>

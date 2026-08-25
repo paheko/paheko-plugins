@@ -24,11 +24,11 @@
 
 	<fieldset>
 		<legend>Correspondance des champs des fiches de membres</legend>
-		<p class="help">Indiquer ici quelle donnée de HelloAsso doit correspondre un champ de la fiche membre.</p>
+		<p class="help">Indiquer ici quelle information de HelloAsso doit correspondre un champ de la fiche membre.</p>
 		<table class="list auto">
 			<thead>
 				<tr>
-					<th scope="col">HelloAsso</th>
+					<th scope="col">Information HelloAsso</th>
 					<th scope="col">Fiche membre</th>
 				</tr>
 			</thead>
