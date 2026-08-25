@@ -15,9 +15,9 @@
 	<fieldset>
 		<legend>Correspondance des membres</legend>
 		<dl>
-			{input type="select" options=$match_options name="match_email_field" source=$plugin_config required=true label="Champ utilisé pour savoir si un membre existe déjà"}
+			{input type="select" options=$match_options name="match_email_field" source=$plugin_config required=true label="Champ utilisé pour savoir si un membre existe déjà" help="Si vous avez des membres homonymes, il est préférable d'utiliser le champ e-mail pour éviter les erreurs."}
 		{if $name_field}
-			{input type="select" name="merge_names_order" label="Ordre des champs nom et prénom dans le champ '%s'"|args:$name_field.label options=$merge_names_order_options required=true source=$plugin_config}
+			{input type="select" name="merge_names_order" label="Ordre du nom et prénom" options=$merge_names_order_options required=true source=$plugin_config help="Indiquer ici si le champ '%s' de la fiche membre doit avoir le nom ou le prénom en premier."|args:$name_field.label}
 		{/if}
 		</dl>
 	</fieldset>

@@ -26,8 +26,8 @@ class HelloAsso
 	const MERGE_NAMES_LAST_FIRST = 1;
 
 	const MERGE_NAMES_ORDER_OPTIONS = [
-		self::MERGE_NAMES_FIRST_LAST => 'Prénom Nom',
-		self::MERGE_NAMES_LAST_FIRST => 'Nom Prénom',
+		self::MERGE_NAMES_FIRST_LAST => 'Prénom en premier',
+		self::MERGE_NAMES_LAST_FIRST => 'Nom en premier',
 	];
 
 	const PAYER_FIELDS = [
