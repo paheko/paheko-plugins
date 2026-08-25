@@ -70,6 +70,43 @@ class HelloAsso
 	{
 		$this->plugin = Plugins::get('helloasso');
 		$this->config = $this->plugin->getConfig();
+
+		// Set defaults
+		if (isset($this->config)) {
+			$this->config->merge_names_order ??= self::MERGE_NAMES_FIRST_LAST;
+			$this->config->match_email_field ??= false;
+
+			if (!isset($this->config->fields_map)) {
+				$this->config->fields_map = new stdClass;
+
+				if (($names = DynamicFields::getNameFields())
+					&& count($names) === 1) {
+					$this->config->fields_map->firstName = current($names);
+					$this->config->fields_map->lastName = $this->config->fields_map->firstName;
+				}
+
+				if (($emails = DynamicFields::getEmailFields())
+					&& count($emails) === 1) {
+					$this->config->fields_map->email = current($emails);
+				}
+
+				if (DynamicFields::get('code_postal')) {
+					$this->config->fields_map->zipCode = 'code_postal';
+				}
+
+				if (DynamicFields::get('ville')) {
+					$this->config->fields_map->city = 'ville';
+				}
+
+				if (DynamicFields::get('pays')) {
+					$this->config->fields_map->country = 'pays';
+				}
+
+				if (DynamicFields::get('adresse')) {
+					$this->config->fields_map->address = 'adresse';
+				}
+			}
+		}
 	}
 
 	public function getConfig(): ?stdClass
