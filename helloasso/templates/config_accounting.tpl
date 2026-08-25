@@ -8,6 +8,7 @@
 
 	<fieldset>
 		<legend>Comptabilité</legend>
+		<p class="help">Pour pouvoir créer des écritures comptables à partir des paiements, il faut renseigner les informations suivantes.</p>
 		<dl>
 			{input type="list" target="!acc/charts/accounts/selector.php?types=1&key=code" name="provider_account_code" label="Compte de HelloAsso" default=$provider_account help="HelloAsso étant un établissement bancaire ou assimilé, généralement on crée un compte 512, par exemple '512HA' pour les paiements qui sont reçus par ce prestataire, en attendant qu'il les reverse sur le vrai compte bancaire de l'association." can_delete=true}
 			{* FIXME: for later
