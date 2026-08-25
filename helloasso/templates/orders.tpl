@@ -18,10 +18,10 @@
 				<td>{if $row.id_user}{linkbutton shape="user" label="Fiche membre" href="!users/details.php?id=%d"|args:$row.id_user}{/if}</td>
 				<td>{if $row.id_transaction}{link class="num" label="#%d"|args:$row.id_transaction href="!acc/transactions/details.php?id=%d"|args:$row.id_transaction}{/if}</td>
 				{if $list->hasColumn('has_all_users')}
-				<td>{if $row.has_all_users}{tag color="darkgreen" label="OK"}{else}{tag color="darkred" label="Manquantes"}{/if}</td>
+				<td>{if $row.has_all_users}{tag color="darkgreen" label="OK"}{else}{tag color="darkorange" label="À traiter"}{/if}</td>
 				{/if}
 				<td class="actions">
-					{linkbutton href="order.php?id=%s"|args:$row.id shape="help" label="Détails"}
+					{linkbutton href="order.php?id=%s"|args:$row.id shape="menu" label="Détails"}
 				</td>
 			</tr>
 
