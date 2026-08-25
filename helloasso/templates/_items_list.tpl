@@ -47,7 +47,7 @@
 			{/if}
 			<td class="actions">
 				{if $details}
-					{linkbutton href="order.php?id=%s"|args:$row.id_order shape="help" label="Détails"}
+					{linkbutton href="order.php?id=%s"|args:$row.id_order shape="menu" label="Détails"}
 				{else}
 					{if $row.card_url}
 						{linkbutton href=$row.card_url shape="print" label="Carte d'adhérent" target="_blank"}
