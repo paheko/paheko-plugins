@@ -18,6 +18,10 @@ $db->import(__DIR__ . '/schema.sql');
 // Import clients from old plugin
 if ($db->hasTable('plugin_facturation_clients')) {
 	foreach ($db->iterate('SELECT * FROM plugin_facturation_clients;') AS $row) {
+		if (!isset($row->nom, $row->adresse, $row->code_postal, $row->ville, $row->telephone, $row->email)) {
+			continue;
+		}
+
 		$client = new Client;
 		$client->set('id', $row->id);
 		$client->import([
@@ -28,7 +32,7 @@ if ($db->hasTable('plugin_facturation_clients')) {
 			'phone'           => $row->telephone,
 			'email'           => $row->email,
 			'notes'           => $row->note ?? '',
-			'business_number' => $row->siret ? substr($row->siret, 0, 9) : null,
+			'business_number' => isset($row->siret) ? substr($row->siret, 0, 9) : null,
 			'country'         => 'FR',
 		]);
 		$client->set('created', new \DateTime);
