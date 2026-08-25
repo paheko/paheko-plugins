@@ -8,6 +8,7 @@
 </p>
 {/if}
 
+{form_errors}
 
 {if $last_sync}
 	<p class="help">
