@@ -89,7 +89,6 @@
 		</dl>
 	</fieldset>
 
-
 	<fieldset>
 		<legend>Que faire avec les informations de la personne ayant réalisé le paiement&nbsp;?</legend>
 		<dl>
@@ -97,7 +96,7 @@
 			{input type="radio-btn" name="create_payer_user" value=1 source=$f label="Chercher à lier à un membre existant, sinon créer un nouveau membre" help="Le lien sera effectué en utilisant l'adresse e-mail, ou le nom, selon ce qui a été choisi dans la configuration de l'extension."}
 			{input type="radio-btn" name="create_payer_user" value=2 source=$f label="Seulement chercher à lier un membre existant, sinon ne rien faire"}
 		</dl>
-		<p class="help">Attention : la personne ayant effectué le paiement est parfois différente de la personne qui adhère à l'association.</p>
+		<p class="help">Attention : la personne ayant effectué le paiement est parfois différente de la personne qui adhère à l'association, si vous activez la création de membre, vous pourriez alors vous retrouver avec des membres qui ne sont pas adhérents.</p>
 	</fieldset>
 
 	<p class="submit">
