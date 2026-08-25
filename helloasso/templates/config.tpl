@@ -24,7 +24,7 @@
 
 	<fieldset>
 		<legend>Correspondance des champs des fiches de membres</legend>
-		<p class="help">Indiquer ici à quel champ de la fiche membre les données fournies par HelloaAsso doivent correspondre.</p>
+		<p class="help">Indiquer ici quelle donnée de HelloAsso doit correspondre un champ de la fiche membre.</p>
 		<table class="list auto">
 			<thead>
 				<tr>
