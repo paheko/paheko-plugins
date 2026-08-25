@@ -73,7 +73,7 @@ class HelloAsso
 
 		// Set defaults
 		if (isset($this->config)) {
-			$this->config->merge_names_order ??= self::MERGE_NAMES_FIRST_LAST;
+			$this->config->merge_names_order ??= self::MERGE_NAMES_LAST_FIRST;
 			$this->config->match_email_field ??= false;
 
 			if (!isset($this->config->fields_map)) {
