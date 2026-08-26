@@ -10,6 +10,7 @@ use Paheko\Users\Session;
 use Paheko\Entities\Plugin;
 
 use KD2\DB\Date;
+use KD2\DB\DB_Exception;
 use KD2\DB\EntityManager;
 use KD2\Graphics\SVG\Bar;
 use KD2\Graphics\SVG\Bar_Data_Set;
@@ -417,22 +418,14 @@ class Velos
 
 		$query = 'SELECT ' . $fields . ' FROM plugin_stock_velos ' . $query;
 
-		$db = DB::getInstance();
+		$db = DB::getInstance()->getRestrictedConnection(['rules' => ['plugin_stock_velos' => []]]);
 
 		try {
-			$statement = $db->prepare($query);
+			return $db->get($query);
 		}
-		catch (\Exception $e)
-		{
+		catch (DB_Exception $e) {
 			throw new UserException('Erreur de requête: ' . $e->getMessage());
 		}
-
-		if (!$statement->readOnly())
-		{
-			throw new UserException('Requête invalide : ne doit effectuer que des lectures de données.');
-		}
-
-		return $db->get($query);
 	}
 
 	public function getSchemaSQL()
