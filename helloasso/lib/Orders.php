@@ -98,7 +98,7 @@ class Orders
 
 		if ($last_sync) {
 			$last_sync->modify('-1 month');
-			$params['from'] = $last_sync->format('Y-m-d H:i:00');
+			//$params['from'] = $last_sync->format('Y-m-d H:i:00');
 			//$params['from'] = $last_sync->format('Y-m-d H:i:00');
 		}
 
@@ -131,8 +131,17 @@ class Orders
 			$id_form = Forms::getId($data->org_slug, $data->form_slug);
 
 			if (!$id_form) {
+				// Ignore if form doesn't exist, this means the form has been deleted
+				// Logically forms cannot be deleted is payments exist inside, but this seems to still happen sometimes
+				// @Cédric - HelloAsso : "oui car normalement, il n'est pas possible de supprimer une campagne ayant
+				// reçue un paiement. Elle peut être uniquement archivée. Donc si une campagne est suprimée,
+				// elle n'a jamais eu de paiement."
+				// So just ignore these orders, as they are not supposed to exist on HA side o_O
 				// See https://dev.helloasso.com/discuss/6a8b7bbef69aea84257541b1
-				ErrorManager::reportExceptionSilent(new \LogicException(sprintf("Cannot find form slug for order #%d, order will not be synced:\n%s", $data->id, json_encode($data, JSON_PRETTY_PRINT))));
+
+				// Reporting is disabled, it's not useful right now
+				//$e = new \LogicException(sprintf("Cannot find form slug for order #%d, order will not be synced:\n%s", $data->id, $entity->raw_data));
+				//ErrorManager::reportExceptionSilent($e);
 				return;
 			}
 
