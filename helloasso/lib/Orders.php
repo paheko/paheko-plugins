@@ -139,9 +139,9 @@ class Orders
 				// So just ignore these orders, as they are not supposed to exist on HA side o_O
 				// See https://dev.helloasso.com/discuss/6a8b7bbef69aea84257541b1
 
-				// Reporting is disabled, it's not useful right now
-				//$e = new \LogicException(sprintf("Cannot find form slug for order #%d, order will not be synced:\n%s", $data->id, $entity->raw_data));
-				//ErrorManager::reportExceptionSilent($e);
+				// Just save error to logs, just in case
+				$e = new \LogicException(sprintf("Cannot find form slug for order #%d, order will not be synced:\n%s", $data->id, $entity->raw_data));
+				ErrorManager::logException($e);
 				return;
 			}
 
