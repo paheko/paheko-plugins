@@ -19,10 +19,10 @@
 			{/if}
 		{/if}
 		{if $config.country === 'FR'}
-			<?php $default = $invoice->exists() ? null : $plugin_config->exemption_code; ?>
+			<?php $default = $invoice->exists() ? null : ($plugin_config->exemption_code ?? null); ?>
 			{input type="select" name="vat_exemption_code" required=false label="Raison d'exemption de TVA" source=$invoice options=$invoice->getVATExemptionOptions() default=$default default_empty="— Aucune —" source=$invoice}
 		{else}
-			<?php $default = $invoice->exists() ? null : $plugin_config->exemption_text; ?>
+			<?php $default = $invoice->exists() ? null : ($plugin_config->exemption_text ?? null); ?>
 			{input type="text" name="vat_exemption_text" required=false label="Raison d'exemption de TVA" source=$invoice  default=$plugin_config.exemption_text source=$invoice}
 		{/if}
 		<dd class="help">Si des lignes doivent être exemptées de TVA, indiquer ici la raison de l'exemption.</dd>
