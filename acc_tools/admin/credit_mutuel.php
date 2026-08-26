@@ -62,19 +62,14 @@ $form->runIf('load', function () use ($tabula_path) {
 	foreach ($files as $file) {
 		putenv('LC_ALL=fr_FR.UTF-8');
 		$command = sprintf('java -jar %s -g -l -p all %s', escapeshellarg($tabula_path), escapeshellarg($file));
-		$csv = '';
 
-		$stderr = '';
+		$e = new Exec($command, 10);
+		$r = $e->run();
 
-		$r = Utils::exec($command, 10, null, function (string $l) use (&$csv) {
-			$csv .= $l;
-		}, function(string $l) use (&$stderr) {
-			$stderr .= $l;
-		});
-
+		$csv = $e->getStdout();
 
 		if ($r) {
-			throw new \RuntimeException(sprintf("Tabula execution failed (%s):\n%s", $command, $stderr));
+			throw new \RuntimeException(sprintf("Tabula execution failed (%s):\n%s", $command, $e->getStderr()));
 		}
 
 		if (empty($csv)) {

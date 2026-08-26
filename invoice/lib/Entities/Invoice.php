@@ -7,6 +7,7 @@ use Paheko\DB;
 use Paheko\DynamicList;
 use Paheko\Email\Emails;
 use Paheko\Entity;
+use Paheko\Exec;
 use Paheko\Plugins;
 use Paheko\Static_Cache;
 use Paheko\Template;
@@ -781,13 +782,12 @@ class Invoice extends Entity
 
 	/**
 	 * @see https://www.ghostscript.com/blog/zugferd.html
-	 * TODO: reference here: https://fnfe-mpe.org/factur-x/qui-propose-factur-x/
 	 */
 	protected function createFacturX(string $xml, string $html): string
 	{
 		$signal = Plugins::fire('facturx.create', true, ['html' => $html, 'xml' => $xml], ['pdf_string' => null]);
 
-		if ($signal) {
+		if ($signal && $signal->isStopped()) {
 			if ($str = $signal->getOut('pdf_string')) {
 				return $str;
 			}
@@ -798,43 +798,62 @@ class Invoice extends Entity
 
 		$id = 'facturx_' . sha1(random_bytes(10));
 		$tmp_xml_dir = STATIC_CACHE_ROOT . '/' . $id;
+
+		// the file MUST be called factur-x.xml, if not Prince will use its name in the PDF
+		// and the PDF won't be valid (attached XML file must be named factur-x.xml)
 		$tmp_xml_file = $tmp_xml_dir . '/factur-x.xml';
 		$root = realpath(__DIR__ . '/../..');
+		$xmp_path = $root . '/factur-x/factur-x.xmp';
 
 		// We can't use Static_Cache class as the file MUST be called "factur-x.xml"
 		// or it won't work!
-		mkdir($tmp_xml_dir);
+		Utils::safe_mkdir($tmp_xml_dir, null, true);
 
 		file_put_contents($tmp_xml_file, $xml);
 
-		$cmd = null;
+		$cmd = Utils::getPDFCommand();
+		$exec = new Exec;
+		$exec->addBind($xmp_path);
 
 		// Prince can directly create a valid Factur-X PDF using STDIN/STDOUT,
 		// without temporary files for HTML and PDF, much better
-		if (strpos(Utils::getPDFCommand(), 'prince') === 0) {
-			$cmd = sprintf(
-				'prince --http-timeout=3 --pdf-profile="PDF/A-3a" --pdf-xmp=%s --attach-data=%s -o - -',
-				escapeshellarg($root . '/factur-x/factur-x.xmp'),
-				escapeshellarg($tmp_xml_file)
-			);
+		if (strpos($cmd, 'prince') === 0) {
+			$exec->setCommand($cmd);
+			$exec->addParams([
+				//'--fail-pdf-profile-error',
+				//'--fail-pdf-tag-error',
+				'--fail-missing-resources',
+				'--fail-dropped-content',
+				'--http-timeout=3',
+				'--pdf-profile="PDF/A-3a"',
+				sprintf('--pdf-xmp=%s', escapeshellarg($xmp_path)),
+				sprintf('--attach-data=%s',escapeshellarg($tmp_xml_file)),
+				'-o - -',
+			]);
 		}
 		// Weasyprint can also do it: https://github.com/Kozea/WeasyPrint/pull/2658
-		elseif (strpos(Utils::getPDFCommand(), 'weasyprint') === 0) {
-			$cmd = sprintf('weasyprint - - --attachment=%s --attachment-relationship=Data --xmp-metadata=%s --pdf-variant=pdf/a-3a',
-				escapeshellarg($tmp_xml_file),
-				escapeshellarg($root . '/factur-x/factur-x.xmp')
-			);
+		elseif (strpos($cmd, 'weasyprint') === 0) {
+			$exec->setCommand($cmd);
+			$exec->addParams([
+				'- -', // read from STDIN, write to STDOUT
+				sprintf('--attachment=%s', escapeshellarg($tmp_xml_file)),
+				'--attachment-relationship=Data',
+				sprintf('--xmp-metadata=%s', escapeshellarg($xmp_path)),
+				'--pdf-variant=pdf/a-3a',
+			]);
 		}
 
 		try {
-			if (null !== $cmd) {
-				$out = '';
-				// using function is mandatory, fn($data) => $out.= $data doesn't work!
-				Utils::exec($cmd, 10, $html, function($data) use (&$out) { $out .= $data; });
-				return $out;
+			if ($exec->hasCommand()) {
+				$exec->setStdin($html);
+				if ($exec->run() && null === $exec->getStdout() && !empty($exec->getStderr())) {
+					throw new \RuntimeException(sprintf("Error running PDF command: %s\n%s", $exec->getCommand(), $exec->getStderr()));
+				}
+
+				return $exec->getStdout();
 			}
 
-			if (!Utils::quick_exec('which gs', 1)) {
+			if (!Exec::quick('which gs', 1)) {
 				throw new \LogicException('Cannot create Factur-X file: ghostscript is not installed');
 			}
 
@@ -859,7 +878,7 @@ class Invoice extends Entity
 				escapeshellarg($tmp_pdf_file)
 			);
 
-			return Utils::quick_exec($cmd, 5);
+			return Exec::quick($cmd, 5);
 		}
 		finally {
 			if (isset($tmp_pdf_file)) {
@@ -886,7 +905,7 @@ class Invoice extends Entity
 			return true;
 		}
 
-		return (bool) Utils::quick_exec('which gs', 1);
+		return (bool) Exec::quick('which gs', 1);
 	}
 
 	public function getPaymentsList(): DynamicList

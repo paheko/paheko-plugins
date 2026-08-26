@@ -30,3 +30,5 @@ Configuration :
 * Pouvoir voir toutes les factures d'un client
 * Pouvoir associer un code de compte à un client (s'il n'existe pas dans le plan comptable cible, le créer)
 * Pouvoir créer un avoir manuellement (dans ce cas il faudra indiquer numéro de l'ancienne facture + date d'émission, obligatoire pour Factur-X)
+
+Se faire référencer ici : https://fnfe-mpe.org/factur-x/qui-propose-factur-x/
