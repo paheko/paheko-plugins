@@ -109,7 +109,7 @@ class Line extends Entity
 		$this->assert(!isset($this->description) || mb_strlen(trim($this->description)) <= 10000, 'Le libellé doit faire au maximum 10.000 caractères');
 		$this->assert(array_key_exists($this->vat_code, self::VAT_CODES));
 
-		$this->assert(preg_match('!^\d+(?:\.\d{1,2})?$!', $this->vat_rate), 'Taux de TVA invalide : ' . $this->vat_rate);
+		$this->assert(preg_match('!^\d+(?:\.\d{1,4})?$!', $this->vat_rate), 'Taux de TVA invalide : ' . $this->vat_rate);
 		$this->assert(preg_match('!^\d+(?:\.\d{1,10})?$!', $this->quantity), 'Quantité invalide : ' . $this->quantity);
 		$this->assert(preg_match('!^\d+(?:\.\d{1,10})?$!', $this->price), 'Prix unitaire invalide : ' . $this->price);
 
