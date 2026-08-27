@@ -112,7 +112,7 @@ class Client extends Entity
 			}
 			elseif (isset($source['fr_business_number'])) {
 				$source['business_number'] = $source['fr_business_number'];
-				$source['vat_number'] = $source['fr_vat_number'];
+				$source['vat_number'] = $source['fr_vat_number'] ?? null;
 			}
 		}
 
