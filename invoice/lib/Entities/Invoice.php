@@ -394,7 +394,8 @@ class Invoice extends Entity
 		$html = $this->exportAs('html');
 		$facturx = $this->createFacturX($xml, $html);
 
-		$file = Files::createFromString(File::CONTEXT_ATTACHMENTS . '/invoice/' . $this->getReference() . '.pdf', $facturx);
+		$path = sprintf('%s/%s/%s.pdf', File::CONTEXT_ATTACHMENTS, sha1(random_bytes(10)), $this->getReference());
+		$file = Files::createFromString($path, $facturx);
 
 		unset($xml, $facturx);
 
