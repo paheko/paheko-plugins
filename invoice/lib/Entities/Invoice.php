@@ -819,14 +819,13 @@ class Invoice extends Entity
 		// Prince can directly create a valid Factur-X PDF using STDIN/STDOUT,
 		// without temporary files for HTML and PDF, much better
 		if (strpos($cmd, 'prince') === 0) {
+			$cmd = Utils::getPrinceCommand('PDF/A-3a');
 			$exec->setCommand($cmd);
 			$exec->addParams([
 				//'--fail-pdf-profile-error',
 				//'--fail-pdf-tag-error',
 				'--fail-missing-resources',
 				'--fail-dropped-content',
-				'--http-timeout=3',
-				'--pdf-profile="PDF/A-3a"',
 				sprintf('--pdf-xmp=%s', escapeshellarg($xmp_path)),
 				sprintf('--attach-data=%s',escapeshellarg($tmp_xml_file)),
 				'-o - -',
