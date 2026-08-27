@@ -42,4 +42,14 @@ class Option extends Entity
 		return $this->_form;
 	}
 
+	public function importForm(?array $source = null)
+	{
+		$source ??= $_POST;
+
+		if (isset($source['account_code']) && is_array($source['account_code'])) {
+			$source['account_code'] = key($source['account_code']);
+		}
+
+		parent::importForm($source);
+	}
 }
