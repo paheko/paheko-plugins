@@ -23,12 +23,12 @@ class Contacts
 
 	public function get(int $id): ?Contact
 	{
-		return EM::findOneById(Contact::class, $id);
+		return EM::findOne(Contact::class, 'SELECT * FROM @TABLE WHERE id = ? AND id_user = ?;', $id, $this->id_user);
 	}
 
 	public function getFromURI(string $uri): ?Contact
 	{
-		return EM::findOne(Contact::class, 'SELECT * FROM @TABLE WHERE uri = ?;', $uri);
+		return EM::findOne(Contact::class, 'SELECT * FROM @TABLE WHERE uri = ? AND id_user = ?;', $uri, $this->id_user);
 	}
 
 	public function create(): Contact
@@ -74,9 +74,10 @@ class Contacts
 
 	public function listAll(bool $archived = false): array
 	{
-		return EM::getInstance(Contact::class)->all('SELECT * FROM @TABLE WHERE archived = ?
+		return EM::getInstance(Contact::class)->all('SELECT * FROM @TABLE
+			WHERE archived = ? AND id_user = ?
 			ORDER BY COALESCE(first_name, \'\') || COALESCE(last_name, \'\') COLLATE U_NOCASE;',
-			$archived);
+			$archived, $this->id_user);
 	}
 
 	public function getList(bool $archived = false): DynamicList
@@ -109,7 +110,7 @@ class Contacts
 
 		$tables = Contact::TABLE . ' AS c LEFT JOIN plugin_pim_contacts_photos p ON p.id = c.id';
 
-		$list = new DynamicList($columns, $tables, 'archived = ' . intval($archived));
+		$list = new DynamicList($columns, $tables, sprintf('archived = %d AND id_user = %d', $archived, $this->id_user));
 		$list->orderBy('first_name', false);
 		$list->setPageSize(null);
 		$list->setModifier(function (&$row) {
