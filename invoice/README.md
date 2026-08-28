@@ -48,3 +48,48 @@ Puis soit :
 
 1. Acceptation par le client (statut = accepté) et création d'une facture identique au devis
 2. Refus par le client (statut = annulé)
+
+# Configuration globale de SuperPDP
+
+Il est possible d'avoir un compte SuperPDP qui gérera la facturation de toutes les associations (en mode usine/factory).
+
+Pour cela il faut définir les constantes suivantes dans config.local.php :
+
+```
+const SUPERPDP_CLIENT_ID = 'xxx';
+const SUPERPDP_CLIENT_SECRET = 'xxxsecret';
+```
+
+Il est aussi possible de définir des signaux système permettant de gérer un quota de facturation :
+
+```php
+use Paheko\Entities\Signal;
+
+const SYSTEM_SIGNALS = [
+	['superpdp.credit.get' => 'superpdp_credit_get'],
+	['superpdp.credit.consume' => 'superpdp_credit_consume'],
+];
+
+function superpdp_credit_get(Signal $signal)
+{
+	// This is just an example code
+	$db = MySQL::getInstance();
+	$row = $db->firstColumn('SELECT superpdp_invoice_credit FROM organizations WHERE id = ?;', CURRENT_ORG_ID);
+
+	// credit is an integer: how many invoices the user can still send or receive
+	// if credit is empty the user won't be able to use SuperPDP
+	$signal->setOut('credit', $row->superpdp_invoice_credit);
+	$signal->stop();
+}
+
+function superpdp_credit_consume(Signal $signal)
+{
+	// This is just an example code
+	$db = MySQL::getInstance();
+	$row = $db->query(
+		'UPDATE organizations SET superpdp_invoice_credit = superpdp_invoice_credit - ? WHERE id = ?;',
+		$signal->getIn('credits'),
+		CURRENT_ORG_ID
+	);
+}
+```

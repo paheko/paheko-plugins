@@ -7,18 +7,18 @@ class AFNOR
 	 */
 	public function sendInvoice(Provider $provider, Invoice $invoice): void
 	{
-		$export = $invoice->exportAs('ubl');
+		$export = $invoice->exportAs('cii');
 		$http = new HTTP;
 		$headers = $provider->getAuthHeaders();
 		$data = [
 			'file' => [
 				'type' => 'text/xml',
-				'name' => $invoice->getFilename('ubl'),
+				'name' => $invoice->getFilename('cii'),
 				'body' => $export,
 			],
 			'flowInfo' => [
 				'flowSyntax' => 'UBL',
-				'name' => $invoice->getFilename('ubl'),
+				'name' => $invoice->getFilename('cii'),
 				'flowProfile' => 'Basic',
 				'processingRule' => 'B2B',
 				'sha256' => hash('sha256', $export),

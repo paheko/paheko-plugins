@@ -39,6 +39,15 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_invoices (
 	provider_name TEXT NULL -- Name of provider used for submission
 );
 
+CREATE TABLE IF NOT EXISTS plugin_invoices_events (
+	id INTEGER NOT NULL PRIMARY KEY,
+	id_invoice INTEGER NOT NULL REFERENCES plugin_invoices_invoices (id) ON DELETE CASCADE,
+	"datetime" DATETIME NOT NULL CHECK ("datetime" = datetime("datetime")),
+	code TEXT NULL,
+	description TEXT NULL,
+	data TEXT NOT NULL
+);
+
 CREATE UNIQUE INDEX plugin_invoice_invoices_number ON plugin_invoice_invoices (type, year, number);
 
 CREATE TABLE IF NOT EXISTS plugin_invoice_payments (
@@ -59,4 +68,24 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_lines (
 	price TEXT NOT NULL,
 	vat_rate TEXT NOT NULL,
 	vat_code TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS plugin_invoices_inbox (
+	id INTEGER NOT NULL PRIMARY KEY,
+	status TEXT NOT NULL, -- unread, read, flagged, paid
+	number TEXT NOT NULL,
+	person_name TEXT NOT NULL,
+	person_id TEXT NOT NULL,
+	received DATETIME NOT NULL CHECK (created = datetime(created)),
+	provider_name TEXT NULL,
+	provider_id TEXT NULL
+);
+
+CREATE TABLE IF NOT EXISTS plugin_invoices_inbox_events (
+	id INTEGER NOT NULL PRIMARY KEY,
+	id_invoice INTEGER NOT NULL REFERENCES plugin_invoices_received (id) ON DELETE CASCADE,
+	"datetime" DATETIME NOT NULL CHECK ("datetime" = datetime("datetime")),
+	code TEXT NULL,
+	description TEXT NULL,
+	data TEXT NOT NULL
 );
