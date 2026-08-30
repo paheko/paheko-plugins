@@ -106,12 +106,12 @@ class Events
 
 	public function get(int $id): ?Event
 	{
-		return EM::findOneById(Event::class, $id);
+		return EM::findOne(Event::class, 'SELECT * FROM @TABLE WHERE id = ? AND id_user = ?;', $id, $this->id_user);
 	}
 
 	public function getFromURI(string $uri): ?Event
 	{
-		return EM::findOne(Event::class, 'SELECT * FROM @TABLE WHERE uri = ?;', $uri);
+		return EM::findOne(Event::class, 'SELECT * FROM @TABLE WHERE uri = ? AND id_user = ?;', $uri, $this->id_user);
 	}
 
 	public function listForCategory(int $id): array
