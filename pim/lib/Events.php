@@ -403,4 +403,20 @@ class Events
 			echo $this->export($cat);
 		}
 	}
+
+	public function listChangesForCategory(int $category, int $timestamp)
+	{
+		$db = DB::getInstance();
+
+		return $db->get('SELECT c.uri, c.type
+			FROM plugin_pim_changes AS c
+			INNER JOIN plugin_pim_events AS e ON e.uri = c.uri
+			WHERE c.timestamp >= ? AND e.id_category = ? AND e.id_user = ?
+			ORDER BY c.timestamp DESC;',
+			$timestamp,
+			$category,
+			$this->id_user
+		);
+
+	}
 }
