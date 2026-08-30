@@ -80,6 +80,20 @@ class Contacts
 			$archived, $this->id_user);
 	}
 
+	public function listChanges(int $since): array
+	{
+		return EM::getInstance(Contact::class)->all('SELECT * FROM @TABLE AS c
+			INNER JOIN plugin_pim_changes AS ch ON ch.uri = c.uri
+			WHERE c.archived = 0
+				AND ch.entity = \'contact\'
+				AND c.id_user = ?
+				AND ch.timestamp >= ?',
+			$archived,
+			$this->id_user,
+			$since
+		);
+	}
+
 	public function getList(bool $archived = false): DynamicList
 	{
 		$columns = [

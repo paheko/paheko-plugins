@@ -411,7 +411,10 @@ class Events
 		return $db->get('SELECT c.uri, c.type
 			FROM plugin_pim_changes AS c
 			INNER JOIN plugin_pim_events AS e ON e.uri = c.uri
-			WHERE c.timestamp >= ? AND e.id_category = ? AND e.id_user = ?
+			WHERE c.timestamp >= ?
+				AND c.entity = \'event\'
+				AND e.id_category = ?
+				AND e.id_user = ?
 			ORDER BY c.timestamp DESC;',
 			$timestamp,
 			$category,
