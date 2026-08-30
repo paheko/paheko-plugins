@@ -308,17 +308,6 @@ class Events
 		return EM::findOne(Event_Category::class, 'SELECT * FROM @TABLE WHERE id_user = ? AND id = ? ORDER BY title COLLATE U_NOCASE;', $this->id_user, $id);
 	}
 
-	public function listChangesForCategory($category, $timestamp)
-	{
-		$db = DB::getInstance();
-
-		return $db->get('SELECT c.uri, c.type FROM ' . $this->changes_table . ' AS c 
-			INNER JOIN agenda AS a ON a.uri = c.uri
-			WHERE c.timestamp >= ? AND a.category = ?
-			ORDER BY c.timestamp DESC;', $timestamp, $category);
-
-	}
-
 	public function importFile(string $path)
 	{
 		return $this->import(file_get_contents($path));
