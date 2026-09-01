@@ -669,6 +669,12 @@ class Invoice extends Entity
 				'note' => 'Les réglements reçus avant la date d\'échéance ne donneront pas lieu à escompte.',
 			];
 		}
+		elseif ($this->isQuote()) {
+			$out->notes[] = (object) [
+				'subject_code' => 'OSI',
+				'note' => $plugin->getConfig('quote_info') ?? Invoices::DEFAULT_QUOTE_INFO,
+			];
+		}
 
 		$vat = [];
 		$vat_total = '0';

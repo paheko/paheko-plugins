@@ -40,18 +40,43 @@ body {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 }
 
+header {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1cm;
+	justify-content: stretch;
+	align-items: end;
+	margin-right: 1cm;
+}
+
+.contact > * {
+	margin-bottom: .8em;
+}
+
 .seller {
-	padding: .9cm;
+	padding: .5cm;
+	padding-left: 1cm;
+	padding-top: 1cm;
 	border-bottom: 5px solid #666;
-	display: flex;
-	align-items: start;
-	justify-content: space-between;
-	flex-wrap: wrap;
+	border-right: 5px solid #666;
+	border-bottom-right-radius: .5cm;
 }
 
 .seller h1 {
-	flex: 1 1 100%;
 	font-size: 18pt;
+}
+
+.seller .logo {
+	float: right;
+}
+
+.buyer h1 {
+	font-size: 1em;
+}
+
+dl.contacts {
+	display: grid;
+	grid-template-columns: 6em 1fr;
 }
 
 .org {
@@ -76,15 +101,6 @@ main {
 	margin: 1cm;
 }
 
-.buyer {
-	margin: 1cm;
-	max-width: 40%;
-	margin-left: auto;
-}
-
-.buyer h1 {
-	font-size: 1em;
-}
 
 .info {
 	display: flex;

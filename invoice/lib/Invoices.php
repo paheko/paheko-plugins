@@ -45,6 +45,8 @@ class Invoices
 		'VATEX-FR-CGI295'        => 'Exonérations dans les DOM — Art. 295 CGI',
 	];
 
+	const DEFAULT_QUOTE_INFO = "Devis valable jusqu'à la date d'échéance indiquée. Toute modification de la prestation, de quelque nature que ce soit, pourra entraîner une mise à jour du devis et de son montant.\n\nPaiement à réaliser sous un mois à réception de la facture correspondante.\n\nSi ce devis vous convient, merci de nous retourner un exemplaire signé.";
+
 	static public function getTypeLabel(int $code): string
 	{
 		return Invoice::TYPES[$code] ?? 'Facture';

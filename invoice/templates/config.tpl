@@ -26,11 +26,18 @@
 
 <fieldset>
 	<legend>Instructions de paiement de paiement</legend>
-	<p>Ces informations figureront sur les factures émises, pour indiquer au client comment payer.</p>
+	<p class="help">Ces informations figureront sur les factures émises, pour indiquer au client comment payer.</p>
 	<dl>
 		{input type="text" name="iban" source=$plugin_config label="Numéro IBAN" required=false}
 		{input type="text" name="bic" source=$plugin_config label="Code BIC" required=false}
-		{input type="textarea" name="payment_instructions" source=$plugin_config label="Autres instructions de paiement" required=false}
+		{input type="textarea" name="payment_instructions" source=$plugin_config label="Autres instructions de paiement" required=false help="Si vous acceptez d'autres moyens de paiement, indiquez ici au client comment réaliser le paiement. N'oubliez pas de rappeler au client de mentionner le numéro de facture."}
+	</dl>
+</fieldset>
+
+<fieldset>
+	<legend>Mentions sur les devis</legend>
+	<dl>
+		{input type="textarea" cols=70 rows=15 name="quote_info" source=$plugin_config label="Informations à faire figurer au bas des devis" required=false help="Mentionnez ici les conditions de paiement, de livraison et d'exécution du contrat, une fois que le client a accepté le devis." default=$default_quote_info}
 	</dl>
 </fieldset>
 
