@@ -89,6 +89,7 @@ class Invoice extends Entity
 	const TYPE_INVOICE = 380;
 	const TYPE_CREDIT = 381;
 	//const TYPE_CORRECTION = 384;
+	const TYPE_SELF_BILLING = 389;
 
 	/**
 	 * Factur-X (BT-3) only allows some codes, not all of them!
@@ -99,14 +100,15 @@ class Invoice extends Entity
 		self::TYPE_QUOTE => 'Devis',
 		self::TYPE_INVOICE => 'Facture',
 		self::TYPE_CREDIT => 'Avoir', // Avoir : quand la facture d'origine a déjà été payée
+		self::TYPE_SELF_BILLING => 'Auto-facturation',
 		//self::TYPE_CORRECTION => 'Facture rectificative', // rectificative : quand la facture d'origine n'a pas été payée ET qu'on ne modifie aucun montant
 		//386 => 'Facture d\'acompte',
-		//389 => 'Auto-facturation',
 	];
 
 	const TYPES_PREFIXES = [
 		self::TYPE_QUOTE   => 'DEV',
 		self::TYPE_INVOICE => 'FAC',
+		self::TYPE_SELF_BILLING => 'FAC',
 		self::TYPE_CREDIT  => 'AV',
 	];
 
@@ -231,6 +233,17 @@ class Invoice extends Entity
 		}
 
 		$db->commit();
+	}
+
+	public function save(bool $selfcheck = true): bool
+	{
+		if (!$this->exists()
+			&& $this->client()->self_billing
+			&& $this->type === self::TYPE_INVOICE) {
+			$this->set('type', self::TYPE_SELF_BILLING);
+		}
+
+		return parent::save($selfcheck);
 	}
 
 	public function isQuote(): bool
@@ -553,9 +566,18 @@ class Invoice extends Entity
 			throw new UserException('La devise sélectionnée est invalide, merci de la modifier dans la configuration.');
 		}
 
+		$buyer = $client = $this->client()->exportForInvoice();
+		$seller = Clients::exportOrgForInvoice();
+
+		// Invert buyer and seller for auto-facturation
+		if ($this->type === self::TYPE_SELF_BILLING) {
+			$buyer = $seller;
+			$seller = $client;
+		}
+
 		$out = (object) [
-			'buyer' => $this->client()->exportForInvoice(),
-			'seller' => Clients::exportOrgForInvoice(),
+			'buyer' => $buyer,
+			'seller' => $seller,
 			'currency_code' => $config->currency,
 			'type_code' => $this->type,
 			'issue_date' => $this->date_created->format('Y-m-d'),

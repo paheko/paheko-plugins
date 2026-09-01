@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_clients (
 	notes TEXT NULL,
 	business_number TEXT NULL,
 	vat_number TEXT NULL,
+	self_billing INTEGER NOT NULL DEFAULT 0,
 	created DATETIME NOT NULL CHECK (created = datetime(created)) DEFAULT CURRENT_TIMESTAMP
 );
 

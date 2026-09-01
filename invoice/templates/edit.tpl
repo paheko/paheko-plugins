@@ -7,6 +7,9 @@
 <fieldset>
 	<legend>Informations</legend>
 	<dl>
+		{if $invoice->exists() && $invoice->client()->self_billing}
+			{input type="select" required=true name="type" label="Type de facture" options=$types source=$invoice}
+		{/if}
 		{input type="list" required=true name="client" label="Client" target="!p/invoice/clients/selector.php" default=$invoice->getClientSelectorValue()}
 		{input required=true name="label" type="text" label="Objet" source=$invoice}
 		{input required=true name="date_created" type="date" label="Date d'émission" source=$invoice default=$now}

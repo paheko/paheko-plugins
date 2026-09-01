@@ -37,6 +37,11 @@
 	<dl class="e_invoicing_1">
 		{input type="text" name="fr_business_number" default=$client.business_number label="Numéro SIREN" required=true maxlength=9 pattern="\d+" minlength=9}
 		{input type="text" name="fr_vat_number" default=$client.vat_number label="Numéro de TVA intra-communautaire" required=false}
+		{input type="checkbox" name="self_billing" default=$client.self_billing value=1 label="Activer l'auto-facturation" required=false}
+		<dd class="help">
+			En cochant cette case, toutes les factures créées pour ce client seront en auto-facturation par défaut. Il sera toujours possible de modifier une facture pour désactiver l'auto-facturation.<br />
+			<strong>Attention&nbsp;: l'auto-facturation demande d'avoir un mandat de facturation de votre client, que vous devrez transmettre à votre plateforme agréée.</strong>
+		</dd>
 	</dl>
 </fieldset>
 

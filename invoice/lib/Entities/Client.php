@@ -30,6 +30,9 @@ class Client extends Entity
 	protected ?string $business_number;
 
 	protected ?string $vat_number;
+
+	protected bool $self_billing = false;
+
 	protected DateTime $created;
 
 	const SCHEMES = [
