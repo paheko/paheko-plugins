@@ -334,7 +334,14 @@ class Order extends Entity
 				&& ($mapped_user = $ha->getMappedUser($payer))) {
 				$user = Users::create();
 				$user->importForm($mapped_user);
-				$user->save();
+
+				try {
+					$user->save();
+				}
+				catch (UserException $e) {
+					throw new UserException(sprintf('Erreur à la création du membre "%s" : %s', $user->name(), $e->getMessage()), 0, $e);
+				}
+
 				$this->set('id_user', $user->id());
 				$report[] = ['status' => 'created', 'message' => sprintf('Membre créé pour la commande : %s', $user->name())];
 			}
