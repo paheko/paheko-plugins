@@ -647,7 +647,8 @@ class Invoice extends Entity
 
 		// Add mandatory mention of recovery costs (only for enterprise invoices)
 		// see https://www.economie.gouv.fr/entreprises/gerer-son-entreprise-au-quotidien/gerer-sa-comptabilite-et-ses-demarches/mentions-obligatoires-dune-facture-tout-savoir
-		if ($config->country === 'FR') {
+		if ($config->country === 'FR'
+			&& !$this->isQuote()) {
 			$out->notes[] = (object) [
 				'subject_code' => 'PMT',
 				'note' => 'En cas de retard de paiement, indemnité forfaitaire légale pour frais de recouvrement de 40 euros.',
