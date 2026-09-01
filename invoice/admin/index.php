@@ -6,6 +6,10 @@ use Paheko\Plugin\Invoice\Entities\Invoice;
 
 use const Paheko\PLUGIN_ROOT;
 
+if ($plugin->needUpgrade()) {
+	$plugin->upgrade();
+}
+
 $type = intval($_GET['type'] ?? 0) ?: null;
 $status = $_GET['status'] ?? null;
 
