@@ -190,6 +190,12 @@ class Invoice extends Entity
 		$this->assert(array_key_exists($this->status, self::STATUSES));
 
 		$this->assert(!isset($this->vat_exemption_code) || array_key_exists($this->vat_exemption_code, Invoices::VAT_EXEMPTIONS));
+
+		if ($this->type === self::TYPE_CREDIT) {
+			$this->assert($this->id_invoice && $this->invoice());
+			$this->assert($this->invoice()->type !== self::TYPE_SELF_BILLING, 'Impossible de créer un avoir pour une autofacturation');
+			$this->assert($this->invoice()->type === self::TYPE_INVOICE);
+		}
 	}
 
 	public function delete(): bool
@@ -472,7 +478,6 @@ class Invoice extends Entity
 		if ($this->type === self::TYPE_CREDIT) {
 			throw new \LogicException('Cannot cancel a credit note');
 		}
-
 
 		$new = null;
 		$db = DB::getInstance();
