@@ -259,6 +259,11 @@ class Invoice extends Entity
 		return $this->type === self::TYPE_QUOTE;
 	}
 
+	public function isSelfBilling(): bool
+	{
+		return $this->type === self::TYPE_SELF_BILLING;
+	}
+
 	public function isDraft(): bool
 	{
 		return $this->status === self::STATUS_DRAFT;
@@ -613,7 +618,7 @@ class Invoice extends Entity
 			],
 		];
 
-		if (!$this->isQuote()
+		if (!$this->isSelfBilling()
 			&& (!empty($plugin->config->iban) || !empty($plugin->config->payment_instructions))) {
 			$out->payment_instructions = (object) [
 				'payment_means_type_code' => !empty($plugin->config->iban) ? 30 : 1, // 30 = Credit transfer, 1 = other

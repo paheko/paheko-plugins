@@ -26,7 +26,7 @@
 
 <fieldset>
 	<legend>Instructions de paiement de paiement</legend>
-	<p class="help">Ces informations figureront sur les factures émises, pour indiquer au client comment payer.</p>
+	<p class="help">Ces informations figureront sur les factures et devis, pour indiquer au client comment payer.</p>
 	<dl>
 		{input type="text" name="iban" source=$plugin_config label="Numéro IBAN" required=false}
 		{input type="text" name="bic" source=$plugin_config label="Code BIC" required=false}
