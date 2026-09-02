@@ -38,5 +38,4 @@ Se faire référencer ici : https://fnfe-mpe.org/factur-x/qui-propose-factur-x/
 
 # Trucs demandés, à surveiller
 
-* Avoir IBAN/BIC sur devis
 * Recevoir une copie du mail envoyant la facture / devis

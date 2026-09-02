@@ -16,3 +16,7 @@ if (version_compare($old_version, '0.1.1', '<')) {
 if (version_compare($old_version, '0.1.2', '<')) {
 	$db->exec('ALTER TABLE plugin_invoice_clients ADD COLUMN electronic_address TEXT NULL;');
 }
+
+if (version_compare($old_version, '0.1.3', '<')) {
+	$db->exec('ALTER TABLE plugin_invoice_clients ADD COLUMN id_user INTEGER NULL REFERENCES users (id) ON DELETE SET NULL;');
+}

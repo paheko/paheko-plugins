@@ -2,8 +2,11 @@
 
 namespace Paheko\Plugin\Invoice\Entities;
 
+use Paheko\Config;
 use Paheko\Entity;
 use Paheko\Utils;
+use Paheko\Users\DynamicFields;
+use Paheko\Users\Users;
 
 use DateTime;
 use stdClass;
@@ -13,6 +16,8 @@ class Client extends Entity
 	const TABLE = 'plugin_invoice_clients';
 
 	protected ?int $id = null;
+	protected ?int $id_user = null;
+
 	protected bool $archived = false;
 	protected string $name;
 	protected string $country;
@@ -83,15 +88,16 @@ class Client extends Entity
 
 	public function selfCheck(): void
 	{
-		parent::selfCheck();
-
 		$this->assert(mb_strlen(trim($this->name)), 'Le nom est vide');
 		$this->assert(strlen($this->country) === 2, 'Le pays est vide ou invalide');
 		$this->assert(Utils::getCountryName($this->country) !== null, 'Le pays est invalide');
 		$this->assert(mb_strlen($this->name) <= 500, 'Le nom ne peut faire plus de 500 caractères');
-		$this->assert(!isset($this->address) || mb_strlen($this->address) <= 5000, 'L\'adresse ne peut faire plus de 5000 caractères');
+		$this->assert(isset($this->address) && mb_strlen($this->address), 'L\'adresse postale n\'est pas renseignée');
+		$this->assert(mb_strlen($this->address) <= 5000, 'L\'adresse ne peut faire plus de 5000 caractères');
+		$this->assert(isset($this->post_code) && mb_strlen($this->post_code), 'Le code postal n\'est pas renseigné');
 		$this->assert(!isset($this->phone) || mb_strlen($this->phone) <= 100, 'Le numéro de téléphone ne peut faire plus de 100 caractères');
-		$this->assert(!isset($this->email) || mb_strlen($this->email) <= 1000, 'L\'adresse e-mail ne peut faire plus de 1000 caractères');
+		$this->assert(isset($this->email) && mb_strlen($this->email), 'L\'adresse e-mail est obligatoire');
+		$this->assert(mb_strlen($this->email) <= 1000, 'L\'adresse e-mail ne peut faire plus de 1000 caractères');
 		$this->assert(!isset($this->notes) || mb_strlen($this->notes) <= 10000, 'Les notes ne peuvent faire plus de 10.000 caractères');
 		$this->assert(!isset($this->business_number) || mb_strlen($this->business_number) <= 100, 'Le numéro d\'entreprise ne peut faire plus de 100 caractères');
 		$this->assert(!isset($this->vat_number) || mb_strlen($this->vat_number) <= 100, 'Le numéro de TVA ne peut faire plus de 100 caractères');
@@ -113,6 +119,41 @@ class Client extends Entity
 				$this->assert(Utils::verifyBusinessNumber($this->country, $siren), 'Adresse de facturation électronique invalide : elle doit comporter un SIREN valide.');
 			}
 		}
+
+		parent::selfCheck();
+	}
+
+	public function reloadUserData(): void
+	{
+		if (!$this->id_user) {
+			return;
+		}
+
+		$user = Users::get($this->id_user);
+
+		if (!$user) {
+			$this->set('id_user', null);
+		}
+
+		$config = Config::getInstance();
+
+		$this->assert(DynamicFields::get('adresse'), 'Il n\'y a pas de champ nommé "adresse" dans les fiches de membre. Merci d\'en créer un.');
+		$this->assert(DynamicFields::get('code_postal'), 'Il n\'y a pas de champ nommé "code_postal" dans les fiches de membre. Merci d\'en créer un.');
+		$this->assert(DynamicFields::get('ville'), 'Il n\'y a pas de champ nommé "ville" dans les fiches de membre. Merci d\'en créer un.');
+
+		$data = [
+			'name'      => $user->name(),
+			'country'   => $user->pays ?? $config->country,
+			'address'   => $user->adresse ?? null,
+			'post_code' => $user->code_postal ?? null,
+			'city'      => $user->ville ?? null,
+			'email'     => $user->email(),
+			'phone'     => $user->telephone ?? null,
+		];
+
+		$data = array_filter($data, fn($v) => $v !== null);
+
+		$this->importForm($data);
 	}
 
 	public function importForm(?array $source = null)
@@ -178,8 +219,12 @@ class Client extends Entity
 			$e_value = strtok('');
 		}
 
+		if (!isset($person->business_number)) {
+			$scheme = null;
+			$value = null;
+		}
 		// See https://docs.peppol.eu/poacc/billing/3.0/codelist/ICD/
-		if ($person->country === 'FR') {
+		elseif ($person->country === 'FR') {
 			$e_scheme ??= '0225';
 
 			// Always the SIREN

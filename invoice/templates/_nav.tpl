@@ -5,7 +5,7 @@
 			{linkbutton shape="edit" href="edit.php?id=%s"|args:$client.id label="Modifier"}
 			{linkbutton shape="delete" href="delete.php?key=%d"|args:$client.id label="Supprimer"}
 		{elseif $current === 'clients'}
-			{linkbutton href="edit.php" label="Ajouter un client" shape="plus"}
+			{linkbutton href="edit.php" label="Créer un client" shape="plus"}
 		{else}
 			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
 				{linkbutton href="config.php" label="Configuration" shape="settings"}

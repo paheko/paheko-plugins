@@ -254,6 +254,16 @@ class Invoice extends Entity
 		return parent::save($selfcheck);
 	}
 
+	public function getCountType(): int
+	{
+		// Self-billing has the same numbering prefix as regular invoices
+		if ($this->isSelfBilling()) {
+			return self::TYPE_INVOICE;
+		}
+
+		return $this->type;
+	}
+
 	public function isQuote(): bool
 	{
 		return $this->type === self::TYPE_QUOTE;

@@ -1,5 +1,11 @@
 {include file="_head.tpl" title=$title current="plugin_invoice"}
 
+{if !$client->exists()}
+	<nav class="actions">
+		{linkbutton shape="user" label="Créer un client à partir d'un membre" href="from_user.php"}
+	</nav>
+{/if}
+
 {form_errors}
 
 <form method="post" action="{$self_url}" data-focus="1">
@@ -10,14 +16,17 @@
 
 <fieldset>
 	<legend>Informations générales</legend>
+	{if $client.id_user}
+		<p class="alert block">Les informations du client seront reprises de la fiche de membre.</p>
+	{/if}
 	<dl>
-		{input type="text" name="name" source=$client label="Nom" required=true}
-		{input type="country" name="country" source=$client required=true label="Pays" default=$config.country}
-		{input type="text" name="post_code" source=$client label="Code postal" required=true}
-		{input type="text" name="city" source=$client label="Ville" required=true}
-		{input type="textarea" cols="50" rows="3" name="address" source=$client label="Adresse" required=true}
-		{input type="email" name="email" source=$client label="Adresse e-mail" required=true help="Pourra être utilisée pour envoyer devis et factures."}
-		{input type="tel" name="phone" source=$client label="Numéro de téléphone" required=false}
+		{input type="text" name="name" source=$client label="Nom" required=true disabled=$disabled}
+		{input type="country" name="country" source=$client required=true label="Pays" default=$config.country disabled=$disabled}
+		{input type="text" name="post_code" source=$client label="Code postal" required=true disabled=$disabled}
+		{input type="text" name="city" source=$client label="Ville" required=true disabled=$disabled}
+		{input type="textarea" cols="50" rows="3" name="address" source=$client label="Adresse" required=true disabled=$disabled}
+		{input type="email" name="email" source=$client label="Adresse e-mail" required=true help="Pourra être utilisée pour envoyer devis et factures." disabled=$disabled}
+		{input type="tel" name="phone" source=$client label="Numéro de téléphone" required=false disabled=$disabled}
 		{input type="textarea" cols="50" rows="4" name="notes" source=$client label="Notes" required=false help="Ces notes ne seront pas affichées sur les devis et factures, elles sont uniquement destinées à un usage interne."}
 		{input type="checkbox" value=1 name="archived" source=$client label="Client archivé" help="Si cette case est cochée, il ne sera plus possible de créer des devis et factures pour ce client."}
 	</dl>
