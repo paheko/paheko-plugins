@@ -1,9 +1,6 @@
-* Implement Factur-X support (signal) for DomPDF
-
 * Test PDF weasyprint (HS)
 * Test PDF chromium + gs (HS)
 
-* Ajout mentions devis
 * Afficher date d'envoi dans les détails
 * Ajouter date d'envoi dans les listes
 * Ajouter liste "en souffrance"
@@ -38,3 +35,8 @@ Configuration :
 * Pouvoir créer un avoir manuellement (dans ce cas il faudra indiquer numéro de l'ancienne facture + date d'émission, obligatoire pour Factur-X)
 
 Se faire référencer ici : https://fnfe-mpe.org/factur-x/qui-propose-factur-x/
+
+# Trucs demandés, à surveiller
+
+* Avoir IBAN/BIC sur devis
+* Recevoir une copie du mail envoyant la facture / devis

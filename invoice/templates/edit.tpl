@@ -33,11 +33,11 @@
 	</dl>
 	{if !$invoice->isQuote()}
 	<details>
-		<summary>Informations supplémentaires (Chorus Pro)</summary>
-		<p class="help">Ces informations peuvent être nécessaires pour certains services de l'État français, pour la facturation électronique via Chorus Pro.</p>
+		<summary>Informations supplémentaires</summary>
+		<p class="help">Ces informations peuvent être nécessaires pour certains services de l'État français (Chorus Pro), ou entreprises.</p>
 		<dl>
-			{input type="text" name="buyer_ref" label="Code du service exécutant" source=$invoice}
-			{input type="text" name="contract_reference" label="Référence d'engagement" source=$invoice}
+			{input type="text" name="buyer_ref" label="Référence acheteur (BT-10, Chorus Pro : code du service exécutant)" source=$invoice}
+			{input type="text" name="contract_reference" label="Numéro de bon de commande (BT-13, Chorus Pro : référence d'engagement)" source=$invoice}
 		</dl>
 	</details>
 	{/if}

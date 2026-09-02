@@ -60,12 +60,14 @@ class Invoice extends Entity
 	protected ?string $vat_exemption_text = null;
 
 	/**
+	 * BT-10
 	 * Buyer reference (Factur-X: code du service exécutant)
 	 */
 	protected ?string $buyer_ref = null;
 
 	/**
-	 * Factur-X : Numéro d'engagement (IssuerAssignedID)
+	 * BT-13
+	 * Factur-X/Chorus Pro : Numéro d'engagement (IssuerAssignedID)
 	 */
 	protected ?string $contract_reference = null;
 
@@ -555,6 +557,7 @@ class Invoice extends Entity
 
 	/**
 	 * Return invoice line as an object ready for EN16931
+	 * @see https://synapx.fr/blog/champs-en-16931-expliques/ for codes
 	 */
 	public function exportForInvoice(): stdClass
 	{
@@ -583,12 +586,17 @@ class Invoice extends Entity
 		$out = (object) [
 			'buyer' => $buyer,
 			'seller' => $seller,
-			'currency_code' => $config->currency,
-			'type_code' => $this->type,
+			// BT-1
+			'number' => $this->getReference() ?? 'Brouillon',
+			// BT-2
 			'issue_date' => $this->date_created->format('Y-m-d'),
+			// BT-3
+			'type_code' => $this->type,
+			// BT-5
+			'currency_code' => $config->currency,
+			// BT-9
 			'payment_due_date' => $this->date_expiry ? $this->date_expiry->format('Y-m-d') : null,
 			'lines' => [],
-			'number' => $this->getReference() ?? 'Brouillon',
 			'process_control' => (object) [
 				'specification_identifier' => 'urn:cen.eu:en16931:2017',
 				'business_process_type' => $this->operation_type,
@@ -713,11 +721,17 @@ class Invoice extends Entity
 		$paid = '0.00'; // TODO
 
 		$out->totals = (object) [
+			// BT-115
 			'amount_due_for_payment'   => Money::calc(Money::calc($net_total, '+', $vat_total), '-', $paid),
+			// BT-106
 			'sum_invoice_lines_amount' => $net_total,
+			// BT-112
 			'total_with_vat'           => Money::calc($net_total, '+', $vat_total),
+			// BT-109
 			'total_without_vat'        => $net_total,
+			// BT-113
 			'paid_amount'              => $paid,
+			// BT-110
 			'total_vat_amount'         => $vat_total,
 		];
 
