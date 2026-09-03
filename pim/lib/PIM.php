@@ -131,21 +131,43 @@ class PIM
 		}
 
 		// Install Sabre/DAV dependencies from source
+		// wget -O - URL | sha256sum
 		$files = [
-			'Sabre'         => 'https://github.com/sabre-io/dav/archive/refs/tags/4.7.0.zip',
-			'Sabre_VObject' => 'https://github.com/sabre-io/vobject/archive/refs/tags/4.5.6.zip',
-			'Sabre_Xml'     => 'https://github.com/sabre-io/xml/archive/refs/tags/2.2.11.zip',
-			'Sabre_Uri'     => 'https://github.com/sabre-io/uri/archive/refs/tags/2.3.4.zip',
-			'Sabre_Event'   => 'https://github.com/sabre-io/event/archive/refs/tags/5.1.7.zip',
-			'Sabre_Http'    => 'https://github.com/sabre-io/http/archive/refs/tags/5.1.12.zip',
-			'Psr_Log'       => 'https://github.com/php-fig/log/archive/refs/tags/3.0.2.zip',
+			'Sabre' => [
+				'url' => 'https://github.com/sabre-io/dav/archive/refs/tags/4.7.0.zip',
+				'hash' => 'dff6752b536516aece899a38c83e066cbc551a806b3887bb737a570be97088e8',
+			],
+			'Sabre_VObject' => [
+				'url' => 'https://github.com/sabre-io/vobject/archive/refs/tags/4.5.6.zip',
+				'hash' => 'e9415f60870a43e2d0be511d1b292a674afc0b3bc6035284baa583e5a8692591',
+			],
+			'Sabre_Xml' => [
+				'url' => 'https://github.com/sabre-io/xml/archive/refs/tags/2.2.11.zip',
+				'hash' => '36e41073b1e587651ecb2027edb3198becc1856b49a620a2429339e90b4b97ed',
+			],
+			'Sabre_Uri' => [
+				'url' => 'https://github.com/sabre-io/uri/archive/refs/tags/2.3.4.zip',
+				'hash' => '724a0a98cd7ebc4435e9e7a8df08eca483c8b91aa5405374bc6ecae73c0e3ab3',
+			],
+			'Sabre_Event' => [
+				'url' => 'https://github.com/sabre-io/event/archive/refs/tags/5.1.7.zip',
+				'hash' => 'eeaecc640157871d07625d2896b7d52d868f7033aa7e21874f6ef9988dc6e53b',
+			],
+			'Sabre_Http' => [
+				'url' => 'https://github.com/sabre-io/http/archive/refs/tags/5.1.12.zip',
+				'hash' => '45bc147ec2c570eed43364994a37ac784001150934e784e3d36ab9b81c20b32f',
+			],
+			'Psr_Log' => [
+				'url' => 'https://github.com/php-fig/log/archive/refs/tags/3.0.2.zip',
+				'hash' => 'c365225b9567800008110f8f7b2873bed86c5a0c40ce3ae399059ff3c22b778e',
+			],
 		];
 
 		$root = self::VENDOR_ROOT;
 
 		Utils::safe_mkdir($root);
 
-		foreach ($files as $name => $url) {
+		foreach ($files as $name => $pkg) {
 			if (file_exists($root . '/' . $name)) {
 				continue;
 			}
@@ -153,13 +175,19 @@ class PIM
 			$path = $root . '/' . $name . '.zip';
 
 			if (ini_get('allow_url_fopen')) {
-				copy($url, $path);
+				copy($pkg['url'], $path);
 			}
 			elseif (!file_exists($path)) {
 				echo 'Downloading files is forbidden by your server configuration (allow_url_fopen is disabled).<br />';
-				printf('Please download this file: <a href="%s">%s</a><br />', $url);
+				printf('Please download this file: <a href="%s">%s</a><br />', $pkg['url']);
 				printf('And copy it here: <code>%s</code>', $path);
 				exit;
+			}
+
+			$hash = hash_file('sha256', $path);
+
+			if (!hash_equals($pkg['hash'], $hash)) {
+				throw new \LogicException(sprintf('Downloaded package "%s" does not match hash: %s', $pkg['url'], $pkg['hash']));
 			}
 
 			$zip = new \PharData($path);
