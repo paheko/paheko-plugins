@@ -9,6 +9,7 @@ use function Paheko\Plugin\Caisse\{reload,get_amount};
 require __DIR__ . '/_inc.php';
 
 $tab = null;
+$csrf_key = null;
 
 if (null !== qg('id')) {
 	$tab = Tabs::get(qg('id'));
@@ -41,9 +42,10 @@ $form->runIf(qg('code') !== null, function () use ($current_pos_session, &$tab) 
 
 if ($tab) {
 	$url = Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab->id]);
-	$csrf_key = null;
+	$csrf_key = 'pos_tab_' . $tab->id;
 }
 
+// FIXME: use POST + CSRF protection, eventually (low priority)
 if (!empty($_GET['payoff']) && !empty($_GET['id_method'])) {
 	if (!$current_pos_session) {
 		throw new UserException('Aucune session de caisse n\'est ouverte.');
@@ -157,6 +159,7 @@ if ($tab) {
 	}
 }
 
+$tpl->assign(compact('csrf_key'));
 $tpl->assign('selected_cat', qg('cat'));
 $tpl->assign('debt_balance', Tabs::getGlobalDebtBalance());
 

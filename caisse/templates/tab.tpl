@@ -44,7 +44,9 @@
 
 {if $tab_id}
 
+{* Used by rename dialog *}
 <form method="post" action="">
+	{csrf_field key=$csrf_key}
 	<input type="hidden" name="rename_id" />
 	<input type="hidden" name="rename_name" />
 </form>
@@ -53,6 +55,7 @@
 
 <section class="pos">
 	<form method="post" action="">
+	{csrf_field key=$csrf_key}
 	<section class="tab">
 		<header>
 			<div class="title">
@@ -272,6 +275,7 @@
 			{/foreach}
 		</ul>
 		<form method="post" action="">
+		{csrf_field key=$csrf_key}
 		<?php $h = -45; ?>
 		{foreach from=$products_categories item="cat"}
 			<?php $h += 30; if ($h > 360) $h = 0; ?>
