@@ -18,15 +18,7 @@
 # Clients
 
 * Pouvoir créer un client depuis le sélecteur
-* Pouvoir supprimer un client
-* Pouvoir indiquer le code du service exécutant dans le client
 * Pouvoir chercher un client
-
-# Dans Paheko core
-
-Configuration :
-
-- Ajouter les champs suivants : "code postal", "ville" (pré-remplir avec l'adresse si possible)
 
 # Plus tard
 
@@ -39,3 +31,4 @@ Se faire référencer ici : https://fnfe-mpe.org/factur-x/qui-propose-factur-x/
 # Trucs demandés, à surveiller
 
 * Recevoir une copie du mail envoyant la facture / devis
+* Pouvoir indiquer le code du service exécutant dans le client

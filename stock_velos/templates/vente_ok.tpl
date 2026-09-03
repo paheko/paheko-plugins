@@ -61,7 +61,7 @@
 	<h1>Contrat de vente d'un vélo d'occasion</h1>
 	<h4>Entre le vendeur :</h4>
 	<ul>
-		<li>L'association loi 1901 « {$config.org_name} » dont le siège est situé au {$config.org_address}.</li>
+		<li>L'association loi 1901 « {$config.org_name} » dont le siège est situé au {$org_full_address}.</li>
 	</ul>
 	<h4>Et l'acquéreur :</h4>
 	<ul>

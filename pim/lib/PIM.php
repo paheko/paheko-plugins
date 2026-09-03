@@ -16,18 +16,18 @@ class PIM
 {
 	const VENDOR_ROOT = SHARED_CACHE_ROOT . '/sabre';
 
-	protected int $id_user;
+	protected User $user;
 
-	public function __construct(int $id_user)
+	public function __construct(User $user)
 	{
-		$this->id_user = $id_user;
+		$this->user = $user;
 	}
 
 	public function getDAVCredentials(Plugin $plugin): ?array
 	{
-		if (DB::getInstance()->test('plugin_pim_credentials', 'id_user = ?', $this->id_user)) {
+		if (DB::getInstance()->test('users_app_passwords', 'id_user = ? AND id_plugin = ?', $this->user->id(), $plugin->id())) {
 			return [
-				'login' => $this->id_user,
+				'login' => $this->user->id(),
 				'url'   => $plugin->url(),
 			];
 		}
@@ -38,39 +38,39 @@ class PIM
 
 	public function generateDAVCredentials(Plugin $plugin): array
 	{
-		$chars = ['-', '.', ':', '_', '!'];
-		$password = preg_replace('/[^0-9a-z]/i', '', base64_encode(random_bytes(7)));
-		$password = strtolower($password);
-		$pos = random_int(1, strlen($password));
-		$password = substr($password, 0, $pos) . $chars[array_rand($chars)] . substr($password, $pos);
+		$db = DB::getInstance();
+		// Only keep one credential for this plugin and user
+		$db->delete('users_app_passwords', 'id_user = ? AND id_plugin = ?', $this->user->id(), $plugin->id());
 
-		DB::getInstance()->preparedQuery('REPLACE INTO plugin_pim_credentials (id_user, password) VALUES (?, ?);',
-			$this->id_user,
-			password_hash($password, PASSWORD_DEFAULT)
-		);
+		$password = $this->user->createAppPassword('Agenda et contacts (accès CardDAV/CalDAV)', $plugin->id());
+		$id = strtok($password, '.');
+		$password = strtok('');
 
 		return [
-			'login'    => $this->id_user,
+			'login'    => $this->user->id(),
 			'password' => $password,
 			'url'      => $plugin->url(),
 		];
 	}
 
-	static public function login(string $login, string $password): ?User
+	static public function login(Plugin $plugin, string $login, string $password): ?User
 	{
 		$db = DB::getInstance();
 
-		$user_password = $db->firstColumn('SELECT password FROM plugin_pim_credentials WHERE id_user = ?;', (int) $login);
+		// We can't use useAppPassword directly, as we used to not ask
+		$id = $db->firstColumn('SELECT id FROM users_app_passwords WHERE id_user = ? AND id_plugin = ?;', (int) $login, $plugin->id());
 
-		if (!$user_password) {
+		if (!$id) {
 			return null;
 		}
 
-		if (!password_verify($password, $user_password)) {
+		$user = Users::get((int)$login);
+
+		if (!$user->useAppPassword($id . '.' . $password)) {
 			return null;
 		}
 
-		return Users::get((int)$login);
+		return $user;
 	}
 
 	static public function verifyAccess(?Session $session = null): void
