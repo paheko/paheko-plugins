@@ -357,6 +357,8 @@ class Invoice extends Entity
 		if (!$this->isQuote()) {
 			$config = Config::getInstance();
 			$this->assert(!empty($config->org_address), 'L\'adresse de votre organisation n\'est pas renseignée.');
+			$this->assert(!empty($config->org_post_code), 'Le code postal de votre organisation n\'est pas renseigné.');
+			$this->assert(!empty($config->org_city), 'La ville de votre organisation n\'est pas renseignée.');
 
 			if ($this->client()->requiresEInvoicing()) {
 				$this->assert(!empty($config->org_business_number), 'Votre organisation n\'a indiqué aucun numéro d\'entreprise (SIREN) dans la configuration générale.');
