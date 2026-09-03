@@ -21,7 +21,7 @@
 		<dl>
 			{if !$date}
 				{input type="date" label="Date" required=true name="date" default=$now source=$entry}
-				{input type="list" name="user" required=false label="Membre" help="Laisser vide pour une tâche bénévole qui n'est pas liée à un membre en particulier" multiple=false target="!users/selector.php" default=$selected_user}
+				{input type="list" name="user" required=false label="Membre" help="Laisser vide pour une tâche bénévole qui n'est pas liée à un membre en particulier" multiple=false target="!users/selector.php" default=$selected_user can_delete=true}
 			{/if}
 			{input type="select" options=$tasks name="task_id" label="Catégorie" source=$entry default_empty="— Non spécifiée —"}
 			{if $date && $is_today}
