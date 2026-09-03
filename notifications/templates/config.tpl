@@ -6,33 +6,40 @@
 	<p class="confirm block">La configuration a été enregistrée.</p>
 {/if}
 
-<table class="list">
-	<thead>
-		<tr>
-			<td>Événement</td>
-			<td>Action</td>
-			<td>Détails</td>
-			<td class="actions"></td>
-		</tr>
-	</thead>
-	<tbody>
-	{foreach from=$notifications key="idx" item="n"}
-		<tr>
-			<th>{$n.signal_label}</th>
-			<td>{$n.action_label}</td>
-			<td>
-				{$n.config.email}
-				{if $n.file_context}
-				<br/>Contexte : {$n.file_context}
-				{/if}
-			</td>
-			<td class="actions">
-				{linkbutton shape="delete" href="?delete=%d"|args:$idx label="Supprimer"}
-			</td>
-		</tr>
-	{/foreach}
-	</tbody>
-</table>
+{if !count($notifications)}
+	<p class="block error">Aucune notification.</p>
+{else}
+	<form method="post" action="{$self_url}">
+		<table class="list">
+			<thead>
+				<tr>
+					<td>Événement</td>
+					<td>Action</td>
+					<td>Détails</td>
+					<td class="actions"></td>
+				</tr>
+			</thead>
+			<tbody>
+			{foreach from=$notifications key="idx" item="n"}
+				<tr>
+					<th>{$n.signal_label}</th>
+					<td>{$n.action_label}</td>
+					<td>
+						{$n.config.email}
+						{if $n.file_context}
+						<br/>Contexte : {$n.file_context}
+						{/if}
+					</td>
+					<td class="actions">
+						{button type="submit" shape="delete" name="delete" value=$idx label="Supprimer"}
+					</td>
+				</tr>
+			{/foreach}
+			</tbody>
+		</table>
+		{csrf_field key=$csrf_key}
+	</form>
+{/if}
 
 <form method="post" action="{$self_url}">
 	<fieldset>
