@@ -64,7 +64,12 @@ $form->runIf('save', function () use ($invoice) {
 	Utils::redirectParent('!p/invoice/details.php?id=' . $invoice->id());
 }, $csrf_key);
 
+$types = [
+	$invoice::TYPE_INVOICE => 'Facture normale',
+	$invoice::TYPE_SELF_BILLING => 'Auto-facturation',
+];
+
 $tpl->assign('now', new \DateTime);
-$tpl->assign(compact('invoice', 'title', 'csrf_key'));
+$tpl->assign(compact('invoice', 'title', 'csrf_key', 'types'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/edit.tpl');

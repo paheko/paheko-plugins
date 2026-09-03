@@ -99,7 +99,12 @@
 					<ram:CityName>{$invoice.seller.postal_address.city}</ram:CityName>
 					<ram:CountryID>{$invoice.seller.postal_address.country_code}</ram:CountryID>
 				</ram:PostalTradeAddress>
-				{if $invoice.seller.contact.email_address}
+				{if $invoice.seller.electronic_address.value}
+					<ram:URIUniversalCommunication>
+						<!-- Adresse de communication électronique (eg. 0225 in France) -->
+						<ram:URIID schemeID="{$invoice.seller.electronic_address.scheme}">{$invoice.seller.electronic_address.value}</ram:URIID>
+					</ram:URIUniversalCommunication>
+				{elseif $invoice.seller.contact.email_address}
 					<ram:URIUniversalCommunication>
 						<ram:URIID schemeID="EM">{$invoice.seller.contact.email_address}</ram:URIID><!-- Adresse e-mail du vendeur -->
 					</ram:URIUniversalCommunication>
@@ -147,7 +152,12 @@
 					<ram:CityName>{$invoice.buyer.postal_address.city}</ram:CityName>
 					<ram:CountryID>{$invoice.buyer.postal_address.country_code}</ram:CountryID>
 				</ram:PostalTradeAddress>
-				{if $invoice.buyer.contact.email_address}
+				{if $invoice.buyer.electronic_address.value}
+					<ram:URIUniversalCommunication>
+						<!-- Adresse de communication électronique (eg. 0225 in France) -->
+						<ram:URIID schemeID="{$invoice.buyer.electronic_address.scheme}">{$invoice.buyer.electronic_address.value}</ram:URIID>
+					</ram:URIUniversalCommunication>
+				{elseif $invoice.buyer.contact.email_address}
 					<ram:URIUniversalCommunication>
 						<ram:URIID schemeID="EM">{$invoice.buyer.contact.email_address}</ram:URIID><!-- Adresse e-mail du client -->
 					</ram:URIUniversalCommunication>

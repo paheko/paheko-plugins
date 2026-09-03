@@ -331,43 +331,32 @@ class CalDAV extends AbstractBackend implements SyncSupport
 		$this->log('returning changes since ' . $syncToken);
 
 		$out = [
-			'syncToken' => null,
+			'syncToken' => 0,
 			'added'     => [],
 			'modified'  => [],
 			'deleted'   => [],
 		];
 
-		if ($syncToken)
-		{
-			foreach ($this->agenda->listChangesForCategory($calendarId, (int) $syncToken) as $change)
-			{
-				if (is_null($out['syncToken']))
-				{
-					// Current token
-					$out['syncToken'] = $change->timestamp;
-				}
+		if ($syncToken) {
+			foreach ($this->events->listChangesForCategory((int)$calendarId, (int) $syncToken) as $change) {
+				$out['syncToken'] = max($change->timestamp, $out['syncToken']);
 
-				if ($change->type == Agenda::ADDED)
-				{
+				if ($change->type == ChangesTracker::ADDED) {
 					$out['added'] = $change->uri;
 				}
-				elseif ($change->type == Agenda::MODIFIED)
-				{
+				elseif ($change->type == ChangesTracker::MODIFIED) {
 					$out['modified'] = $change->uri;
 				}
-				elseif ($change->type == Agenda::DELETED)
-				{
+				elseif ($change->type == ChangesTracker::DELETED) {
 					$out['deleted'] = $change->uri;
 				}
 			}
 		}
-		else
-		{
+		else {
 			// First sync: everything has been added
 			$out['syncToken'] = time();
 
-			foreach ($this->agenda->listForCategory($calendarId) as $event)
-			{
+			foreach ($this->agenda->listForCategory((int) $calendarId) as $event) {
 				$out['added'] = $event->uri;
 			}
 		}

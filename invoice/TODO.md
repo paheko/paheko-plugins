@@ -1,7 +1,9 @@
-* Implement Factur-X support (signal) for DomPDF
-
 * Test PDF weasyprint (HS)
 * Test PDF chromium + gs (HS)
+
+* Afficher date d'envoi dans les détails
+* Ajouter date d'envoi dans les listes
+* Ajouter liste "en souffrance"
 
 * Ajout confirmation à l'annulation de facture
 * Empêcher la suppression d'un avoir lié à une facture (sinon on pourrait dé-annuler une facture)
@@ -33,3 +35,7 @@ Configuration :
 * Pouvoir créer un avoir manuellement (dans ce cas il faudra indiquer numéro de l'ancienne facture + date d'émission, obligatoire pour Factur-X)
 
 Se faire référencer ici : https://fnfe-mpe.org/factur-x/qui-propose-factur-x/
+
+# Trucs demandés, à surveiller
+
+* Recevoir une copie du mail envoyant la facture / devis

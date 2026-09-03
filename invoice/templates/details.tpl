@@ -117,8 +117,13 @@
 	<dd>{$invoice.date_expiry|date_short}</dd>
 	<dt>Client</dt>
 	<dd>
-		<strong>{$invoice->client()->name}</strong>
+		<strong>{$client.name}</strong>
 	</dd>
+	{if $invoice.id_user}
+	<dd>
+		{linkbutton shape="user" href="!users/details.php?id=%d"|args:$client.id_user label="Voir la fiche de membre"}
+	</dd>
+	{/if}
 	{if $invoice.operation_type}
 		<dt>Nature de la facture</dt>
 		<dd>{$invoice->getOperationTypeLabel()}</dd>

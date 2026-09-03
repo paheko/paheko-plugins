@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS plugin_invoice_clients (
 	id INTEGER NOT NULL PRIMARY KEY,
+	id_user INTEGER NULL REFERENCES users (id) ON DELETE SET NULL,
 	archived INTEGER NOT NULL DEFAULT 0,
 	name TEXT NOT NULL,
 	country TEXT NOT NULL,
@@ -11,6 +12,8 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_clients (
 	notes TEXT NULL,
 	business_number TEXT NULL,
 	vat_number TEXT NULL,
+	electronic_address TEXT NULL,
+	self_billing INTEGER NOT NULL DEFAULT 0,
 	created DATETIME NOT NULL CHECK (created = datetime(created)) DEFAULT CURRENT_TIMESTAMP
 );
 

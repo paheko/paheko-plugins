@@ -60,12 +60,14 @@ class Invoice extends Entity
 	protected ?string $vat_exemption_text = null;
 
 	/**
+	 * BT-10
 	 * Buyer reference (Factur-X: code du service exécutant)
 	 */
 	protected ?string $buyer_ref = null;
 
 	/**
-	 * Factur-X : Numéro d'engagement (IssuerAssignedID)
+	 * BT-13
+	 * Factur-X/Chorus Pro : Numéro d'engagement (IssuerAssignedID)
 	 */
 	protected ?string $contract_reference = null;
 
@@ -89,6 +91,7 @@ class Invoice extends Entity
 	const TYPE_INVOICE = 380;
 	const TYPE_CREDIT = 381;
 	//const TYPE_CORRECTION = 384;
+	const TYPE_SELF_BILLING = 389;
 
 	/**
 	 * Factur-X (BT-3) only allows some codes, not all of them!
@@ -99,14 +102,15 @@ class Invoice extends Entity
 		self::TYPE_QUOTE => 'Devis',
 		self::TYPE_INVOICE => 'Facture',
 		self::TYPE_CREDIT => 'Avoir', // Avoir : quand la facture d'origine a déjà été payée
+		self::TYPE_SELF_BILLING => 'Auto-facturation',
 		//self::TYPE_CORRECTION => 'Facture rectificative', // rectificative : quand la facture d'origine n'a pas été payée ET qu'on ne modifie aucun montant
 		//386 => 'Facture d\'acompte',
-		//389 => 'Auto-facturation',
 	];
 
 	const TYPES_PREFIXES = [
 		self::TYPE_QUOTE   => 'DEV',
 		self::TYPE_INVOICE => 'FAC',
+		self::TYPE_SELF_BILLING => 'FAC',
 		self::TYPE_CREDIT  => 'AV',
 	];
 
@@ -188,6 +192,12 @@ class Invoice extends Entity
 		$this->assert(array_key_exists($this->status, self::STATUSES));
 
 		$this->assert(!isset($this->vat_exemption_code) || array_key_exists($this->vat_exemption_code, Invoices::VAT_EXEMPTIONS));
+
+		if ($this->type === self::TYPE_CREDIT) {
+			$this->assert($this->id_invoice && $this->invoice());
+			$this->assert($this->invoice()->type !== self::TYPE_SELF_BILLING, 'Impossible de créer un avoir pour une autofacturation');
+			$this->assert($this->invoice()->type === self::TYPE_INVOICE);
+		}
 	}
 
 	public function delete(): bool
@@ -233,9 +243,35 @@ class Invoice extends Entity
 		$db->commit();
 	}
 
+	public function save(bool $selfcheck = true): bool
+	{
+		if (!$this->exists()
+			&& $this->client()->self_billing
+			&& $this->type === self::TYPE_INVOICE) {
+			$this->set('type', self::TYPE_SELF_BILLING);
+		}
+
+		return parent::save($selfcheck);
+	}
+
+	public function getCountType(): int
+	{
+		// Self-billing has the same numbering prefix as regular invoices
+		if ($this->isSelfBilling()) {
+			return self::TYPE_INVOICE;
+		}
+
+		return $this->type;
+	}
+
 	public function isQuote(): bool
 	{
 		return $this->type === self::TYPE_QUOTE;
+	}
+
+	public function isSelfBilling(): bool
+	{
+		return $this->type === self::TYPE_SELF_BILLING;
 	}
 
 	public function isDraft(): bool
@@ -460,7 +496,6 @@ class Invoice extends Entity
 			throw new \LogicException('Cannot cancel a credit note');
 		}
 
-
 		$new = null;
 		$db = DB::getInstance();
 		$db->begin();
@@ -537,6 +572,7 @@ class Invoice extends Entity
 
 	/**
 	 * Return invoice line as an object ready for EN16931
+	 * @see https://synapx.fr/blog/champs-en-16931-expliques/ for codes
 	 */
 	public function exportForInvoice(): stdClass
 	{
@@ -553,15 +589,29 @@ class Invoice extends Entity
 			throw new UserException('La devise sélectionnée est invalide, merci de la modifier dans la configuration.');
 		}
 
+		$buyer = $client = $this->client()->exportForInvoice();
+		$seller = Clients::exportOrgForInvoice();
+
+		// Invert buyer and seller for auto-facturation
+		if ($this->type === self::TYPE_SELF_BILLING) {
+			$buyer = $seller;
+			$seller = $client;
+		}
+
 		$out = (object) [
-			'buyer' => $this->client()->exportForInvoice(),
-			'seller' => Clients::exportOrgForInvoice(),
-			'currency_code' => $config->currency,
-			'type_code' => $this->type,
+			'buyer' => $buyer,
+			'seller' => $seller,
+			// BT-1
+			'number' => $this->getReference() ?? 'Brouillon',
+			// BT-2
 			'issue_date' => $this->date_created->format('Y-m-d'),
+			// BT-3
+			'type_code' => $this->type,
+			// BT-5
+			'currency_code' => $config->currency,
+			// BT-9
 			'payment_due_date' => $this->date_expiry ? $this->date_expiry->format('Y-m-d') : null,
 			'lines' => [],
-			'number' => $this->getReference() ?? 'Brouillon',
 			'process_control' => (object) [
 				'specification_identifier' => 'urn:cen.eu:en16931:2017',
 				'business_process_type' => $this->operation_type,
@@ -578,7 +628,7 @@ class Invoice extends Entity
 			],
 		];
 
-		if (!$this->isQuote()
+		if (!$this->isSelfBilling()
 			&& (!empty($plugin->config->iban) || !empty($plugin->config->payment_instructions))) {
 			$out->payment_instructions = (object) [
 				'payment_means_type_code' => !empty($plugin->config->iban) ? 30 : 1, // 30 = Credit transfer, 1 = other
@@ -625,7 +675,8 @@ class Invoice extends Entity
 
 		// Add mandatory mention of recovery costs (only for enterprise invoices)
 		// see https://www.economie.gouv.fr/entreprises/gerer-son-entreprise-au-quotidien/gerer-sa-comptabilite-et-ses-demarches/mentions-obligatoires-dune-facture-tout-savoir
-		if ($config->country === 'FR') {
+		if ($config->country === 'FR'
+			&& !$this->isQuote()) {
 			$out->notes[] = (object) [
 				'subject_code' => 'PMT',
 				'note' => 'En cas de retard de paiement, indemnité forfaitaire légale pour frais de recouvrement de 40 euros.',
@@ -639,6 +690,12 @@ class Invoice extends Entity
 			$out->notes[] = (object) [
 				'subject_code' => 'AAB',
 				'note' => 'Les réglements reçus avant la date d\'échéance ne donneront pas lieu à escompte.',
+			];
+		}
+		elseif ($this->isQuote()) {
+			$out->notes[] = (object) [
+				'subject_code' => 'OSI',
+				'note' => $plugin->getConfig('quote_info') ?? Invoices::DEFAULT_QUOTE_INFO,
 			];
 		}
 
@@ -679,11 +736,17 @@ class Invoice extends Entity
 		$paid = '0.00'; // TODO
 
 		$out->totals = (object) [
+			// BT-115
 			'amount_due_for_payment'   => Money::calc(Money::calc($net_total, '+', $vat_total), '-', $paid),
+			// BT-106
 			'sum_invoice_lines_amount' => $net_total,
+			// BT-112
 			'total_with_vat'           => Money::calc($net_total, '+', $vat_total),
+			// BT-109
 			'total_without_vat'        => $net_total,
+			// BT-113
 			'paid_amount'              => $paid,
+			// BT-110
 			'total_vat_amount'         => $vat_total,
 		];
 
