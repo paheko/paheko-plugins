@@ -32,7 +32,9 @@ if (!$current_pos_session) {
 	throw new UserException('Aucune session de caisse en cours et aucune note sélectionnée');
 }
 
+// FIXME: this seems to not be used?? remove it?
 $form->runIf(qg('code') !== null, function () use ($current_pos_session, &$tab) {
+	throw new \LogicException('This code shouldnt be used?');
 	$tab = $current_pos_session->getFirstOpenTab();
 	$tab ??= $current_pos_session->openTab();
 

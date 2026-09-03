@@ -64,6 +64,9 @@ class Tab extends Entity
 			- COALESCE((SELECT SUM(amount) FROM @PREFIX_tabs_payments WHERE tab = ?), 0);'), $this->id, $this->id);
 	}
 
+	/**
+	 * @todo FIXME: this function doesn't seem to be used, remove?
+	 */
 	public function addItemByCode(string $code): void
 	{
 		$code = trim($code);
