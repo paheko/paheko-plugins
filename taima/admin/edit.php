@@ -69,7 +69,7 @@ $form->runIf('save', function () use ($entry, $session) {
 	if (!$session->canAccess($session::SECTION_USERS, $session::ACCESS_WRITE)) {
 		unset($data['user_id'], $data['user']);
 	}
-	else {
+	elseif (!$entry->user_id) {
 		$data['user'] ??= [];
 	}
 

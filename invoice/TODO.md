@@ -19,6 +19,7 @@
 
 * Pouvoir créer un client depuis le sélecteur
 * Pouvoir chercher un client
+* Rajouter un champ "notes" sur les fiches client
 
 # Plus tard
 
