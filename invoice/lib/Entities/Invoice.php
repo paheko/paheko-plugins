@@ -581,11 +581,6 @@ class Invoice extends Entity
 		$config = Config::getInstance();
 		$plugin = Plugins::getCurrent();
 
-		$is_seller_eu = in_array($config->country, Client::EU_COUNTRIES);
-
-		$seller_address = explode("\n", $config->org_address);
-		$config->currency = 'EUR'; //FIXME
-
 		if (strlen($config->currency) !== mb_strlen($config->currency)
 			|| strlen($config->currency) !== 3) {
 			throw new UserException('La devise sélectionnée est invalide, merci de la modifier dans la configuration.');
@@ -599,6 +594,8 @@ class Invoice extends Entity
 			$buyer = $seller;
 			$seller = $client;
 		}
+
+		$is_buyer_pro = !empty($buyer->legal_registration_identifier->value);
 
 		$out = (object) [
 			'buyer' => $buyer,
@@ -677,7 +674,8 @@ class Invoice extends Entity
 
 		// Add mandatory mention of recovery costs (only for enterprise invoices)
 		// see https://www.economie.gouv.fr/entreprises/gerer-son-entreprise-au-quotidien/gerer-sa-comptabilite-et-ses-demarches/mentions-obligatoires-dune-facture-tout-savoir
-		if ($config->country === 'FR'
+		if ($is_buyer_pro
+			&& $config->country === 'FR'
 			&& !$this->isQuote()) {
 			$out->notes[] = (object) [
 				'subject_code' => 'PMT',
