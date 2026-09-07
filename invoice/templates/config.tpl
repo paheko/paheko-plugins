@@ -25,7 +25,7 @@
 </fieldset>
 
 <fieldset>
-	<legend>Instructions de paiement de paiement</legend>
+	<legend>Instructions de paiement</legend>
 	<p class="help">Ces informations figureront sur les factures et devis, pour indiquer au client comment payer.</p>
 	<dl>
 		{input type="text" name="iban" source=$plugin_config label="Numéro IBAN" required=false}
