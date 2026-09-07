@@ -104,44 +104,6 @@ class Payments
 		return $date;
 	}
 
-	/*
-	static public function sync(string $org_slug, DateTime $since): void
-	{
-		$last_payment = self::getLastPaymentDate();
-
-		$params = [
-			'pageSize'  => HelloAsso::getPageSize(),
-			// Only return new Authorized payments, we are no expecting
-			'sortOrder' => 'Desc',
-			'sortField' => 'UpdateDate',
-			// We can't use from here, see https://dev.helloasso.com/discuss/698243a4b6e65ad68eb180be
-			// Si vous utilisez from=2026-02-01, l'API ne retournera que les paiements dont la date
-			// de transaction est comprise dans cette période.
-			// Un paiement ayant eu lieu en janvier, mais dont le statut changerait aujourd'hui
-			// (passant par exemple de Authorized à Refund), ne remontera pas dans ce flux car
-			// sa date d'origine reste en janvier.
-		];
-
-		$max = 20;
-		$i = 0;
-
-		while ($i++ < $max) {
-			$result = API::getInstance()->listOrganizationPayments($org_slug, $params);
-
-			foreach ($result->data as $payment) {
-				self::syncPayment($payment);
-			}
-
-			$params['continuationToken'] = $result->pagination->continuationToken ?? null;
-
-			if (empty($params['continuationToken'])) {
-				break;
-			}
-		}
-	}
-	*/
-
-
 	static public function syncPayment(\stdClass $data, ?Order $order): void
 	{
 		$entity = self::get($data->id) ?? new Payment;
@@ -163,6 +125,10 @@ class Payments
 		$entity->set('receipt_url', $data->paymentReceiptUrl ?? null);
 
 		$entity->save();
+
+		foreach ($data->items as $item) {
+			$db->preparedQuery('REPLACE INTO plugin_helloasso_payments_items (id_payment, id_item, share_amount) VALUES (?, ?, ?);', $entity->id(), $item->id, $item->shareAmount);
+		}
 	}
 
 	static public function transform(\stdClass $data): \stdClass
