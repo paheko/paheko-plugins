@@ -126,6 +126,8 @@ class Payments
 
 		$entity->save();
 
+		$db = DB::getInstance();
+
 		foreach ($data->items as $item) {
 			$db->preparedQuery('REPLACE INTO plugin_helloasso_payments_items (id_payment, id_item, share_amount) VALUES (?, ?, ?);', $entity->id(), $item->id, $item->shareAmount);
 		}
