@@ -58,7 +58,7 @@ if (!empty($_GET['payoff']) && !empty($_GET['id_method'])) {
 	}
 
 	if (!$tab) {
-		$tab = $current_pos_session->openTab(intval($_GET['id_user']) ?: null);
+		$tab = $current_pos_session->openTab(intval($_GET['id_user'] ?? 0) ?: null);
 
 		if (!empty($_GET['name']) && !$tab->user_id) {
 			$tab->rename($_GET['name'], null);
