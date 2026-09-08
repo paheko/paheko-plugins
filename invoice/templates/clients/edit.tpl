@@ -33,31 +33,35 @@
 </fieldset>
 
 <fieldset class="country-fr">
-	<legend>Informations administratives</legend>
-	<?php $enabled = !empty($client->business_number); $blocked = empty($config->org_business_number); ?>
+	<legend>Facturation électronique</legend>
+	<?php $blocked = empty($config->org_business_number); ?>
 
 	{if $blocked}
 		<p class="alert block">Vous ne pouvez pas effectuer de facturation électronique si vous n'avez pas renseigné votre numéro d'entreprise (SIRET en France) dans la {link href="!config/" label="configuration"}.</p>
 	{/if}
 	<dl>
-		{input type="radio-btn" prefix_label="Facturation électronique" prefix_required=true name="e_invoicing" value=1 label="Activer la facturation électronique" help="Pour les entreprises, auto-entrepreneurs, etc." required=true default=$enabled disabled=$blocked}
-		{input type="radio-btn" name="e_invoicing" value=0 label="Sans facturation électronique" help="Particuliers, associations non assujetties à la TVA, syndic non professionnel, etc." default=$enabled}
-	</dl>
-	<dl class="e_invoicing_1">
-		{input type="text" name="fr_business_number" default=$client.business_number label="Numéro SIRET" required=true}
-		{input type="text" name="fr_vat_number" default=$client.vat_number label="Numéro de TVA intra-communautaire" required=false}
-		{input type="text" name="electronic_address" source=$client label="Adresse de facturation électronique" required=false help="Si le client vous a fournit une adresse différente du numéro SIRET."}
-		{input type="checkbox" name="self_billing" default=$client.self_billing value=1 label="Activer l'auto-facturation" required=false}
-		<dd class="help">
-			En cochant cette case, toutes les factures créées pour ce client seront en auto-facturation par défaut. Il sera toujours possible de modifier une facture pour désactiver l'auto-facturation.<br />
-			<strong>Attention&nbsp;: l'auto-facturation demande d'avoir un mandat de facturation de votre client. Il est possible que votre plateforme agréée vous demande de le fournir et le vérifier avant de pouvoir effectuer de l'auto-facturation&nbsp;: informez-vous auprès de votre plateforme agréée.</strong>
-		</dd>
+		{input type="radio-btn" name="e_invoicing" value=0 label="Sans facturation électronique" help="Particuliers, associations non assujetties à la TVA, syndic non professionnel, etc." source=$client}
+		{input type="radio-btn" prefix_label="Facturation électronique" prefix_required=true name="e_invoicing" value=1 label="Activer la facturation électronique" help="Pour les entreprises, auto-entrepreneurs, etc." required=true source=$client disabled=$blocked}
 	</dl>
 </fieldset>
 
-<fieldset class="country-other">
+<fieldset>
 	<legend>Informations administratives</legend>
+	<dl class="country_fr">
+		{input type="text" name="fr_business_number" default=$client.business_number label="Numéro SIRET" required=false}
+		{input type="text" name="fr_vat_number" default=$client.vat_number label="Numéro de TVA intra-communautaire" required=false}
+		{input type="checkbox" name="self_billing" default=$client.self_billing value=1 label="Activer l'auto-facturation" required=false}
+		<dd class="help">
+			En cochant cette case, toutes les factures créées pour ce client seront en auto-facturation par défaut. Il sera toujours possible de modifier une facture pour désactiver l'auto-facturation.
+		</dd>
+	</dl>
 	<dl class="e_invoicing_1">
+		<dd class="help">
+			<strong>Attention&nbsp;: l'auto-facturation demande d'avoir un mandat de facturation de votre client.</strong> Il est possible que votre plateforme agréée vous demande de le fournir et le vérifier avant de pouvoir effectuer de l'auto-facturation&nbsp;: informez-vous auprès de votre plateforme agréée.
+		</dd>
+		{input type="text" name="electronic_address" source=$client label="Adresse de facturation électronique" required=false help="Si le client vous a fournit une adresse différente du numéro SIRET."}
+	</dl>
+	<dl class="country_other">
 		{input type="text" name="business_number" source=$client label="Numéro d'entreprise" required=false}
 		{input type="text" name="vat_number" source=$client label="Numéro de TVA intra-communautaire" required=false}
 	</dl>
@@ -76,14 +80,15 @@ function selectCountry()
 {
 	var c = $('#f_country').value;
 
-	g.toggle('.country-other', c !== 'FR');
-	g.toggle('.country-fr', c === 'FR');
+	g.toggle('.country_other', c !== 'FR');
+	g.toggle('.country_fr', c === 'FR');
 }
 
 function selectEInvoicing()
 {
 	var e = $('#f_e_invoicing_1');
 	g.toggle('.e_invoicing_1', e.checked);
+	g.toggle('.e_invoicing_0', !e.checked);
 }
 
 $('#f_country').onchange = selectCountry;

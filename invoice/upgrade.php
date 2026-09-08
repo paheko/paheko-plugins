@@ -20,3 +20,8 @@ if (version_compare($old_version, '0.1.2', '<')) {
 if (version_compare($old_version, '0.1.3', '<')) {
 	$db->exec('ALTER TABLE plugin_invoice_clients ADD COLUMN id_user INTEGER NULL REFERENCES users (id) ON DELETE SET NULL;');
 }
+
+if (version_compare($old_version, '0.1.4', '<')) {
+	$db->exec('ALTER TABLE plugin_invoice_clients ADD COLUMN e_invoicing INTEGER NOT NULL DEFAULT 0;
+		UPDATE plugin_invoice_clients SET e_invoicing = 1 WHERE business_number IS NOT NULL AND country = \'FR\';');
+}

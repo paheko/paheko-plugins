@@ -36,6 +36,7 @@ class Client extends Entity
 
 	protected ?string $vat_number;
 
+	protected bool $e_invoicing;
 	protected ?string $electronic_address;
 
 	protected bool $self_billing = false;
@@ -120,6 +121,10 @@ class Client extends Entity
 			}
 		}
 
+		if ($this->e_invoicing) {
+			$this->assert($this->business_number, 'La facturation électronique ne peut être activée sans numéro d\'entreprise');
+		}
+
 		parent::selfCheck();
 	}
 
@@ -166,26 +171,23 @@ class Client extends Entity
 
 		$country = $source['country'] ?? $this->country;
 
-		if ($country === 'FR') {
-			if (isset($source['e_invoicing']) && empty($source['e_invoicing'])) {
-				$source['business_number'] = $source['vat_number'] = '';
-			}
-			elseif (isset($source['fr_business_number'])) {
-				$source['business_number'] = Utils::normalizeBusinessNumber($country, $source['fr_business_number']);
-				$source['vat_number'] = $source['fr_vat_number'] ?? null;
-			}
-
-			if (isset($source['electronic_address'])) {
-				$address = trim($source['electronic_address']);
-				$address = preg_replace('/\s+/', '', $address);
-
-				if (ctype_digit($address)) {
-					$address = Utils::normalizeBusinessNumber($country, $address);
-				}
-
-				$source['electronic_address'] = $address;
-			}
+		if ($country === 'FR'
+			&& isset($source['fr_business_number'])) {
+			$source['business_number'] = Utils::normalizeBusinessNumber($country, $source['fr_business_number']);
+			$source['vat_number'] = $source['fr_vat_number'] ?? null;
 		}
+
+		if (isset($source['electronic_address'])) {
+			$address = trim($source['electronic_address']);
+			$address = preg_replace('/\s+/', '', $address);
+
+			if ($country === 'FR' && ctype_digit($address)) {
+				$address = Utils::normalizeBusinessNumber($country, $address);
+			}
+
+			$source['electronic_address'] = $address;
+		}
+
 
 		return parent::importForm($source);
 	}
