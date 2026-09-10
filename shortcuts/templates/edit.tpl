@@ -23,7 +23,7 @@
 	<fieldset class="shapes">
 		<legend>Icône</legend>
 		{if $shortcut.icon}
-			<p><img src="{$shortcut->getIconURL()}" alt="" /></p>
+			<p class="custom-icon"><img src="{$shortcut->getIconURL()}" alt="" /></p>
 			<dl>
 				{input type="checkbox" name="delete_icon" value=1 label="Supprimer l'icône personnalisée"}
 			</dl>
@@ -77,6 +77,9 @@
 .shapes span, .shapes span::before {
 	display: inline-block;
 	vertical-align: middle;
+}
+.shapes p.custom-icon img {
+	max-width: 100px;
 }
 </style>
 {/literal}
