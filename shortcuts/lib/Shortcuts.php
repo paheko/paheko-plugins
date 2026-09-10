@@ -77,7 +77,7 @@ class Shortcuts
 	static public function create(): Shortcut
 	{
 		$s = new Shortcut;
-		$s->set('sort_order', DB::getInstance()->firstColumn('SELECT MAX(sort_order) + 1 FROM plugin_shortcuts_shortcuts;'));
+		$s->set('sort_order', DB::getInstance()->firstColumn('SELECT MAX(sort_order) + 1 FROM plugin_shortcuts_shortcuts;') ?? 0);
 		return $s;
 	}
 }
