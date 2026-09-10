@@ -116,7 +116,7 @@ class Shortcut extends Entity
 
 	public function uploadIcon(): void
 	{
-		if (empty($_FILES['icon'])) {
+		if (empty($_FILES['icon']['size'])) {
 			return;
 		}
 
