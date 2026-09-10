@@ -27,26 +27,36 @@
 		}
 	}
 
-	body {
-		font-size: 10pt;
-	}
-
 	.buttons {
 		display: none;
 	}
 }
 
+@media screen {
+	html {
+		background: #333;
+	}
+
+	body {
+		position: relative;
+		background: #fff;
+		width: 21cm;
+		min-height: 29.7cm;
+		margin: 0 auto;
+		box-shadow: 0px 0px 10px #000;
+	}
+}
+
 body {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10pt;
 }
 
 header {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 1cm;
-	justify-content: stretch;
-	align-items: end;
+	display: flex;
+	flex-direction: row;
 	margin-right: 1cm;
+	position: relative;
 }
 
 .contact > * {
@@ -54,29 +64,60 @@ header {
 }
 
 .seller {
-	padding: .5cm;
-	padding-left: 1cm;
+	padding: .3cm;
 	padding-top: 1cm;
+	padding-left: 1cm;
 	border-bottom: 5px solid #666;
 	border-right: 5px solid #666;
 	border-bottom-right-radius: .5cm;
+	max-width: calc(10cm - 1.6cm - 5px);
+	font-size: 10pt;
 }
 
 .seller h1 {
-	font-size: 18pt;
+	font-size: inherit;
 }
 
 .seller .logo {
-	float: right;
+	position: absolute;
+	right: 0;
+	top: 1cm;
+	max-height: 3cm;
+	max-width: 3cm;
 }
 
-.buyer h1 {
-	font-size: 1em;
+.buyer {
+	padding-top: 1cm;
+	padding-left: 5mm;
+	max-width: 75mm;
 }
 
-dl.contacts {
-	display: grid;
-	grid-template-columns: 6em 1fr;
+.buyer > h1 {
+	font-weight: normal;
+}
+
+.buyer h1, .buyer h2 {
+	font-size: inherit;
+}
+
+.buyer .address {
+	position: absolute;
+	top: 45mm;
+	left: 100mm;
+	width: calc(100mm - 10mm);
+	min-height: calc(45mm - 10mm);
+	font-size: 12pt;
+	border: 2px solid #ccc;
+	padding: 5mm;
+	border-radius: 3mm;
+}
+
+.contact .identifiers {
+	font-size: .8em;
+}
+
+.contact .identifiers strong {
+	font-weight: normal;
 }
 
 .org {
@@ -99,6 +140,7 @@ dl dt {
 
 main {
 	margin: 1cm;
+	margin-top: .3cm;
 }
 
 
@@ -106,10 +148,11 @@ main {
 	display: flex;
 	flex-direction: column;
 	gap: .3em;
-	margin: 1cm 0;
+	max-width: calc(9cm);
+	min-height: 3cm;
 }
 
-.info h1, .info h2, .info h3 {
+.info > * {
 	font-size: 1em;
 }
 
@@ -209,10 +252,11 @@ main {
 
 
 .buttons {
-	text-align: center;
+	text-align: right;
 	z-index: 5;
 	position: absolute;
 	width: 100%;
+	font-size: 1rem;
 }
 
 .buttons a {
@@ -255,16 +299,24 @@ a.icn-btn:hover {
 }
 
 .facturx {
-	float: right;
-	border: 2px solid darkblue;
-	border-radius: 2em;
-	font-size: .8em;
-	padding: .1cm;
-	padding-right: .3cm;
+	text-align: center;
+	border: 1px solid SeaGreen;
+	background: #fff;
+	border-radius: .5em;
+	font-size: .9em;
+	padding: .5mm;
+	padding-right: 1mm;
+	width: 7cm;
+	position: relative;
+	padding-left: .7cm;
+	margin-bottom: .2cm;
 }
 
 .facturx svg {
-	width: .7cm;
-	color: darkblue;
+	height: 1cm;
+	color: SeaGreen;
 	vertical-align: middle;
+	position: absolute;
+	left: -2mm;
+	margin-top: -3mm;
 }

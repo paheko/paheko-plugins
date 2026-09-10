@@ -37,24 +37,24 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 <header class="contacts">
 	<section class="seller contact{if $is_org} org{/if}">
 		{if $is_org && $config.files.logo}<img src="{$config->fileURL('logo', '150px')}" class="logo" />{/if}
-		{include file="./_contact.html" contact=$invoice.seller}
+		{include file="./_contact.html" contact=$invoice.seller type="seller"}
 	</section>
 
 	<section class="buyer contact">
 		<h5>Client&nbsp;:</h5>
-		{include file="./_contact.html" contact=$invoice.buyer}
+		{include file="./_contact.html" contact=$invoice.buyer type="buyer"}
 	</section>
 </header>
 
 <main>
-	{if $parent_format === 'facturx' && !$is_quote}
-		<div class="facturx">
-			<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="m23 12l-2.44-2.78l.34-3.68l-3.61-.82l-1.89-3.18L12 3L8.6 1.54L6.71 4.72l-3.61.81l.34 3.68L1 12l2.44 2.78l-.34 3.69l3.61.82l1.89 3.18L12 21l3.4 1.46l1.89-3.18l3.61-.82l-.34-3.68zm-13 5l-4-4l1.41-1.41L10 14.17l6.59-6.59L18 9z"/></svg>
-			Facture électronique au format <strong>Factur-X</strong>
-		</div>
-	{/if}
-
 	<section class="info">
+		{if $parent_format === 'facturx' && !$is_quote}
+			<div class="facturx">
+				<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="m23 12l-2.44-2.78l.34-3.68l-3.61-.82l-1.89-3.18L12 3L8.6 1.54L6.71 4.72l-3.61.81l.34 3.68L1 12l2.44 2.78l-.34 3.69l3.61.82l1.89 3.18L12 21l3.4 1.46l1.89-3.18l3.61-.82l-.34-3.68zm-13 5l-4-4l1.41-1.41L10 14.17l6.59-6.59L18 9z"/></svg>
+				Facture électronique au format <strong>Factur-X</strong>
+			</div>
+		{/if}
+
 		<h1>{$title}</h1>
 		{foreach from=$invoice.notes item="note"}
 			{if $note.subject_code === 'AAI'}
@@ -68,15 +68,15 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 			<h4>Date d'échéance : {$invoice.payment_due_date|date_short}</h4>
 		{/if}
 
-		{if $invoice.buyer_reference || $invoice.contract_reference}
+		{if $invoice.buyer_reference || $invoice.purchase_order_reference}
 		<dl class="refs">
 			{if $invoice.buyer_reference}
 				<dt>{if $invoice.buyer.country_code === 'FR'}Service exécutant{else}Référence acheteur{/if}</dt>
 				<dd>{$invoice.buyer_reference}</dd>
 			{/if}
-			{if $invoice.contract_reference}
+			{if $invoice.purchase_order_reference}
 				<dt>{if $invoice.buyer.country_code === 'FR'}Numéro d'engagement{else}Référence de contrat{/if}</dt>
-				<dd>{$invoice.contract_reference}</dd>
+				<dd>{$invoice.purchase_order_reference}</dd>
 			{/if}
 		</dl>
 		{/if}
