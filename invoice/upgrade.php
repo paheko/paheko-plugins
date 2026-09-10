@@ -37,6 +37,6 @@ if (version_compare($old_version, '0.1.5', '<')
 		unset($content->contract_reference);
 		$content = json_encode($content);
 
-		$db->update('plugin_invoice_invoices', compact('content'), 'id = ' . (int) $id);
+		$db->update('plugin_invoice_invoices', compact('content'), 'id = ' . (int) $row->id);
 	}
 }
