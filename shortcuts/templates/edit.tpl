@@ -80,6 +80,7 @@
 }
 .shapes p.custom-icon img {
 	max-width: 100px;
+	max-height: 100px;
 }
 </style>
 {/literal}
