@@ -26,7 +26,7 @@ use stdClass;
 use Paheko\Plugin\Invoice\Clients;
 use Paheko\Plugin\Invoice\Invoices;
 
-use const Paheko\STATIC_CACHE_ROOT;
+use const Paheko\{STATIC_CACHE_ROOT, ADMIN_COLOR1, ADMIN_COLOR2};
 
 class Invoice extends Entity
 {
@@ -69,7 +69,7 @@ class Invoice extends Entity
 	 * BT-13
 	 * Factur-X/Chorus Pro : Numéro d'engagement (IssuerAssignedID)
 	 */
-	protected ?string $contract_reference = null;
+	protected ?string $purchase_order_reference = null;
 
 	/**
 	 * France: type d'opération
@@ -612,13 +612,13 @@ class Invoice extends Entity
 			'payment_due_date' => $this->date_expiry ? $this->date_expiry->format('Y-m-d') : null,
 			'lines' => [],
 			'process_control' => (object) [
-				'specification_identifier' => 'urn:cen.eu:en16931:2017',
-				'business_process_type' => $this->operation_type,
+				'specification_identifier' => 'urn:cen.eu:en16931:2017', // BT-24
+				'business_process_type' => $this->operation_type, // BT-23
 			],
-			// Référence acheteur. "Service exécutant" Code service pour Chorus Pro. Obligatoire pour les entités publiques marquées « Service obligatoire » dans Chorus Pro.
+			// BT-10 Référence acheteur. "Service exécutant" Code service pour Chorus Pro. Obligatoire pour les entités publiques marquées « Service obligatoire » dans Chorus Pro.
 			'buyer_reference' => $this->buyer_ref ?? '',
-			// Numéro commande acheteur. "Numéro d'engagement juridique" Texte libre. Pour Chorus Pro, indiquer ici le numéro d'engagement. Obligatoire pour les entités publiques marquées « Engagement obligatoire » dans Chorus Pro.
-			'contract_reference' => $this->contract_reference ?? '',
+			// BT-13 Numéro commande acheteur. "Numéro d'engagement juridique" Texte libre. Pour Chorus Pro, indiquer ici le numéro d'engagement. Obligatoire pour les entités publiques marquées « Engagement obligatoire » dans Chorus Pro.
+			'purchase_order_reference' => $this->purchase_order_reference ?? '',
 			'notes' => [
 				(object) [
 					'subject_code' => 'AAI',
@@ -778,11 +778,15 @@ class Invoice extends Entity
 		$tpl = Template::getInstance();
 
 		if ($format === 'html') {
+			$config = Config::getInstance();
+
 			$tpl->assign('is_org', true);
 			$tpl->assign('is_draft', $this->isDraft());
 			$tpl->assign('status', $this->status);
 			$tpl->assign('is_quote', $this->isQuote());
 			$tpl->assign(compact('parent_format'));
+			$tpl->assign('color1', $config->color1 ?: ADMIN_COLOR1);
+			$tpl->assign('color2', $config->color2 ?: ADMIN_COLOR2);
 
 			if (isset($_GET['print'])) {
 				$tpl->assign('facturx_enabled', $this->canExportAsFacturX());

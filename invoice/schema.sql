@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_invoices (
 	vat_exemption_code TEXT NULL,
 	vat_exemption_text TEXT NULL,
 	buyer_ref TEXT NULL, -- Buyer reference (Factur-X: code du service exécutant)
-	contract_reference TEXT NULL, -- Factur-X : Numéro d'engagement
+	purchase_order_reference TEXT NULL, -- Factur-X : Numéro d'engagement
 	operation_type TEXT NULL,
 	content TEXT NULL, -- Content of generated invoice (JSON/EN16931 serialization), NULL if it's a draft
 	provider_id TEXT NULL, -- ID returned by provider for this invoice (flowId in AFNOR)

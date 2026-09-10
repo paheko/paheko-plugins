@@ -37,7 +37,7 @@
 		<p class="help">Ces informations peuvent être nécessaires pour certains services de l'État français (Chorus Pro), ou entreprises.</p>
 		<dl>
 			{input type="text" name="buyer_ref" label="Référence acheteur (BT-10, Chorus Pro : code du service exécutant)" source=$invoice}
-			{input type="text" name="contract_reference" label="Numéro de bon de commande (BT-13, Chorus Pro : référence d'engagement)" source=$invoice}
+			{input type="text" name="purchase_order_reference" label="Numéro de bon de commande (BT-13, Chorus Pro : référence d'engagement)" source=$invoice}
 		</dl>
 	</details>
 	{/if}

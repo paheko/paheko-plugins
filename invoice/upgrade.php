@@ -25,3 +25,17 @@ if (version_compare($old_version, '0.1.4', '<')) {
 	$db->exec('ALTER TABLE plugin_invoice_clients ADD COLUMN e_invoicing INTEGER NOT NULL DEFAULT 0;
 		UPDATE plugin_invoice_clients SET e_invoicing = 1 WHERE business_number IS NOT NULL AND country = \'FR\';');
 }
+
+if (version_compare($old_version, '0.1.5', '<')) {
+	$db->exec('ALTER TABLE plugin_invoice_invoices RENAME COLUMN contract_reference TO purchase_order_reference');
+
+	// Rename contract_reference field
+	foreach ($db->iterate('SELECT id, content FROM plugin_invoice_invoices WHERE content IS NOT NULL;') as $row) {
+		$content = json_decode($row->content);
+		$content->purchase_order_reference = $content->contract_reference;
+		unset($content->contract_reference);
+		$content = json_encode($content);
+
+		$db->update('plugin_invoice_invoices', compact('content'), 'id = ' . (int) $id);
+	}
+}
