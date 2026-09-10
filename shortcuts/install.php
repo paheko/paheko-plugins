@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS plugin_shortcuts_shortcuts (
 	sort_order INTEGER NOT NULL DEFAULT 0,
 	home INTEGER NOT NULL DEFAULT 0,
 	menu INTEGER NOT NULL DEFAULT 0,
-	iframe INTEGER NOT NULL DEFAULT 0
+	iframe INTEGER NOT NULL DEFAULT 0,
+	modified DATETIME NOT NULL CHECK (modified = datetime(modified))
 );
 ');
 

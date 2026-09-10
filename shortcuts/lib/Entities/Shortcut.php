@@ -10,6 +10,8 @@ use Paheko\Files\Files;
 
 use KD2\HTTP;
 
+use DateTime;
+
 class Shortcut extends Entity
 {
 	const TABLE = 'plugin_shortcuts_shortcuts';
@@ -25,6 +27,7 @@ class Shortcut extends Entity
 	protected bool $home = false;
 	protected bool $menu = false;
 	protected bool $iframe = false;
+	protected DateTime $modified;
 
 	public function selfCheck(): void
 	{
@@ -80,9 +83,15 @@ class Shortcut extends Entity
 
 	public function save(bool $selfcheck = true): bool
 	{
+		if (!$this->isModified()) {
+			return true;
+		}
+
 		if (!$this->icon && $this->isModified('icon')) {
 			$this->deleteIcon();
 		}
+
+		$this->set('modified', new \DateTime);
 
 		return parent::save($selfcheck);
 	}
@@ -143,7 +152,8 @@ class Shortcut extends Entity
 
 		$this->set('icon', true);
 		$this->set('shape', null);
-		$this->saveOnly(['icon']);
+		$this->set('modified', new \DateTime);
+		$this->saveOnly(['icon', 'shape', 'modified']);
 	}
 
 	public function getIconURL(): ?string
@@ -152,13 +162,7 @@ class Shortcut extends Entity
 			return null;
 		}
 
-		$f = Files::get($this->getIconPath());
-
-		if (!$f) {
-			return null;
-		}
-
-		return $f->url() . '?' . $f->modified->getTimestamp();
+		return Plugins::getStorageURL('shortcuts', $this->id() . '?' . $this->modified->getTimestamp());
 	}
 
 	public function canUseIframe(): bool
