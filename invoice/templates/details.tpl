@@ -86,7 +86,7 @@
 				{*<p>{linkbutton shape="plus" label="Saisir un paiement" href="payment.php?id=%s"|args:$invoice.id target="_dialog"}</p>*}
 				<p>
 					{button shape="check" name="mark_paid" label="Marquer comme payée" type="submit"}
-					{button shape="delete" name="cancel" label="Annuler et créer un avoir" type="submit"}
+					{button shape="delete" name="cancel" label="Annuler" type="submit"}
 				</p>
 			</div>
 		{elseif $invoice.status === $invoice::STATUS_AWAITING_REFUND}

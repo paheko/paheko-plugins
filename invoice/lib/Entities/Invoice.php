@@ -269,6 +269,11 @@ class Invoice extends Entity
 		return $this->type === self::TYPE_QUOTE;
 	}
 
+	public function isCredit(): bool
+	{
+		return $this->type === self::TYPE_CREDIT;
+	}
+
 	public function isSelfBilling(): bool
 	{
 		return $this->type === self::TYPE_SELF_BILLING;

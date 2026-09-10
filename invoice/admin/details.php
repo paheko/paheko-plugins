@@ -74,17 +74,8 @@ else {
 	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
 
 	$form->runIf('cancel', function () use ($invoice) {
-		$new = $invoice->cancel();
-
-		if ($new) {
-			$args = 'msg=CREDIT&id=' . $new->id();
-		}
-		else {
-			$args = 'id=' . $invoice->id();
-		}
-
-		Utils::redirect('!p/invoice/details.php?' . $args);
-	}, $csrf_key);
+		Utils::redirect('!p/invoice/cancel.php?id=' . $invoice->id());
+	});
 
 	$form->runIf('accept', function () use ($invoice) {
 		$new = $invoice->accept();
