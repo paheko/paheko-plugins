@@ -259,45 +259,47 @@ class Client extends Entity
 			$electronic_address = clone $default;
 		}
 
-		if ($person->country === 'FR') {
-			$siren = substr($person->business_number, 0, 9);
+		if ($person->business_number) {
+			if ($person->country === 'FR') {
+				$siren = substr($person->business_number, 0, 9);
 
-			// Always the SIREN by default
-			$default->scheme = '0002';
-			$default->value = $siren;
+				// Always the SIREN by default
+				$default->scheme = '0002';
+				$default->value = $siren;
 
-			if (!isset($electronic_address->value)) {
-				// 0225 is FRCTC ELECTRONIC ADDRESS (internal France directory)
-				// because using 0002 would have been too simple I guess
-				$electronic_address = (object) ['scheme' => '0225', 'value' => $siren];
+				if (!isset($electronic_address->value)) {
+					// 0225 is FRCTC ELECTRONIC ADDRESS (internal France directory)
+					// because using 0002 would have been too simple I guess
+					$electronic_address = (object) ['scheme' => '0225', 'value' => $siren];
+				}
+
+				// If we have the SIRET, use it in BT-29 / BT-46 (required by Chorus Pro)
+				if (strlen($person->business_number) > 9) {
+					$identifier = clone $default;
+					$identifier->scheme = '0009';
+					$identifier->value = $person->business_number;
+				}
 			}
-
-			// If we have the SIRET, use it in BT-29 / BT-46 (required by Chorus Pro)
-			if (strlen($person->business_number) > 9) {
-				$identifier = clone $default;
-				$identifier->scheme = '0009';
-				$identifier->value = $person->business_number;
+			elseif ($person->country === 'CH') {
+				// Numéro IDE
+				$default->scheme = '0183';
+				$default->value = $person->business_number;
 			}
-		}
-		elseif ($person->country === 'CH') {
-			// Numéro IDE
-			$default->scheme = '0183';
-			$default->value = $person->business_number;
-		}
-		elseif ($person->country === 'BE') {
-			// Numéro BCE
-			$default->scheme = '0208';
-			$default->value = $person->business_number;
-		}
-		elseif ($is_eu) {
-			// VAT number
-			$default->scheme = '0223';
-			$default->value = $person->vat_number;
-		}
-		else {
-			// Outside of EU
-			$default->scheme = '0227';
-			$default->value = $person->business_number;
+			elseif ($person->country === 'BE') {
+				// Numéro BCE
+				$default->scheme = '0208';
+				$default->value = $person->business_number;
+			}
+			elseif ($is_eu) {
+				// VAT number
+				$default->scheme = '0223';
+				$default->value = $person->vat_number;
+			}
+			else {
+				// Outside of EU
+				$default->scheme = '0227';
+				$default->value = $person->business_number;
+			}
 		}
 
 		return (object) [
