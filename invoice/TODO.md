@@ -30,3 +30,4 @@ Se faire référencer ici : https://fnfe-mpe.org/factur-x/qui-propose-factur-x/
 
 * Recevoir une copie du mail envoyant la facture / devis
 * Pouvoir indiquer le code du service exécutant dans le client
+* Pouvoir avoir un "catalogue" de lignes qu'on peut re-ajouter aux nouveaux devis / factures

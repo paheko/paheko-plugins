@@ -71,7 +71,8 @@ header {
 	border-right: 5px solid #666;
 	border-color: var(--secondary-color);
 	border-bottom-right-radius: .5cm;
-	max-width: calc(10cm - 1.6cm - 5px);
+	width: calc(10cm - 1.6cm - 5px);
+	min-height: 4.2cm;
 	font-size: 10pt;
 }
 
