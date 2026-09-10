@@ -3,6 +3,7 @@
 namespace Paheko\Plugin\Invoice;
 
 use Paheko\Plugin\Invoice\Entities\Invoice;
+use KD2\Form;
 
 use const Paheko\PLUGIN_ROOT;
 
@@ -10,8 +11,8 @@ if ($plugin->needUpgrade()) {
 	$plugin->upgrade();
 }
 
-$type = intval($_GET['type'] ?? 0) ?: null;
-$status = $_GET['status'] ?? null;
+$type = Form::getQueryInt('type');
+$status = Form::getQueryString('status') ?: null;
 
 $list = Invoices::getList($type, $status);
 $list->loadFromQueryString();
@@ -36,6 +37,12 @@ else {
 	$current_tab = 'all';
 }
 
-$tpl->assign(compact('list', 'title', 'current_tab', 'type', 'status'));
+$statuses = null;
+
+if ($type) {
+	$statuses = Invoice::STATUSES[$type];
+}
+
+$tpl->assign(compact('list', 'title', 'current_tab', 'type', 'status', 'statuses'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/index.tpl');

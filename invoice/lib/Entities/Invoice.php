@@ -140,18 +140,6 @@ class Invoice extends Entity
 	const STATUS_CANCELLED = 'cancelled';
 	const STATUS_ACCEPTED = 'accepted';
 
-	const STATUSES = [
-		self::STATUS_DRAFT => 'Brouillon',
-		self::STATUS_AWAITING_SEND => 'À envoyer',
-		self::STATUS_AWAITING_VALIDATION => 'À valider',
-		self::STATUS_AWAITING_PAYMENT => 'À payer',
-		self::STATUS_AWAITING_REFUND => 'Remboursement en attente',
-		self::STATUS_PAID => 'Payé',
-		self::STATUS_REFUNDED => 'Remboursé',
-		self::STATUS_CANCELLED => 'Annulé',
-		self::STATUS_ACCEPTED => 'Accepté',
-	];
-
 	const STATUSES_COLORS = [
 		self::STATUS_DRAFT => 'darkgray',
 		self::STATUS_AWAITING_SEND => 'purple',
@@ -162,6 +150,33 @@ class Invoice extends Entity
 		self::STATUS_REFUNDED => 'darkgreen',
 		self::STATUS_CANCELLED => 'black',
 		self::STATUS_ACCEPTED => 'darkgreen',
+	];
+
+	const STATUSES = [
+		// Quote state life: draft, awaiting_send, awaiting_validation, then 'accepted' or 'cancelled'
+		self::TYPE_QUOTE => [
+			self::STATUS_DRAFT => 'Brouillon',
+			self::STATUS_AWAITING_SEND => 'À envoyer',
+			self::STATUS_AWAITING_VALIDATION => 'À valider',
+			self::STATUS_CANCELLED => 'Annulé',
+			self::STATUS_ACCEPTED => 'Accepté',
+		],
+		// Invoice state life: draft, awaiting_send, awaiting_payment / cancelled, paid
+		self::TYPE_INVOICE => [
+			self::STATUS_DRAFT => 'Brouillon',
+			self::STATUS_AWAITING_SEND => 'À envoyer',
+			self::STATUS_AWAITING_PAYMENT => 'À payer',
+			self::STATUS_PAID => 'Payée',
+			self::STATUS_CANCELLED => 'Annulée',
+		],
+		// Credit (avoir) state life: draft, awaiting_send, awaiting_refund, refunded / cancelled
+		self::TYPE_CREDIT => [
+			self::STATUS_DRAFT => 'Brouillon',
+			self::STATUS_AWAITING_SEND => 'À envoyer',
+			self::STATUS_AWAITING_REFUND => 'Remboursement en attente',
+			self::STATUS_REFUNDED => 'Remboursé',
+			self::STATUS_CANCELLED => 'Annulé',
+		],
 	];
 
 	public function selfCheck(): void
@@ -189,7 +204,7 @@ class Invoice extends Entity
 		}
 
 		$this->assert(array_key_exists($this->type, self::TYPES));
-		$this->assert(array_key_exists($this->status, self::STATUSES));
+		$this->assert(array_key_exists($this->status, self::STATUSES[$this->type]));
 
 		$this->assert(!isset($this->vat_exemption_code) || array_key_exists($this->vat_exemption_code, Invoices::VAT_EXEMPTIONS));
 
@@ -319,7 +334,7 @@ class Invoice extends Entity
 
 	public function getStatusLabel(): string
 	{
-		return self::STATUSES[$this->status];
+		return self::STATUSES[$this->type][$this->status];
 	}
 
 	public function getStatusColor(): string
@@ -815,7 +830,7 @@ class Invoice extends Entity
 			$out = preg_replace('!<(.*)>\s*</\\1>!', '', $out);
 
 			// Remove comments
-			$out = preg_replace('!<!--.*?-->!s', '', $out);
+			$out = preg_replace('/<!--.*?-->/s', '', $out);
 		}
 
 		return $out;

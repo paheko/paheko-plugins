@@ -120,10 +120,10 @@ class Invoices
 		$list->orderBy('date_created', true);
 		$list->setParameters($params);
 
-		$list->setModifier(function (&$row) {
-			$row->type_label = Invoice::TYPES[$row->type ?? ''] ?? null;
-			$row->status_label = Invoice::STATUSES[$row->status];
-			$row->status_color = Invoice::STATUSES_COLORS[$row->status];
+		$list->setModifier(function (&$row) use ($type, $status) {
+			$row->type_label = Invoice::TYPES[$row->type ?? $type] ?? null;
+			$row->status_label = Invoice::STATUSES[$row->type ?? $type][$row->status ?? $status];
+			$row->status_color = Invoice::STATUSES_COLORS[$row->status ?? $status];
 			$row->number = isset($row->type, $row->number, $row->year) ? self::getInvoiceReference($row->type, $row->year, $row->number) : null;
 		});
 

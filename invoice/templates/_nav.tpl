@@ -28,3 +28,10 @@
 		{tabitem selected=$current name="clients" href="!p/invoice/clients/" label="Clients"}
 	</ul>
 </nav>
+
+{if $current === 'invoices' || $current === 'quotes' || $current === 'credits'}
+	<fieldset class="shortFormRight">
+		<legend>Filtrer par statut</legend>
+		{dropdown value=$status options=$statuses title="Sélectionner un statut" href="?type=%d&status=%%s"|args:$type value=$status default_empty="Toutes"}
+	</fieldset>
+{/if}
