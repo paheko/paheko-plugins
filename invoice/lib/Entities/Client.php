@@ -36,7 +36,7 @@ class Client extends Entity
 
 	protected ?string $vat_number;
 
-	protected bool $e_invoicing;
+	protected bool $e_invoicing = false;
 	protected ?string $electronic_address;
 
 	protected bool $self_billing = false;
