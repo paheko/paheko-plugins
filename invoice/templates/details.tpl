@@ -82,6 +82,7 @@
 		{elseif $invoice.status === $invoice::STATUS_AWAITING_PAYMENT}
 			<div class="alert block">
 				<h3>Statut&nbsp;: en attente de règlement</h3>
+				<p>Envoyée le {$invoice.date_sent|date_short}</p>
 				{*<p>{linkbutton shape="plus" label="Saisir un paiement" href="payment.php?id=%s"|args:$invoice.id target="_dialog"}</p>*}
 				<p>
 					{button shape="check" name="mark_paid" label="Marquer comme payée" type="submit"}
