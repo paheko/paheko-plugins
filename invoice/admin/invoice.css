@@ -69,6 +69,7 @@ header {
 	padding-left: 1cm;
 	border-bottom: 5px solid #666;
 	border-right: 5px solid #666;
+	border-color: var(--secondary-color);
 	border-bottom-right-radius: .5cm;
 	max-width: calc(10cm - 1.6cm - 5px);
 	font-size: 10pt;
@@ -108,6 +109,7 @@ header {
 	min-height: calc(45mm - 10mm);
 	font-size: 12pt;
 	border: 2px solid #ccc;
+	border-color: var(--main-color);
 	padding: 5mm;
 	border-radius: 3mm;
 }

@@ -7,6 +7,12 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 <head>
 	<meta charset="utf-8" />
 	<title>{$title}</title>
+	<style type="text/css">
+	:root {ldelim}
+		--main-color: {$color1};
+		--secondary-color: {$color2};
+	{rdelim}
+	</style>
 	{if !empty($css)}
 		<style type="text/css">
 		{$css|raw}
