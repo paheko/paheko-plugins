@@ -141,15 +141,15 @@ class Invoice extends Entity
 	const STATUS_ACCEPTED = 'accepted';
 
 	const STATUSES_COLORS = [
-		self::STATUS_DRAFT => 'darkgray',
+		self::STATUS_DRAFT => 'tan',
 		self::STATUS_AWAITING_SEND => 'purple',
-		self::STATUS_AWAITING_VALIDATION => 'darkorange',
-		self::STATUS_AWAITING_PAYMENT => 'darkred',
-		self::STATUS_AWAITING_REFUND => 'darkred',
-		self::STATUS_PAID => 'darkgreen',
-		self::STATUS_REFUNDED => 'darkgreen',
-		self::STATUS_CANCELLED => 'black',
-		self::STATUS_ACCEPTED => 'darkgreen',
+		self::STATUS_AWAITING_VALIDATION => 'orange',
+		self::STATUS_AWAITING_PAYMENT => 'red',
+		self::STATUS_AWAITING_REFUND => 'red',
+		self::STATUS_PAID => 'green',
+		self::STATUS_REFUNDED => 'green',
+		self::STATUS_CANCELLED => 'grey',
+		self::STATUS_ACCEPTED => 'green',
 	];
 
 	const STATUSES = [

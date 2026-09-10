@@ -40,7 +40,7 @@
 				</td>
 				<td>
 					{if !$row.user_id}
-						{tag color="darkred" label="Non trouvé"}
+						{tag status="red" label="Non trouvé"}
 					{else}
 						<?php $users_names[$row->user_id] ??= $row->user_name(); ?>
 						{$users_names[$row.user_id]}

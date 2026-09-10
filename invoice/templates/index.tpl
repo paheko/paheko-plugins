@@ -13,7 +13,7 @@
 				<td>{$doc.date_created|date_short}</td>
 				<th>{$doc.label}</th>
 				<td>{$doc.client_name}</td>
-				<td>{tag label=$doc.status_label color=$doc.status_color}</td>
+				<td>{tag label=$doc.status_label status=$doc.status_color}</td>
 				<td class="money">{$doc.total|raw|money_currency_html:false}</td>
 				<td class="actions">
 					{linkbutton shape="menu" label="Détails" href="details.php?id=%d"|args:$doc.id}

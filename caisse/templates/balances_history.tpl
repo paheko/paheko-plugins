@@ -20,13 +20,13 @@
 			<tr>
 				<td>
 					{if $row.type === 'credit'}
-						{tag color="darkcyan" label="Crédit du solde"}
+						{tag status="greyblue" label="Crédit du solde"}
 					{elseif $row.type === 'payment'}
-						{tag color="darkorange" label="Paiement avec le solde"}
+						{tag status="orange" label="Paiement avec le solde"}
 					{elseif $row.type === 'debt'}
-						{tag color="darkred" label="Ardoise"}
+						{tag status="red" label="Ardoise"}
 					{elseif $row.type === 'payoff'}
-						{tag color="darkgreen" label="Remboursement"}
+						{tag status="green" label="Remboursement"}
 					{/if}
 				</td>
 				<th>{$row.date|date_short}</th>

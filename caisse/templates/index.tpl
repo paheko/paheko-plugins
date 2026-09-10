@@ -39,7 +39,7 @@
 			</td>
 			<td>
 				{if !$pos_session.closed}
-					<strong>En cours</strong>
+					{tag status="green" label="En cours"}
 				{else}
 					{if $pos_session.closed_same_day}
 						&rarr; {$pos_session.closed|date_hour}

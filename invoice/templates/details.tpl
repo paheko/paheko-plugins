@@ -106,7 +106,7 @@
 	<dd>{$invoice->getTypeLabel()}</dd>
 	<dt>Statut</dt>
 	<dd>
-		{tag label=$invoice->getStatusLabel() color=$invoice->getStatusColor()}
+		{tag label=$invoice->getStatusLabel() status=$invoice->getStatusColor()}
 	</dd>
 	<dt>Numéro</dt>
 	<dd>{if $invoice->isDraft()}(En attente de validation){else}{$invoice->getReference()}{/if}</dd>

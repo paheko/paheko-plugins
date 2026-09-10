@@ -31,17 +31,17 @@
 			<td>{tag label=$tier->getTypeLabel() color=$tier->getTypeColor()}</td>
 			<th scope="row">{if $tier.label}{$tier.label}{else}—{/if}</th>
 			<td class="money">{if $tier->getTypeAccount() === 'donation' && !$tier.amount}(libre){else}{$tier.amount|money_currency|raw}{/if}</td>
-			<td class="num">{if $account}{tag color="darkgreen" label=$account}{/if}</td>
+			<td class="num">{if $account}{tag status=green label=$account}{/if}</td>
 			<td class="num">
 				{if $tier.create_user === $ha::NO_USER_ACTION}
 					{tag label="Pas de lien avec les membres"}
 				{elseif $tier.create_user === $ha::CREATE_UPDATE_USER}
-					{tag label="Oui" color="darkorange"}
+					{tag label="Oui" status="orange"}
 				{else}
-					{tag label="Non" color="darkgreen"}
+					{tag label="Non" status="green"}
 				{/if}
 			</td>
-			<td class="num">{if $tier.id_fee}{tag color="darkgreen" label="Oui"}{else}{tag label="Non"}{/if}</td>
+			<td class="num">{if $tier.id_fee}{tag status="green" label="Oui"}{else}{tag label="Non"}{/if}</td>
 			<td class="actions">
 				{linkbutton shape="edit" label="Configurer" href="form_tier.php?id=%d"|args:$tier.id}
 			</td>
@@ -68,7 +68,7 @@
 		<tr>
 			<th scope="row">{if $option.label}{$option.label}{else}<em>(pas de nom défini)</em>{/if}</th>
 			<td class="money">{$option.amount|money_currency|raw}</td>
-			<td class="num">{if $account}{tag color="darkgreen" label=$account}{/if}</td>
+			<td class="num">{if $account}{tag status="green" label=$account}{/if}</td>
 			<td class="actions">
 				{linkbutton shape="edit" label="Configurer" href="form_option.php?id=%d"|args:$option.id}
 			</td>

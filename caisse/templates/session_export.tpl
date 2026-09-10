@@ -89,10 +89,10 @@
 				<dt>{$balance.name}</dt>
 				<dd>{$balance.close_amount|raw|money_currency}
 				{if !$balance.error_amount}
-					{tag color="darkgreen" label="Pas d'erreur"}
+					{tag status="green" label="Pas d'erreur"}
 				{else}
 					{assign var="error" value=$balance.error_amount|money_currency_text:true:true}
-					{tag color="darkred" label="Erreur %s"|args:$error}
+					{tag status="red" label="Erreur %s"|args:$error}
 				{/if}
 				</dd>
 			{/foreach}
