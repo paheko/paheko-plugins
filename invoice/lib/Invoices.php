@@ -81,6 +81,13 @@ class Invoices
 				'label' => 'Date',
 				'order' => 'date_created %s, id %1$s',
 			],
+			'date_sent' => [
+				'label' => 'Envoyé depuis…',
+				'order' => 'date_sent %s, id %1$s',
+			],
+			'date_sent_days' => [
+				'select' => 'julianday(\'now\') - julianday(date_sent)'
+			],
 			'label' => [
 				'label' => 'Objet',
 			],
@@ -114,6 +121,12 @@ class Invoices
 			unset($columns['status']);
 		}
 
+		if (!$type
+			|| !in_array($status, [Invoice::STATUS_AWAITING_PAYMENT, Invoice::STATUS_AWAITING_REFUND, Invoice::STATUS_AWAITING_VALIDATION])) {
+			unset($columns['date_sent']);
+			unset($columns['date_sent_days']);
+		}
+
 		$tables = sprintf('%s AS i INNER JOIN %s AS c ON c.id = i.id_client', Invoice::TABLE, Client::TABLE);
 
 		$list = new DynamicList($columns, $tables, $conditions);
@@ -125,6 +138,10 @@ class Invoices
 			$row->status_label = Invoice::STATUSES[$row->type ?? $type][$row->status ?? $status];
 			$row->status_color = Invoice::STATUSES_COLORS[$row->status ?? $status];
 			$row->number = isset($row->type, $row->number, $row->year) ? self::getInvoiceReference($row->type, $row->year, $row->number) : null;
+
+			if (isset($row->date_sent)) {
+				$row->date_sent_status = $row->date_sent_days >= 90 ? 'red' : ($row->date_sent_days >= 30 ? 'orange' : 'green');
+			}
 		});
 
 		return $list;

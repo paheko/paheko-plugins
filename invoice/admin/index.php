@@ -40,7 +40,19 @@ else {
 $statuses = null;
 
 if ($type) {
-	$statuses = Invoice::STATUSES[$type];
+	$statuses = array_merge(
+		['' => $type === Invoice::TYPE_INVOICE ? 'Toutes' : 'Tous'],
+		Invoice::STATUSES[$type]);
+
+	foreach ($statuses as $name => &$s) {
+		$s = [
+			'status' => $name,
+			'label' => $s,
+			'color' => Invoice::STATUSES_COLORS[$name] ?? 'white',
+		];
+	}
+
+	unset($s);
 }
 
 $tpl->assign(compact('list', 'title', 'current_tab', 'type', 'status', 'statuses'));

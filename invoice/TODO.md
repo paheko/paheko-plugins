@@ -1,9 +1,6 @@
 * Test PDF weasyprint (HS)
 * Test PDF chromium + gs (HS)
 
-* Ajouter date d'envoi dans les listes
-* Ajouter liste "en souffrance"
-
 * Empêcher la suppression d'un avoir lié à une facture (sinon on pourrait dé-annuler une facture)
 * Pouvoir re-créer une facture à partir d'un devis si la facture a été supprimée
 * Afficher un lien vers la facture depuis le devis quand une facture a été créée

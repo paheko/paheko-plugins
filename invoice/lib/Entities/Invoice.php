@@ -165,7 +165,7 @@ class Invoice extends Entity
 		self::TYPE_INVOICE => [
 			self::STATUS_DRAFT => 'Brouillon',
 			self::STATUS_AWAITING_SEND => 'À envoyer',
-			self::STATUS_AWAITING_PAYMENT => 'À payer',
+			self::STATUS_AWAITING_PAYMENT => 'En attente de paiement',
 			self::STATUS_PAID => 'Payée',
 			self::STATUS_CANCELLED => 'Annulée',
 		],
@@ -173,7 +173,7 @@ class Invoice extends Entity
 		self::TYPE_CREDIT => [
 			self::STATUS_DRAFT => 'Brouillon',
 			self::STATUS_AWAITING_SEND => 'À envoyer',
-			self::STATUS_AWAITING_REFUND => 'Remboursement en attente',
+			self::STATUS_AWAITING_REFUND => 'À rembourser',
 			self::STATUS_REFUNDED => 'Remboursé',
 			self::STATUS_CANCELLED => 'Annulé',
 		],
