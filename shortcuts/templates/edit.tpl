@@ -15,7 +15,7 @@
 			<dd class="help">
 				Si coché, le raccourci s'ouvrira dans Paheko.
 				Sinon le raccourci s'ouvrira dans un nouvel onglet.<br/>
-				Note : la plupart des sites bloquent ce réglage, et les cookies sont désactivés dans le cadre, donc par exemple une connexion avec mot de passe à l'intérieur du cadre ne fonctionnera pas
+				Note : la plupart des sites bloquent ce réglage, et les cookies sont séparés, donc par exemple une connexion avec mot de passe à l'intérieur du cadre peut ne pas fonctionner.
 			</dd>
 		</dl>
 	</fieldset>
