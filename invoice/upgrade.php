@@ -26,7 +26,8 @@ if (version_compare($old_version, '0.1.4', '<')) {
 		UPDATE plugin_invoice_clients SET e_invoicing = 1 WHERE business_number IS NOT NULL AND country = \'FR\';');
 }
 
-if (version_compare($old_version, '0.1.5', '<')) {
+if (version_compare($old_version, '0.1.5', '<')
+	&& $db->firstColumn('SELECT 1 FROM sqlite_master WHERE name = \'plugin_invoice_invoices\' AND sql LIKE \'%contract_reference%\';')) {
 	$db->exec('ALTER TABLE plugin_invoice_invoices RENAME COLUMN contract_reference TO purchase_order_reference');
 
 	// Rename contract_reference field
