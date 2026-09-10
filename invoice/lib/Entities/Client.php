@@ -199,12 +199,19 @@ class Client extends Entity
 
 	public function requiresEInvoicing(): bool
 	{
-		return in_array($this->country, self::E_EINVOCING_COUNTRIES, true) && (isset($this->business_number) || isset($this->vat_number));
+		return $this->e_invoicing;
 	}
 
 	public function exportForInvoice(): stdClass
 	{
 		return self::exportPersonForInvoice($this);
+	}
+
+	public function getScheme(string $country, string $business_number): string
+	{
+		if ($country === 'FR') {
+
+		}
 	}
 
 	/**
@@ -214,52 +221,89 @@ class Client extends Entity
 	{
 		$lines = explode("\n", $person->address ?? '');
 		$is_eu = in_array($person->country, self::EU_COUNTRIES);
-		$e_scheme = $e_value = null;
 
+		$default = (object) ['scheme' => null, 'value' => null];
+
+		// BT-29 (seller) / BT-46 (buyer)
+		// A seller identifier with a scheme identifier can be used. Examples: DUNS, GLN, etc.
+		// /rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:SellerTradeParty/ram:GlobalID
+		// /rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:BuyerTradeParty/ram:GlobalID
+		// SuperPDP = identifiers
+		// FR = SIRET
+		$identifier = $default;
+
+		// BT-30 / BT-47
+		// legal registration identifier
+		// An identifier issued by an official registrar that identifies the seller as a legal entity or person.
+		// /rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:SellerTradeParty/ram:SpecifiedLegalOrganization/ram:ID
+		// /rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:BuyerTradeParty/ram:SpecifiedLegalOrganization/ram:ID
+		// SuperPDP = legal_registration_identifier
+		// FR = SIREN
+		$legal_registration_identifier = $default;
+
+		// BT-34, BT-49
+		// electronic address
+		// Identifies the Seller's electronic address to which the application level response to the invoice may be delivered.
+		// /rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:SellerTradeParty/ram:URIUniversalCommunication/ram:URIID
+		// /rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:BuyerTradeParty/ram:URIUniversalCommunication/ram:URIID
+		// SuperPDP = electronic_address
+		// FR = SIREN
+		$electronic_address = $default;
+
+		// See https://docs.peppol.eu/poacc/billing/3.0/codelist/ICD/ for scheme list
 		if (isset($person->electronic_address)) {
-			$e_scheme = strtok(':');
-			$e_value = strtok('');
+			$default->scheme = strtok(':');
+			$default->value = strtok('');
+
+			// Different object
+			$electronic_address = clone $default;
 		}
 
-		if (!isset($person->business_number)) {
-			$scheme = null;
-			$value = null;
-		}
-		// See https://docs.peppol.eu/poacc/billing/3.0/codelist/ICD/
-		elseif ($person->country === 'FR') {
-			$e_scheme ??= '0225';
+		if ($person->country === 'FR') {
+			$siren = substr($person->business_number, 0, 9);
 
-			// Always the SIREN
-			$scheme = '0002';
-			$value = substr($person->business_number, 0, 9);
+			// Always the SIREN by default
+			$default->scheme = '0002';
+			$default->value = $siren;
+
+			if (!isset($electronic_address->value)) {
+				// 0225 is FRCTC ELECTRONIC ADDRESS (internal France directory)
+				// because using 0002 would have been too simple I guess
+				$electronic_address = (object) ['scheme' => '0225', 'value' => $siren];
+			}
+
+			// If we have the SIRET, use it in BT-29 / BT-46 (required by Chorus Pro)
+			if (strlen($person->business_number) > 9) {
+				$identifier = clone $default;
+				$identifier->scheme = '0009';
+				$identifier->value = $person->business_number;
+			}
 		}
 		elseif ($person->country === 'CH') {
 			// Numéro IDE
-			$scheme = '0183';
-			$value = $person->business_number;
+			$default->scheme = '0183';
+			$default->value = $person->business_number;
 		}
 		elseif ($person->country === 'BE') {
 			// Numéro BCE
-			$scheme = '0208';
-			$value = $person->business_number;
+			$default->scheme = '0208';
+			$default->value = $person->business_number;
 		}
 		elseif ($is_eu) {
 			// VAT number
-			$scheme = '0223';
-			$value = $person->vat_number;
+			$default->scheme = '0223';
+			$default->value = $person->vat_number;
 		}
 		else {
 			// Outside of EU
-			$scheme = '0227';
-			$value = $person->business_number;
+			$default->scheme = '0227';
+			$default->value = $person->business_number;
 		}
 
-		$e_scheme ??= $scheme;
-		$e_value ??= $value;
-
 		return (object) [
-			'electronic_address' => ['scheme' => $e_scheme, 'value' => $e_value],
-			'legal_registration_identifier' => (object) compact('scheme', 'value'),
+			'identifiers' => ['items' => [$identifier]],
+			'legal_registration_identifier' => $legal_registration_identifier,
+			'electronic_address' => $electronic_address,
 			'name' => $person->name,
 			'postal_address' => (object) [
 				'country_code' => $person->country,

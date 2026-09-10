@@ -808,6 +808,9 @@ class Invoice extends Entity
 		if ($format === 'cii') {
 			// [PEPPOL-EN16931-R008]-Document MUST not contain empty elements. (still status warning)
 			$out = preg_replace('!<(.*)>\s*</\\1>!', '', $out);
+
+			// Remove comments
+			$out = preg_replace('!<!--.*?-->!s', '', $out);
 		}
 
 		return $out;
