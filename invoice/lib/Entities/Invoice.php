@@ -6,7 +6,6 @@ use Paheko\Config;
 use Paheko\DB;
 use Paheko\DynamicList;
 use Paheko\Email\Emails;
-use Paheko\Entity;
 use Paheko\Plugins;
 use Paheko\UserException;
 use Paheko\Utils;
@@ -23,7 +22,7 @@ use stdClass;
 use Paheko\Plugin\Invoice\Clients;
 use Paheko\Plugin\Invoice\Invoices;
 
-class Invoice extends Entity
+class Invoice extends AbstractInvoice
 {
 	const TABLE = 'plugin_invoice_invoices';
 
@@ -81,26 +80,6 @@ class Invoice extends Entity
 
 	protected Client $_client;
 	protected ?Invoice $_invoice = null;
-
-	const TYPE_QUOTE = 231;
-	const TYPE_INVOICE = 380;
-	const TYPE_CREDIT = 381;
-	//const TYPE_CORRECTION = 384;
-	const TYPE_SELF_BILLING = 389;
-
-	/**
-	 * Factur-X (BT-3) only allows some codes, not all of them!
-	 * @see https://service.unece.org/trade/untdid/d99a/uncl/uncl1001.htm
-	 * @see https://api.agicap.com/guides/einvoicing
-	 */
-	const TYPES = [
-		self::TYPE_QUOTE => 'Devis',
-		self::TYPE_INVOICE => 'Facture',
-		self::TYPE_CREDIT => 'Avoir', // Avoir : quand la facture d'origine a déjà été payée
-		self::TYPE_SELF_BILLING => 'Auto-facturation',
-		//self::TYPE_CORRECTION => 'Facture rectificative', // rectificative : quand la facture d'origine n'a pas été payée ET qu'on ne modifie aucun montant
-		//386 => 'Facture d\'acompte',
-	];
 
 	const TYPES_PREFIXES = [
 		self::TYPE_QUOTE   => 'DEV',
@@ -272,6 +251,11 @@ class Invoice extends Entity
 		}
 
 		return $this->type;
+	}
+
+	public function isSellerOrg(): bool
+	{
+		return !$this->isSelfBilling();
 	}
 
 	public function isQuote(): bool
