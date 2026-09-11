@@ -116,7 +116,7 @@ class Client extends Entity
 				$siren = strtok('_');
 				$other = strtok('');
 
-				$this->assert(in_array($prefix, ['0002', '0009', '0225']), 'Adresse de facturation électronique invalide : elle doit commencer par 0002, 0009 ou 0225.');
+				$this->assert($prefix === '0225', 'Adresse de facturation électronique invalide : elle doit commencer par 0225.');
 				$this->assert(Utils::verifyBusinessNumber($this->country, $siren), 'Adresse de facturation électronique invalide : elle doit comporter un SIREN valide.');
 			}
 		}

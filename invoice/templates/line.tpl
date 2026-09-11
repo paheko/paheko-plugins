@@ -16,8 +16,8 @@
 <fieldset>
 	<legend>Montant</legend>
 	<dl>
-		{input type="text" size=6 name="price" required=true label="Prix unitaire" source=$line suffix=$config.currency}
-		{input type="number" name="quantity" required=true label="Quantité" source=$line default=1 step="0.001"}
+		{input type="text" size=8 inputmode="decimal" name="price" required=true label="Prix unitaire" source=$line suffix=$config.currency}
+		{input type="text" size=6 inputmode="decimal" name="quantity" required=true label="Quantité" source=$line default=1}
 		<dd>{input type="select" name="unit" required=true source=$line options=$line::UNITS}</dd>
 		{input type="select" name="vat_rate" required=true label="Taux de TVA" source=$line options=$line->getVATRatesOptions()}
 	</dl>
