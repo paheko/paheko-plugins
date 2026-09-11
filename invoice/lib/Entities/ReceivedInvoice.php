@@ -40,19 +40,24 @@ class ReceivedInvoice extends AbstractInvoice
 
 	const STATUS_UNREAD = 'unread';
 	const STATUS_READ = 'read';
-	const STATUS_FLAGGED = 'flagged';
-	const STATUS_DONE = 'done';
+	const STATUS_PARTIAL = 'partial';
+	const STATUS_PAID = 'paid';
+	const STATUS_REFUSED = 'refused';
 
 	const STATUSES = [
 		self::STATUS_UNREAD => 'Non lue',
 		self::STATUS_READ => 'Lue',
-		self::STATUS_DONE => 'Réglée',
+		self::STATUS_PARTIAL => 'Paiement partiel',
+		self::STATUS_PAID => 'Réglée',
+		self::STATUS_REFUSED => 'Refusée',
 	];
 
 	const STATUSES_COLORS = [
 		self::STATUS_UNREAD => 'orange',
 		self::STATUS_READ => 'greyblue',
-		self::STATUS_DONE => 'green',
+		self::STATUS_PARTIAL => 'red',
+		self::STATUS_PAID => 'green',
+		self::STATUS_REFUSED => 'tan',
 	];
 
 	const FORMAT_CII = 'cii';
