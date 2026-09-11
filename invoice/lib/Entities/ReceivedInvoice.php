@@ -183,7 +183,7 @@ class ReceivedInvoice extends AbstractInvoice
 		$this->uuid ??= Utils::uuid();
 		$file = Files::upload(Plugins::getStorageRoot('invoice') . '/received', $key, null, $this->uuid);
 
-		if (!array_key_exists($file->mime, self::FILES_TYPES, true)) {
+		if (!array_key_exists($file->mime, self::FILES_TYPES)) {
 			$file->delete();
 			throw new UserException('Ce fichier n\'est pas un fichier JSON, XML ou PDF valide.');
 		}

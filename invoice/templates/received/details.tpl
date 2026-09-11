@@ -17,13 +17,6 @@
 
 <form method="post" action="">
 
-{if $invoice.provider_name}
-	<p class="help">
-		Document généré automatiquement à partir d'une facture électronique.<br />
-		La facture électronique archivée par votre plateforme agréée demeure le seul document légal faisant foi.
-	</p>
-{/if}
-
 <dl class="describe">
 	<dt>Type</dt>
 	<dd>{$invoice->getTypeLabel()}</dd>
@@ -70,9 +63,10 @@
 	{/if}
 </dl>
 
-{if $invoice->isDraft()}
-	<p class="actions">
-		{linkbutton shape="plus" label="Ajouter une ligne" href="line.php?id_invoice=%d"|args:$invoice.id target="_dialog"}
+{if $invoice.provider_name}
+	<p class="alert block">
+		Document généré automatiquement à partir d'une facture électronique.<br />
+		La facture électronique archivée par votre plateforme agréée demeure le seul document légal faisant foi.
 	</p>
 {/if}
 
