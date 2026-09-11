@@ -8,7 +8,8 @@
 				{$contact.legal_registration_identifier.value}
 			</li>
 		{/if}
-		{foreach from=$contact.identifiers.items item="item"}
+		<?php $identifiers = $contact->identifiers->items ?? []; ?>
+		{foreach from=$identifiers item="item"}
 			{if $item.scheme !== $contact.legal_registration_identifier.scheme && $item.value !== $contact.legal_registration_identifier.value}
 				<li>
 					<strong>{$item.scheme|get_contact_scheme_label}&nbsp;:</strong>

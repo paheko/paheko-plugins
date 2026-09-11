@@ -74,18 +74,13 @@ class ReceivedInvoice extends AbstractInvoice
 		self::FORMAT_UBL => 'XML (UBL)',
 	];
 
-	const IMPORT_MIMETYPES = [
-		'application/json',
-		'application/xml',
-		'text/xml',
-		'application/pdf',
+	const FILES_TYPES = [
+		'application/json' => 'json',
+		'application/xml'  => 'xml',
+		'text/xml'         => 'xml',
+		'application/pdf'  => 'pdf',
 	];
 
-	const IMPORT_EXTENSIONS = [
-		'json',
-		'xml',
-		'pdf',
-	];
 
 	public function selfCheck(): void
 	{
@@ -158,7 +153,8 @@ class ReceivedInvoice extends AbstractInvoice
 
 	public function download(): void
 	{
-		$this->file()->serve(true);
+		$file = $this->file();
+		$file->serve($this->number . '.' . self::FILES_TYPES[$file->mime]);
 	}
 
 	public function exportAs(string $format, ?string $parent_format = null): string
@@ -168,7 +164,7 @@ class ReceivedInvoice extends AbstractInvoice
 			throw new \LogicException('Cannot export other than HTML');
 		}
 
-		parent::exportAs('html');
+		return parent::exportAs('html');
 	}
 
 	public function getFilePath(): string
@@ -187,7 +183,7 @@ class ReceivedInvoice extends AbstractInvoice
 		$this->uuid ??= Utils::uuid();
 		$file = Files::upload(Plugins::getStorageRoot('invoice') . '/received', $key, null, $this->uuid);
 
-		if (!in_array($file->mime, self::IMPORT_MIMETYPES, true)) {
+		if (!array_key_exists($file->mime, self::FILES_TYPES, true)) {
 			$file->delete();
 			throw new UserException('Ce fichier n\'est pas un fichier JSON, XML ou PDF valide.');
 		}
@@ -216,7 +212,7 @@ class ReceivedInvoice extends AbstractInvoice
 			throw new \LogicException('Cannot import emitted invoice as received.');
 		}
 
-		$this->set('provider_id', (string) $data->id);
+		$this->set('provider_name', 'superpdp');
 		$this->set('person_id', (string) $data->company_id);
 
 		// TODO: import events
@@ -352,5 +348,15 @@ class ReceivedInvoice extends AbstractInvoice
 		}
 
 		return $xml;
+	}
+
+	public function getPerson(): stdClass
+	{
+		if ($this->type === self::TYPE_SELF_BILLING) {
+			return $this->content->buyer;
+		}
+		else {
+			return $this->content->seller;
+		}
 	}
 }

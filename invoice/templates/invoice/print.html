@@ -90,6 +90,13 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 		{/if}
 	</section>
 
+	{if $show_received_alert}
+		<p class="alert">
+			Document généré automatiquement à partir d'une facture électronique.<br />
+			La facture électronique archivée par votre plateforme agréée demeure le seul document légal faisant foi.
+		</p>
+	{/if}
+
 	<section class="lines">
 		<table>
 			<thead>
@@ -180,14 +187,6 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 				{/if}
 			</article>
 		{/foreach}
-		{if $is_received}
-			<article>
-				<p>
-					<em>Document généré automatiquement à partir de la facture électronique originale, pour pouvoir être visualisée. Ce document n'est pas le documentlégal d'origine, qui demeure la facture électronique archivée par la plateforme.</em>
-				</p>
-			</article>
-		{/if}
-
 	</section>
 </main>
 

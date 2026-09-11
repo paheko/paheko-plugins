@@ -2,6 +2,7 @@
 
 namespace Paheko\Plugin\Invoice\Entities;
 
+use Paheko\Config;
 use Paheko\Entity;
 use Paheko\Exec;
 use Paheko\Plugins;
@@ -60,8 +61,9 @@ abstract class AbstractInvoice extends Entity
 		$tpl = Template::getInstance();
 
 		if ($format === 'html') {
-			$tpl->assign('is_received', $this instanceof ReceivedInvoice);
-			$tpl->assign('is_org', $this->isSellerOrg());
+			$config = Config::getInstance();
+			$tpl->assign('show_received_alert', ($this instanceof ReceivedInvoice) && $this->provider_name);
+			$tpl->assign('is_seller_org', $this->isSellerOrg());
 			$tpl->assign('is_draft', $this->isDraft());
 			$tpl->assign('status', $this->status);
 			$tpl->assign('is_quote', $this->isQuote());

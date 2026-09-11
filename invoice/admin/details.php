@@ -42,45 +42,47 @@ if ($invoice->isDraft()
 	$tpl->display(PLUGIN_ROOT . '/templates/first_number.tpl');
 }
 else {
-	if ($invoice->isDraft()) {
-		$form->runIf('delete_line', function () use ($invoice) {
-			$line = $invoice->getLine(intval($_POST['delete_line'] ?? 0));
-			$line->delete();
+	if ($session->canAccess($session::SECTION_ACCOUNTING, $session::ACCESS_WRITE)) {
+		if ($invoice->isDraft()) {
+			$form->runIf('delete_line', function () use ($invoice) {
+				$line = $invoice->getLine(intval($_POST['delete_line'] ?? 0));
+				$line->delete();
+			}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+		}
+
+		$form->runIf('validate', function () use ($invoice) {
+			$invoice->validate(intval($_POST['number'] ?? 1));
 		}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+
+		$form->runIf('mark_sent', function () use ($invoice) {
+			$invoice->markAsSent();
+		}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+
+		$form->runIf('send_email', function () use ($invoice) {
+			$invoice->sendEmail();
+		}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+
+		$form->runIf('mark_paid', function () use ($invoice) {
+			$invoice->markAsPaid();
+		}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+
+		$form->runIf('mark_unpaid', function () use ($invoice) {
+			$invoice->markAsUnpaid();
+		}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+
+		$form->runIf('mark_refunded', function () use ($invoice) {
+			$invoice->markAsRefunded();
+		}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
+
+		$form->runIf('cancel', function () use ($invoice) {
+			Utils::redirect('!p/invoice/cancel.php?id=' . $invoice->id());
+		});
+
+		$form->runIf('accept', function () use ($invoice) {
+			$new = $invoice->accept();
+			Utils::redirect('!p/invoice/details.php?msg=ACCEPTED&id=' . $new->id());
+		}, $csrf_key);
 	}
-
-	$form->runIf('validate', function () use ($invoice) {
-		$invoice->validate(intval($_POST['number'] ?? 1));
-	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
-
-	$form->runIf('mark_sent', function () use ($invoice) {
-		$invoice->markAsSent();
-	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
-
-	$form->runIf('send_email', function () use ($invoice) {
-		$invoice->sendEmail();
-	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
-
-	$form->runIf('mark_paid', function () use ($invoice) {
-		$invoice->markAsPaid();
-	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
-
-	$form->runIf('mark_unpaid', function () use ($invoice) {
-		$invoice->markAsUnpaid();
-	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
-
-	$form->runIf('mark_refunded', function () use ($invoice) {
-		$invoice->markAsRefunded();
-	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
-
-	$form->runIf('cancel', function () use ($invoice) {
-		Utils::redirect('!p/invoice/cancel.php?id=' . $invoice->id());
-	});
-
-	$form->runIf('accept', function () use ($invoice) {
-		$new = $invoice->accept();
-		Utils::redirect('!p/invoice/details.php?msg=ACCEPTED&id=' . $new->id());
-	}, $csrf_key);
 
 	$client = $invoice->client();
 

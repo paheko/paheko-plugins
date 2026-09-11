@@ -22,10 +22,10 @@ $form->runIf('save', function () {
 	Utils::redirectParent('!p/invoice/received/details.php?id=' . $invoice->id());
 }, $csrf_key);
 
-$extensions = ReceivedInvoice::IMPORT_EXTENSIONS;
+$extensions = array_values(ReceivedInvoice::FILES_TYPES);
 $extensions = array_map(fn($v) => '.' . $v, $extensions);
 
-$accepted_files = implode(',', array_merge($extensions, ReceivedInvoice::IMPORT_MIMETYPES));
+$accepted_files = implode(',', array_merge($extensions, array_keys(ReceivedInvoice::FILES_TYPES)));
 
 $tpl->assign(compact('csrf_key', 'accepted_files'));
 

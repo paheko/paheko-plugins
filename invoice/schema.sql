@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_lines (
 
 CREATE TABLE IF NOT EXISTS plugin_invoice_received (
 	id INTEGER NOT NULL PRIMARY KEY,
+	id_transaction INTEGER NULL REFERENCES acc_transactions (id) ON DELETE SET NULL,
 	uuid TEXT NOT NULL,
 	type INTEGER NOT NULL,
 	status TEXT NOT NULL,

@@ -10,7 +10,7 @@ use KD2\DB\EntityManager as EM;
 
 class ReceivedInvoices
 {
-	static public function get(int $id): ?Invoice
+	static public function get(int $id): ?ReceivedInvoice
 	{
 		return EM::findOneById(ReceivedInvoice::class, $id);
 	}

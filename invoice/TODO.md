@@ -12,8 +12,7 @@
 
 # Réception de facture
 
-* Mettre une mention sur la visualisation :
-« Document généré automatiquement à partir du fichier XML {CII|UBL} reçu le [date], à fin de visualisation humaine — ne constitue pas l’original légal, qui reste le fichier XML archivé. »
+* Fix: total is zero with SuperPDP JSON as line_with_vat_net_amount is not supplied in JSON
 
 # Clients
 
