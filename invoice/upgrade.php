@@ -44,13 +44,16 @@ if (version_compare($old_version, '0.1.5', '<')
 if (version_compare($old_version, '0.2.0', '<')) {
 	$db->exec('CREATE TABLE IF NOT EXISTS plugin_invoice_received (
 		id INTEGER NOT NULL PRIMARY KEY,
+		uuid TEXT NOT NULL,
 		type INTEGER NOT NULL,
 		status TEXT NOT NULL,
 		number TEXT NOT NULL,
 		total INTEGER NOT NULL,
+		amount_due INTEGER NOT NULL,
 		person_name TEXT NOT NULL,
 		person_id TEXT NOT NULL,
-		"date" TEXT NOT NULL CHECK ("date" = date("date")),
+		issue_date TEXT NOT NULL CHECK (issue_date = date(issue_date)),
+		due_date TEXT NULL CHECK (due_date = date(due_date)),
 		provider_name TEXT NULL,
 		provider_id TEXT NULL,
 		content TEXT NOT NULL,
@@ -59,7 +62,7 @@ if (version_compare($old_version, '0.2.0', '<')) {
 
 	CREATE TABLE IF NOT EXISTS plugin_invoice_received_events (
 		id INTEGER NOT NULL PRIMARY KEY,
-		id_invoice INTEGER NOT NULL REFERENCES plugin_invoice_received (id) ON DELETE CASCADE,
+		id_invoice INTEGER NOT NULL REFERENCES plugin_invoices_received (id) ON DELETE CASCADE,
 		"datetime" DATETIME NOT NULL CHECK ("datetime" = datetime("datetime")),
 		code TEXT NULL,
 		description TEXT NULL,

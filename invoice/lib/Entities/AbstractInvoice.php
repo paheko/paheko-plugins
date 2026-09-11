@@ -9,6 +9,8 @@ use Paheko\Static_Cache;
 use Paheko\Template;
 use Paheko\Utils;
 
+use KD2\JSONSchema;
+
 use stdClass;
 
 use const Paheko\{STATIC_CACHE_ROOT, ADMIN_COLOR1, ADMIN_COLOR2};
@@ -251,5 +253,12 @@ abstract class AbstractInvoice extends Entity
 		}
 
 		return (bool) Exec::quick('which gs', 1);
+	}
+
+	public function validateInvoiceSchema(stdClass $data): void
+	{
+		$schema = JSONSchema::fromFile(__DIR__ . '/../../data/superpdp_openapi.json');
+		$schema->setRoot('#/components/schemas/en_invoice');
+		$schema->validate($data);
 	}
 }

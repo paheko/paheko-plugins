@@ -76,13 +76,16 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_lines (
 
 CREATE TABLE IF NOT EXISTS plugin_invoice_received (
 	id INTEGER NOT NULL PRIMARY KEY,
+	uuid TEXT NOT NULL,
 	type INTEGER NOT NULL,
 	status TEXT NOT NULL,
 	number TEXT NOT NULL,
 	total INTEGER NOT NULL,
+	amount_due INTEGER NOT NULL,
 	person_name TEXT NOT NULL,
 	person_id TEXT NOT NULL,
-	"date" TEXT NOT NULL CHECK ("date" = date("date")),
+	issue_date TEXT NOT NULL CHECK (issue_date = date(issue_date)),
+	due_date TEXT NULL CHECK (due_date = date(due_date)),
 	provider_name TEXT NULL,
 	provider_id TEXT NULL,
 	content TEXT NOT NULL,

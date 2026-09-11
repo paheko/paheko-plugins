@@ -11,7 +11,6 @@ use Paheko\Entities\Files\File;
 
 use KD2\DB\Date;
 use KD2\DB\EntityManager as EM;
-use KD2\Office\Money;
 
 use stdClass;
 use DateTime;
@@ -23,11 +22,14 @@ class ReceivedInvoice extends AbstractInvoice
 	protected ?int $id = null;
 	protected string $uuid;
 	protected int $type;
-	protected string $status;
+	protected string $status = self::STATUS_NEW;
 	protected string $number;
 	protected int $total;
-	protected Date $date;
-	protected ?Date $date_expiry = null;
+	protected ?int $amount_due = null;
+	protected ?string $person_name = null;
+	protected ?string $person_id = null;
+	protected Date $due_date;
+	protected ?Date $issue_date = null;
 	protected ?string $provider_name = null;
 	protected ?string $provider_id = null;
 	/**
@@ -38,36 +40,51 @@ class ReceivedInvoice extends AbstractInvoice
 
 	protected ?File $_file;
 
-	const STATUS_UNREAD = 'unread';
-	const STATUS_READ = 'read';
+	const STATUS_NEW = 'new';
+	const STATUS_ACCEPTED = 'accepted';
 	const STATUS_PARTIAL = 'partial';
 	const STATUS_PAID = 'paid';
 	const STATUS_REFUSED = 'refused';
 
 	const STATUSES = [
-		self::STATUS_UNREAD => 'Non lue',
-		self::STATUS_READ => 'Lue',
+		self::STATUS_NEW => 'Nouveau',
+		self::STATUS_ACCEPTED => 'Acceptée',
 		self::STATUS_PARTIAL => 'Paiement partiel',
 		self::STATUS_PAID => 'Réglée',
 		self::STATUS_REFUSED => 'Refusée',
 	];
 
 	const STATUSES_COLORS = [
-		self::STATUS_UNREAD => 'orange',
-		self::STATUS_READ => 'greyblue',
+		self::STATUS_NEW => 'orange',
+		self::STATUS_ACCEPTED => 'greyblue',
 		self::STATUS_PARTIAL => 'red',
 		self::STATUS_PAID => 'green',
 		self::STATUS_REFUSED => 'tan',
 	];
 
+	const FORMAT_JSON = 'superpdp';
 	const FORMAT_CII = 'cii';
 	const FORMAT_FACTURX = 'facturx';
 	const FORMAT_UBL = 'ubl';
 
 	const FORMATS = [
+		self::FORMAT_JSON => 'JSON (SuperPDP)',
 		self::FORMAT_CII => 'XML (CII)',
 		self::FORMAT_FACTURX => 'PDF (Factur-X)',
 		self::FORMAT_UBL => 'XML (UBL)',
+	];
+
+	const IMPORT_MIMETYPES = [
+		'application/json',
+		'application/xml',
+		'text/xml',
+		'application/pdf',
+	];
+
+	const IMPORT_EXTENSIONS = [
+		'json',
+		'xml',
+		'pdf',
 	];
 
 	public function selfCheck(): void
@@ -161,23 +178,24 @@ class ReceivedInvoice extends AbstractInvoice
 
 	public function file(): ?File
 	{
-		$this->file ??= Files::get($this->getFilePath());
-		return $this->file;
+		$this->_file ??= Files::get($this->getFilePath());
+		return $this->_file;
 	}
 
 	public function upload(string $key): File
 	{
+		$this->uuid ??= Utils::uuid();
 		$file = Files::upload(Plugins::getStorageRoot('invoice') . '/received', $key, null, $this->uuid);
 
-		if (!in_array($file->mime, ['application/xml', 'text/xml', 'application/pdf'], true)) {
+		if (!in_array($file->mime, self::IMPORT_MIMETYPES, true)) {
 			$file->delete();
-			throw new UserException('Ce fichier n\'est pas un fichier XML ou PDF valide.');
+			throw new UserException('Ce fichier n\'est pas un fichier JSON, XML ou PDF valide.');
 		}
 
 		$this->_file = $file;
 
 		try {
-			$this->importDataFromFile();
+			$this->importFromFile();
 		}
 		catch (\RuntimeException $e) {
 			$file->delete();
@@ -188,21 +206,83 @@ class ReceivedInvoice extends AbstractInvoice
 		return $this->_file;
 	}
 
-	public function importDataFromFile(): void
+	public function importFromJSON(stdClass $data): void
 	{
+		if (!isset($data->en_invoice, $data->id, $data->company_id, $data->direction)) {
+			throw new UserException('Format JSON invalide.');
+		}
+
+		if ($data->direction !== 'in') {
+			throw new \LogicException('Cannot import emitted invoice as received.');
+		}
+
+		$this->set('provider_id', (string) $data->id);
+		$this->set('person_id', (string) $data->company_id);
+
+		// TODO: import events
+
+		$this->set('format', self::FORMAT_JSON);
+
+		$this->importFromInvoiceJSON($data->en_invoice);
+	}
+
+	public function importFromInvoiceJSON(stdClass $data)
+	{
+		$this->validateInvoiceSchema($data);
+		$this->set('content', $data);
+
+		$this->assert(array_key_exists($data->type_code, self::TYPES), 'Type de facture inconnu : ' . $data->type_code);
+		$this->set('type', $data->type_code);
+
+		$this->assert(strlen($data->number) <= 100);
+		$this->assert(strlen($data->number));
+		$this->set('number', $data->number);
+
+		$this->assert(isset($data->totals->total_with_vat));
+		$this->set('total', Utils::moneyToInteger($data->totals->total_with_vat));
+		$this->set('amount_due', Utils::moneyToInteger($data->totals->amount_due_for_payment));
+		$this->set('issue_date', new \DateTime($data->issue_date));
+		$this->set('due_date', new \DateTime($data->payment_due_date));
+
+		if ($this->type === self::TYPE_SELF_BILLING) {
+			$this->set('person_name', $data->buyer->name);
+		}
+		else {
+			$this->set('person_name', $data->seller->name);
+		}
+	}
+
+	public function importFromFile(): void
+	{
+		if ($this->file()->mime === 'application/json') {
+			$data = json_decode($this->file()->fetch());
+
+			if (null === $data) {
+				throw new UserException('Format JSON corrompu.');
+			}
+
+			$this->importFromJSON($data);
+			return;
+		}
+
+		throw new UserException('Seuls les factures au format JSON (SuperPDP) sont acceptées pour le moment.');
+
 		if ($this->file()->mime === 'application/pdf') {
-			$xml = $this->extractXMLFromFacturX();
+			$xml = $this->extractXMLFromFacturX($this->file());
 		}
 		else {
 			$xml = $this->file()->fetch();
+			// TODO: extract PDF from XML if it is supplied, and store it separately
 		}
 
-		// TODO: extract PDF from XML if it is supplied, and store it
+		$data = $this->parseXML($xml);
+
+		$this->importFromInvoiceJSON($data);
 	}
 
-	public function extractXMLFromFacturX(): ?string
+	public function extractXMLFromFacturX(File $file): ?string
 	{
-		$pdf = $this->file()->fetch();
+		$pdf = $file->fetch();
 
 		if (!$pdf) {
 			throw new \RuntimeException('Cannot fetch file contents');

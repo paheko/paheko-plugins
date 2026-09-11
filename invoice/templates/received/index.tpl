@@ -8,10 +8,12 @@
 		<tr>
 				<td>{$doc.type_label}</td>
 				<td class="num">{$doc.number}</td>
-				<td>{$doc.date|date_short}</td>
-				<th>{$doc.label}</th>
+				<td>{$doc.issue_date|date_short}</td>
+				<td>{$doc.due_date|date_short}</td>
 				<td>{$doc.person_name}</td>
+				<td>{$doc.provider_name}</td>
 				<td class="money">{$doc.total|raw|money_currency_html:false}</td>
+				<td class="money">{$doc.amount_due|raw|money_currency_html:false}</td>
 			{if $list->hasColumn('status')}
 				<td>{tag label=$doc.status_label status=$doc.status_color}</td>
 			{/if}

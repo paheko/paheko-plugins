@@ -25,9 +25,13 @@ class ReceivedInvoices
 			'number' => [
 				'label' => 'Numéro',
 			],
-			'date' => [
+			'issue_date' => [
 				'label' => 'Date',
-				'order' => 'date %s, id %1$s',
+				'order' => 'issue_date %s, id %1$s',
+			],
+			'due_date' => [
+				'label' => 'Échéance',
+				'order' => 'due_date %s, id %1$s',
 			],
 			'person_name' => [
 				'label' => 'Émetteur',
@@ -37,6 +41,10 @@ class ReceivedInvoices
 			],
 			'total' => [
 				'label' => 'Total',
+				'class' => 'money',
+			],
+			'amount_due' => [
+				'label' => 'Reste à payer',
 				'class' => 'money',
 			],
 			'status' => [
@@ -56,7 +64,7 @@ class ReceivedInvoices
 		$tables = ReceivedInvoice::TABLE;
 
 		$list = new DynamicList($columns, $tables, $conditions);
-		$list->orderBy('date', true);
+		$list->orderBy('issue_date', true);
 		$list->setParameters($params);
 
 		$list->setModifier(function (&$row) use ($status) {
