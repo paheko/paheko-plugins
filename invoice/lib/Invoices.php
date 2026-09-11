@@ -95,12 +95,12 @@ class Invoices
 				'label' => 'Client',
 				'select' => 'c.name',
 			],
-			'status' => [
-				'label' => 'Statut',
-			],
 			'total' => [
 				'label' => 'Total',
 				'class' => 'money',
+			],
+			'status' => [
+				'label' => 'Statut',
 			],
 			'year' => [],
 		];

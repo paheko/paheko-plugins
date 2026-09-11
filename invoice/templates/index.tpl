@@ -16,10 +16,10 @@
 			{/if}
 				<th>{$doc.label}</th>
 				<td>{$doc.client_name}</td>
+				<td class="money">{$doc.total|raw|money_currency_html:false}</td>
 			{if $list->hasColumn('status')}
 				<td>{tag label=$doc.status_label status=$doc.status_color}</td>
 			{/if}
-				<td class="money">{$doc.total|raw|money_currency_html:false}</td>
 				<td class="actions">
 					{linkbutton shape="menu" label="Détails" href="details.php?id=%d"|args:$doc.id}
 				</td>
