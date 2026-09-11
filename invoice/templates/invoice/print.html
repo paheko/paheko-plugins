@@ -7,12 +7,14 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 <head>
 	<meta charset="utf-8" />
 	<title>{$title}</title>
+	{if $is_seller_org}
 	<style type="text/css">
 	:root {ldelim}
 		--main-color: {$color1};
 		--secondary-color: {$color2};
 	{rdelim}
 	</style>
+	{/if}
 	{if !empty($css)}
 		<style type="text/css">
 		{$css|raw}
@@ -36,13 +38,13 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 	</section>
 {elseif $status === 'cancelled'}
 	<section class="watermark">
-		{if $invoice.type_code === 231}Annulé{else}Annulée{/if}
+		{if $is_quote}Annulé{else}Annulée{/if}
 	</section>
 {/if}
 
 <header class="contacts">
-	<section class="seller contact{if $is_org} org{/if}">
-		{if $is_org && $config.files.logo}<img src="{$config->fileURL('logo', '150px')}" class="logo" />{/if}
+	<section class="seller contact{if $is_seller_org} org{/if}">
+		{if $is_seller_org && $config.files.logo}<img src="{$config->fileURL('logo', '150px')}" class="logo" />{/if}
 		{include file="./_contact.html" contact=$invoice.seller type="seller"}
 	</section>
 
@@ -178,6 +180,14 @@ $title = Invoices::getTypeLabel($invoice->type_code) . ' ' . $invoice->number;
 				{/if}
 			</article>
 		{/foreach}
+		{if $is_received}
+			<article>
+				<p>
+					<em>Document généré automatiquement à partir de la facture électronique originale, pour pouvoir être visualisée. Ce document n'est pas le documentlégal d'origine, qui demeure la facture électronique archivée par la plateforme.</em>
+				</p>
+			</article>
+		{/if}
+
 	</section>
 </main>
 

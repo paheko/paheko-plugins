@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_lines (
 	vat_code TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS plugin_invoices_received (
+CREATE TABLE IF NOT EXISTS plugin_invoice_received (
 	id INTEGER NOT NULL PRIMARY KEY,
 	type INTEGER NOT NULL,
 	status TEXT NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS plugin_invoices_received (
 	format TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS plugin_invoices_received_events (
+CREATE TABLE IF NOT EXISTS plugin_invoice_received_events (
 	id INTEGER NOT NULL PRIMARY KEY,
 	id_invoice INTEGER NOT NULL REFERENCES plugin_invoices_received (id) ON DELETE CASCADE,
 	"datetime" DATETIME NOT NULL CHECK ("datetime" = datetime("datetime")),

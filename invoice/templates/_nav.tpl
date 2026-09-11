@@ -13,6 +13,9 @@
 			{if $current === 'all' || $current === 'invoices'}
 				{linkbutton href="edit.php?type=380" label="Créer une facture" shape="plus"}
 			{/if}
+			{if $current === 'received'}
+				{linkbutton href="upload.php" label="Importer" shape="upload" target="_dialog"}
+			{/if}
 			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
 				{linkbutton href="config.php" label="Configuration" shape="settings"}
 			{/if}
@@ -25,11 +28,12 @@
 		{tabitem selected=$current name="invoices" href="!p/invoice/?type=380" label="Factures"}
 		{tabitem selected=$current name="quotes" href="!p/invoice/?type=231" label="Devis"}
 		{tabitem selected=$current name="credits" href="!p/invoice/?type=381" label="Avoirs"}
+		{tabitem selected=$current name="received" href="!p/invoice/received/" label="Reçues"}
 		{tabitem selected=$current name="clients" href="!p/invoice/clients/" label="Clients"}
 	</ul>
 </nav>
 
-{if $current === 'invoices' || $current === 'quotes' || $current === 'credits'}
+{if $current === 'invoices' || $current === 'quotes' || $current === 'credits' || $current === 'received'}
 	<nav class="actions">
 		<div class="filter">
 			<strong>Filtrer&nbsp;:</strong>
