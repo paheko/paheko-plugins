@@ -7,10 +7,7 @@ use Paheko\DB;
 use Paheko\DynamicList;
 use Paheko\Email\Emails;
 use Paheko\Entity;
-use Paheko\Exec;
 use Paheko\Plugins;
-use Paheko\Static_Cache;
-use Paheko\Template;
 use Paheko\UserException;
 use Paheko\Utils;
 use Paheko\Files\Files;
@@ -25,8 +22,6 @@ use stdClass;
 
 use Paheko\Plugin\Invoice\Clients;
 use Paheko\Plugin\Invoice\Invoices;
-
-use const Paheko\STATIC_CACHE_ROOT;
 
 class Invoice extends Entity
 {
@@ -60,14 +55,16 @@ class Invoice extends Entity
 	protected ?string $vat_exemption_text = null;
 
 	/**
+	 * BT-10
 	 * Buyer reference (Factur-X: code du service exécutant)
 	 */
 	protected ?string $buyer_ref = null;
 
 	/**
-	 * Factur-X : Numéro d'engagement (IssuerAssignedID)
+	 * BT-13
+	 * Factur-X/Chorus Pro : Numéro d'engagement (IssuerAssignedID)
 	 */
-	protected ?string $contract_reference = null;
+	protected ?string $purchase_order_reference = null;
 
 	/**
 	 * France: type d'opération
@@ -89,6 +86,7 @@ class Invoice extends Entity
 	const TYPE_INVOICE = 380;
 	const TYPE_CREDIT = 381;
 	//const TYPE_CORRECTION = 384;
+	const TYPE_SELF_BILLING = 389;
 
 	/**
 	 * Factur-X (BT-3) only allows some codes, not all of them!
@@ -99,14 +97,15 @@ class Invoice extends Entity
 		self::TYPE_QUOTE => 'Devis',
 		self::TYPE_INVOICE => 'Facture',
 		self::TYPE_CREDIT => 'Avoir', // Avoir : quand la facture d'origine a déjà été payée
+		self::TYPE_SELF_BILLING => 'Auto-facturation',
 		//self::TYPE_CORRECTION => 'Facture rectificative', // rectificative : quand la facture d'origine n'a pas été payée ET qu'on ne modifie aucun montant
 		//386 => 'Facture d\'acompte',
-		//389 => 'Auto-facturation',
 	];
 
 	const TYPES_PREFIXES = [
 		self::TYPE_QUOTE   => 'DEV',
 		self::TYPE_INVOICE => 'FAC',
+		self::TYPE_SELF_BILLING => 'FAC',
 		self::TYPE_CREDIT  => 'AV',
 	];
 
@@ -136,28 +135,43 @@ class Invoice extends Entity
 	const STATUS_CANCELLED = 'cancelled';
 	const STATUS_ACCEPTED = 'accepted';
 
-	const STATUSES = [
-		self::STATUS_DRAFT => 'Brouillon',
-		self::STATUS_AWAITING_SEND => 'À envoyer',
-		self::STATUS_AWAITING_VALIDATION => 'À valider',
-		self::STATUS_AWAITING_PAYMENT => 'À payer',
-		self::STATUS_AWAITING_REFUND => 'Remboursement en attente',
-		self::STATUS_PAID => 'Payé',
-		self::STATUS_REFUNDED => 'Remboursé',
-		self::STATUS_CANCELLED => 'Annulé',
-		self::STATUS_ACCEPTED => 'Accepté',
+	const STATUSES_COLORS = [
+		self::STATUS_DRAFT => 'tan',
+		self::STATUS_AWAITING_SEND => 'purple',
+		self::STATUS_AWAITING_VALIDATION => 'orange',
+		self::STATUS_AWAITING_PAYMENT => 'red',
+		self::STATUS_AWAITING_REFUND => 'red',
+		self::STATUS_PAID => 'green',
+		self::STATUS_REFUNDED => 'green',
+		self::STATUS_CANCELLED => 'grey',
+		self::STATUS_ACCEPTED => 'green',
 	];
 
-	const STATUSES_COLORS = [
-		self::STATUS_DRAFT => 'darkgray',
-		self::STATUS_AWAITING_SEND => 'purple',
-		self::STATUS_AWAITING_VALIDATION => 'darkorange',
-		self::STATUS_AWAITING_PAYMENT => 'darkred',
-		self::STATUS_AWAITING_REFUND => 'darkred',
-		self::STATUS_PAID => 'darkgreen',
-		self::STATUS_REFUNDED => 'darkgreen',
-		self::STATUS_CANCELLED => 'black',
-		self::STATUS_ACCEPTED => 'darkgreen',
+	const STATUSES = [
+		// Quote state life: draft, awaiting_send, awaiting_validation, then 'accepted' or 'cancelled'
+		self::TYPE_QUOTE => [
+			self::STATUS_DRAFT => 'Brouillon',
+			self::STATUS_AWAITING_SEND => 'À envoyer',
+			self::STATUS_AWAITING_VALIDATION => 'À valider',
+			self::STATUS_CANCELLED => 'Annulé',
+			self::STATUS_ACCEPTED => 'Accepté',
+		],
+		// Invoice state life: draft, awaiting_send, awaiting_payment / cancelled, paid
+		self::TYPE_INVOICE => [
+			self::STATUS_DRAFT => 'Brouillon',
+			self::STATUS_AWAITING_SEND => 'À envoyer',
+			self::STATUS_AWAITING_PAYMENT => 'En attente de paiement',
+			self::STATUS_PAID => 'Payée',
+			self::STATUS_CANCELLED => 'Annulée',
+		],
+		// Credit (avoir) state life: draft, awaiting_send, awaiting_refund, refunded / cancelled
+		self::TYPE_CREDIT => [
+			self::STATUS_DRAFT => 'Brouillon',
+			self::STATUS_AWAITING_SEND => 'À envoyer',
+			self::STATUS_AWAITING_REFUND => 'À rembourser',
+			self::STATUS_REFUNDED => 'Remboursé',
+			self::STATUS_CANCELLED => 'Annulé',
+		],
 	];
 
 	public function selfCheck(): void
@@ -185,9 +199,15 @@ class Invoice extends Entity
 		}
 
 		$this->assert(array_key_exists($this->type, self::TYPES));
-		$this->assert(array_key_exists($this->status, self::STATUSES));
+		$this->assert(array_key_exists($this->status, self::STATUSES[$this->type]));
 
 		$this->assert(!isset($this->vat_exemption_code) || array_key_exists($this->vat_exemption_code, Invoices::VAT_EXEMPTIONS));
+
+		if ($this->type === self::TYPE_CREDIT) {
+			$this->assert($this->id_invoice && $this->invoice());
+			$this->assert($this->invoice()->type !== self::TYPE_SELF_BILLING, 'Impossible de créer un avoir pour une autofacturation');
+			$this->assert($this->invoice()->type === self::TYPE_INVOICE);
+		}
 	}
 
 	public function delete(): bool
@@ -233,9 +253,40 @@ class Invoice extends Entity
 		$db->commit();
 	}
 
+	public function save(bool $selfcheck = true): bool
+	{
+		if (!$this->exists()
+			&& $this->client()->self_billing
+			&& $this->type === self::TYPE_INVOICE) {
+			$this->set('type', self::TYPE_SELF_BILLING);
+		}
+
+		return parent::save($selfcheck);
+	}
+
+	public function getCountType(): int
+	{
+		// Self-billing has the same numbering prefix as regular invoices
+		if ($this->isSelfBilling()) {
+			return self::TYPE_INVOICE;
+		}
+
+		return $this->type;
+	}
+
 	public function isQuote(): bool
 	{
 		return $this->type === self::TYPE_QUOTE;
+	}
+
+	public function isCredit(): bool
+	{
+		return $this->type === self::TYPE_CREDIT;
+	}
+
+	public function isSelfBilling(): bool
+	{
+		return $this->type === self::TYPE_SELF_BILLING;
 	}
 
 	public function isDraft(): bool
@@ -278,7 +329,7 @@ class Invoice extends Entity
 
 	public function getStatusLabel(): string
 	{
-		return self::STATUSES[$this->status];
+		return self::STATUSES[$this->type][$this->status];
 	}
 
 	public function getStatusColor(): string
@@ -321,6 +372,8 @@ class Invoice extends Entity
 		if (!$this->isQuote()) {
 			$config = Config::getInstance();
 			$this->assert(!empty($config->org_address), 'L\'adresse de votre organisation n\'est pas renseignée.');
+			$this->assert(!empty($config->org_post_code), 'Le code postal de votre organisation n\'est pas renseigné.');
+			$this->assert(!empty($config->org_city), 'La ville de votre organisation n\'est pas renseignée.');
 
 			if ($this->client()->requiresEInvoicing()) {
 				$this->assert(!empty($config->org_business_number), 'Votre organisation n\'a indiqué aucun numéro d\'entreprise (SIREN) dans la configuration générale.');
@@ -460,7 +513,6 @@ class Invoice extends Entity
 			throw new \LogicException('Cannot cancel a credit note');
 		}
 
-
 		$new = null;
 		$db = DB::getInstance();
 		$db->begin();
@@ -537,39 +589,51 @@ class Invoice extends Entity
 
 	/**
 	 * Return invoice line as an object ready for EN16931
+	 * @see https://synapx.fr/blog/champs-en-16931-expliques/ for codes
 	 */
 	public function exportForInvoice(): stdClass
 	{
 		$config = Config::getInstance();
 		$plugin = Plugins::getCurrent();
 
-		$is_seller_eu = in_array($config->country, Client::EU_COUNTRIES);
-
-		$seller_address = explode("\n", $config->org_address);
-		$config->currency = 'EUR'; //FIXME
-
 		if (strlen($config->currency) !== mb_strlen($config->currency)
 			|| strlen($config->currency) !== 3) {
 			throw new UserException('La devise sélectionnée est invalide, merci de la modifier dans la configuration.');
 		}
 
+		$buyer = $client = $this->client()->exportForInvoice();
+		$seller = Clients::exportOrgForInvoice();
+
+		// Invert buyer and seller for auto-facturation
+		if ($this->type === self::TYPE_SELF_BILLING) {
+			$buyer = $seller;
+			$seller = $client;
+		}
+
+		$is_buyer_pro = !empty($buyer->legal_registration_identifier->value);
+
 		$out = (object) [
-			'buyer' => $this->client()->exportForInvoice(),
-			'seller' => Clients::exportOrgForInvoice(),
-			'currency_code' => $config->currency,
-			'type_code' => $this->type,
+			'buyer' => $buyer,
+			'seller' => $seller,
+			// BT-1
+			'number' => $this->getReference() ?? 'Brouillon',
+			// BT-2
 			'issue_date' => $this->date_created->format('Y-m-d'),
+			// BT-3
+			'type_code' => $this->type,
+			// BT-5
+			'currency_code' => $config->currency,
+			// BT-9
 			'payment_due_date' => $this->date_expiry ? $this->date_expiry->format('Y-m-d') : null,
 			'lines' => [],
-			'number' => $this->getReference() ?? 'Brouillon',
 			'process_control' => (object) [
-				'specification_identifier' => 'urn:cen.eu:en16931:2017',
-				'business_process_type' => $this->operation_type,
+				'specification_identifier' => 'urn:cen.eu:en16931:2017', // BT-24
+				'business_process_type' => $this->operation_type, // BT-23
 			],
-			// Référence acheteur. "Service exécutant" Code service pour Chorus Pro. Obligatoire pour les entités publiques marquées « Service obligatoire » dans Chorus Pro.
+			// BT-10 Référence acheteur. "Service exécutant" Code service pour Chorus Pro. Obligatoire pour les entités publiques marquées « Service obligatoire » dans Chorus Pro.
 			'buyer_reference' => $this->buyer_ref ?? '',
-			// Numéro commande acheteur. "Numéro d'engagement juridique" Texte libre. Pour Chorus Pro, indiquer ici le numéro d'engagement. Obligatoire pour les entités publiques marquées « Engagement obligatoire » dans Chorus Pro.
-			'contract_reference' => $this->contract_reference ?? '',
+			// BT-13 Numéro commande acheteur. "Numéro d'engagement juridique" Texte libre. Pour Chorus Pro, indiquer ici le numéro d'engagement. Obligatoire pour les entités publiques marquées « Engagement obligatoire » dans Chorus Pro.
+			'purchase_order_reference' => $this->purchase_order_reference ?? '',
 			'notes' => [
 				(object) [
 					'subject_code' => 'AAI',
@@ -578,7 +642,7 @@ class Invoice extends Entity
 			],
 		];
 
-		if (!$this->isQuote()
+		if (!$this->isSelfBilling()
 			&& (!empty($plugin->config->iban) || !empty($plugin->config->payment_instructions))) {
 			$out->payment_instructions = (object) [
 				'payment_means_type_code' => !empty($plugin->config->iban) ? 30 : 1, // 30 = Credit transfer, 1 = other
@@ -625,7 +689,9 @@ class Invoice extends Entity
 
 		// Add mandatory mention of recovery costs (only for enterprise invoices)
 		// see https://www.economie.gouv.fr/entreprises/gerer-son-entreprise-au-quotidien/gerer-sa-comptabilite-et-ses-demarches/mentions-obligatoires-dune-facture-tout-savoir
-		if ($config->country === 'FR') {
+		if ($is_buyer_pro
+			&& $config->country === 'FR'
+			&& !$this->isQuote()) {
 			$out->notes[] = (object) [
 				'subject_code' => 'PMT',
 				'note' => 'En cas de retard de paiement, indemnité forfaitaire légale pour frais de recouvrement de 40 euros.',
@@ -639,6 +705,12 @@ class Invoice extends Entity
 			$out->notes[] = (object) [
 				'subject_code' => 'AAB',
 				'note' => 'Les réglements reçus avant la date d\'échéance ne donneront pas lieu à escompte.',
+			];
+		}
+		elseif ($this->isQuote()) {
+			$out->notes[] = (object) [
+				'subject_code' => 'OSI',
+				'note' => $plugin->getConfig('quote_info') ?? Invoices::DEFAULT_QUOTE_INFO,
 			];
 		}
 
@@ -679,11 +751,17 @@ class Invoice extends Entity
 		$paid = '0.00'; // TODO
 
 		$out->totals = (object) [
+			// BT-115
 			'amount_due_for_payment'   => Money::calc(Money::calc($net_total, '+', $vat_total), '-', $paid),
+			// BT-106
 			'sum_invoice_lines_amount' => $net_total,
+			// BT-112
 			'total_with_vat'           => Money::calc($net_total, '+', $vat_total),
+			// BT-109
 			'total_without_vat'        => $net_total,
+			// BT-113
 			'paid_amount'              => $paid,
+			// BT-110
 			'total_vat_amount'         => $vat_total,
 		];
 
@@ -700,212 +778,16 @@ class Invoice extends Entity
 			}
 		}
 
-		if ($format === 'facturx') {
-			$xml = $this->exportAs('cii', $format);
-			$html = $this->exportAs('html', $format);
-			return $this->createFacturX($xml, $html);
-		}
-
-		$template = match ($format) {
-			'cii' => 'cii.xml',
-			'ubl' => 'ubl.xml',
-			'html' => 'print.html',
-		};
-
-		$tpl = Template::getInstance();
-
-		if ($format === 'html') {
-			$tpl->assign('is_org', true);
-			$tpl->assign('is_draft', $this->isDraft());
-			$tpl->assign('status', $this->status);
-			$tpl->assign('is_quote', $this->isQuote());
-			$tpl->assign(compact('parent_format'));
-
-			if (isset($_GET['print'])) {
-				$tpl->assign('facturx_enabled', $this->canExportAsFacturX());
-			}
-			else {
-				$tpl->assign('css', file_get_contents(__DIR__ . '/../../admin/invoice.css'));
-				$tpl->assign('export', true);
-			}
-		}
-
-		$tpl->assign('invoice', $this->getExport());
-
-		if ($format === 'cii') {
-			$tpl->setEscapeType('xml');
-		}
-
-		$out = $tpl->fetch(__DIR__ . '/../../templates/invoice/' . $template);
-
-		if ($format === 'cii') {
-			// [PEPPOL-EN16931-R008]-Document MUST not contain empty elements. (still status warning)
-			$out = preg_replace('!<(.*)>\s*</\\1>!', '', $out);
-		}
-
-		return $out;
+		return parent::exportAs($format, $parent_format);
 	}
 
 	public function streamAs(string $format, bool $download = false): void
 	{
-		$mimetype = match ($format) {
-			'facturx' => 'application/pdf',
-			'html'    => 'text/html',
-			default   => 'text/xml',
-		};
-
 		if ($this->status === self::STATUS_DRAFT && $format !== 'html') {
 			throw new \LogicException('Cannot download a draft');
 		}
 
-		header('Content-Type: ' . $mimetype);
-
-		header(sprintf('Content-Disposition: %s; filename="%s"', $download ? 'attachment' : 'inline', $this->getFilename($format)));
-
-		echo $this->exportAs($format);
-	}
-
-	public function downloadAs(string $format): void
-	{
-		$this->streamAs($format, true);
-	}
-
-	public function getFilename(string $format): string
-	{
-		$extension = match($format) {
-			'facturx' => 'pdf',
-			'html'    => 'html',
-			default   => 'xml',
-		};
-
-		return ($this->getReference() ?? 'Brouillon') . '.' . $extension;
-	}
-
-	/**
-	 * @see https://www.ghostscript.com/blog/zugferd.html
-	 */
-	protected function createFacturX(string $xml, string $html): string
-	{
-		$signal = Plugins::fire('facturx.create', true, ['html' => $html, 'xml' => $xml], ['pdf_string' => null]);
-
-		if ($signal && $signal->isStopped()) {
-			if ($str = $signal->getOut('pdf_string')) {
-				return $str;
-			}
-			else {
-				throw new \LogicException('Signal facturx.create did not return a string');
-			}
-		}
-
-		$id = 'facturx_' . sha1(random_bytes(10));
-		$tmp_xml_dir = STATIC_CACHE_ROOT . '/' . $id;
-
-		// the file MUST be called factur-x.xml, if not Prince will use its name in the PDF
-		// and the PDF won't be valid (attached XML file must be named factur-x.xml)
-		$tmp_xml_file = $tmp_xml_dir . '/factur-x.xml';
-		$root = realpath(__DIR__ . '/../..');
-		$xmp_path = $root . '/factur-x/factur-x.xmp';
-
-		// We can't use Static_Cache class as the file MUST be called "factur-x.xml"
-		// or it won't work!
-		Utils::safe_mkdir($tmp_xml_dir, null, true);
-
-		file_put_contents($tmp_xml_file, $xml);
-
-		$cmd = Utils::getPDFCommand();
-		$exec = new Exec;
-		$exec->addBind($xmp_path);
-
-		// Prince can directly create a valid Factur-X PDF using STDIN/STDOUT,
-		// without temporary files for HTML and PDF, much better
-		if (strpos($cmd, 'prince') === 0) {
-			$cmd = Utils::getPrinceCommand('PDF/A-3a');
-			$exec->setCommand($cmd);
-			$exec->addParams([
-				//'--fail-pdf-profile-error',
-				//'--fail-pdf-tag-error',
-				'--fail-missing-resources',
-				'--fail-dropped-content',
-				sprintf('--pdf-xmp=%s', escapeshellarg($xmp_path)),
-				sprintf('--attach-data=%s',escapeshellarg($tmp_xml_file)),
-				'-o - -',
-			]);
-		}
-		// Weasyprint can also do it: https://github.com/Kozea/WeasyPrint/pull/2658
-		elseif (strpos($cmd, 'weasyprint') === 0) {
-			$exec->setCommand($cmd);
-			$exec->addParams([
-				'- -', // read from STDIN, write to STDOUT
-				sprintf('--attachment=%s', escapeshellarg($tmp_xml_file)),
-				'--attachment-relationship=Data',
-				sprintf('--xmp-metadata=%s', escapeshellarg($xmp_path)),
-				'--pdf-variant=pdf/a-3a',
-			]);
-		}
-
-		try {
-			if ($exec->hasCommand()) {
-				$exec->setStdin($html);
-				if ($exec->run() && null === $exec->getStdout() && !empty($exec->getStderr())) {
-					throw new \RuntimeException(sprintf("Error running PDF command: %s\n%s", $exec->getCommand(), $exec->getStderr()));
-				}
-
-				return $exec->getStdout();
-			}
-
-			if (!Exec::quick('which gs', 1)) {
-				throw new \LogicException('Cannot create Factur-X file: ghostscript is not installed');
-			}
-
-			// If Prince is not available, use ghostscript
-			$tmp_pdf_file = Utils::filePDF($html);
-
-			$cmd = sprintf('gs --permit-file-read=%s'
-				. ' -sDEVICE=pdfwrite'
-				. ' -dPDFA=3'
-				. ' -sColorConversionStrategy=RGB'
-				. ' -sZUGFeRDXMLFile=%s'
-				. ' -sZUGFeRDProfile=%s'
-				. ' -sZUGFeRDVersion=2p1'
-				. ' -sZUGFeRDConformanceLevel=MINIMUM'
-				. ' -dPDFACompatibilityPolicy=1'
-				. ' -o %s %s %s',
-				escapeshellarg($root . ':' . STATIC_CACHE_ROOT),
-				escapeshellarg($tmp_xml_file),
-				escapeshellarg($root . '/factur-x/rgb.icc'),
-				escapeshellarg($path ?? '-'),
-				escapeshellarg($root . '/factur-x/zugferd.ps'),
-				escapeshellarg($tmp_pdf_file)
-			);
-
-			return Exec::quick($cmd, 5);
-		}
-		finally {
-			if (isset($tmp_pdf_file)) {
-				Utils::safe_unlink($tmp_pdf_file);
-			}
-
-			Utils::safe_unlink($tmp_xml_file);
-			@rmdir($tmp_xml_dir);
-		}
-	}
-
-	public function canExportAsFacturX(): bool
-	{
-		if (Plugins::hasSignal('facturx.create')) {
-			return true;
-		}
-
-		$cmd = Utils::getPDFCommand();
-
-		if (0 === strpos($cmd, 'prince')) {
-			return true;
-		}
-		elseif (0 === strpos($cmd, 'weasyprint')) {
-			return true;
-		}
-
-		return (bool) Exec::quick('which gs', 1);
+		parent::streamAs($format, $download);
 	}
 
 	public function getPaymentsList(): DynamicList

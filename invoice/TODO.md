@@ -1,9 +1,6 @@
-* Implement Factur-X support (signal) for DomPDF
-
 * Test PDF weasyprint (HS)
 * Test PDF chromium + gs (HS)
 
-* Ajout confirmation à l'annulation de facture
 * Empêcher la suppression d'un avoir lié à une facture (sinon on pourrait dé-annuler une facture)
 * Pouvoir re-créer une facture à partir d'un devis si la facture a été supprimée
 * Afficher un lien vers la facture depuis le devis quand une facture a été créée
@@ -13,18 +10,18 @@
 * Support des remises au niveau de la facture (pas par ligne)
 * Création d'écritures depuis les factures (facture, paiements, remboursements)
 
+# Réception de facture
+
+* Mettre une mention sur la visualisation :
+« Document généré automatiquement à partir du fichier XML {CII|UBL} reçu le [date], à fin de visualisation humaine — ne constitue pas l’original légal, qui reste le fichier XML archivé. »
+
 # Clients
 
+* Secret professionnel : https://www.compta-online.com/facturation-electronique-et-secret-professionnel-ao8798
+
 * Pouvoir créer un client depuis le sélecteur
-* Pouvoir supprimer un client
-* Pouvoir indiquer le code du service exécutant dans le client
 * Pouvoir chercher un client
-
-# Dans Paheko core
-
-Configuration :
-
-- Ajouter les champs suivants : "code postal", "ville" (pré-remplir avec l'adresse si possible)
+* Rajouter un champ "notes" sur les fiches client
 
 # Plus tard
 
@@ -33,3 +30,8 @@ Configuration :
 * Pouvoir créer un avoir manuellement (dans ce cas il faudra indiquer numéro de l'ancienne facture + date d'émission, obligatoire pour Factur-X)
 
 Se faire référencer ici : https://fnfe-mpe.org/factur-x/qui-propose-factur-x/
+# Trucs demandés, à surveiller
+
+* Recevoir une copie du mail envoyant la facture / devis
+* Pouvoir indiquer le code du service exécutant dans le client
+* Pouvoir avoir un "catalogue" de lignes qu'on peut re-ajouter aux nouveaux devis / factures

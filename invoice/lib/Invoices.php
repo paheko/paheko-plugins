@@ -45,6 +45,8 @@ class Invoices
 		'VATEX-FR-CGI295'        => 'Exonérations dans les DOM — Art. 295 CGI',
 	];
 
+	const DEFAULT_QUOTE_INFO = "Devis valable jusqu'à la date d'échéance indiquée. Toute modification de la prestation, de quelque nature que ce soit, pourra entraîner une mise à jour du devis et de son montant.\n\nPaiement à réaliser sous un mois à réception de la facture correspondante.\n\nSi ce devis vous convient, merci de nous retourner un exemplaire signé.";
+
 	static public function getTypeLabel(int $code): string
 	{
 		return Invoice::TYPES[$code] ?? 'Facture';
@@ -79,6 +81,13 @@ class Invoices
 				'label' => 'Date',
 				'order' => 'date_created %s, id %1$s',
 			],
+			'date_sent' => [
+				'label' => 'Envoyé depuis…',
+				'order' => 'date_sent %s, id %1$s',
+			],
+			'date_sent_days' => [
+				'select' => 'julianday(\'now\') - julianday(date_sent)'
+			],
 			'label' => [
 				'label' => 'Objet',
 			],
@@ -112,17 +121,27 @@ class Invoices
 			unset($columns['status']);
 		}
 
+		if (!$type
+			|| !in_array($status, [Invoice::STATUS_AWAITING_PAYMENT, Invoice::STATUS_AWAITING_REFUND, Invoice::STATUS_AWAITING_VALIDATION])) {
+			unset($columns['date_sent']);
+			unset($columns['date_sent_days']);
+		}
+
 		$tables = sprintf('%s AS i INNER JOIN %s AS c ON c.id = i.id_client', Invoice::TABLE, Client::TABLE);
 
 		$list = new DynamicList($columns, $tables, $conditions);
 		$list->orderBy('date_created', true);
 		$list->setParameters($params);
 
-		$list->setModifier(function (&$row) {
-			$row->type_label = Invoice::TYPES[$row->type ?? ''] ?? null;
-			$row->status_label = Invoice::STATUSES[$row->status];
-			$row->status_color = Invoice::STATUSES_COLORS[$row->status];
+		$list->setModifier(function (&$row) use ($type, $status) {
+			$row->type_label = Invoice::TYPES[$row->type ?? $type] ?? null;
+			$row->status_label = Invoice::STATUSES[$row->type ?? $type][$row->status ?? $status];
+			$row->status_color = Invoice::STATUSES_COLORS[$row->status ?? $status];
 			$row->number = isset($row->type, $row->number, $row->year) ? self::getInvoiceReference($row->type, $row->year, $row->number) : null;
+
+			if (isset($row->date_sent)) {
+				$row->date_sent_status = $row->date_sent_days >= 90 ? 'red' : ($row->date_sent_days >= 30 ? 'orange' : 'green');
+			}
 		});
 
 		return $list;

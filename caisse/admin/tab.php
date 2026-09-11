@@ -9,6 +9,7 @@ use function Paheko\Plugin\Caisse\{reload,get_amount};
 require __DIR__ . '/_inc.php';
 
 $tab = null;
+$csrf_key = null;
 
 if (null !== qg('id')) {
 	$tab = Tabs::get(qg('id'));
@@ -31,7 +32,9 @@ if (!$current_pos_session) {
 	throw new UserException('Aucune session de caisse en cours et aucune note sélectionnée');
 }
 
+// FIXME: this seems to not be used?? remove it?
 $form->runIf(qg('code') !== null, function () use ($current_pos_session, &$tab) {
+	throw new \LogicException('This code shouldnt be used?');
 	$tab = $current_pos_session->getFirstOpenTab();
 	$tab ??= $current_pos_session->openTab();
 
@@ -41,9 +44,10 @@ $form->runIf(qg('code') !== null, function () use ($current_pos_session, &$tab) 
 
 if ($tab) {
 	$url = Utils::plugin_url(['file' => 'tab.php', 'query' => 'id=' . $tab->id]);
-	$csrf_key = null;
+	$csrf_key = 'pos_tab_' . $tab->id;
 }
 
+// FIXME: use POST + CSRF protection, eventually (low priority)
 if (!empty($_GET['payoff']) && !empty($_GET['id_method'])) {
 	if (!$current_pos_session) {
 		throw new UserException('Aucune session de caisse n\'est ouverte.');
@@ -54,7 +58,7 @@ if (!empty($_GET['payoff']) && !empty($_GET['id_method'])) {
 	}
 
 	if (!$tab) {
-		$tab = $current_pos_session->openTab(intval($_GET['id_user']) ?: null);
+		$tab = $current_pos_session->openTab(intval($_GET['id_user'] ?? 0) ?: null);
 
 		if (!empty($_GET['name']) && !$tab->user_id) {
 			$tab->rename($_GET['name'], null);
@@ -157,6 +161,7 @@ if ($tab) {
 	}
 }
 
+$tpl->assign(compact('csrf_key'));
 $tpl->assign('selected_cat', qg('cat'));
 $tpl->assign('debt_balance', Tabs::getGlobalDebtBalance());
 

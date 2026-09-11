@@ -1,5 +1,11 @@
 {include file="_head.tpl" title=$title current="plugin_invoice"}
 
+{if !$client->exists()}
+	<nav class="actions">
+		{linkbutton shape="user" label="Créer un client à partir d'un membre" href="from_user.php"}
+	</nav>
+{/if}
+
 {form_errors}
 
 <form method="post" action="{$self_url}" data-focus="1">
@@ -10,39 +16,52 @@
 
 <fieldset>
 	<legend>Informations générales</legend>
+	{if $client.id_user}
+		<p class="alert block">Les informations du client seront reprises de la fiche de membre.</p>
+	{/if}
 	<dl>
-		{input type="text" name="name" source=$client label="Nom" required=true}
-		{input type="country" name="country" source=$client required=true label="Pays" default=$config.country}
-		{input type="text" name="post_code" source=$client label="Code postal" required=true}
-		{input type="text" name="city" source=$client label="Ville" required=true}
-		{input type="textarea" cols="50" rows="3" name="address" source=$client label="Adresse" required=true}
-		{input type="email" name="email" source=$client label="Adresse e-mail" required=true help="Pourra être utilisée pour envoyer devis et factures."}
-		{input type="tel" name="phone" source=$client label="Numéro de téléphone" required=false}
+		{input type="text" name="name" source=$client label="Nom" required=true disabled=$disabled}
+		{input type="country" name="country" source=$client required=true label="Pays" default=$config.country disabled=$disabled}
+		{input type="text" name="post_code" source=$client label="Code postal" required=true disabled=$disabled}
+		{input type="text" name="city" source=$client label="Ville" required=true disabled=$disabled}
+		{input type="textarea" cols="50" rows="3" name="address" source=$client label="Adresse" required=true disabled=$disabled}
+		{input type="email" name="email" source=$client label="Adresse e-mail" required=true help="Pourra être utilisée pour envoyer devis et factures." disabled=$disabled}
+		{input type="tel" name="phone" source=$client label="Numéro de téléphone" required=false disabled=$disabled}
 		{input type="textarea" cols="50" rows="4" name="notes" source=$client label="Notes" required=false help="Ces notes ne seront pas affichées sur les devis et factures, elles sont uniquement destinées à un usage interne."}
 		{input type="checkbox" value=1 name="archived" source=$client label="Client archivé" help="Si cette case est cochée, il ne sera plus possible de créer des devis et factures pour ce client."}
 	</dl>
 </fieldset>
 
 <fieldset class="country-fr">
-	<legend>Informations administratives</legend>
-	<?php $enabled = !empty($client->business_number); $blocked = empty($config->org_business_number); ?>
+	<legend>Facturation électronique</legend>
+	<?php $blocked = empty($config->org_business_number); ?>
 
 	{if $blocked}
 		<p class="alert block">Vous ne pouvez pas effectuer de facturation électronique si vous n'avez pas renseigné votre numéro d'entreprise (SIRET en France) dans la {link href="!config/" label="configuration"}.</p>
 	{/if}
 	<dl>
-		{input type="radio-btn" prefix_label="Facturation électronique" prefix_required=true name="e_invoicing" value=1 label="Activer la facturation électronique" help="Pour les entreprises, auto-entrepreneurs, etc." required=true default=$enabled disabled=$blocked}
-		{input type="radio-btn" name="e_invoicing" value=0 label="Sans facturation électronique" help="Particuliers, associations non assujetties à la TVA, syndic non professionnel, etc." default=$enabled}
-	</dl>
-	<dl class="e_invoicing_1">
-		{input type="text" name="fr_business_number" default=$client.business_number label="Numéro SIREN" required=true maxlength=9 pattern="\d+" minlength=9}
-		{input type="text" name="fr_vat_number" default=$client.vat_number label="Numéro de TVA intra-communautaire" required=false}
+		{input type="radio-btn" name="e_invoicing" value=0 label="Sans facturation électronique" help="Particuliers, associations non assujetties à la TVA, syndic non professionnel, etc." source=$client}
+		{input type="radio-btn" prefix_label="Facturation électronique" prefix_required=true name="e_invoicing" value=1 label="Activer la facturation électronique" help="Pour les entreprises, auto-entrepreneurs, etc." required=true source=$client disabled=$blocked}
 	</dl>
 </fieldset>
 
-<fieldset class="country-other">
+<fieldset>
 	<legend>Informations administratives</legend>
+	<dl class="country_fr">
+		{input type="text" name="fr_business_number" default=$client.business_number label="Numéro SIRET" required=false}
+		{input type="text" name="fr_vat_number" default=$client.vat_number label="Numéro de TVA intra-communautaire" required=false}
+		{input type="checkbox" name="self_billing" default=$client.self_billing value=1 label="Activer l'auto-facturation" required=false}
+		<dd class="help">
+			En cochant cette case, toutes les factures créées pour ce client seront en auto-facturation par défaut. Il sera toujours possible de modifier une facture pour désactiver l'auto-facturation.
+		</dd>
+	</dl>
 	<dl class="e_invoicing_1">
+		<dd class="help">
+			<strong>Attention&nbsp;: l'auto-facturation demande d'avoir un mandat de facturation de votre client.</strong> Il est possible que votre plateforme agréée vous demande de le fournir et le vérifier avant de pouvoir effectuer de l'auto-facturation&nbsp;: informez-vous auprès de votre plateforme agréée.
+		</dd>
+		{input type="text" name="electronic_address" source=$client label="Adresse de facturation électronique" required=false help="Si le client vous a fournit une adresse différente du numéro SIRET."}
+	</dl>
+	<dl class="country_other">
 		{input type="text" name="business_number" source=$client label="Numéro d'entreprise" required=false}
 		{input type="text" name="vat_number" source=$client label="Numéro de TVA intra-communautaire" required=false}
 	</dl>
@@ -61,14 +80,15 @@ function selectCountry()
 {
 	var c = $('#f_country').value;
 
-	g.toggle('.country-other', c !== 'FR');
-	g.toggle('.country-fr', c === 'FR');
+	g.toggle('.country_other', c !== 'FR');
+	g.toggle('.country_fr', c === 'FR');
 }
 
 function selectEInvoicing()
 {
 	var e = $('#f_e_invoicing_1');
 	g.toggle('.e_invoicing_1', e.checked);
+	g.toggle('.e_invoicing_0', !e.checked);
 }
 
 $('#f_country').onchange = selectCountry;

@@ -155,15 +155,15 @@ class Orders
 		$entity->set('person', $data->payer_name);
 		$entity->save();
 
-		if (isset($data->payments) && is_iterable($data->payments)) {
-			foreach ($data->payments as $payment) {
-				Payments::syncPayment($payment, $entity);
-			}
-		}
-
 		if (isset($data->items) && is_iterable($data->items)) {
 			foreach ($data->items as $item) {
 				Items::syncItem($item, $entity);
+			}
+		}
+
+		if (isset($data->payments) && is_iterable($data->payments)) {
+			foreach ($data->payments as $payment) {
+				Payments::syncPayment($payment, $entity);
 			}
 		}
 	}

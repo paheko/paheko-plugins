@@ -33,17 +33,17 @@ $columns = [
 $benevalibre_match = [
 	'name' => 'Nom',
 	'surname' => 'Prénom',
-	'duration_hours' => 'Heures, en décimal',
+	'duration_hours' => 'Durée (en heures)',
 	'task' => 'Catégorie',
 	'title' => 'Titre',
 	'notes' => 'Description',
 ];
 
 $csv->setColumns($columns);
-$csv->setMandatoryColumns(['date']);
+$csv->setMandatoryColumns(['date', ['duration', 'duration_hours']]);
 
 // Detect Bénévalibre files
-if ($csv->loaded() && $csv->hasRawHeaderColumn('Heures, en décimal')) {
+if ($csv->loaded() && $csv->hasRawHeaderColumn('Durée (en heures)')) {
 	$csv->setColumns($columns, $benevalibre_match);
 }
 
@@ -56,15 +56,7 @@ $form->runIf('load', function () use ($csv, $columns, $benevalibre_match) {
 }, $csrf_key, Utils::getSelfURI());
 
 $form->runIf(f('set_translation_table') && $csv->loaded(), function () use (&$csv) {
-	$csv->skip((int)f('skip_first_line'));
-	$csv->setTranslationTableAuto();
-
-	$table = $csv->getTranslationTable();
-
-	if (!in_array('duration', $table) && !in_array('duration_hours', $table)) {
-		$csv->resetTranslationTable();
-		throw new UserException('Aucune colonne indiquant la durée n\'a été sélectionnée');
-	}
+	$csv->setTranslationTableFrom(null);
 }, $csrf_key);
 
 $form->runIf('import', function () use (&$csv) {

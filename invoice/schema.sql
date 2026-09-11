@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS plugin_invoice_clients (
 	id INTEGER NOT NULL PRIMARY KEY,
+	id_user INTEGER NULL REFERENCES users (id) ON DELETE SET NULL,
 	archived INTEGER NOT NULL DEFAULT 0,
 	name TEXT NOT NULL,
 	country TEXT NOT NULL,
@@ -11,6 +12,9 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_clients (
 	notes TEXT NULL,
 	business_number TEXT NULL,
 	vat_number TEXT NULL,
+	e_invoicing INTEGER NOT NULL DEFAULT 0,
+	electronic_address TEXT NULL,
+	self_billing INTEGER NOT NULL DEFAULT 0,
 	created DATETIME NOT NULL CHECK (created = datetime(created)) DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -32,7 +36,7 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_invoices (
 	vat_exemption_code TEXT NULL,
 	vat_exemption_text TEXT NULL,
 	buyer_ref TEXT NULL, -- Buyer reference (Factur-X: code du service exécutant)
-	contract_reference TEXT NULL, -- Factur-X : Numéro d'engagement
+	purchase_order_reference TEXT NULL, -- Factur-X : Numéro d'engagement
 	operation_type TEXT NULL,
 	content TEXT NULL, -- Content of generated invoice (JSON/EN16931 serialization), NULL if it's a draft
 	provider_id TEXT NULL, -- ID returned by provider for this invoice (flowId in AFNOR)
@@ -70,18 +74,22 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_lines (
 	vat_code TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS plugin_invoices_inbox (
+CREATE TABLE IF NOT EXISTS plugin_invoices_received (
 	id INTEGER NOT NULL PRIMARY KEY,
-	status TEXT NOT NULL, -- unread, read, flagged, paid
+	type INTEGER NOT NULL,
+	status TEXT NOT NULL,
 	number TEXT NOT NULL,
+	total INTEGER NOT NULL,
 	person_name TEXT NOT NULL,
 	person_id TEXT NOT NULL,
-	received DATETIME NOT NULL CHECK (created = datetime(created)),
+	"date" TEXT NOT NULL CHECK ("date" = date("date")),
 	provider_name TEXT NULL,
-	provider_id TEXT NULL
+	provider_id TEXT NULL,
+	content TEXT NOT NULL,
+	format TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS plugin_invoices_inbox_events (
+CREATE TABLE IF NOT EXISTS plugin_invoices_received_events (
 	id INTEGER NOT NULL PRIMARY KEY,
 	id_invoice INTEGER NOT NULL REFERENCES plugin_invoices_received (id) ON DELETE CASCADE,
 	"datetime" DATETIME NOT NULL CHECK ("datetime" = datetime("datetime")),

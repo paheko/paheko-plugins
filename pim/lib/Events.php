@@ -106,12 +106,12 @@ class Events
 
 	public function get(int $id): ?Event
 	{
-		return EM::findOneById(Event::class, $id);
+		return EM::findOne(Event::class, 'SELECT * FROM @TABLE WHERE id = ? AND id_user = ?;', $id, $this->id_user);
 	}
 
 	public function getFromURI(string $uri): ?Event
 	{
-		return EM::findOne(Event::class, 'SELECT * FROM @TABLE WHERE uri = ?;', $uri);
+		return EM::findOne(Event::class, 'SELECT * FROM @TABLE WHERE uri = ? AND id_user = ?;', $uri, $this->id_user);
 	}
 
 	public function listForCategory(int $id): array
@@ -308,17 +308,6 @@ class Events
 		return EM::findOne(Event_Category::class, 'SELECT * FROM @TABLE WHERE id_user = ? AND id = ? ORDER BY title COLLATE U_NOCASE;', $this->id_user, $id);
 	}
 
-	public function listChangesForCategory($category, $timestamp)
-	{
-		$db = DB::getInstance();
-
-		return $db->get('SELECT c.uri, c.type FROM ' . $this->changes_table . ' AS c 
-			INNER JOIN agenda AS a ON a.uri = c.uri
-			WHERE c.timestamp >= ? AND a.category = ?
-			ORDER BY c.timestamp DESC;', $timestamp, $category);
-
-	}
-
 	public function importFile(string $path)
 	{
 		return $this->import(file_get_contents($path));
@@ -413,5 +402,24 @@ class Events
 		foreach ($this->listCategories() as $cat) {
 			echo $this->export($cat);
 		}
+	}
+
+	public function listChangesForCategory(int $category, int $timestamp)
+	{
+		$db = DB::getInstance();
+
+		return $db->get('SELECT c.uri, c.type
+			FROM plugin_pim_changes AS c
+			INNER JOIN plugin_pim_events AS e ON e.uri = c.uri
+			WHERE c.timestamp >= ?
+				AND c.entity = \'event\'
+				AND e.id_category = ?
+				AND e.id_user = ?
+			ORDER BY c.timestamp DESC;',
+			$timestamp,
+			$category,
+			$this->id_user
+		);
+
 	}
 }

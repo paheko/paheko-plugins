@@ -112,3 +112,11 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_payments (
 );
 
 CREATE INDEX IF NOT EXISTS plugin_helloasso_payments_order ON plugin_helloasso_payments(id_order, date DESC);
+
+CREATE TABLE IF NOT EXISTS plugin_helloasso_payments_items (
+	id_payment INTEGER NOT NULL REFERENCES plugin_helloasso_payments(id) ON DELETE CASCADE,
+	id_item INTEGER NOT NULL REFERENCES plugin_helloasso_items(id) ON DELETE CASCADE,
+	share_amount INTEGER NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS plugin_helloasso_payments_items_unique ON plugin_helloasso_payments_items (id_payment, id_item);

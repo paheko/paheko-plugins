@@ -1,4 +1,9 @@
-{include file="_head.tpl" title="Recharger les données depuis HelloAsso"}
+{if $last_sync}
+	{assign var="title" value="Recharger les données"}
+{else}
+	{assign var="title" value="Charger les données"}
+{/if}
+{include file="_head.tpl" title=$title}
 
 {include file="%s/templates/_menu.tpl"|args:$plugin_root current="sync"}
 
@@ -18,7 +23,7 @@
 	<p class="alert block">Cliquer sur le bouton ci-dessous pour récupérer les données depuis HelloAsso.</p>
 {/if}
 
-{if !$last_sync && $last_sync > (new \DateTime('1 hour ago'))}
+{if $last_sync && $last_sync > (new \DateTime('1 hour ago'))}
 	<p class="alert block">Il n'est pas possible d'effectuer plus d'un rechargement manuel par heure.</p>
 {else}
 	<form method="post" action="{$self_url}">
@@ -34,7 +39,7 @@
 		{/if}
 		<p class="submit">
 			{csrf_field key=$csrf_key}
-			{button type="submit" name="sync" value=1 label="Recharger les données" shape="right" class="main"}
+			{button type="submit" name="sync" value=1 label=$title shape="right" class="main"}
 		</p>
 	</form>
 {/if}

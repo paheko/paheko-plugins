@@ -82,10 +82,11 @@
 		{elseif $invoice.status === $invoice::STATUS_AWAITING_PAYMENT}
 			<div class="alert block">
 				<h3>Statut&nbsp;: en attente de règlement</h3>
+				<p>Envoyée le {$invoice.date_sent|date_short}</p>
 				{*<p>{linkbutton shape="plus" label="Saisir un paiement" href="payment.php?id=%s"|args:$invoice.id target="_dialog"}</p>*}
 				<p>
 					{button shape="check" name="mark_paid" label="Marquer comme payée" type="submit"}
-					{button shape="delete" name="cancel" label="Annuler et créer un avoir" type="submit"}
+					{button shape="delete" name="cancel" label="Annuler" type="submit"}
 				</p>
 			</div>
 		{elseif $invoice.status === $invoice::STATUS_AWAITING_REFUND}
@@ -105,7 +106,7 @@
 	<dd>{$invoice->getTypeLabel()}</dd>
 	<dt>Statut</dt>
 	<dd>
-		{tag label=$invoice->getStatusLabel() color=$invoice->getStatusColor()}
+		{tag label=$invoice->getStatusLabel() status=$invoice->getStatusColor()}
 	</dd>
 	<dt>Numéro</dt>
 	<dd>{if $invoice->isDraft()}(En attente de validation){else}{$invoice->getReference()}{/if}</dd>
@@ -117,8 +118,13 @@
 	<dd>{$invoice.date_expiry|date_short}</dd>
 	<dt>Client</dt>
 	<dd>
-		<strong>{$invoice->client()->name}</strong>
+		<strong>{$client.name}</strong>
 	</dd>
+	{if $invoice.id_user}
+	<dd>
+		{linkbutton shape="user" href="!users/details.php?id=%d"|args:$client.id_user label="Voir la fiche de membre"}
+	</dd>
+	{/if}
 	{if $invoice.operation_type}
 		<dt>Nature de la facture</dt>
 		<dd>{$invoice->getOperationTypeLabel()}</dd>

@@ -47,6 +47,7 @@ class Line extends Entity
 		'HUR' => 'heure',
 		'MIN' => 'minute',
 		'LTR' => 'litre',
+		'1I'  => 'forfait', // fixed rate: A unit of quantity expressed as a predetermined or set rate for usage of a facility or service.
 		'XZZ' => 'autre',
 	];
 

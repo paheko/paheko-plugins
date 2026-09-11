@@ -18,3 +18,10 @@ CREATE TABLE IF NOT EXISTS plugin_pim_credentials (
 );');
 	$db->toggleForeignKeys(true);
 }
+
+if (version_compare($old_version, '0.1.3', '<')) {
+	$sql = sprintf('INSERT INTO users_app_passwords (id_user, id_plugin, name, password)
+		SELECT id_user, %d, \'Agenda et contacts (accès CardDAV/CalDAV)\', password FROM plugin_pim_credentials;', $plugin->id);
+	$sql .= "\nDROP TABLE plugin_pim_credentials;";
+	$db->exec($sql);
+}

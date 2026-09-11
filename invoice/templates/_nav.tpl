@@ -5,16 +5,16 @@
 			{linkbutton shape="edit" href="edit.php?id=%s"|args:$client.id label="Modifier"}
 			{linkbutton shape="delete" href="delete.php?key=%d"|args:$client.id label="Supprimer"}
 		{elseif $current === 'clients'}
-			{linkbutton href="edit.php" label="Ajouter un client" shape="plus"}
+			{linkbutton href="edit.php" label="Créer un client" shape="plus"}
 		{else}
-			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
-				{linkbutton href="config.php" label="Configuration" shape="settings"}
-			{/if}
-			{if $current !== 'invoices'}
+			{if $current === 'all' || $current === 'quotes'}
 				{linkbutton href="edit.php?type=231" label="Créer un devis" shape="plus"}
 			{/if}
-			{if $current !== 'quotes'}
+			{if $current === 'all' || $current === 'invoices'}
 				{linkbutton href="edit.php?type=380" label="Créer une facture" shape="plus"}
+			{/if}
+			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
+				{linkbutton href="config.php" label="Configuration" shape="settings"}
 			{/if}
 		{/if}
 	{/if}
@@ -28,3 +28,18 @@
 		{tabitem selected=$current name="clients" href="!p/invoice/clients/" label="Clients"}
 	</ul>
 </nav>
+
+{if $current === 'invoices' || $current === 'quotes' || $current === 'credits'}
+	<nav class="actions">
+		<div class="filter">
+			<strong>Filtrer&nbsp;:</strong>
+			<ul>
+				{foreach from=$statuses item="s"}
+					<li{if $s.status == $status} aria-selected="true" class="selected"{/if}>
+						<a href="{"?type=%d&status=%s"|args:$type:$s.status}">{tag status=$s.color label=$s.label}</a>
+					</li>
+				{/foreach}
+			</ul>
+		</div>
+	</nav>
+{/if}

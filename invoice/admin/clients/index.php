@@ -8,6 +8,8 @@ use const Paheko\PLUGIN_ROOT;
 
 $archived = boolval($_GET['archived'] ?? false);
 
+Clients::reloadUsersData();
+
 $list = Clients::getList($archived);
 $list->loadFromQueryString();
 

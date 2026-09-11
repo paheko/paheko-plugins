@@ -74,7 +74,7 @@ if (empty($_SERVER['PHP_AUTH_USER'])
 	|| empty($_SERVER['PHP_AUTH_PW'])) {
 	$message = 'Please login';
 }
-elseif ($user = PIM::login($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'])) {
+elseif ($user = PIM::login($plugin, $_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'])) {
 	$message = null;
 }
 else {

@@ -35,7 +35,7 @@ $csrf_key = 'edit_invoice_details';
 // Allow to select first invoice/quote number
 if ($invoice->isDraft()
 	&& !empty($_POST['validate'])
-	&& !Invoices::count($invoice->type)
+	&& !Invoices::count($invoice->getCountType())
 	&& empty($_POST['number']))
 {
 	$tpl->assign(compact('invoice', 'csrf_key'));
@@ -74,32 +74,28 @@ else {
 	}, $csrf_key, '!p/invoice/details.php?id=' . $invoice->id());
 
 	$form->runIf('cancel', function () use ($invoice) {
-		$new = $invoice->cancel();
-
-		if ($new) {
-			$args = 'msg=CREDIT&id=' . $new->id();
-		}
-		else {
-			$args = 'id=' . $invoice->id();
-		}
-
-		Utils::redirect('!p/invoice/details.php?' . $args);
-	}, $csrf_key);
+		Utils::redirect('!p/invoice/cancel.php?id=' . $invoice->id());
+	});
 
 	$form->runIf('accept', function () use ($invoice) {
 		$new = $invoice->accept();
 		Utils::redirect('!p/invoice/details.php?msg=ACCEPTED&id=' . $new->id());
 	}, $csrf_key);
 
-	$export = $invoice->getExport();
+	$client = $invoice->client();
 
+	// Reload user data before displaying details or downloading it
+	$client->reloadUserData();
+	$client->save();
+
+	$export = $invoice->getExport();
 	$payments = $invoice->getPaymentsList();
 
 	if (!$invoice->isDraft()) {
 		$tpl->assign('facturx_enabled', $invoice->canExportAsFacturX());
 	}
 
-	$tpl->assign(compact('invoice', 'title', 'payments', 'csrf_key', 'export'));
+	$tpl->assign(compact('invoice', 'title', 'payments', 'csrf_key', 'export', 'client'));
 
 	$tpl->display(PLUGIN_ROOT . '/templates/details.tpl');
 

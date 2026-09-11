@@ -6,7 +6,7 @@ use Paheko\Config;
 
 $usermap = new \Paheko\Plugin\Usermap\Usermap;
 
-$address = $_GET['address'] ?? Config::getInstance()->org_address;
+$address = $_GET['address'] ?? Config::getInstance()->getFullAddress();
 $address = $usermap->normalizeAddress($address);
 
 $tpl->assign('plugin_css', ['./leaflet/leaflet.css']);

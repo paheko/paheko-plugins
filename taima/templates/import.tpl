@@ -40,7 +40,7 @@
 				</td>
 				<td>
 					{if !$row.user_id}
-						{tag color="darkred" label="Non trouvé"}
+						{tag status="red" label="Non trouvé"}
 					{else}
 						<?php $users_names[$row->user_id] ??= $row->user_name(); ?>
 						{$users_names[$row.user_id]}
@@ -104,9 +104,9 @@
 		<p>Cet outil permet d'importer également les données depuis Bénévalibre. {linkbutton href="https://app.benevalibre.org/" target="_blank" label="Application Bénévalibre"}</p>
 		<p>Pour récupérer le fichier depuis l'application Bénévalibre&nbsp;:</p>
 		<ul>
-			<li>cliquer sur <strong>Liste des bénévolats</strong></li>
-			<li>sur la page listant les bénévolats, cliquer sur le bouton en haut <strong>Exporter les données</strong></li>
-			<li>Sélectionner le <strong>Format CSV</strong></li>
+			<li>cliquer sur <strong>Actions de bénévolats</strong></li>
+			<li>sur la page listant les bénévolats, cliquer sur le bouton en haut <strong>Télécharger</strong></li>
+			<li>Sélectionner le <strong>Comme tableur (CSV)</strong></li>
 		</ul>
 		<p>Importer ensuite ce fichier ici, l'outil détectera automatiquement le format de Bénévalibre.</p>
 	</details>

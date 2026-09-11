@@ -11,6 +11,11 @@ if (qg('new') !== null) {
 }
 else {
 	$cat = Categories::get((int) qg('id'));
+
+	if (!$cat) {
+		throw new UserException('Cette catégorie n\'existe pas', 404);
+	}
+
 	$csrf_key = 'cat_edit_' . $cat->id();
 }
 

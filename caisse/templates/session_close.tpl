@@ -44,11 +44,11 @@
 				<dd class="info">
 					{assign var="amount" value=$balance.total|money_raw}
 					{if !$balance.total}
-						{tag color="darkgreen" label="identique"} à l'ouverture
+						{tag status="green" label="identique"} à l'ouverture
 					{elseif $balance.expected_total > $balance.open_amount}
-						{tag color="darkcyan" label="+%s"|args:$amount} par rapport à l'ouverture
+						{tag status="greyblue" label="+%s"|args:$amount} par rapport à l'ouverture
 					{else}
-						{tag color="darkorange" label=$amount} par rapport à l'ouverture
+						{tag status="orange" label=$amount} par rapport à l'ouverture
 					{/if}
 				</dd>
 				{input type="money" name="balances[%d][amount]"|args:$balance.id data-expected=$balance.expected_total required=true label="Solde constaté à la fermeture" help="Merci de compter le contenu de la caisse."}

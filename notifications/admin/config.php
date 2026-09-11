@@ -12,14 +12,14 @@ $csrf_key = 'plugin_notifications';
 $n = new Notifications($plugin);
 
 $form->runIf('add', function () use ($n) {
-	$n->add(f('signal'), f('action'), f('config'));
+	$n->add($_POST['signal'], $_POST['action'], $_POST['config']);
 	$n->save();
 }, $csrf_key, './config.php?ok');
 
-$form->runIf(qg('delete') !== null, function () use ($n) {
-	$n->remove((int)qg('delete'));
+$form->runIf(isset($_POST['delete']), function () use ($n) {
+	$n->remove((int)$_POST['delete']);
 	$n->save();
-}, null, './config.php?ok');
+}, $csrf_key, './config.php?ok');
 
 $tpl->assign([
 	'notifications' => $n->list(),

@@ -11,7 +11,7 @@
 				{/if}
 				<td>{$method.type}</td>
 				<td>{$method.account}</td>
-				<td>{if $method.enabled}{tag label="Activé" color="darkgreen"}{else}{tag label="Désactivé" color="#999"}{/if}</td>
+				<td>{if $method.enabled}{tag label="Activé" status="green"}{else}{tag label="Désactivé" status="grey"}{/if}</td>
 				<td class="actions">
 					{linkbutton href="products.php?id=%d"|args:$method.id label="Produits" shape="menu"}
 					{linkbutton href="edit.php?id=%d"|args:$method.id label="Modifier" shape="edit"}

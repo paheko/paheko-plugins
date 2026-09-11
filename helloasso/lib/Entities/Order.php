@@ -191,10 +191,14 @@ class Order extends Entity
 		$options_codes = $db->getAssoc('SELECT id, account_code FROM plugin_helloasso_forms_options WHERE id_form = ?;', $form->id());
 
 		// List all items, skip free items
-		$sql = 'SELECT t.account_code, t.label AS tier_label, i.*
+		$sql = 'SELECT t.account_code, t.label AS tier_label, i.*, COUNT(*) AS payments_count
 			FROM plugin_helloasso_items i
 			LEFT JOIN plugin_helloasso_forms_tiers t ON t.id = i.id_tier
-			WHERE i.amount > 0 AND i.id_order = ?;';
+			LEFT JOIN plugin_helloasso_payments_items pi ON pi.id_item = i.id
+			WHERE i.amount > 0 AND i.id_order = ?
+			GROUP BY i.id;';
+
+		$items_types = [];
 
 		foreach ($db->iterate($sql, $this->id()) as $item) {
 			$type = Item::TYPES_ACCOUNTS[$item->type];
@@ -212,14 +216,22 @@ class Order extends Entity
 				$code = $default_payment_code;
 			}
 
+			$amount = $item->amount;
+
+			// Special case for monthly donations, there is only one item
+			// but the payment is repeated
+			if ($item->type === 'MonthlyDonation') {
+				$amount *= $item->payments_count;
+			}
+
 			$line = new Line;
 			$line->label = $item->label;
 			$line->reference = 'I' . $item->id;
 			$line->id_account = $get_account($code);
-			$line->credit = $item->amount;
+			$line->credit = $amount;
 			$transaction->addLine($line);
 
-			$sum += $item->amount;
+			$sum += $amount;
 
 			$data = json_decode($item->raw_data);
 
@@ -228,7 +240,7 @@ class Order extends Entity
 			}
 
 			/*
-			// Currently we don't count discounts, but we could, in the future
+			// Currently we don't count discounts, but we could, in the future (TODO)
 			if (!empty($data->discount)) {
 				$line = new Line;
 				$line->label = 'Code promo ' . ($data->discount->code ?? 'inconnu');
@@ -334,7 +346,14 @@ class Order extends Entity
 				&& ($mapped_user = $ha->getMappedUser($payer))) {
 				$user = Users::create();
 				$user->importForm($mapped_user);
-				$user->save();
+
+				try {
+					$user->save();
+				}
+				catch (UserException $e) {
+					throw new UserException(sprintf('Erreur à la création du membre "%s" : %s', $user->name(), $e->getMessage()), 0, $e);
+				}
+
 				$this->set('id_user', $user->id());
 				$report[] = ['status' => 'created', 'message' => sprintf('Membre créé pour la commande : %s', $user->name())];
 			}

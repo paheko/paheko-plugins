@@ -343,24 +343,16 @@ class CardDAV extends AbstractBackend implements SyncSupport
 
 		if ($syncToken)
 		{
-			foreach ($this->contacts->listChanges((int) $syncToken) as $change)
-			{
-				if (is_null($out['syncToken']))
-				{
-					// Current token
-					$out['syncToken'] = $change->timestamp;
-				}
+			foreach ($this->contacts->listChanges((int) $syncToken) as $change) {
+				$out['syncToken'] = max($change->timestamp, $out['syncToken']);
 
-				if ($change->type == Contacts::ADDED)
-				{
+				if ($change->type === ChangesTracker::ADDED) {
 					$out['added'] = $change->uri;
 				}
-				elseif ($change->type == Contacts::MODIFIED)
-				{
+				elseif ($change->type === ChangesTracker::MODIFIED) {
 					$out['modified'] = $change->uri;
 				}
-				elseif ($change->type == Contacts::DELETED)
-				{
+				elseif ($change->type == ChangesTracker::DELETED) {
 					$out['deleted'] = $change->uri;
 				}
 			}
@@ -374,13 +366,11 @@ class CardDAV extends AbstractBackend implements SyncSupport
 			// First sync: everything has been added
 			$out['syncToken'] = time();
 
-			foreach ($this->contacts->listAll() as $contact)
-			{
+			foreach ($this->contacts->listAll() as $contact) {
 				$out['added'] = $contact->uri;
 			}
 		}
 
 		return $out;
 	}
-
 }

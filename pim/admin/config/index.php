@@ -6,7 +6,7 @@ use Paheko\Users\Session;
 
 require __DIR__ . '/../_inc.php';
 
-$pim = new PIM(Session::getUserId());
+$pim = new PIM(Session::getInstance()->user());
 $dav = null;
 
 $form->runIf('generate', function () use ($pim, $plugin, &$dav) {

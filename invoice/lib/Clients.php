@@ -73,4 +73,17 @@ class Clients
 
 		return $list;
 	}
+
+	static public function reloadUsersData(): void
+	{
+		$db = DB::getInstance();
+		$db->begin();
+
+		foreach (EM::getInstance(Client::class)->iterate('SELECT * FROM @TABLE WHERE id_user IS NOT NULL;') as $user) {
+			$user->reloadUserData();
+			$user->save();
+		}
+
+		$db->commit();
+	}
 }
