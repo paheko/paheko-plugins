@@ -13,6 +13,7 @@ use Paheko\Utils;
 use KD2\JSONSchema;
 
 use DOMDocument;
+use DOMXPath;
 use stdClass;
 
 use const Paheko\{STATIC_CACHE_ROOT, ADMIN_COLOR1, ADMIN_COLOR2};
@@ -281,7 +282,7 @@ abstract class AbstractInvoice extends Entity
 			throw new \InvalidArgumentException('Invalid XML file: ' . json_encode(libxml_get_errors(), JSON_PRETTY_PRINT));
 		}
 
-		// Inspired by https://github.com/pat-o-dev/factur-x/blob/main/src/Validation/InvoiceValidator.php
+		// Some basic checks
 		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('rsm', 'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100');
 		$xpath->registerNamespace('ram', 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100');
@@ -300,12 +301,6 @@ abstract class AbstractInvoice extends Entity
 
 		if ($xpath->query('//ram:BuyerTradeParty')->count() === 0) {
 			throw new \InvalidArgumentException('No buyer found (BG-7)');
-		}
-
-		$node = $xpath->query('//ram:SpecifiedTradeSettlementHeaderMonetarySummation/ram:TaxTotalAmount')->item(0);
-
-		if (!$node || !$node->hasAttribute('currencyID') || $node->getAttribute('currencyID') === '') {
-			throw new \InvalidArgumentException('BT-110: ram:TaxTotalAmount has no currencyID attribute');
 		}
 	}
 }
