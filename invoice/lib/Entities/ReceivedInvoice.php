@@ -9,6 +9,7 @@ use Paheko\Utils;
 use Paheko\Files\Files;
 use Paheko\Entities\Files\File;
 
+use KD2\Office\Money;
 use KD2\DB\Date;
 use KD2\DB\EntityManager as EM;
 
@@ -225,6 +226,15 @@ class ReceivedInvoice extends AbstractInvoice
 	public function importFromInvoiceJSON(stdClass $data)
 	{
 		$this->validateInvoiceSchema($data);
+
+		foreach ($data->lines as $line) {
+			$vat_rate = Money::calc($line->vat_information->invoiced_item_vat_rate, '*', '0.01');
+			$line->line_vat_amount ??= Money::round2(Money::calc($line->net_amount, '*', $vat_rate));
+			$line->line_with_vat_net_amount ??= Money::round2(Money::calc($line->line_vat_amount, '+', $line->net_amount));
+		}
+
+		unset($line);
+
 		$this->set('content', $data);
 
 		$this->assert(array_key_exists($data->type_code, self::TYPES), 'Type de facture inconnu : ' . $data->type_code);

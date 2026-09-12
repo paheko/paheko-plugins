@@ -12,6 +12,7 @@ use Paheko\Utils;
 
 use KD2\JSONSchema;
 
+use DOMDocument;
 use stdClass;
 
 use const Paheko\{STATIC_CACHE_ROOT, ADMIN_COLOR1, ADMIN_COLOR2};
@@ -94,6 +95,8 @@ abstract class AbstractInvoice extends Entity
 
 			// Remove comments
 			$out = preg_replace('/<!--.*?-->/s', '', $out);
+
+			$this->validateCII($out);
 		}
 
 		return $out;
@@ -259,8 +262,50 @@ abstract class AbstractInvoice extends Entity
 
 	public function validateInvoiceSchema(stdClass $data): void
 	{
-		$schema = JSONSchema::fromFile(__DIR__ . '/../../data/superpdp_openapi.json');
+		$schema = JSONSchema::fromFile(__DIR__ . '/../../superpdp/openapi.json');
 		$schema->setRoot('#/components/schemas/en_invoice');
 		$schema->validate($data);
+	}
+
+	public function validateCII(string $xml): void
+	{
+		// Basic schema validation of XML file
+		libxml_use_internal_errors(true);
+		libxml_clear_errors();
+
+		$doc = new DOMDocument;
+		$doc->loadXML($xml);
+		$r = $doc->schemaValidate(__DIR__ . '/../../factur-x/Factur-X_1.09_EN16931.xsd');
+
+		if (!$r) {
+			throw new \InvalidArgumentException('Invalid XML file: ' . json_encode(libxml_get_errors(), JSON_PRETTY_PRINT));
+		}
+
+		// Inspired by https://github.com/pat-o-dev/factur-x/blob/main/src/Validation/InvoiceValidator.php
+		$xpath = new DOMXPath($doc);
+		$xpath->registerNamespace('rsm', 'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100');
+		$xpath->registerNamespace('ram', 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100');
+
+		if ($xpath->query('/rsm:CrossIndustryInvoice')->count() === 0) {
+			throw new \InvalidArgumentException('Missing root element rsm:CrossIndustryInvoice');
+		}
+
+		if ($xpath->query('//ram:IncludedSupplyChainTradeLineItem')->count() === 0) {
+			throw new \InvalidArgumentException('No line found in invoice (missing ram:IncludedSupplyChainTradeLineItem)');
+		}
+
+		if ($xpath->query('//ram:SellerTradeParty')->count() === 0) {
+			throw new \InvalidArgumentException('No seller found (BG-4)');
+		}
+
+		if ($xpath->query('//ram:BuyerTradeParty')->count() === 0) {
+			throw new \InvalidArgumentException('No buyer found (BG-7)');
+		}
+
+		$node = $xpath->query('//ram:SpecifiedTradeSettlementHeaderMonetarySummation/ram:TaxTotalAmount')->item(0);
+
+		if (!$node || !$node->hasAttribute('currencyID') || $node->getAttribute('currencyID') === '') {
+			throw new \InvalidArgumentException('BT-110: ram:TaxTotalAmount has no currencyID attribute');
+		}
 	}
 }
