@@ -23,6 +23,8 @@
 			{if !$date}
 				{input type="date" label="Date" required=true name="date" default=$now source=$entry}
 				{input type="list" name="users" required=false label=$label help="Laisser vide pour une tâche bénévole qui n'est pas liée à un membre en particulier" multiple=$allow_multiple_users target="!users/selector.php" default=$selected_users can_delete=true}
+				{if $allow_multiple_users}
+				<dd class="help"><strong>Note&nbsp;:</strong> si plusieurs membres sont sélectionnés, une tâche séparée sera générée pour chaque membre.</dd>{/if}
 			{/if}
 			{input type="select" options=$tasks name="task_id" label="Catégorie" source=$entry default_empty="— Non spécifiée —"}
 			{if $date && $is_today}
