@@ -87,6 +87,19 @@ class Client extends Entity
 		"SE",
 	];
 
+    const FR_DOM_CODES = [
+        'GF', // Guyane française
+        'TF', // Terres australes françaises
+        'GP', // Guadeloupe
+        'GY', // Guyana (listed alongside the DOM/COM in the XP Z12-012 mapping table)
+        'MQ', // Martinique
+        'YT', // Mayotte
+        'RE', // Réunion
+        'BL', // Saint-Barthélemy
+        'MF', // Saint-Martin (partie française)
+        'PM', // Saint-Pierre-et-Miquelon
+    ];
+
 	public function selfCheck(): void
 	{
 		$this->assert(mb_strlen(trim($this->name)), 'Le nom est vide');
@@ -207,20 +220,21 @@ class Client extends Entity
 		return self::exportPersonForInvoice($this);
 	}
 
-	public function getScheme(string $country, string $business_number): string
-	{
-		if ($country === 'FR') {
-
-		}
-	}
 
 	/**
 	 * Return client as an object ready for EN16931
 	 */
 	static public function exportPersonForInvoice(stdClass|Client $person): stdClass
 	{
+		$country = $person->country;
+
+		// BR-FR-MAP-14: country codes for French DOM/COM should be reported as FR
+		if (in_array($country, self::FR_DOM_CODES, true)) {
+			$country = 'FR';
+		}
+
 		$lines = explode("\n", $person->address ?? '');
-		$is_eu = in_array($person->country, self::EU_COUNTRIES);
+		$is_eu = in_array($country, self::EU_COUNTRIES);
 
 		$default = (object) ['scheme' => null, 'value' => null];
 
@@ -260,7 +274,7 @@ class Client extends Entity
 		}
 
 		if ($person->business_number) {
-			if ($person->country === 'FR') {
+			if ($country === 'FR') {
 				$siren = substr($person->business_number, 0, 9);
 
 				// Always the SIREN by default
@@ -280,12 +294,12 @@ class Client extends Entity
 					$identifier->value = $person->business_number;
 				}
 			}
-			elseif ($person->country === 'CH') {
+			elseif ($country === 'CH') {
 				// Numéro IDE
 				$default->scheme = '0183';
 				$default->value = $person->business_number;
 			}
-			elseif ($person->country === 'BE') {
+			elseif ($country === 'BE') {
 				// Numéro BCE
 				$default->scheme = '0208';
 				$default->value = $person->business_number;
@@ -308,7 +322,7 @@ class Client extends Entity
 			'electronic_address' => $electronic_address,
 			'name' => $person->name,
 			'postal_address' => (object) [
-				'country_code' => $person->country,
+				'country_code' => $country,
 				'address_line1' => $lines[0] ?? '',
 				'address_line2' => $lines[1] ?? '',
 				'address_line3' => implode("\n", array_slice($lines, 2)),
