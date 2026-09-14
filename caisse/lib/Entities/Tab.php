@@ -11,6 +11,7 @@ use Paheko\Plugin\Caisse\POS;
 use Paheko\Plugin\Caisse\Products;
 use Paheko\Plugin\Caisse\Tabs;
 use Paheko\Plugin\Caisse\Sessions;
+use Paheko\Users\Users;
 use Paheko\Entity;
 use Paheko\Utils;
 use Paheko\ValidationException;
@@ -463,6 +464,23 @@ class Tab extends Entity
 		}
 
 		$new_name = trim($new_name);
+
+		if (ctype_digit($new_name)) {
+			$user_id = Users::getIdFromNumber($new_name);
+
+			if (!$user_id) {
+				throw new UserException('Impossible de trouver un membre avec ce numéro : ' . $new_name);
+			}
+		}
+
+		if (null !== $user_id) {
+			$new_name = Users::getName($user_id);
+
+			if (null === $new_name) {
+				throw new UserException('Membre introuvable');
+			}
+		}
+
 		$db = DB::getInstance();
 		return $db->update(POS::tbl('tabs'), ['name' => $new_name, 'user_id' => $user_id], $db->where('id', $this->id));
 	}
