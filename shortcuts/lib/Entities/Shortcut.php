@@ -36,10 +36,7 @@ class Shortcut extends Entity
 		$this->assert(strlen($this->url), 'L\'adresse URL doit être renseigné');
 		$this->assert(strlen($this->url) <= 1000, 'L\'adresse URL doit faire moins de 1000 caractères');
 
-		$this->assert(filter_var($this->url, FILTER_VALIDATE_URL), 'L\'adresse URL indiquée est invalide');
-
-		$scheme = parse_url($this->url, PHP_URL_SCHEME);
-		$this->assert($scheme === 'http' || $scheme === 'https', 'L\'adresse URL indiquée est invalide');
+		$this->assert(Utils::isValidURL($this->url), 'L\'adresse URL indiquée est invalide');
 
 		if ($this->isModified('iframe') && $this->iframe) {
 			$this->assert($this->canUseIframe(), 'L\'adresse URL indiquée n\'autorise pas son utilisation dans un cadre intégré');
@@ -167,7 +164,7 @@ class Shortcut extends Entity
 
 	public function canUseIframe(): bool
 	{
-		Utils::validateURL($this->url);
+		Utils::validateExternalURL($this->url);
 
 		$http = new HTTP;
 		$r = $http->request('HEAD', $this->url);
