@@ -4,6 +4,7 @@ namespace Paheko;
 
 use Paheko\Plugin\Caisse\POS;
 use Paheko\Users\DynamicFields;
+use Paheko\Users\Users;
 
 $db = DB::getInstance();
 
@@ -168,4 +169,26 @@ if (version_compare($old_version, '0.8.12', '<')) {
 	$db->beginSchemaUpdate();
 	$db->exec(POS::sql(file_get_contents(__DIR__ . '/update_0.8.12.sql')));
 	$db->commitSchemaUpdate();
+}
+
+if (version_compare($old_version, '0.8.13', '<')) {
+	$db->begin();
+
+	// Replace name values where it was user number instead of user name
+	foreach ($db->iterate('SELECT name, id FROM plugin_pos_tabs WHERE name IS NOT NULL AND NOT name GLOB \'*[^0-9]*\';') as $row) {
+		if (!preg_match('/^\d+$/', trim($row->name))) {
+			continue;
+		}
+
+		$id_user = Users::getIdFromNumber(trim($row->name));
+		if (!$id_user) {
+			continue;
+		}
+
+		$name = Users::getName($id_user);
+
+		$db->update('plugin_pos_tabs', ['user_id' => $id_user, 'name' => $name], 'id = ' . (int)$row->id);
+	}
+
+	$db->commit();
 }
