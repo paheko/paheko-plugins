@@ -167,6 +167,8 @@ class Shortcut extends Entity
 
 	public function canUseIframe(): bool
 	{
+		Utils::validateURL($this->url);
+
 		$http = new HTTP;
 		$r = $http->request('HEAD', $this->url);
 
