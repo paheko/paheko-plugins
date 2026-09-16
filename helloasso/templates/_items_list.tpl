@@ -41,7 +41,7 @@
 			{if $list->hasColumn('id_subscription')}
 				<td>
 					{if $row.id_subscription}
-						{icon shape="check"} Inscrit
+						{tag label="Inscrit" status="green" shape="check"}
 					{/if}
 				</td>
 			{/if}
