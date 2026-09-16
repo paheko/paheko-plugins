@@ -61,6 +61,9 @@
 				{csrf_field key=$csrf_key}
 				{button shape="plus" label="Créer l'écriture comptable" name="create_transaction" value=1 type="submit"}
 			</p>
+			<p>
+				{linkbutton href="order_link_transaction.php?id=%d"|args:$order.id shape="link" label="Lier à une écriture existante" target="_dialog"}
+			</p>
 			</form>
 		{/if}
 	</article>
