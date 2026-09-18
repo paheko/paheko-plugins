@@ -86,7 +86,7 @@ $form->runIf('save', function () use ($entry, $session) {
 		&& $session->canAccess($session::SECTION_USERS, $session::ACCESS_WRITE)) {
 		$users = Form::getPostArray('users');
 
-		if (!$entry->user_id && count($users)) {
+		if ($entry->user_id && is_array($users)) {
 			foreach ($users as $id => $name) {
 				$entry = clone $entry;
 				$entry->set('user_id', $id);
@@ -98,6 +98,10 @@ $form->runIf('save', function () use ($entry, $session) {
 		else {
 			// User is NULL
 			$entry->save();
+
+			if (!$entry->user_id) {
+				Utils::redirect('!p/taima/all.php');
+			}
 		}
 	}
 	else {
