@@ -51,7 +51,7 @@
 			<td>{$task.date|taima_date:'d MMMM yyyy'}</td>
 			<td>{$task.duration|taima_minutes}</td>
 			<td class="actions">
-				{linkbutton href="edit.php?from=%d"|args:$task.id label="Dupliquer" shape="plus" target="_dialog"}
+				{linkbutton href="edit.php?copy=%d"|args:$task.id label="Dupliquer" shape="plus" target="_dialog"}
 				{linkbutton href="edit.php?id=%d"|args:$task.id label="Modifier" shape="edit" target="_dialog"}
 				{linkbutton href="delete.php?id=%d"|args:$task.id label="Supprimer" shape="delete" target="_dialog"}
 			</td>

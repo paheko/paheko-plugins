@@ -34,10 +34,6 @@ class Entry extends Entity
 	{
 		$source ??= $_POST;
 
-		if (isset($source['user'])) {
-			$source['user_id'] = Form::getSelectorValue($source['user']);
-		}
-
 		if (isset($source['date'])) {
 			$this->setDateString($source['date']);
 			unset($source['date']);

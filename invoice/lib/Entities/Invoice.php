@@ -126,6 +126,15 @@ class Invoice extends AbstractInvoice
 		self::STATUS_ACCEPTED => 'green',
 	];
 
+	// Invoice state life: draft, awaiting_send, awaiting_payment / cancelled, paid
+	const STATUSES_INVOICE = [
+		self::STATUS_DRAFT => 'Brouillon',
+		self::STATUS_AWAITING_SEND => 'À envoyer',
+		self::STATUS_AWAITING_PAYMENT => 'En attente de paiement',
+		self::STATUS_PAID => 'Payée',
+		self::STATUS_CANCELLED => 'Annulée',
+	];
+
 	const STATUSES = [
 		// Quote state life: draft, awaiting_send, awaiting_validation, then 'accepted' or 'cancelled'
 		self::TYPE_QUOTE => [
@@ -135,14 +144,8 @@ class Invoice extends AbstractInvoice
 			self::STATUS_CANCELLED => 'Annulé',
 			self::STATUS_ACCEPTED => 'Accepté',
 		],
-		// Invoice state life: draft, awaiting_send, awaiting_payment / cancelled, paid
-		self::TYPE_INVOICE => [
-			self::STATUS_DRAFT => 'Brouillon',
-			self::STATUS_AWAITING_SEND => 'À envoyer',
-			self::STATUS_AWAITING_PAYMENT => 'En attente de paiement',
-			self::STATUS_PAID => 'Payée',
-			self::STATUS_CANCELLED => 'Annulée',
-		],
+		self::TYPE_INVOICE => self::STATUSES_INVOICE,
+		self::TYPE_SELF_BILLING => self::STATUSES_INVOICE,
 		// Credit (avoir) state life: draft, awaiting_send, awaiting_refund, refunded / cancelled
 		self::TYPE_CREDIT => [
 			self::STATUS_DRAFT => 'Brouillon',

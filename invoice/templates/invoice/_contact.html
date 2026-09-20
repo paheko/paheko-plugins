@@ -1,6 +1,6 @@
 <h1>{$contact.name}</h1>
 
-{if $contact.legal_registration_identifier.value || $contact.vat_identifier}
+{if $contact.legal_registration_identifier.value || $contact.vat_identifier || $contact.identifiers.items}
 	<ul class="identifiers">
 		{if $contact.legal_registration_identifier.value}
 			<li>

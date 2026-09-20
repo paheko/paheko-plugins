@@ -12,7 +12,21 @@ $csrf_key = 'hello_config_acc';
 $ha = HelloAsso::getInstance();
 
 $form->runIf('save', function () use ($ha) {
-	$ha->saveConfig($_POST ?? []);
+	$data = [
+		'bank_account_code' => null,
+		'provider_account_code' => null,
+		'donation_account_code' => null,
+		'payment_account_code' => null,
+	];
+
+	if (!empty($_POST['enabled'])) {
+		foreach ($data as $key => &$value) {
+			$value = $_POST[$key] ?? null;
+		}
+		unset($value);
+	}
+
+	$ha->saveConfig($data);
 }, $csrf_key, './config.php?msg=SAVED');
 
 $plugin_config = $ha->getConfig();

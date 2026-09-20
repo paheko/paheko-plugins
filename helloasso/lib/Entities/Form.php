@@ -50,10 +50,10 @@ class Form extends Entity
 	];
 
 	const STATES_COLORS = [
-		'Draft'    => 'darkgray',
-		'Public'   => 'darkgreen',
-		'Private'  => 'darkred',
-		'Disabled' => 'black',
+		'Draft'    => 'greyblue',
+		'Public'   => 'green',
+		'Private'  => 'orange',
+		'Disabled' => 'grey',
 	];
 
 	public function listTiers(): array

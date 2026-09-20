@@ -26,7 +26,7 @@
 			<td>{$item.org_name}</td>
 			<th><a href="orders.php?id={$item.id}">{$item.name}</a></th>
 			<td>{$item.type_label}</td>
-			<td>{tag color=$item.state_color label=$item.state_label}</td>
+			<td>{tag status=$item.state_color label=$item.state_label}</td>
 			<td>{$item.year_label}</td>
 			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
 			<td class="actions">

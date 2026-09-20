@@ -193,6 +193,10 @@ class HelloAsso
 		];
 
 		foreach ($properties as $name => $type) {
+			if (!array_key_exists($name, $data)) {
+				continue;
+			}
+
 			$value = $data[$name] ?? null;
 
 			if ($type === 'string') {
@@ -207,7 +211,7 @@ class HelloAsso
 				$value = (int) $value;
 			}
 
-			if (gettype($value) !== $type) {
+			if (null !== $value && gettype($value) !== $type) {
 				continue;
 			}
 

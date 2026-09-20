@@ -53,6 +53,9 @@ p {
 	<h1>Caisse — Reçu n°{{$tab.id}}</h1>
 	<h2>{{$name}}</h2>
 	<h4>Date : {{$tab.opened|date_short:true}}</h4>
+	{{if $has_credit_methods}}
+		<p>Le solde de votre porte-monnaie au {{$now|date_short}} est de {{$user_credit|raw|money_currency_html:false}}</
+	{{/if}}
 </section>
 
 <section class="items">

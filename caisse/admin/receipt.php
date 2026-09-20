@@ -2,6 +2,7 @@
 
 namespace Paheko;
 
+use Paheko\Plugin\Caisse\Methods;
 use Paheko\Plugin\Caisse\Tabs;
 
 use Paheko\Email\Emails;
@@ -22,10 +23,13 @@ function get_receipt($tab)
 	$payments = $tab->listPayments();
 	$remainder = $tab->getRemainder();
 
+	$has_credit_methods = Methods::hasCreditMethods();
+	$user_credit = $has_credit_methods ? $tab->getUserCredit() : null;
+
 	$tpl = new UserTemplate;
 	$tpl->setSourcePath(PLUGIN_ROOT . '/templates/invoice.skel');
 
-	$tpl->assignArray(compact('items', 'payments', 'tab', 'remainder'));
+	$tpl->assignArray(compact('items', 'payments', 'tab', 'remainder', 'has_credit_methods', 'user_credit'));
 	return $tpl;
 }
 
