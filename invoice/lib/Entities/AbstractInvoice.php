@@ -231,7 +231,19 @@ abstract class AbstractInvoice extends Entity
 				escapeshellarg($tmp_pdf_file)
 			);
 
-			return Exec::quick($cmd, 5);
+			$exec->setCommand($cmd);
+
+			if ($code = $exec->run()) {
+				$out = $exec->getStderr() . "\n" . $exec->getStdout();
+
+				if ($pos = strpos($out, '%PDF')) {
+					$out = substr($out, 0, $pos);
+				}
+
+				throw new \RuntimeException(sprintf("Error running PDF command (code %d): %s\n%s", $code, $exec->getCommand(), $out));
+			}
+
+			return $exec->getStdout();
 		}
 		finally {
 			if (isset($tmp_pdf_file)) {
