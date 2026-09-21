@@ -22,6 +22,8 @@
 * Validation des factures générées
 * Envoi de facture
 * Envoyer l'événement 212 "encaissée" avec le montant à l'enregistrement d'un paiement
+* Gérer événements, notamment :
+	* facture refusée : la passer en annulée : https://www.dolibarr.fr/forum/t/module-officiel-e-invoicing-ex-pdpconnectfr-facture-electronique-update-v-1-2-0/51552/246?u=bohwaz
 
 # Création d'écriture de facture
 
