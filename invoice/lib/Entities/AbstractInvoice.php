@@ -189,6 +189,7 @@ abstract class AbstractInvoice extends Entity
 			$exec->setCommand($cmd);
 			$exec->addParams([
 				'- -', // read from STDIN, write to STDOUT
+				'--encoding utf-8',
 				sprintf('--attachment=%s', escapeshellarg($tmp_xml_file)),
 				'--attachment-relationship=Data',
 				sprintf('--xmp-metadata=%s', escapeshellarg($xmp_path)),
