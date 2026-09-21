@@ -46,7 +46,7 @@
 	</ul>
 
 	<p class="actions">
-		{linkbutton label="Nouvelle tâche" shape="plus" href="edit.php?date=%s"|args:$day_date target="_dialog"}
+		{linkbutton label="Nouvelle tâche" shape="plus" href="edit_me.php?date=%s"|args:$day_date target="_dialog"}
 	</p>
 
 
@@ -77,7 +77,7 @@
 						{/if}
 						{if !$entry.timer_started}
 						<span>
-							{linkbutton label="Modifier" title="Modifier" shape="edit" href="edit.php?date=%s&id=%d"|args:$entry.date:$entry.id target="_dialog"}
+							{linkbutton label="Modifier" title="Modifier" shape="edit" href="edit_me.php?date=%s&id=%d"|args:$entry.date:$entry.id target="_dialog"}
 							{linkbutton label="Supprimer" title="Supprimer" shape="delete" href="delete.php?id=%d"|args:$entry.id target="_dialog"}
 						</span>
 						{/if}
