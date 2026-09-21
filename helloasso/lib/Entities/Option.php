@@ -18,6 +18,7 @@ class Option extends Entity
 	protected ?int $amount;
 
 	protected ?string $account_code = null;
+	protected ?int $id_project = null;
 
 	protected ?Form $_form = null;
 

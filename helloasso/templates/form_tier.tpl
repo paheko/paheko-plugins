@@ -10,6 +10,9 @@
 		<dl>
 			{input type="list" target="!acc/charts/accounts/selector.php?types=6&key=code" name="account_code" label="Compte de recette" default=$account can_delete=true}
 			<dd class="help">Laisser vide pour utiliser le compte défini pour la campagne.</dd>
+			{if count($projects)}
+				{input type="select" required=false default_empty="— Projet —" options=$projects source=$tier name="id_project" label="Projet analytique" help="Laisser vide pour utiliser le projet défini pour la campagne."}
+			{/if}
 		</dl>
 	</fieldset>
 

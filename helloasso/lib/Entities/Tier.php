@@ -27,6 +27,7 @@ class Tier extends Entity
 	protected ?array $fields_map = null;
 
 	protected int $create_user = HelloAsso::NO_USER_ACTION;
+	protected ?int $id_project = null;
 
 	const TYPES = Item::TYPES;
 	const TYPES_ACCOUNTS = Item::TYPES_ACCOUNTS;

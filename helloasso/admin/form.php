@@ -4,6 +4,7 @@ namespace Paheko;
 
 use Paheko\Plugin\HelloAsso\HelloAsso;
 use Paheko\Plugin\HelloAsso\Forms;
+use Paheko\Accounting\Projects;
 use Paheko\Accounting\Years;
 
 $session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
@@ -29,7 +30,8 @@ $options = $f->listOptions();
 
 $ha = HelloAsso::getInstance();
 $plugin_config = $ha->getConfig();
+$projects = Projects::listAssoc();
 
-$tpl->assign(compact('tiers', 'csrf_key', 'years_assoc', 'f', 'payment_account', 'tiers', 'options', 'plugin_config', 'ha'));
+$tpl->assign(compact('tiers', 'csrf_key', 'years_assoc', 'f', 'payment_account', 'tiers', 'options', 'plugin_config', 'ha', 'projects'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/form.tpl');

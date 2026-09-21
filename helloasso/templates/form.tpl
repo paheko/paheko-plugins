@@ -86,6 +86,9 @@
 			{input type="select" options=$years_assoc name="id_year" source=$f required=false label="Exercice comptable" default_empty="— Ne pas synchroniser —"}
 			<dd class="help">Si un exercice est sélectionné, les commandes passées avec cette campagne et ayant été payées seront transformées en écritures comptables selon la configuration des tarifs et options.</dd>
 			{input type="list" target="!acc/charts/accounts/selector.php?types=6&key=code" name="payment_account_code" label="Compte de recette par défaut" default=$payment_account help="Ce compte sera utilisé seulement si un tarif ou une option n'a pas de compte de recette." can_delete=true}
+			{if count($projects)}
+				{input type="select" required=false default_empty="— Aucun —" options=$projects source=$f name="id_project" label="Projet analytique"}
+			{/if}
 		</dl>
 	</fieldset>
 

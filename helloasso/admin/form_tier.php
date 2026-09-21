@@ -3,8 +3,9 @@
 namespace Paheko;
 
 use Paheko\Plugin\HelloAsso\Forms;
-use Paheko\Users\DynamicFields;
+use Paheko\Accounting\Projects;
 use Paheko\Services\Services;
+use Paheko\Users\DynamicFields;
 
 $session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
 
@@ -31,6 +32,8 @@ $fees = Services::listGroupedWithFeesForSelect(false);
 
 $account = $tier->account_code ? [$tier->account_code => $tier->account_code] : null;
 
-$tpl->assign(compact('tier', 'csrf_key', 'f', 'ha_fields', 'fields_assoc', 'account', 'fees'));
+$projects = Projects::listAssoc();
+
+$tpl->assign(compact('tier', 'csrf_key', 'f', 'ha_fields', 'fields_assoc', 'account', 'fees', 'projects'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/form_tier.tpl');
