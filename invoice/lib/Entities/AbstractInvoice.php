@@ -85,22 +85,16 @@ abstract class AbstractInvoice extends Entity
 
 		$export = $this->getExport();
 
-		// Special rules for Chorus Pro
+		// Special rules for Chorus Pro portal
 		if ($format === 'cii' && $parent_format === 'choruspro') {
-			$buyer_id = $export->buyer->legal_registration_identifier->value;
-			$seller_id = $export->seller->legal_registration_identifier->value;
-
-			if (!$buyer_id || strlen($buyer_id) !== 14) {
-				throw new UserException('Format Chorus Pro : merci de renseigner le numéro SIRET du client.');
-			}
-
-			if (!$seller_id || strlen($seller_id) !== 14) {
-				throw new UserException('Format Chorus Pro : merci de renseigner le numéro SIRET de votre organisation.');
-			}
+			// Force SIRET number in SIREN field (yes…)
+			$export->buyer->legal_registration_identifier->value = $export->buyer->identifiers->items[0]->value;
+			$export->seller->legal_registration_identifier->value = $export->seller->identifiers->items[0]->value;
 
 			// A1 = Dépôt par un fournisseur d'une facture
 			// as Chorus Pro doesn't support S1/M1/B1
-			$export->process_control->business_process_type = self::OPERATION_TYPE_CHORUS_PRO;
+			// see https://cloud.tempolia.fr/faq/34-gerer-rejets-chorus-pro.html
+			$export->process_control->business_process_type = 'A1';
 		}
 
 		$tpl->assign('invoice', $export);
@@ -148,12 +142,19 @@ abstract class AbstractInvoice extends Entity
 	public function getFilename(string $format): string
 	{
 		$extension = match($format) {
-			'facturx' => 'pdf',
-			'html'    => 'html',
-			default   => 'xml',
+			'facturx'   => 'pdf',
+			'choruspro' => 'pdf',
+			'html'      => 'html',
+			default     => 'xml',
 		};
 
-		return ($this->getReference() ?? 'Brouillon') . '.' . $extension;
+		$name = $this->getReference() ?? 'Brouillon';
+
+		if ($format === 'choruspro') {
+			$name .= '-Chorus_Pro';
+		}
+
+		return $name . '.' . $extension;
 	}
 
 	/**
@@ -190,6 +191,7 @@ abstract class AbstractInvoice extends Entity
 		$cmd = Utils::getPDFCommand();
 		$exec = new Exec;
 		$exec->addBind($xmp_path);
+		$exec->addBind($tmp_xml_file);
 
 		// Prince can directly create a valid Factur-X PDF using STDIN/STDOUT,
 		// without temporary files for HTML and PDF, much better
@@ -236,9 +238,9 @@ abstract class AbstractInvoice extends Entity
 			// If Prince is not available, use ghostscript
 			$tmp_pdf_file = Utils::filePDF($html);
 
-			$cmd = sprintf('gs --permit-file-read=%s'
+			$cmd = sprintf('gs -q --permit-file-read=%s'
 				. ' -sDEVICE=pdfwrite'
-				. ' -dPDFA=3'
+				. ' -dPDFA=3 -dNOSAFER'
 				. ' -sColorConversionStrategy=RGB'
 				. ' -sZUGFeRDXMLFile=%s'
 				. ' -sZUGFeRDProfile=%s'
@@ -249,10 +251,16 @@ abstract class AbstractInvoice extends Entity
 				escapeshellarg($root . ':' . STATIC_CACHE_ROOT),
 				escapeshellarg($tmp_xml_file),
 				escapeshellarg($root . '/factur-x/rgb.icc'),
-				escapeshellarg($path ?? '-'),
+				escapeshellarg('-'),
 				escapeshellarg($root . '/factur-x/zugferd.ps'),
 				escapeshellarg($tmp_pdf_file)
 			);
+
+			$exec->addBind($root . '/factur-x/zugferd.ps');
+			$exec->addBind($root . '/factur-x/rgb.icc');
+			$exec->addBind($tmp_pdf_file);
+			$exec->addBind('/etc/ghostscript');
+			$exec->addBind('/var/lib/ghostscript');
 
 			$exec->setCommand($cmd);
 
