@@ -28,6 +28,10 @@ elseif (isset($_GET['print'])) {
 	$invoice->streamAs('html');
 	return;
 }
+elseif (isset($_GET['validate'])) {
+	$invoice->validateWithSchematron();
+	return;
+}
 
 $title = sprintf('%s %s', $invoice->getTypeLabel(), $invoice->getReference() ?? '(brouillon)');
 $csrf_key = 'edit_invoice_details';

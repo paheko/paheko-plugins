@@ -83,6 +83,25 @@ Voir aussi : https://www.compta-online.com/facturation-electronique-et-secret-pr
 
 <https://www.dolibarr.fr/forum/t/super-pdp-les-factures-b2bint-ne-supportent-que-le-statut-fr-212/51860/49>
 
+# Mode développeur
+
+Pour aider au développement il est possible de configurer quelques constantes dans config.local.php :
+
+```
+define('Paheko\Plugin\Invoice\DEV_MODE', true);
+define('Paheko\Plugin\Invoice\CII_VALIDATOR_COMMAND', '/home/bohwaz/git/paheko/facturation_electronique/validate-cii.py --strict %s');
+```
+
+Cela rajoute un bouton "Validateur CII" sur la page des factures, afin d'exécuter le script de validation avec les schematrons.
+
+# PDF tips
+
+Pour décoder les éléments compressés d'un PDF (permet de lire le XML) :
+
+```
+qpdf --qdf --object-streams=disable facture.pdf decoded.pdf
+```
+
 # Configuration globale de SuperPDP
 
 Il est possible d'avoir un compte SuperPDP qui gérera la facturation de toutes les associations (en mode usine/factory).

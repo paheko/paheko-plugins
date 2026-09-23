@@ -7,6 +7,9 @@
 		{if $invoice->type !== $invoice::TYPE_CREDIT}
 			{linkbutton shape="plus" label="Dupliquer" href="duplicate.php?id=%d"|args:$invoice.id}
 		{/if}
+		{if $dev_mode}
+			{linkbutton shape="check" label="Validateur CII" href="?id=%d&validate"|args:$invoice.id target="_dialog"}
+		{/if}
 		{if $invoice->isDraft()}
 			{linkbutton shape="delete" label="Supprimer" href="delete.php?id=%d"|args:$invoice.id target="_dialog"}
 			{linkbutton shape="edit" label="Modifier" href="edit.php?id=%d"|args:$invoice.id target="_dialog"}
@@ -16,9 +19,7 @@
 			{else}
 				{linkmenu shape="download" label="Télécharger…" right=true}
 					{linkbutton shape="pdf" label="Format PDF (Factur-X)" href="?id=%d&download"|args:$invoice.id}
-					{if $invoice.buyer_ref}
-						{linkbutton shape="download" label="Format Chorus Pro" href="?id=%d&download=choruspro"|args:$invoice.id}
-					{/if}
+					{linkbutton shape="download" label="Format Chorus Pro" href="?id=%d&download=choruspro"|args:$invoice.id}
 					{linkbutton shape="code" label="Format CII (XML)" href="?id=%d&download=cii"|args:$invoice.id}
 				{/linkmenu}
 			{/if}
