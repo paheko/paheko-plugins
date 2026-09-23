@@ -7,9 +7,7 @@ use KD2\Form;
 
 use const Paheko\PLUGIN_ROOT;
 
-if ($plugin->needUpgrade()) {
-	$plugin->upgrade();
-}
+require __DIR__ . '/_inc.php';
 
 $type = Form::getQueryInt('type');
 $status = Form::getQueryString('status') ?: null;

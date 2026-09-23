@@ -12,4 +12,6 @@ use const Paheko\PLUGIN_ROOT;
 
 Session::getInstance()->requireAccess(Session::SECTION_ACCOUNTING, Session::ACCESS_WRITE);
 
+require __DIR__ . '/../_inc.php';
+
 $tpl->display(PLUGIN_ROOT . '/templates/clients/from_user.tpl');

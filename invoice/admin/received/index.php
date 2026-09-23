@@ -8,6 +8,8 @@ use KD2\Form;
 
 use const Paheko\PLUGIN_ROOT;
 
+require __DIR__ . '/../_inc.php';
+
 $status = Form::getQueryString('status') ?: null;
 $type = null;
 

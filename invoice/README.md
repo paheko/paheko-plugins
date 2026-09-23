@@ -102,6 +102,14 @@ Pour décoder les éléments compressés d'un PDF (permet de lire le XML) :
 qpdf --qdf --object-streams=disable facture.pdf decoded.pdf
 ```
 
+# Chorus Pro
+
+Le portail Chorus Pro demande de mettre A1 dans le champ `business_process_type`.
+
+Il demande aussi de mettre le numéro SIRET dans les champs destinés au SIREN…
+
+On peut valider un Factur-X Chorus Pro ici : https://choruspay.fr/facturx/valider
+
 # Configuration globale de SuperPDP
 
 Il est possible d'avoir un compte SuperPDP qui gérera la facturation de toutes les associations (en mode usine/factory).

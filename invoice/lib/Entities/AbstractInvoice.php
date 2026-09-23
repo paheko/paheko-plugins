@@ -91,6 +91,10 @@ abstract class AbstractInvoice extends Entity
 			$export->buyer->legal_registration_identifier->value = $export->buyer->identifiers->items[0]->value;
 			$export->seller->legal_registration_identifier->value = $export->seller->identifiers->items[0]->value;
 
+			if (strlen($export->seller->legal_registration_identifier->value) !== 14) {
+				throw new UserException("Chorus Pro exige le SIRET du fournisseur, mais vous n'avez indiqué que le SIREN.\nMerci d'indiquer le SIRET dans la configuration générale et de re-créer une facture.");
+			}
+
 			// A1 = Dépôt par un fournisseur d'une facture
 			// as Chorus Pro doesn't support S1/M1/B1
 			// see https://cloud.tempolia.fr/faq/34-gerer-rejets-chorus-pro.html

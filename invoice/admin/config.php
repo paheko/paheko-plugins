@@ -10,6 +10,8 @@ require __DIR__ . '/_inc.php';
 
 Session::getInstance()->requireAccess(Session::SECTION_CONFIG, Session::ACCESS_ADMIN);
 
+require __DIR__ . '/_inc.php';
+
 $csrf_key = 'invoice_config';
 
 $form->runIf('save', function () use ($plugin) {

@@ -6,6 +6,8 @@ use Paheko\Plugin\Invoice\Entities\Invoice;
 
 use const Paheko\PLUGIN_ROOT;
 
+require __DIR__ . '/../_inc.php';
+
 $search = trim($_GET['search'] ?? '');
 
 $list = Clients::getList(false, $search);

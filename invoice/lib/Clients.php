@@ -19,12 +19,6 @@ class Clients
 
 		$number = $config->org_business_number ?? '';
 
-		if ($config->country === 'FR') {
-			// SIREN is mandatory in Factur-X
-			// BR-FR-10/BT-30 : Le SIREN du vendeur (ram:ID) est obligatoire et doit être composé exactement de 9 chiffres
-			$number = substr($number, 0, 9);
-		}
-
 		$person = (object) [
 			'name'            => $config->org_name,
 			'country'         => $config->country,

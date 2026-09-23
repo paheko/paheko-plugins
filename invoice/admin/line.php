@@ -14,6 +14,8 @@ require __DIR__ . '/_inc.php';
 
 Session::getInstance()->requireAccess(Session::SECTION_ACCOUNTING, Session::ACCESS_WRITE);
 
+require __DIR__ . '/_inc.php';
+
 if (isset($_GET['id'])) {
 	$line = Invoices::getLine(intval($_GET['id'] ?? 0));
 

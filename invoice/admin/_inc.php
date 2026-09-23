@@ -7,6 +7,10 @@ use Paheko\Template;
 use Paheko\Plugin\Invoice\Entities\Client;
 use Paheko\Plugin\Invoice\Entities\Line;
 
+if ($plugin->needUpgrade()) {
+	$plugin->upgrade();
+}
+
 $tpl = Template::getInstance();
 
 $plugin_config = $plugin->getConfig() ?? (object) [

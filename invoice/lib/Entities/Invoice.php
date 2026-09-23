@@ -22,6 +22,8 @@ use stdClass;
 use Paheko\Plugin\Invoice\Clients;
 use Paheko\Plugin\Invoice\Invoices;
 
+use const Paheko\{CACHE_ROOT};
+
 class Invoice extends AbstractInvoice
 {
 	const TABLE = 'plugin_invoice_invoices';
@@ -99,13 +101,6 @@ class Invoice extends AbstractInvoice
 		'B1' => 'Livraisons de biens',
 		'S1' => 'Prestations de service',
 	];
-
-	/**
-	 * When manually uploading an invoice on Chorus Pro portal,
-	 * it requires A1 instead of other valid operation types
-	 * @see https://cloud.tempolia.fr/faq/34-gerer-rejets-chorus-pro.html
-	 */
-	const OPERATION_TYPE_CHORUS_PRO = 'A1';
 
 	/**
 	 * Quote state life: draft, awaiting_send, awaiting_validation, then 'accepted' or 'cancelled'
@@ -197,6 +192,8 @@ class Invoice extends AbstractInvoice
 			$this->assert($this->invoice()->type !== self::TYPE_SELF_BILLING, 'Impossible de créer un avoir pour une autofacturation');
 			$this->assert($this->invoice()->type === self::TYPE_INVOICE);
 		}
+
+		$this->assert(!isset($this->purchase_order_reference) || strlen($this->purchase_order_reference) <= 50, 'Le numéro de bon de commande ne peut faire plus de 50 caractères');
 	}
 
 	public function delete(): bool
@@ -377,7 +374,8 @@ class Invoice extends AbstractInvoice
 			$this->assert(!empty($config->org_city), 'La ville de votre organisation n\'est pas renseignée.');
 
 			if ($this->client()->requiresEInvoicing()) {
-				$this->assert(!empty($config->org_business_number), 'Votre organisation n\'a indiqué aucun numéro d\'entreprise (SIREN) dans la configuration générale.');
+				$this->assert(!empty($config->org_business_number), 'Votre organisation n\'a indiqué aucun numéro d\'entreprise (SIRET) dans la configuration générale.');
+				$this->assert(strlen($config->org_business_number) === 14, 'Merci d\'indiquer le numéro de SIRET dans la configuration générale, sans ça les factures Chorus Pro ne pourront pas fonctionner.');
 			}
 
 			if ($db->test(Line::TABLE, 'id_invoice = ? AND vat_code = ?', $this->id(), Line::VAT_EXEMPTION_CODE)) {
@@ -563,6 +561,9 @@ class Invoice extends AbstractInvoice
 	public function importForm(?array $source = null)
 	{
 		$source ??= $_POST;
+
+		// Don't allow user to set some properties
+		unset($source['provider_name'], $source['provider_id'], $source['date_sent'], $source['status'], $source['content']);
 
 		if (isset($source['client']) && is_array($source['client'])) {
 			$source['id_client'] = (int) key($source['client']);
@@ -840,4 +841,27 @@ class Invoice extends AbstractInvoice
 		return Invoices::VAT_EXEMPTIONS;
 	}
 
+	public function validateWithSchematron(): void
+	{
+		$const = 'Paheko\Plugin\Invoice\CII_VALIDATOR_COMMAND';
+
+		if (!defined($const)) {
+			return;
+		}
+
+		$cmd = constant($const);
+
+		if (!$cmd) {
+			return;
+		}
+
+		$tmp = tempnam(CACHE_ROOT, 'cii-');
+		file_put_contents($tmp, parent::exportAs('cii'));
+		header('Content-Type: text/plain');
+		$cmd = sprintf($cmd . ' 2>&1', $tmp);
+		echo "$cmd\n-----\n";
+		flush();
+		passthru($cmd);
+		@unlink($tmp);
+	}
 }

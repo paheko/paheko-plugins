@@ -12,6 +12,8 @@ use const Paheko\PLUGIN_ROOT;
 
 Session::getInstance()->requireAccess(Session::SECTION_ACCOUNTING, Session::ACCESS_WRITE);
 
+require __DIR__ . '/../_inc.php';
+
 if (isset($_GET['id'])) {
 	$client = Clients::get((int)$_GET['id']);
 
