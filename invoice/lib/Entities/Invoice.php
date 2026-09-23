@@ -101,6 +101,13 @@ class Invoice extends AbstractInvoice
 	];
 
 	/**
+	 * When manually uploading an invoice on Chorus Pro portal,
+	 * it requires A1 instead of other valid operation types
+	 * @see https://cloud.tempolia.fr/faq/34-gerer-rejets-chorus-pro.html
+	 */
+	const OPERATION_TYPE_CHORUS_PRO = 'A1';
+
+	/**
 	 * Quote state life: draft, awaiting_send, awaiting_validation, then 'accepted' or 'cancelled'
 	 * Invoice: draft, awaiting_send, awaiting_payment, paid
 	 */

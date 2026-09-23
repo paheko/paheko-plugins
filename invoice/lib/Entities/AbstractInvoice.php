@@ -9,6 +9,7 @@ use Paheko\Plugins;
 use Paheko\Static_Cache;
 use Paheko\Template;
 use Paheko\Utils;
+use Paheko\UserException;
 
 use KD2\JSONSchema;
 
@@ -48,15 +49,15 @@ abstract class AbstractInvoice extends Entity
 
 	public function exportAs(string $format, ?string $parent_format = null): string
 	{
-		if ($format === 'facturx') {
+		if ($format === 'facturx' || $format === 'choruspro') {
 			$xml = $this->exportAs('cii', $format);
 			$html = $this->exportAs('html', $format);
 			return $this->createFacturX($xml, $html);
 		}
 
 		$template = match ($format) {
-			'cii' => 'cii.xml',
-			'ubl' => 'ubl.xml',
+			'cii'  => 'cii.xml',
+			'ubl'  => 'ubl.xml',
 			'html' => 'print.html',
 		};
 
@@ -82,7 +83,27 @@ abstract class AbstractInvoice extends Entity
 			}
 		}
 
-		$tpl->assign('invoice', $this->getExport());
+		$export = $this->getExport();
+
+		// Special rules for Chorus Pro
+		if ($format === 'cii' && $parent_format === 'choruspro') {
+			$buyer_id = $export->buyer->legal_registration_identifier->value;
+			$seller_id = $export->seller->legal_registration_identifier->value;
+
+			if (!$buyer_id || strlen($buyer_id) !== 14) {
+				throw new UserException('Format Chorus Pro : merci de renseigner le numéro SIRET du client.');
+			}
+
+			if (!$seller_id || strlen($seller_id) !== 14) {
+				throw new UserException('Format Chorus Pro : merci de renseigner le numéro SIRET de votre organisation.');
+			}
+
+			// A1 = Dépôt par un fournisseur d'une facture
+			// as Chorus Pro doesn't support S1/M1/B1
+			$export->process_control->business_process_type = self::OPERATION_TYPE_CHORUS_PRO;
+		}
+
+		$tpl->assign('invoice', $export);
 
 		if ($format === 'cii') {
 			$tpl->setEscapeType('xml');
@@ -111,11 +132,12 @@ abstract class AbstractInvoice extends Entity
 			default   => 'text/xml',
 		};
 
-		header('Content-Type: ' . $mimetype);
+		$out = $this->exportAs($format);
 
+		header('Content-Type: ' . $mimetype);
 		header(sprintf('Content-Disposition: %s; filename="%s"', $download ? 'attachment' : 'inline', $this->getFilename($format)));
 
-		echo $this->exportAs($format);
+		echo $out;
 	}
 
 	public function downloadAs(string $format): void

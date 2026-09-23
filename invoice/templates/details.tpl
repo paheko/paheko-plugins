@@ -11,7 +11,17 @@
 			{linkbutton shape="delete" label="Supprimer" href="delete.php?id=%d"|args:$invoice.id target="_dialog"}
 			{linkbutton shape="edit" label="Modifier" href="edit.php?id=%d"|args:$invoice.id target="_dialog"}
 		{elseif $facturx_enabled}
-			{linkbutton shape="download" label="Télécharger" href="?id=%d&download"|args:$invoice.id}
+			{if $invoice->isQuote()}
+				{linkbutton shape="pdf" label="Télécharger" href="?id=%d&download"|args:$invoice.id}
+			{else}
+				{linkmenu shape="download" label="Télécharger…" right=true}
+					{linkbutton shape="pdf" label="Format PDF (Factur-X)" href="?id=%d&download"|args:$invoice.id}
+					{if $invoice.buyer_ref}
+						{linkbutton shape="download" label="Format Chorus Pro" href="?id=%d&download=choruspro"|args:$invoice.id}
+					{/if}
+					{linkbutton shape="code" label="Format CII (XML)" href="?id=%d&download=cii"|args:$invoice.id}
+				{/linkmenu}
+			{/if}
 		{/if}
 	</aside>
 	{/if}

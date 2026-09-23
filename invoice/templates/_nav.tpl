@@ -17,7 +17,7 @@
 				{linkbutton href="upload.php" label="Importer" shape="upload" target="_dialog"}
 			{/if}
 			{if $session->canAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN)}
-				{linkbutton href="config.php" label="Configuration" shape="settings"}
+				{linkbutton href="!p/invoice/config.php" label="Configuration" shape="settings"}
 			{/if}
 		{/if}
 	{/if}

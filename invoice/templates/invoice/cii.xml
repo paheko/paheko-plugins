@@ -154,7 +154,7 @@
 			</ram:SellerTradeParty>
 			<!-- BG-7 - Buyer -->
 			<ram:BuyerTradeParty>
-				{foreach from=$invoice.seller.identifiers.items item="id"}
+				{foreach from=$invoice.buyer.identifiers.items item="id"}
 					<!-- BT-46 buyer identifier -->
 					<ram:GlobalID schemeID="{$id.scheme}">{$id.value}</ram:GlobalID>
 				{/foreach}
