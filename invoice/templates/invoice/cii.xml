@@ -55,9 +55,6 @@
 				<ram:Description>{$line.item_information.description}</ram:Description>
 			</ram:SpecifiedTradeProduct>
 			<ram:SpecifiedLineTradeAgreement>
-				<ram:BuyerOrderReferencedDocument>
-					<ram:LineID>{$line.identifier}</ram:LineID>
-				</ram:BuyerOrderReferencedDocument>
 				<ram:NetPriceProductTradePrice>
 					<ram:ChargeAmount>{$line.price_details.item_net_price}</ram:ChargeAmount><!-- Prix unitaire net (hors taxe) -->
 				</ram:NetPriceProductTradePrice>
