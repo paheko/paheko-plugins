@@ -111,7 +111,8 @@ class Line extends Entity
 		$this->assert(array_key_exists($this->vat_code, self::VAT_CODES));
 
 		$this->assert(preg_match('!^\d+(?:\.\d{1,4})?$!', $this->vat_rate), 'Taux de TVA invalide : ' . $this->vat_rate);
-		$this->assert(preg_match('!^\d+(?:\.\d{1,10})?$!', $this->quantity), 'Quantité invalide : ' . $this->quantity);
+		// BR-FR-DEC-02  Format des quantités numériques (max 19 caractères, 4 décimales, séparateur « . »
+		$this->assert(preg_match('!^\d+(?:\.\d{1,4})?$!', $this->quantity), 'Quantité invalide (max. 4 décimales) : ' . $this->quantity);
 		$this->assert(preg_match('!^\d+(?:\.\d{1,10})?$!', $this->price), 'Prix unitaire invalide : ' . $this->price);
 
 		$this->assert(array_key_exists($this->unit, self::UNITS), 'Unité inconnue : ' . $this->unit);
