@@ -31,6 +31,7 @@ class Form extends Entity
 	protected ?string $payment_account_code;
 
 	protected int $create_payer_user = HelloAsso::NO_USER_ACTION;
+	protected ?int $id_project = null;
 
 	const TYPES = [
 		'CrowdFunding' => 'Crowdfunding',

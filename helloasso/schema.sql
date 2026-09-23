@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms (
 
 	id_year INTEGER NULL REFERENCES acc_years(id) ON DELETE SET NULL,
 	payment_account_code TEXT NULL,
-	create_payer_user INTEGER NOT NULL DEFAULT 0
+	create_payer_user INTEGER NOT NULL DEFAULT 0,
+	id_project INTEGER NULL REFERENCES acc_projects(id) ON DELETE SET NULL
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS plugin_helloasso_forms_key ON plugin_helloasso_forms(org_slug, type, slug);
@@ -38,7 +39,8 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_tiers (
 	-- JSON list of fields for mapping user information
 	fields_map TEXT NULL,
 
-	create_user INTEGER NOT NULL DEFAULT 0
+	create_user INTEGER NOT NULL DEFAULT 0,
+	id_project INTEGER NULL REFERENCES acc_projects(id) ON DELETE SET NULL
 );
 
 CREATE INDEX IF NOT EXISTS plugin_helloasso_tiers_form ON plugin_helloasso_forms_tiers(id_form);
@@ -50,7 +52,9 @@ CREATE TABLE IF NOT EXISTS plugin_helloasso_forms_options (
 	amount INTEGER NULL,
 
 	-- Which account should be used to create the transaction line for this option
-	account_code TEXT NULL
+	account_code TEXT NULL,
+
+	id_project INTEGER NULL REFERENCES acc_projects(id) ON DELETE SET NULL
 );
 
 CREATE INDEX IF NOT EXISTS plugin_helloasso_options_form ON plugin_helloasso_forms_options(id_form);

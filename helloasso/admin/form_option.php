@@ -3,6 +3,7 @@
 namespace Paheko;
 
 use Paheko\Plugin\HelloAsso\Forms;
+use Paheko\Accounting\Projects;
 
 $session->requireAccess($session::SECTION_CONFIG, $session::ACCESS_ADMIN);
 
@@ -22,6 +23,8 @@ $form->runIf('save', function () use ($option) {
 
 $account = $option->account_code ? [$option->account_code => $option->account_code] : null;
 
-$tpl->assign(compact('option', 'csrf_key', 'f', 'account'));
+$projects = Projects::listAssoc();
+
+$tpl->assign(compact('option', 'csrf_key', 'f', 'account', 'projects'));
 
 $tpl->display(PLUGIN_ROOT . '/templates/form_option.tpl');

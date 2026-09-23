@@ -36,3 +36,9 @@ if (version_compare($old_version, '1.0.2', '<')) {
 		}
 	}
 }
+
+if (version_compare($old_version, '1.0.3', '<')) {
+	$db->exec('ALTER TABLE plugin_helloasso_forms_options ADD COLUMN id_project INTEGER NULL REFERENCES acc_projects(id) ON DELETE SET NULL');
+	$db->exec('ALTER TABLE plugin_helloasso_forms_tiers ADD COLUMN id_project INTEGER NULL REFERENCES acc_projects(id) ON DELETE SET NULL');
+	$db->exec('ALTER TABLE plugin_helloasso_forms ADD COLUMN id_project INTEGER NULL REFERENCES acc_projects(id) ON DELETE SET NULL');
+}

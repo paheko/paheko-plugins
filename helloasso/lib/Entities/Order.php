@@ -189,9 +189,11 @@ class Order extends Entity
 		$sum = 0;
 
 		$options_codes = $db->getAssoc('SELECT id, account_code FROM plugin_helloasso_forms_options WHERE id_form = ?;', $form->id());
+		$options_projects = $db->getAssoc('SELECT id, id_project FROM plugin_helloasso_forms_options WHERE id_form = ?;', $form->id());
 
 		// List all items, skip free items
-		$sql = 'SELECT t.account_code, t.label AS tier_label, i.*, COUNT(*) AS payments_count
+		$sql = 'SELECT t.account_code, t.label AS tier_label, t.id_project,
+			i.*, COUNT(*) AS payments_count
 			FROM plugin_helloasso_items i
 			LEFT JOIN plugin_helloasso_forms_tiers t ON t.id = i.id_tier
 			LEFT JOIN plugin_helloasso_payments_items pi ON pi.id_item = i.id
@@ -229,6 +231,7 @@ class Order extends Entity
 			$line->reference = 'I' . $item->id;
 			$line->id_account = $get_account($code);
 			$line->credit = $amount;
+			$line->setProjectId($item->id_project ?? ($form->id_project ?? null));
 			$transaction->addLine($line);
 
 			$sum += $amount;
@@ -270,6 +273,7 @@ class Order extends Entity
 				$line->reference = 'O' . $id;
 				$line->id_account = $get_account($code);
 				$line->credit = $option->amount;
+				$line->setProjectId($options_projects[$id] ?? ($item->id_project ?? ($form->id_project ?? null)));
 				$transaction->addLine($line);
 
 				$sum += $option->amount;
@@ -285,6 +289,7 @@ class Order extends Entity
 			$line->reference = 'P' . $payment->id;
 			$line->id_account = $get_account($config->provider_account_code);
 			$line->debit = $payment->amount;
+			$line->setProjectId($form->id_project ?? null, false);
 			$transaction->addLine($line);
 
 			$sum -= $payment->amount;
