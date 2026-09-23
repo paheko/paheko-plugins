@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS plugin_invoice_clients (
 	e_invoicing INTEGER NOT NULL DEFAULT 0,
 	electronic_address TEXT NULL,
 	self_billing INTEGER NOT NULL DEFAULT 0,
+	chorus_buyer_ref TEXT NULL,
 	created DATETIME NOT NULL CHECK (created = datetime(created)) DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -250,6 +250,13 @@ class Invoice extends AbstractInvoice
 			$this->set('type', self::TYPE_SELF_BILLING);
 		}
 
+		// Set buyer_ref from client
+		if (!$this->exists()
+			&& !$this->buyer_ref
+			&& $this->client()->chorus_buyer_ref) {
+			$this->set('buyer_ref', $this->client()->chorus_buyer_ref);
+		}
+
 		return parent::save($selfcheck);
 	}
 

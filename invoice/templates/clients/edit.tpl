@@ -40,7 +40,7 @@
 		<p class="alert block">Vous ne pouvez pas effectuer de facturation électronique si vous n'avez pas renseigné votre numéro d'entreprise (SIRET en France) dans la {link href="!config/" label="configuration"}.</p>
 	{/if}
 	<dl>
-		{input type="radio-btn" name="e_invoicing" value=0 label="Sans facturation électronique" help="Particuliers, associations non assujetties à la TVA, syndic non professionnel, etc." source=$client}
+		{input type="radio-btn" name="e_invoicing" value=0 label="Sans facturation électronique" help="Particuliers, associations non assujetties à la TVA, syndic non professionnel, dépôt manuel sur Chorus Pro, etc." source=$client}
 		{input type="radio-btn" prefix_label="Facturation électronique" prefix_required=true name="e_invoicing" value=1 label="Activer la facturation électronique" help="Pour les entreprises, auto-entrepreneurs, etc." required=true source=$client disabled=$blocked}
 	</dl>
 </fieldset>
@@ -50,7 +50,8 @@
 	<dl class="country_fr">
 		{input type="text" name="fr_business_number" default=$client.business_number label="Numéro SIRET" required=false}
 		{input type="text" name="fr_vat_number" default=$client.vat_number label="Numéro de TVA intra-communautaire" required=false}
-		{input type="checkbox" name="self_billing" default=$client.self_billing value=1 label="Activer l'auto-facturation" required=false}
+		{input type="text" name="chorus_buyer_ref" source=$client label="Chorus Pro : code service exécutant (champ BT-10) par défaut" required=false help="Sera utilisé dans une facture si aucun autre code service n'a été indiqué."}
+		{input type="checkbox" name="self_billing" source=$client value=1 label="Activer l'auto-facturation" required=false}
 		<dd class="help">
 			En cochant cette case, toutes les factures créées pour ce client seront en auto-facturation par défaut. Il sera toujours possible de modifier une facture pour désactiver l'auto-facturation.
 		</dd>

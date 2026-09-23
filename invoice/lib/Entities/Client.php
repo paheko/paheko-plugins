@@ -40,6 +40,7 @@ class Client extends Entity
 	protected ?string $electronic_address;
 
 	protected bool $self_billing = false;
+	protected ?string $chorus_buyer_ref = null;
 
 	protected DateTime $created;
 
@@ -180,6 +181,10 @@ class Client extends Entity
 
 		if (isset($source['archived_present'])) {
 			$source['archived'] = !empty($source['archived']);
+		}
+
+		if (isset($source['self_billing_present'])) {
+			$source['self_billing'] = !empty($source['self_billing']);
 		}
 
 		$country = $source['country'] ?? $this->country;

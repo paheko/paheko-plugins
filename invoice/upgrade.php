@@ -41,8 +41,11 @@ if (version_compare($old_version, '0.1.5', '<')
 	}
 }
 
-if (version_compare($old_version, '0.2.0', '<')) {
-	$db->exec('CREATE TABLE IF NOT EXISTS plugin_invoice_received (
+if (version_compare($old_version, '0.2.1', '<')) {
+	$db->exec('
+	ALTER TABLE plugin_invoice_clients ADD COLUMN chorus_buyer_ref TEXT NULL;
+
+	CREATE TABLE IF NOT EXISTS plugin_invoice_received (
 		id INTEGER NOT NULL PRIMARY KEY,
 		uuid TEXT NOT NULL,
 		type INTEGER NOT NULL,

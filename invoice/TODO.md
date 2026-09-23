@@ -45,8 +45,8 @@
 * Pouvoir créer un avoir manuellement (dans ce cas il faudra indiquer numéro de l'ancienne facture + date d'émission, obligatoire pour Factur-X)
 
 Se faire référencer ici : https://fnfe-mpe.org/factur-x/qui-propose-factur-x/
+
 # Trucs demandés, à surveiller
 
 * Recevoir une copie du mail envoyant la facture / devis
-* Pouvoir indiquer le code du service exécutant dans le client
 * Pouvoir avoir un "catalogue" de lignes qu'on peut re-ajouter aux nouveaux devis / factures
